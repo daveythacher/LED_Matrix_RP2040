@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+LED_Matrix/build/*
+LED_Matrix/pico_sdk_import.cmake
