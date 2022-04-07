@@ -2,18 +2,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 #include <algorithm>
+#include "pico/multicore.h"
 #include "config.h"
 
-static const int lower = std::min((int) round(log2(MAX_REFRESH / FPS)), PWM_bits);
-static const int upper = PWM_bits - lower;
-static const int offset = std::max(PWM_bits - 4, 0);
-uint16_t table[1 << (PWM_bits + offset)];
-uint16_t index_table[1 << 8];
-static test2 buf[2];
+static uint8_t *index_table[256][6];
 
-static void build_table_pwm(uint16_t *table, uint8_t lower, uint8_t upper) {
-    assert(upper != 0);     // This is not full version
+static void build_table_pwm(uint8_t lower, uint8_t upper) {
+    assert(upper == 0);     // This is not full version
     
     for (uint32_t i = 0; i < (uint32_t) (1 << (lower + upper)); i++) {
         uint32_t counter = 0;
@@ -41,45 +38,53 @@ static void build_table_pwm(uint16_t *table, uint8_t lower, uint8_t upper) {
                 }
             }
         }
-        for (uint16_t j = 1 << std::max(lower + upper - 4, 1); j > 0; j--) {
-            *table = temp[j - 1];
-            ++table;
+        for (int32_t j = 1 << std::max(lower + upper - 4, 1); j > 0; j--) {
+            //*table = temp[j - 1];
+            //++table;
+            // TODO: 
         }
     }
 }
 
 
 static void build_tables() {
-    for (uint16_t i = 0; i < 256; i++)
-        index_table[i] = (int) round((i / 255.0) * ((1 << PWM_bits) - 1)); 
-    build_table_pwm(table, lower, upper);
+    for (uint32_t i = 0; i < 256; i++)
+        for (uint32_t j = 0; j < 6; j++)
+            index_table[i][j] = (uint8_t *) malloc(1 << PWM_bits);
+    build_table_pwm(lower, upper);
 }
 
-static void set_pixel(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
-    extern volatile uint8_t bank;
-    uint16_t *c[6] = { &table[index_table[r0] * (1 << offset)], &table[index_table[g0] * (1 << offset)], &table[index_table[b0] * (1 << offset)],
-                        &table[index_table[r1] * (1 << offset)], &table[index_table[g1] * (1 << offset)], &table[index_table[b1] * (1 << offset)] };
-    
-    for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-        uint8_t v = 0;
-        for (uint8_t j = 0; j < 6; j++) {
-            if (c[j][i / 16] & (1 << (i % 16)))
-                v |= 1 << j;
-        }
-        buf[bank][y][x][i] = v;
+// Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
+//  Allows inlining to RAM func.
+static inline uint32_t multicore_fifo_pop_blocking_inline(void) {
+    while (!multicore_fifo_rvalid())
+        __wfe();
+    return sio_hw->fifo_rd;
+}
+
+void set_pixel(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
+    extern uint8_t bank;
+    extern test2 buf[];
+    uint32_t *c[6] = { (uint32_t *) index_table[r0][0],  (uint32_t *) index_table[g0][1], (uint32_t *) index_table[b0][2], (uint32_t *) index_table[r1][3], (uint32_t *) index_table[g1][4], (uint32_t *) index_table[b1][5] };
+
+    for (uint32_t i = 0; i < (1 << (PWM_bits - 2)); i++) {
+        uint32_t *p = (uint32_t *) &buf[bank][y][i * 4][x];
+        *p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
+        for (uint32_t j = 0; j < 6; j++)
+            ++c[j];
     }
 }
 
 void work() {
-    extern volatile test *p;
-    extern volatile bool isReady;
+    extern void matrix_switch();
     build_tables();
+    
     while(1) {
-        if (isReady) {
-            for (int y = 0; y < 8; y++)
-                for (int x = 0; x < 128; x++)
-                    set_pixel(x, y, *p[y][x][0], *p[y][x][1], *p[y][x][2], *p[y + 8][x][0], *p[y + 8][x][1], *p[y + 8][x][2]);
-        }
+        test *p = (test *) multicore_fifo_pop_blocking_inline();
+        for (int y = 0; y < MULTIPLEX; y++)
+            for (int x = 0; x < COLUMNS; x++)
+                set_pixel(x, y, *p[y][x][0], *p[y][x][1], *p[y][x][2], *p[y + MULTIPLEX][x][0], *p[y + MULTIPLEX][x][1], *p[y + MULTIPLEX][x][2]);
+        free(p);
+        matrix_switch();
     }
 }
-
