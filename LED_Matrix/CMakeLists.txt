@@ -10,10 +10,10 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the SDK
 pico_sdk_init()
 
-add_executable(led main.cpp worker.cpp)
+add_executable(led main.cpp worker.cpp matrix.cpp serial.cpp)
         
 target_compile_definitions(led PUBLIC
-	PICO_HEAP_SIZE=65536
+	PICO_HEAP_SIZE=98304
 	PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64
 )
 
@@ -28,7 +28,8 @@ target_compile_options(led PUBLIC
     -O3
     -funroll-loops 
     -Werror 
-    -Wall)
+    -Wall
+)
 
 pico_set_binary_type(led copy_to_ram)
 
@@ -49,4 +50,6 @@ pico_add_dis_output2(led)
 # pull in dependencies
 target_link_libraries(led 
 	pico_stdlib
+	hardware_dma
+	hardware_pio
 	pico_multicore)
