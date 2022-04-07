@@ -3,14 +3,15 @@
 #include <stdint.h>
 #include <string.h>
 #include "pico/stdlib.h"
+#include "pico/multicore.h"
 #include "config.h"
 
-volatile uint8_t bank = 0;
-volatile test *p;
-volatile bool isReady = true;
+extern void work();
+extern void matrix_start();
+extern void loop();
 
 int main() {
-    extern void work();
-    work();
+    matrix_start();
+    multicore_launch_core1(work);
+    loop();
 }
-
