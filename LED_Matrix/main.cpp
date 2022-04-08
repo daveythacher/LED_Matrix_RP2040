@@ -15,3 +15,4 @@ int main() {
     multicore_launch_core1(work);
     loop();
 }
+

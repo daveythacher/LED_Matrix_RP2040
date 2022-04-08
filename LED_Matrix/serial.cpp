@@ -7,7 +7,13 @@
 #include "config.h"
 
 static volatile bool isReady;
-static void *ptrs[2];
+static test buffers[2];
+static uint8_t buffer = 0;
+
+static void setup() {
+    // TODO:
+}
+
 
 // Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
 //  Allows inlining to RAM func.
@@ -18,15 +24,13 @@ static inline void multicore_fifo_push_blocking_inline(uint32_t data) {
     __sev();
 }
 
-void loop() {
-    ptrs[0] = malloc(sizeof(test));
-    ptrs[1] = malloc(sizeof(test));
+void __not_in_flash_func(loop)() {
+    setup();
     while (1) {
         if (isReady) {
-            multicore_fifo_push_blocking_inline((uint32_t) ptrs[0]);
-            ptrs[0] = ptrs[1];
-            ptrs[1] = malloc(sizeof(test));
+            multicore_fifo_push_blocking_inline((uint32_t) &buffers[(buffer + 1) % 2]);
             isReady = false;
         }
     }
 }
+

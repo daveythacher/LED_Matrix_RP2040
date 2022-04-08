@@ -13,7 +13,7 @@ pico_sdk_init()
 add_executable(led main.cpp worker.cpp matrix.cpp serial.cpp)
         
 target_compile_definitions(led PUBLIC
-	PICO_HEAP_SIZE=98304
+	PICO_HEAP_SIZE=2048
 	PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64
 )
 
@@ -31,7 +31,7 @@ target_compile_options(led PUBLIC
     -Wall
 )
 
-pico_set_binary_type(led copy_to_ram)
+#pico_set_binary_type(led copy_to_ram)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(led)

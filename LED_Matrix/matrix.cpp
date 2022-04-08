@@ -32,7 +32,7 @@ void matrix_start() {
     for (uint i = 0; i < count_of(instructions); i++)
         pio0->instr_mem[i] = instructions[i];
     pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
-    pio0->sm[0].clkdiv = (7 << 16) | (208 << 8);    // Note: 125MHz / 7.8125 = 16MHz - 7 + (208/256)
+    pio0->sm[0].clkdiv = (16 << 16) | (0 << 8);    // Note: 125MHz / 16 = 7.8125MHz - 16 + (0/256)
     pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
@@ -51,59 +51,47 @@ void matrix_start() {
     send_line(buf[1][0][0]);
 }
 
-void matrix_switch() {
-    stop = true;
-    while (stop);
-    send_line(buf[bank][0][0]);
-    bank = (bank + 1) % 2;
-}
-
-static void select_row(uint8_t row) {
+static void __not_in_flash_func(select_row)(uint8_t row) {
     gpio_clr_mask(0x1F << 11);
     gpio_set_mask((row & 0x1F) << 11);
 }
 
-static void enable_display(bool enable) {
+static void __not_in_flash_func(enable_display)(bool enable) {
     if (enable)
         gpio_clr_mask(1 << 10);
     else
         gpio_set_mask(1 << 10);
 }
 
-static void send_latch() {
+static void __not_in_flash_func(send_latch)() {
     gpio_set_mask(1 << 9);
     __asm__ __volatile__ ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
     gpio_clr_mask(1 << 9);
 }
 
-void send_line(uint8_t *line) {
+void __not_in_flash_func(send_line)(uint8_t *line) {
     dma_hw->ints0 = 1 << dma_chan;
     dma_channel_set_read_addr(dma_chan, line, true);
 }
 
-void isr() {
+void __not_in_flash_func(isr)() {
     static uint32_t rows = 0;
     static uint32_t counter = 0;
-    bool run = true;
     
     enable_display(false);
     select_row(rows); 
     
     if (++rows >= MULTIPLEX) {
         rows = 0;
-        if (++counter >= (1 << PWM_bits)) {
+        if (++counter >= (1 << PWM_bits))
             counter = 0;
-            run = !stop;
-        }
     }  
     
     send_latch();
-    sleep_us(1);
+    sleep_us(1);            // TODO: Make RAM function
     enable_display(true);
     
-    if (!run)
-        stop = false;
-    else
-        // Kick off hardware to get ISR ticks
-        send_line(buf[(bank + 1) % 2][rows][counter]);
+    // Kick off hardware to get ISR ticks
+    send_line(buf[(bank + 1) % 2][rows][counter]);
 }
+

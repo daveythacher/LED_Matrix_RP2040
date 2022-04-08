@@ -18,3 +18,4 @@
     typedef uint8_t test2[MULTIPLEX][1 << PWM_bits][COLUMNS];
 
 #endif
+

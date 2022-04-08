@@ -7,7 +7,8 @@
 #include "pico/multicore.h"
 #include "config.h"
 
-static uint8_t *index_table[256][6];
+extern uint8_t bank;
+static uint8_t index_table[256][6][1 << PWM_bits];
 
 static void build_table_pwm(uint8_t lower, uint8_t upper) {
     assert(upper == 0);     // This is not full version
@@ -38,20 +39,20 @@ static void build_table_pwm(uint8_t lower, uint8_t upper) {
                 }
             }
         }
+                
+        float bits = (1 << PWM_bits) - 1.0;
+        int c = (int) round((i / bits) * 255);
         for (int32_t j = 1 << std::max(lower + upper - 4, 1); j > 0; j--) {
-            //*table = temp[j - 1];
-            //++table;
-            // TODO: 
+            for (uint32_t k = 0; k < 16; k++) {
+                index_table[c][0][i] = (temp[j - 1] >> k) & 0x1;
+                index_table[c][1][i] = index_table[c][0][i] << 1;
+                index_table[c][2][i] = index_table[c][1][i] << 1;
+                index_table[c][3][i] = index_table[c][2][i] << 1;
+                index_table[c][4][i] = index_table[c][3][i] << 1;
+                index_table[c][5][i] = index_table[c][4][i] << 1;
+            }
         }
     }
-}
-
-
-static void build_tables() {
-    for (uint32_t i = 0; i < 256; i++)
-        for (uint32_t j = 0; j < 6; j++)
-            index_table[i][j] = (uint8_t *) malloc(1 << PWM_bits);
-    build_table_pwm(lower, upper);
 }
 
 // Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
@@ -62,8 +63,7 @@ static inline uint32_t multicore_fifo_pop_blocking_inline(void) {
     return sio_hw->fifo_rd;
 }
 
-void set_pixel(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
-    extern uint8_t bank;
+static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
     extern test2 buf[];
     uint32_t *c[6] = { (uint32_t *) index_table[r0][0],  (uint32_t *) index_table[g0][1], (uint32_t *) index_table[b0][2], (uint32_t *) index_table[r1][3], (uint32_t *) index_table[g1][4], (uint32_t *) index_table[b1][5] };
 
@@ -75,16 +75,15 @@ void set_pixel(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t
     }
 }
 
-void work() {
-    extern void matrix_switch();
-    build_tables();
+void __not_in_flash_func(work)() {
+    build_table_pwm(lower, upper);
     
     while(1) {
         test *p = (test *) multicore_fifo_pop_blocking_inline();
         for (int y = 0; y < MULTIPLEX; y++)
             for (int x = 0; x < COLUMNS; x++)
                 set_pixel(x, y, *p[y][x][0], *p[y][x][1], *p[y][x][2], *p[y + MULTIPLEX][x][0], *p[y + MULTIPLEX][x][1], *p[y + MULTIPLEX][x][2]);
-        free(p);
-        matrix_switch();
+        bank = (bank + 1) % 2;          // This will cause some screen tearing, however to avoid dynamic memory overflow and lowering FPS this was allowed.
     }
 }
+
