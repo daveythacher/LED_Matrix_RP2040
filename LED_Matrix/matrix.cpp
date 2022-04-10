@@ -1,13 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <string.h>
 #include "pico/stdlib.h"
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/irq.h"
 #include "config.h"
+#include "matrix.h"
 
 test2 buf[2];
 volatile uint8_t bank = 0;

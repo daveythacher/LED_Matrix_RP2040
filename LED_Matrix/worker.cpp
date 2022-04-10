@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <math.h>
@@ -11,45 +10,33 @@ extern uint8_t bank;
 static uint8_t index_table[256][6][1 << PWM_bits];
 
 static void build_table_pwm(uint8_t lower, uint8_t upper) {
-    assert(upper == 0);     // This is not full version
+    //assert(upper >= 0);
+    //assert(upper <= 5);
+    assert(upper == 0);     // Note: This is not full version
     
-    for (uint32_t i = 0; i < (uint32_t) (1 << (lower + upper)); i++) {
-        uint32_t counter = 0;
-        uint16_t temp[1 << std::min(lower + upper - 4, 1)];
-        memset(temp, 0, 1 << std::max(lower + upper - 4, 1));
-        if (upper == 0) {
-            for (int32_t l = lower - 1; l >= 0; l--) {
-                for (uint32_t j = 1 << l; j < (uint32_t) (1 << (lower + upper)); j += 1 << l) {
-                    if ((j / (1 << l)) % 2) {
-                        if (counter < i)
-                            temp[j / 16] |= 1 << (j % 16);
-                        counter++;
-                    }
-                }
-            }
-        }
-        else {
-            for (int32_t l = upper; l >= 0; l--) {
-                for (uint32_t k = 0; k < (uint32_t) (1 << lower); k++) {
-                    for (uint32_t j = k; j < (uint32_t) (1 << (lower + upper)); j += 1 << (l + upper)) {
-                        if (counter < i)
-                            temp[j / 16] |= 1 << (j % 16);
-                        counter++;
-                    }
-                }
-            }
-        }
-                
-        float bits = (1 << PWM_bits) - 1.0;
-        int c = (int) round((i / bits) * 255);
-        for (int32_t j = 1 << std::max(lower + upper - 4, 1); j > 0; j--) {
-            for (uint32_t k = 0; k < 16; k++) {
-                index_table[c][0][i] = (temp[j - 1] >> k) & 0x1;
-                index_table[c][1][i] = index_table[c][0][i] << 1;
-                index_table[c][2][i] = index_table[c][1][i] << 1;
-                index_table[c][3][i] = index_table[c][2][i] << 1;
-                index_table[c][4][i] = index_table[c][3][i] << 1;
-                index_table[c][5][i] = index_table[c][4][i] << 1;
+    uint8_t *tree_lut;
+    const uint8_t tree_lut4[] = { 8, 0, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15 };
+    switch (lower) {
+        case 4:
+            tree_lut = (uint8_t *) tree_lut4;
+            break;
+        default:
+            assert(false);
+    }
+    
+    memset(index_table, 0, sizeof(index_table));
+    
+    for (uint32_t i = 0; i < 256; i++) {
+        uint32_t steps = (uint32_t) round((i / 255.0) * (1 << (lower + upper)));
+        for (uint32_t j = 0; j < steps;) {
+            for (uint32_t k = 0; k < (uint32_t) (1 << lower) && j < steps; k++) {
+                index_table[i][0][tree_lut[k]] = 1; //(index_table[i][0][tree_lut[k]] << 1) + 1;
+                index_table[i][1][tree_lut[k]] = index_table[i][0][tree_lut[k]] << 1;
+                index_table[i][2][tree_lut[k]] = index_table[i][1][tree_lut[k]] << 1;
+                index_table[i][3][tree_lut[k]] = index_table[i][2][tree_lut[k]] << 1;
+                index_table[i][4][tree_lut[k]] = index_table[i][3][tree_lut[k]] << 1;
+                index_table[i][5][tree_lut[k]] = index_table[i][4][tree_lut[k]] << 1;
+                j++;
             }
         }
     }
