@@ -11,7 +11,7 @@ static uint8_t index_table[256][6][1 << PWM_bits];
 
 static void build_table_pwm(uint8_t lower, uint8_t upper) {
     //assert(upper >= 0 && upper <= 5);     // 0 to log2(uint32_t)
-    assert(upper == 0);                      // This is not the full version
+    assert(upper == 0);                     // This is not the full version
     
     uint8_t *tree_lut;
     const uint8_t tree_lut4[] = { 8, 0, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15 };
