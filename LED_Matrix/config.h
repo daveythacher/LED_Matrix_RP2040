@@ -1,3 +1,9 @@
+/* 
+ * File:   config.h
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+ 
 #ifndef CONFIG_H
 #define CONFIG_H    
 

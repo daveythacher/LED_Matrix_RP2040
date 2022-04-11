@@ -1,3 +1,9 @@
+/* 
+ * File:   matrix.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+ 
 #include <stdint.h>
 #include "pico/stdlib.h"
 #include "hardware/pio.h"

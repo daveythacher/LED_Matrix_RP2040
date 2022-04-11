@@ -1,3 +1,9 @@
+/* 
+ * File:   main.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+ 
 #include "matrix.h"
 #include "serial.h"
 

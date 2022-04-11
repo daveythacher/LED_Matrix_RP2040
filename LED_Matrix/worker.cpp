@@ -1,3 +1,9 @@
+/* 
+ * File:   worker.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+ 
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
@@ -6,6 +12,43 @@
 #include <queue>
 #include "pico/multicore.h"
 #include "config.h"
+
+/*
+    This file implements Scrambled PWM (S-PWM) in software using memory look up tables.
+    This is done to improve performance of software creating bitplanes. (set_pixel)
+    
+    This version of S-PWM does not make use of upper bits. This is done to simplify the matrix state
+    machine and memory accesses. There is a version of this which makes use of the upper bits, however
+    that is not provided here. There is also a version of S-PWM which works off BCM, which requires 
+    special consideration.
+    
+    Normally this is done by a bunch of compares which are incredibly slow. To speed this up
+    index_table is used which contains a bit mapping for every RGB color. A bit mapping also exists
+    for every bit in the HUB75 connector, which was chosen to make performance uniform.
+    Now set_pixel will just sum the bits together and store the results. Since this is a 32-bit processor
+    4 bits can be combine and copied in parallel without SIMD.
+    
+    This should allow decent runtime performance even on Cortex-M0+. This code base realies heavily on
+    RAM and does not leave much room in reserve on most microcontrollers. This code also requires decent 
+    instruction memory performance. All generation logic is non-critical and is performed slowly at boot.
+    
+    This was discovered when messing around with SIMD. It was found SIMD was very effective in removing
+    compares from traditional PWM without BCM. The compares could be accelerated with SIMD, but the merge
+    operation was hard to accelerate. At this point it was realized that using memory could achieve the
+    same rough result. Till this point FPGA was assumed to be the only real way to improve this.
+    
+    This is very memory/IO intensive, and this should not be ignored. There are intermediate versions which
+    use less memory, however these rely on compare operations. Again this compare operations are expensive.
+    This represents a memory based solution instead of a computation solution.
+    
+    SIMD/NEON may allow for better computation acceleration. This solutions is fairly close to this, however
+    it is possible to get better acceleration with SIMD. Currently the acceleration limited to 32-bit 
+    operations. SIMD relies heavily on memory performance and some implementations may show weaker results.
+    
+    This is a strange outcome as the CPU is not expected to be very good at these type of operations.
+    
+    Note this code base does not support full S-PWM however some sections are more capable than others.
+*/
 
 extern uint8_t bank;
 static uint8_t index_table[256][6][1 << PWM_bits];

@@ -1,3 +1,9 @@
+/* 
+ * File:   serial.h
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+ 
 #ifndef SERIAL_H
 #define SERIAL_H    
 
