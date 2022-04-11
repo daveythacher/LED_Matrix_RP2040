@@ -27,6 +27,8 @@ LEDs generally support 11-13 bits of current division. This is the max color dep
 1. Reduce peak power by lowering the LED current via LED driver resistor. Can lower LED voltage to save more power, see Color Temperature. This does require soldering and requires a little bit of knowledge about datasheets, circuits and diodes.
 2. Reduce peak power by lowering LED current via software current of LED driver resistor. Can lower LED voltage to save more power, see Color Temperature. This does not require soldering but does have limits.
 3. Reduce average power by controlling ON time (duty cycle). This requires bulk capacitors. Cannot lower LED voltage to save more power, must use 5V.
+4. Reduce average/peak power by controlling the number of LEDs on at any given time. This gets tricky and is probably not recommended. There are two ways to do this.
+5. Reduce peak power with current limiter. This is advanced and will not work on certain LED drivers.
 
 You can further lower power consumption by lowering power supply voltage. As the LED current is reduced the require forward voltage is also reduced. However this can lead to problems for color temperature. 
 
@@ -35,6 +37,8 @@ You can further lower power consumption by lowering power supply voltage. As the
 As the LED current is reduced the require forward voltage is also reduced. This allows for the overall voltage of the LED power rail to be less. Down to around 3.3V. When lowering the peak power consumption this is generally provided for free. However to clarification purposes it is mentioned explictly. Note this does not apply to average power consumption.
 
 However this can lead to problems for color temperature. This can be done two ways. The first is to change the LED driver resistor to be a reflection of the required current limit. The other is to program the software current gain to be a reflection of the required current limit. If this is not done the red LED is generally brighter than it is supposed to be.
+
+There is way to do this in software with gamma curve but it reduces color depth significantly.
 
 ### Color Depth
 
