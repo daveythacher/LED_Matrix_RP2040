@@ -31,7 +31,7 @@ target_compile_options(led PUBLIC
     -Wall
 )
 
-#pico_set_binary_type(led copy_to_ram)
+pico_set_binary_type(led copy_to_ram)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(led)

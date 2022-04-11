@@ -3,26 +3,22 @@
 #include <assert.h>
 #include <math.h>
 #include <algorithm>
+#include <queue>
 #include "pico/multicore.h"
 #include "config.h"
 
 extern uint8_t bank;
 static uint8_t index_table[256][6][1 << PWM_bits];
+static void build_tree_lut(uint8_t *tree_lut, uint8_t lower);
+static void destroy_tree_lut(uint8_t *tree_lut);
 
 static void build_table_pwm(uint8_t lower, uint8_t upper) {
     //assert(upper >= 0 && upper <= 5);     // 0 to log2(uint32_t)
     assert(upper == 0);                     // This is not the full version
+    assert(lower <= 8);                     // tree_lut uses uint8_t
     
-    uint8_t *tree_lut;
-    const uint8_t tree_lut4[] = { 8, 0, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15 };
-    switch (lower) {
-        case 4:
-            tree_lut = (uint8_t *) tree_lut4;
-            break;
-        default:
-            assert(false);
-    }
-    
+    uint8_t *tree_lut = nullptr;
+    build_tree_lut(tree_lut, lower);
     memset(index_table, 0, sizeof(index_table));
     
     for (uint32_t i = 0; i < 256; i++) {
@@ -39,6 +35,8 @@ static void build_table_pwm(uint8_t lower, uint8_t upper) {
             }
         }
     }
+    
+    destroy_tree_lut(tree_lut);
 }
 
 // Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
@@ -71,5 +69,86 @@ void __not_in_flash_func(work)() {
                 set_pixel(x, y, *p[y][x][0], *p[y][x][1], *p[y][x][2], *p[y + MULTIPLEX][x][0], *p[y + MULTIPLEX][x][1], *p[y + MULTIPLEX][x][2]);
         bank = (bank + 1) % 2;          // This will cause some screen tearing, however to avoid dynamic memory overflow and lowering FPS this was allowed.
     }
+}
+
+void build_tree_lut(uint8_t *tree_lut, uint8_t lower) {
+#ifdef USE_MALLOC_TREE_LUT
+    tree_lut = (uint8_t *) malloc(1 << lower);
+    if (tree_lut == NULL)
+        assert(false);
+    
+    if (lower == 0)
+        tree_lut[0] = 0;
+    else {
+        std::queue<uint8_t> queue;
+        std::queue<uint8_t> tmp;
+        uint8_t index = 2;
+        for (uint8_t i = lower; i > 0; i--) {
+            if (i == lower) {
+                tree_lut[0] = 1 << (i - 1);
+                tree_lut[1] = 0;
+                queue.push(tree_lut[0]);
+            }
+            else {
+                tmp = queue;
+                queue = {};
+                while (!tmp.empty()) {
+                    uint8_t var = tmp.front();
+                    tree_lut[index] = var - (1 << (i - 1));
+                    tree_lut[index + 1] = var + (1 << (i - 1));
+                    queue.push(tree_lut[index]);
+                    queue.push(tree_lut[index + 1]);
+                    index += 2;
+                    tmp.pop();
+                }
+            }
+        }
+    }
+#else
+    const uint8_t tree_lut0[] = { 0 };
+    const uint8_t tree_lut1[] = { 1, 0 };
+    const uint8_t tree_lut2[] = { 2, 0, 1, 3 };
+    const uint8_t tree_lut3[] = { 4, 0, 2, 6, 1, 3, 5, 7 };
+    const uint8_t tree_lut4[] = { 8, 0, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15 };
+    const uint8_t tree_lut5[] = { 16, 0, 8, 24, 4, 12, 20, 28, 2, 6, 10, 14, 18, 22, 26, 30, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31 };
+    const uint8_t tree_lut6[] = { 32, 0, 16, 48, 8, 24, 40, 56, 4, 12, 20, 28, 36, 44, 52, 60, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63 };
+    const uint8_t tree_lut7[] = { 64, 0, 32, 96, 16, 48, 80, 112, 8, 24, 40, 56, 72, 88, 104, 120, 4, 12, 20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 108, 116, 124, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95, 97, 99, 101, 103, 105, 107, 109, 111, 113, 115, 117, 119, 121, 123, 125, 127 };
+
+
+    switch (lower) {
+        case 0:
+            tree_lut = (uint8_t *) tree_lut0;
+            break;
+        case 1:
+            tree_lut = (uint8_t *) tree_lut1;
+            break;
+        case 2:
+            tree_lut = (uint8_t *) tree_lut2;
+            break;
+        case 3:
+            tree_lut = (uint8_t *) tree_lut3;
+            break;
+        case 4:
+            tree_lut = (uint8_t *) tree_lut4;
+            break;
+        case 5:
+            tree_lut = (uint8_t *) tree_lut5;
+            break;
+        case 6:
+            tree_lut = (uint8_t *) tree_lut6;
+            break;
+        case 7:
+            tree_lut = (uint8_t *) tree_lut7;
+            break;
+        default:
+            assert(false);
+    }
+#endif
+}
+
+void destroy_tree_lut(uint8_t *tree_lut) {
+#ifdef USE_MALLOC_TREE_LUT
+    free(tree_lut);
+#endif
 }
 
