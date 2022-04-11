@@ -28,7 +28,7 @@ LEDs generally support 11-13 bits of current division. This is the max color dep
 2. Reduce peak power by lowering LED current via software current of LED driver resistor. Can lower LED voltage to save more power, see Color Temperature. This does not require soldering but does have limits.
 3. Reduce average power by controlling ON time (duty cycle). This requires bulk capacitors and probably an inrush limiter. Cannot lower LED voltage to save more power, must use 5V.
 4. Reduce average/peak power by controlling the number of LEDs on at any given time. This gets tricky and is probably not recommended. There are two ways to do this.
-5. Reduce peak power with current limiter. This is advanced and will not work on certain LED drivers.
+5. Reduce average/peak power with current limiter. This is advanced and will not work on certain LED drivers.
 
 You can further lower power consumption by lowering power supply voltage. As the LED current is reduced the require forward voltage is also reduced. However this can lead to problems for color temperature. 
 
