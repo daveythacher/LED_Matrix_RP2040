@@ -48,7 +48,7 @@ For example four 16x32 P6 1:8 panels given 11 bit color depth LEDs would have a 
 
 30mA * 32 columns * 16 rows / 8 scan * 4 panels * 5V = 38.4 Watts / 9.6 Watts = 4.
 
-11 - log2(4) - log(8) = 11 - 2 - 3 = 6
+11 - log2(4) - log2(8) = 11 - 2 - 3 = 6
 
 Now lets consider lowering the power consumption to 6.8 Watts using the three approaches listed above. Here are the following bit depths:
 
