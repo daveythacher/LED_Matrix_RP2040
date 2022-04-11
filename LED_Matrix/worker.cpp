@@ -10,9 +10,7 @@ extern uint8_t bank;
 static uint8_t index_table[256][6][1 << PWM_bits];
 
 static void build_table_pwm(uint8_t lower, uint8_t upper) {
-    //assert(upper >= 0);
-    //assert(upper <= 5);
-    assert(upper == 0);     // Note: This is not full version
+    assert(upper >= 0 && upper <= 5);
     
     uint8_t *tree_lut;
     const uint8_t tree_lut4[] = { 8, 0, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15 };
@@ -30,7 +28,7 @@ static void build_table_pwm(uint8_t lower, uint8_t upper) {
         uint32_t steps = (uint32_t) round((i / 255.0) * (1 << (lower + upper)));
         for (uint32_t j = 0; j < steps;) {
             for (uint32_t k = 0; k < (uint32_t) (1 << lower) && j < steps; k++) {
-                index_table[i][0][tree_lut[k]] = 1; //(index_table[i][0][tree_lut[k]] << 1) + 1;
+                index_table[i][0][tree_lut[k]] = (index_table[i][0][tree_lut[k]] << 1) + 1;
                 index_table[i][1][tree_lut[k]] = index_table[i][0][tree_lut[k]] << 1;
                 index_table[i][2][tree_lut[k]] = index_table[i][1][tree_lut[k]] << 1;
                 index_table[i][3][tree_lut[k]] = index_table[i][2][tree_lut[k]] << 1;
