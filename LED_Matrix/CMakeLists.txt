@@ -11,6 +11,21 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 add_executable(led main.cpp worker.cpp matrix.cpp serial.cpp)
+
+set(DEFINE_POE_DIVISOR 4 CACHE STRING "Power Divisor")
+set(DEFINE_MULTIPLEX 16 CACHE STRING "Multiplex Scan of panel")
+set(DEFINE_MAX_RGB_LED_STEPS 2000 CACHE STRING "Min LED const forward current in nA divided by min light current in nA")
+set(DEFINE_MAX_REFRESH 3840 CACHE STRING "Max refresh of panel")
+set(DEFINE_FPS 30 CACHE STRING "Frames per second")
+set(DEFINE_COLUMNS 128 CACHE STRING "Chain length")
+target_compile_definitions(led PUBLIC 
+    DEFINE_POE_DIVISOR=${DEFINE_POE_DIVISOR} 
+    DEFINE_MULTIPLEX=${DEFINE_MULTIPLEX} 
+    DEFINE_MAX_RGB_LED_STEPS=${DEFINE_MAX_RGB_LED_STEPS} 
+    DEFINE_MAX_REFRESH=${DEFINE_MAX_REFRESH}
+    DEFINE_FPS=${DEFINE_FPS}
+    DEFINE_COLUMNS=${DEFINE_COLUMNS}
+)
         
 target_compile_definitions(led PUBLIC
 	PICO_HEAP_SIZE=2048

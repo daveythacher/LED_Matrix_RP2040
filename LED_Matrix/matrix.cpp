@@ -55,6 +55,7 @@ void matrix_start() {
     send_line(buf[1][0][0]);
 }
 
+// TODO: Make this a class or static
 static void __not_in_flash_func(select_row)(uint8_t row) {
     gpio_clr_mask(0x1F << 11);
     gpio_set_mask((row & 0x1F) << 11);
