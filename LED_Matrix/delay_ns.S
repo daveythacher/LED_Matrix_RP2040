@@ -1,3 +1,9 @@
+/* 
+ * File:   delay_ns.S
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 .syntax unified
 .cpu cortex-m0
 .text
