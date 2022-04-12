@@ -5,12 +5,11 @@
  */
 
 .syntax unified
-.cpu cortex-m0
-.text
-    .thumb
-    
-    .thumb_func
-    .global delay_ns
+.cpu cortex-m0plus
+.section .time_critical.delay_ns
+.thumb
+.thumb_func
+.global delay_ns
 delay_ns:
     movs r3, #0
 loop:

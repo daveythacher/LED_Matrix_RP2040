@@ -62,7 +62,7 @@ extern "C" {
     extern void delay_ns(uint32_t ns);
     
     //void delay_ns(uint32_t ns) {
-    // for (uint32_t x = 0; x < ns; x += 40)
+    // for (uint32_t x = 0; x < ns; x += 40)    // Assumes 5 cycles at 125MHz
     //    __asm__ __volatile__ ("nop;");
     //}
 }
