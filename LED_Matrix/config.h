@@ -12,6 +12,7 @@
     const int MAX_REFRESH = DEFINE_MAX_REFRESH;
     const int FPS = DEFINE_FPS;
     const int COLUMNS = DEFINE_COLUMNS;
+    const int MULTIPLEX_NUM = DEFINE_MULTIPLEX_NUM;
     
     // -- DO NOT EDIT BELOW THIS LINE --
     

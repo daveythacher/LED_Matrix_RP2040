@@ -12,11 +12,13 @@
 #include "hardware/irq.h"
 #include "config.h"
 #include "matrix.h"
+#include "Multiplex/Multiplex.h"
 
 test2 buf[2];
 volatile uint8_t bank = 0;
 static volatile bool stop = false;
 static int dma_chan;
+static Multiplex *m;
 
 static void isr();
 static void send_line(uint8_t *line);
@@ -31,6 +33,7 @@ void matrix_start() {
     for (int i = 0; i < 9; i++)
         gpio_set_function(i, GPIO_FUNC_PIO0);
     gpio_clr_mask(0x7FFF);
+    m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     // PMP
     uint instructions[] = { pio_encode_out(pio_pins, 8) | pio_encode_sideset(1, 0) , pio_encode_nop() | pio_encode_sideset(1, 1) };
     for (uint i = 0; i < count_of(instructions); i++)
@@ -55,10 +58,13 @@ void matrix_start() {
     send_line(buf[1][0][0]);
 }
 
-// TODO: Make this a class or static
-static void __not_in_flash_func(select_row)(uint8_t row) {
-    gpio_clr_mask(0x1F << 11);
-    gpio_set_mask((row & 0x1F) << 11);
+extern "C" {
+    extern void delay_ns(uint32_t ns);
+    
+    //void delay_ns(uint32_t ns) {
+    // for (uint32_t x = 0; x < ns; x += 40)
+    //    __asm__ __volatile__ ("nop;");
+    //}
 }
 
 static void __not_in_flash_func(enable_display)(bool enable) {
@@ -84,7 +90,7 @@ void __not_in_flash_func(isr)() {
     static uint32_t counter = 0;
     
     enable_display(false);
-    select_row(rows); 
+    m->SetRow(rows);
     
     if (++rows >= MULTIPLEX) {
         rows = 0;
@@ -93,7 +99,7 @@ void __not_in_flash_func(isr)() {
     }  
     
     send_latch();
-    sleep_us(1);            // TODO: Make RAM function
+    delay_ns(1000);
     enable_display(true);
     
     // Kick off hardware to get ISR ticks

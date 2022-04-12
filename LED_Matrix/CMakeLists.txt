@@ -10,19 +10,23 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the SDK
 pico_sdk_init()
 
-add_executable(led main.cpp worker.cpp matrix.cpp serial.cpp)
+add_executable(led main.cpp worker.cpp matrix.cpp serial.cpp delay_ns.S)
+add_subdirectory(src/Multiplex)
+include_directories(. include)
 
 set(DEFINE_MULTIPLEX 32 CACHE STRING "Multiplex Scan of panel")
 set(DEFINE_MAX_RGB_LED_STEPS 8000 CACHE STRING "Min LED const forward current in nA divided by min light current in nA")
 set(DEFINE_MAX_REFRESH 3840 CACHE STRING "Max refresh of panel")
 set(DEFINE_FPS 30 CACHE STRING "Frames per second")
 set(DEFINE_COLUMNS 128 CACHE STRING "Chain length")
+set(DEFINE_MULTIPLEX_NUM 0 CACHE STRING "Address pin/Multiplexing type enum")
 target_compile_definitions(led PUBLIC 
     DEFINE_MULTIPLEX=${DEFINE_MULTIPLEX} 
     DEFINE_MAX_RGB_LED_STEPS=${DEFINE_MAX_RGB_LED_STEPS} 
     DEFINE_MAX_REFRESH=${DEFINE_MAX_REFRESH}
     DEFINE_FPS=${DEFINE_FPS}
     DEFINE_COLUMNS=${DEFINE_COLUMNS}
+    DEFINE_MULTIPLEX_NUM=${DEFINE_MULTIPLEX_NUM}
 )
         
 target_compile_definitions(led PUBLIC
