@@ -1,3 +1,9 @@
+/* 
+ * File:   Multiplex.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include <assert.h>
 #include "Multiplex/Decoder.h"
 #include "Multiplex/Direct.h"

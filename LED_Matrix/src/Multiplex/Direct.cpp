@@ -1,3 +1,9 @@
+/* 
+ * File:   Direct.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include "Multiplex/Direct.h"
 #include "hardware/gpio.h"
 

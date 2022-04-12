@@ -1,3 +1,9 @@
+/* 
+ * File:   Decoder.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include "Multiplex/Decoder.h"
 #include "hardware/gpio.h"
 
