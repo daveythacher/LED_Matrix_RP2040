@@ -84,7 +84,7 @@ static void build_table_pwm(uint8_t lower, uint8_t upper) {
 
 // Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
 //  Allows inlining to RAM func.
-static inline uint32_t multicore_fifo_pop_blocking_inline(void) {
+static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(void) {
     while (!multicore_fifo_rvalid())
         __wfe();
     return sio_hw->fifo_rd;

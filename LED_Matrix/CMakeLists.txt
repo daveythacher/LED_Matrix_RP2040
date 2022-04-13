@@ -14,6 +14,14 @@ add_executable(led main.cpp worker.cpp matrix.cpp serial.cpp delay_ns.S)
 add_subdirectory(src/Multiplex)
 include_directories(. include)
 
+add_library(FreeRTOS STATIC 
+    FreeRTOS-Kernel/list.c
+    FreeRTOS-Kernel/queue.c
+    FreeRTOS-Kernel/tasks.c
+    FreeRTOS-Kernel/portable/GCC/ARM_CM0/port.c 
+    FreeRTOS_helpers.c)
+target_include_directories(FreeRTOS PUBLIC . FreeRTOS-Kernel/include FreeRTOS-Kernel/portable/GCC/ARM_CM0)
+
 set(DEFINE_MULTIPLEX 32 CACHE STRING "Multiplex Scan of panel")
 set(DEFINE_MAX_RGB_LED_STEPS 8000 CACHE STRING "Min LED const forward current in nA divided by min light current in nA")
 set(DEFINE_MAX_REFRESH 3840 CACHE STRING "Max refresh of panel")
@@ -28,7 +36,21 @@ target_compile_definitions(led PUBLIC
     DEFINE_COLUMNS=${DEFINE_COLUMNS}
     DEFINE_MULTIPLEX_NUM=${DEFINE_MULTIPLEX_NUM}
 )
-        
+
+# RAM usage:
+# 128 - Bitplanes
+# 24 - RGB buffers
+# 2 - HEAP
+# 2 - STACK 0
+# 2 - STACK 1
+# 7 - RAM FUNC
+# 11 - CODE
+# 48 - LUT
+# Total: 224
+# Max RAM: 264
+# 40K in surplus verified with compiler
+# 51K if using flash
+
 target_compile_definitions(led PUBLIC
 	PICO_HEAP_SIZE=2048
 	PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64
@@ -48,7 +70,7 @@ target_compile_options(led PUBLIC
     -Wall
 )
 
-#pico_set_binary_type(led copy_to_ram)
+pico_set_binary_type(led copy_to_ram)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(led)
@@ -69,4 +91,5 @@ target_link_libraries(led
 	pico_stdlib
 	hardware_dma
 	hardware_pio
-	pico_multicore)
+	pico_multicore
+	FreeRTOS)
