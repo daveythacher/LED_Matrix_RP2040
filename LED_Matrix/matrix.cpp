@@ -53,7 +53,7 @@ void matrix_start() {
     
     // Delay
     pio0->sm[1].clkdiv = (1 << 16) | (0 << 8);    // Note: 125MHz / 1 = 125MHz - 1 + (0/256)
-    pio0->sm[1].execctrl = (0x4 << 12) | (0x2 << 7);
+    pio0->sm[1].execctrl = (0x5 << 12) | (0x2 << 7);
     pio0->irq = 1 << 1;
     pio0->sm[1].instr = pio_encode_jmp(0x2);
     hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
