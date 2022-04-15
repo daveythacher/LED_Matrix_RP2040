@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the SDK
 pico_sdk_init()
 
-add_executable(led main.cpp worker.cpp matrix.cpp serial.cpp delay_ns.S)
+add_executable(led main.cpp worker.cpp matrix.cpp serial.cpp)
 add_subdirectory(src/Multiplex)
 include_directories(. include)
 

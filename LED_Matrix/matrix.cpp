@@ -34,16 +34,30 @@ void matrix_start() {
         gpio_set_function(i, GPIO_FUNC_PIO0);
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
-    // PMP
-    uint instructions[] = { pio_encode_out(pio_pins, 8) | pio_encode_sideset(1, 0) , pio_encode_nop() | pio_encode_sideset(1, 1) };
+    
+    // PIO
+    const uint instructions[] = { 
+        pio_encode_out(pio_pins, 8) | pio_encode_sideset(1, 0) , pio_encode_nop() | pio_encode_sideset(1, 1),                   // PMP Program
+        pio_encode_pull(false, true), pio_encode_mov(pio_x, pio_osr), pio_encode_jmp_x_dec(4), pio_encode_irq_wait(false, 0)    // Delay Program
+    };
     for (uint i = 0; i < count_of(instructions); i++)
         pio0->instr_mem[i] = instructions[i];
+
+    // PMP
     pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
     pio0->sm[0].clkdiv = (16 << 16) | (0 << 8);    // Note: 125MHz / 16 = 7.8125MHz - 16 + (0/256)
     pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
+    
+    // Delay
+    pio0->sm[1].clkdiv = (1 << 16) | (0 << 8);    // Note: 125MHz / 1 = 125MHz - 1 + (0/256)
+    pio0->sm[1].execctrl = (0x4 << 12) | (0x2 << 7);
+    pio0->irq = 1 << 1;
+    pio0->sm[1].instr = pio_encode_jmp(0x2);
+    hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
+    
     // DMA
     dma_chan = dma_claim_unused_channel(true);
     dma_channel_config c = dma_channel_get_default_config(dma_chan);
@@ -56,15 +70,6 @@ void matrix_start() {
     irq_set_priority(DMA_IRQ_0, 0);
     irq_set_enabled(DMA_IRQ_0, true);    
     send_line(buf[1][0][0]);
-}
-
-extern "C" {
-    extern void delay_ns(uint32_t ns);
-    
-    //void delay_ns(uint32_t ns) {
-    // for (uint32_t x = 0; x < ns; x += 40)    // Assumes 5 cycles at 125MHz
-    //    __asm__ __volatile__ ("nop;");
-    //}
 }
 
 static void __not_in_flash_func(enable_display)(bool enable) {
@@ -90,6 +95,7 @@ void __not_in_flash_func(isr)() {
     static uint32_t counter = 0;
     
     enable_display(false);
+    pio_sm_put_blocking(pio0, 1, 1000 / 8);             // Start a timer with 1uS delay using PIO
     m->SetRow(rows);
     
     if (++rows >= MULTIPLEX) {
@@ -99,7 +105,8 @@ void __not_in_flash_func(isr)() {
     }  
     
     send_latch();
-    delay_ns(1000);                 // TODO: Look into this
+    while(!pio_interrupt_get(pio0, 0));                 // Check if timer has expired
+    pio0->irq = 1 << 1;                                 // Release timer
     enable_display(true);
     
     // Kick off hardware to get ISR ticks
