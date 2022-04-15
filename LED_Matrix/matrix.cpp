@@ -99,7 +99,7 @@ void __not_in_flash_func(isr)() {
     }  
     
     send_latch();
-    delay_ns(1000);
+    delay_ns(1000);                 // TODO: Look into this
     enable_display(true);
     
     // Kick off hardware to get ISR ticks
