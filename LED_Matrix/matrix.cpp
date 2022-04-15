@@ -95,7 +95,7 @@ void __not_in_flash_func(isr)() {
     static uint32_t counter = 0;
     
     enable_display(false);
-    pio_sm_put_blocking(pio0, 1, 1000 / 8);             // Start a timer with 1uS delay using PIO
+    pio_sm_put(pio0, 1, 1000 / 8);                      // Start a timer with 1uS delay using PIO
     m->SetRow(rows);
     
     if (++rows >= MULTIPLEX) {
