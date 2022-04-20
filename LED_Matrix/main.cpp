@@ -6,16 +6,13 @@
  
  #include "FreeRTOS.h"
 #include "task.h"
-#include "pico/multicore.h"
-#include "matrix.h"
-#include "serial.h"
 
-extern void work();
+extern void matrix_start();
+extern void serial_start();
 
 int main() {
     matrix_start();
     serial_start();
-    multicore_launch_core1(work);
     vTaskStartScheduler();
 }
 

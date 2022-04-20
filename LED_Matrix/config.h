@@ -7,6 +7,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H    
     
+    const int POWER_DIVISOR = DEFINE_POWER_DIVISOR;
     const int MULTIPLEX = DEFINE_MULTIPLEX;
     const int MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Min RGB constant forward current (Blue LED in my case) in nA divided by min light current in nA
     const int MAX_REFRESH = DEFINE_MAX_REFRESH;

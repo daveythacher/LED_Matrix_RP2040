@@ -10,9 +10,15 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the SDK
 pico_sdk_init()
 
-add_executable(led main.cpp worker.cpp matrix.cpp serial.cpp)
+add_executable(led main.cpp )
 add_subdirectory(src/Multiplex)
 include_directories(. include)
+
+if (DEFINED MBI5153)
+    add_subdirectory(src/MBI5153)
+else()
+    add_subdirectory(src/SPWM)
+endif()
 
 add_library(FreeRTOS STATIC 
     FreeRTOS-Kernel/list.c
@@ -28,6 +34,7 @@ set(DEFINE_MAX_REFRESH 3840 CACHE STRING "Max refresh of panel")
 set(DEFINE_FPS 30 CACHE STRING "Frames per second")
 set(DEFINE_COLUMNS 128 CACHE STRING "Chain length")
 set(DEFINE_MULTIPLEX_NUM 0 CACHE STRING "Address pin/Multiplexing type enum")
+set(DEFINE_POWER_DIVISOR 1 CACHE STRING "Divisor for lowering average power. Requires bulk energy storage to smooth peak current.")
 target_compile_definitions(led PUBLIC 
     DEFINE_MULTIPLEX=${DEFINE_MULTIPLEX} 
     DEFINE_MAX_RGB_LED_STEPS=${DEFINE_MAX_RGB_LED_STEPS} 
@@ -35,21 +42,8 @@ target_compile_definitions(led PUBLIC
     DEFINE_FPS=${DEFINE_FPS}
     DEFINE_COLUMNS=${DEFINE_COLUMNS}
     DEFINE_MULTIPLEX_NUM=${DEFINE_MULTIPLEX_NUM}
+    DEFINE_POWER_DIVISOR=${DEFINE_POWER_DIVISOR}
 )
-
-# RAM usage:
-# 128 - Bitplanes
-# 24 - RGB buffers
-# 2 - HEAP
-# 2 - STACK 0
-# 2 - STACK 1
-# 7 - RAM FUNC
-# 11 - CODE
-# 48 - LUT
-# Total: 224
-# Max RAM: 264
-# 40K in surplus verified with compiler
-# 51K if using flash
 
 target_compile_definitions(led PUBLIC
 	PICO_HEAP_SIZE=2048
