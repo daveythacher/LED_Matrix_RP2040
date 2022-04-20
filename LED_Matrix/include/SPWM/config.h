@@ -14,6 +14,7 @@
     const int FPS = DEFINE_FPS;
     const int COLUMNS = DEFINE_COLUMNS;
     const int MULTIPLEX_NUM = DEFINE_MULTIPLEX_NUM;
+    const bool USE_CIE1931 = (DEFINE_USE_CIE1931 == 1);
     
     // -- DO NOT EDIT BELOW THIS LINE --
     

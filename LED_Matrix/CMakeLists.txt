@@ -36,7 +36,8 @@ set(DEFINE_MAX_REFRESH 3840 CACHE STRING "Max refresh of panel")
 set(DEFINE_FPS 30 CACHE STRING "Frames per second")
 set(DEFINE_COLUMNS 128 CACHE STRING "Chain length")
 set(DEFINE_MULTIPLEX_NUM 0 CACHE STRING "Address pin/Multiplexing type enum")
-set(DEFINE_POWER_DIVISOR 1 CACHE STRING "Divisor for lowering average power. Requires bulk energy storage to smooth peak current.")
+set(DEFINE_POWER_DIVISOR 1 CACHE STRING "Divisor for lowering average power. Requires bulk energy storage to smooth peak current")
+set(DEFINE_USE_CIE1931 1 CACHE STRING "Use CIE1931 color temperature mapping table")
 target_compile_definitions(led PUBLIC 
     DEFINE_MULTIPLEX=${DEFINE_MULTIPLEX} 
     DEFINE_MAX_RGB_LED_STEPS=${DEFINE_MAX_RGB_LED_STEPS} 
@@ -45,6 +46,7 @@ target_compile_definitions(led PUBLIC
     DEFINE_COLUMNS=${DEFINE_COLUMNS}
     DEFINE_MULTIPLEX_NUM=${DEFINE_MULTIPLEX_NUM}
     DEFINE_POWER_DIVISOR=${DEFINE_POWER_DIVISOR}
+    DEFINE_USE_CIE1931=${DEFINE_USE_CIE1931}
 )
 
 target_compile_definitions(led PUBLIC

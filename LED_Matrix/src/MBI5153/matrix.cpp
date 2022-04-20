@@ -73,6 +73,9 @@ void matrix_start() {
     irq_set_priority(DMA_IRQ_0, 0);
     irq_set_enabled(DMA_IRQ_0, true);    
     send_line(buf[1][0][0]);
+    
+    extern void work;
+    work();
 }
 
 static void __not_in_flash_func(enable_display)(bool enable) {
