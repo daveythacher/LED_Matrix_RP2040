@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <queue>
 #include "pico/multicore.h"
-#include "config.h"
+#include "SPWM/config.h"
 
 /*
     This file implements Scrambled PWM (S-PWM) in software using memory look up tables.
@@ -55,6 +55,8 @@ static uint8_t index_table[256][6][1 << PWM_bits];
 static void build_tree_lut(uint8_t *tree_lut, uint8_t lower);
 static void destroy_tree_lut(uint8_t *tree_lut);
 
+// TODO: Add CIE1931
+
 static void build_table_pwm(uint8_t lower, uint8_t upper) {
     //assert(upper >= 0 && upper <= 5);     // 0 to log2(uint32_t)
     assert(upper == 0);                     // This is not the full version
@@ -94,6 +96,7 @@ static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uin
     extern test2 buf[];
     uint32_t *c[6] = { (uint32_t *) index_table[r0][0],  (uint32_t *) index_table[g0][1], (uint32_t *) index_table[b0][2], (uint32_t *) index_table[r1][3], (uint32_t *) index_table[g1][4], (uint32_t *) index_table[b1][5] };
 
+    // TODO: Drop 4 pixel additions in parallel (unsafe)
     for (uint32_t i = 0; i < (1 << (PWM_bits - 2)); i++) {
         uint32_t *p = (uint32_t *) &buf[bank][y][i * 4][x];
         *p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];

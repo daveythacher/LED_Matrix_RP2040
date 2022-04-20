@@ -16,6 +16,8 @@ include_directories(. include)
 
 if (DEFINED MBI5153)
     add_subdirectory(src/MBI5153)
+elseif (DEFINED BCM)
+    add_subdirectory(src/BCM)
 else()
     add_subdirectory(src/SPWM)
 endif()

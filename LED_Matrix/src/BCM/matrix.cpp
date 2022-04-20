@@ -6,11 +6,12 @@
  
 #include <stdint.h>
 #include "pico/stdlib.h"
+#include "pico/multicore.h"
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/irq.h"
-#include "MBI5153/config.h"
+#include "BCM/config.h"
 #include "Multiplex/Multiplex.h"
 
 test2 buf[2];
@@ -49,10 +50,6 @@ void matrix_start() {
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
-    // TODO: Add Parallel shifter bus
-    
-    // OE
-    // TODO: Add GCLK and ISR state machine
     
     // Delay
     pio0->sm[1].clkdiv = (1 << 16) | (0 << 8);          // Note: 125MHz / 1 = 125MHz - 1 + (0/256)
@@ -60,6 +57,15 @@ void matrix_start() {
     pio0->irq = 1 << 0;
     pio0->sm[1].instr = pio_encode_jmp(0x2);
     hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
+    
+    // OE
+    pio0->sm[2].clkdiv = (8 << 16) | (0 << 8);          // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[2].execctrl = (0x5 << 12) | (0x2 << 7);
+    pio0->irq = 1 << 1;
+    pio0->sm[2].instr = pio_encode_jmp(0x2);
+    hw_set_bits(&pio0->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
+    // TODO: Configure PIN 10 (OE)
+    // TODO: Add IO operations to PIO instructions
     
     // DMA
     dma_chan = dma_claim_unused_channel(true);
@@ -73,13 +79,9 @@ void matrix_start() {
     irq_set_priority(DMA_IRQ_0, 0);
     irq_set_enabled(DMA_IRQ_0, true);    
     send_line(buf[1][0][0]);
-}
-
-static void __not_in_flash_func(enable_display)(bool enable) {
-    if (enable)
-        gpio_clr_mask(1 << 10);
-    else
-        gpio_set_mask(1 << 10);
+    
+    extern void work();
+    multicore_launch_core1(work);
 }
 
 static void __not_in_flash_func(send_latch)() {
@@ -91,31 +93,35 @@ static void __not_in_flash_func(send_latch)() {
 void __not_in_flash_func(send_line)(uint8_t *line) {
     dma_hw->ints0 = 1 << dma_chan;
     dma_channel_set_read_addr(dma_chan, line, true);
+    pio_sm_put(pio0, 2, COLUMNS * 2 / POWER_DIVISOR);   // Start a timer for OE using PIO
 }
 
-// TODO: Rework for data
 void __not_in_flash_func(isr)() {
     static uint32_t rows = 0;
     static uint32_t counter = 0;
+    static uint32_t bits = 0;
     
-    enable_display(false);
-    pio_sm_put(pio0, 1, 1000 / 8);                      // Start a timer with 1uS delay using PIO
-    m->SetRow(rows);
-    
-    if (++rows >= MULTIPLEX) {
-        rows = 0;
-        if (++counter >= (1 << PWM_bits))
-            counter = 0;
-    }  
+    if (counter == 0) {
+        pio_sm_put(pio0, 1, 1000 / 8);                  // Start a timer with 1uS delay using PIO
+        m->SetRow(rows);
+    }
+     
+    if (++counter >= (uint32_t) (1 << bits)) {          // Note: Could optimize this to use less interrupts
+        counter = 0;
+        if (++bits >= PWM_bits) {
+            bits = 0;
+            if (++rows >= MULTIPLEX)
+                rows = 0;
+        }
+    }
     
     send_latch();
-    while(!pio_interrupt_get(pio0, 0));                 // Check if timer has expired
-    pio0->irq = 1 << 1;                                 // Release timer
-    enable_display(true);
+    if (counter == 1) {
+        while(!pio_interrupt_get(pio0, 0));             // Check if timer has expired
+        pio0->irq = 1 << 1;                             // Release timer
+    }
     
     // Kick off hardware to get ISR ticks
-    send_line(buf[(bank + 1) % 2][rows][counter]);
+    send_line(buf[(bank + 1) % 2][rows][bits]);
 }
-
-// TODO: Add Multiplexing ISR
 

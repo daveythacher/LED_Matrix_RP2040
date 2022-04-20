@@ -11,7 +11,7 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/irq.h"
-#include "config.h"
+#include "SPWM/config.h"
 #include "Multiplex/Multiplex.h"
 
 test2 buf[2];
