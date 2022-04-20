@@ -57,8 +57,9 @@ static void destroy_tree_lut(uint8_t *tree_lut);
 
 static void build_table_pwm(uint8_t lower, uint8_t upper) {
     //assert(upper >= 0 && upper <= 5);     // 0 to log2(uint32_t)
-    assert(upper == 0);                     // This is not the full version
+    assert(upper == 0);                     // This is not the full version, this is refresh hack for complexity reduction
     assert(lower <= 8);                     // tree_lut uses uint8_t
+    assert(lower >= 1);                     // set_pixel needs atleast one bit, this is speed hack for custom version
     
     uint8_t *tree_lut = nullptr;
     build_tree_lut(tree_lut, lower);
@@ -101,10 +102,11 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
 
 static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
     extern test2 buf[];
-    uint8_t *c[6] = { index_table[r0][0],  index_table[g0][1], index_table[b0][2], index_table[r1][3], index_table[g1][4], index_table[b1][5] };
+    uint16_t *c[6] = { (uint16_t *) index_table[r0][0],  (uint16_t *) index_table[g0][1], (uint16_t *) index_table[b0][2], (uint16_t *) index_table[r1][3], 
+        (uint16_t *) index_table[g1][4], (uint16_t *) index_table[b1][5] };
 
-    for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-        uint32_t *p = (uint32_t *) &buf[bank][y][i][x];
+    for (uint32_t i = 0; i < (1 << (lower - 1)); i++) {
+        uint16_t *p = (uint16_t *) &buf[bank][y][i * 2][x];
         *p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
         for (uint32_t j = 0; j < 6; j++)
             ++c[j];
