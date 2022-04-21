@@ -20,8 +20,9 @@ static volatile bool stop = false;
 static int dma_chan[6];
 static Multiplex *m;
 
-static void isr();
-static void send_line(uint8_t *line);
+static void isr_data();
+static void isr_multiplex();
+static void send_line(uint8_t bank_num);
 
 void matrix_start() {
     // Init Matrix hardware
@@ -93,14 +94,42 @@ void matrix_start() {
     // Add PIO settings and instructions
     
     // DMA
-    for (uint8_t i = 0; i < 6; i++) {
-        dma_chan[i] = dma_claim_unused_channel(true);
-        dma_channel_config c = dma_channel_get_default_config(dma_chan[i]);
-        channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
-        channel_config_set_read_increment(&c, true);
-        channel_config_set_dreq(&c, DREQ_PIO0_TX0);                                                 // TODO: FIX
-        dma_channel_configure(dma_chan[i], &c, &pio0_hw->txf[0], NULL, MULTIPLEX * COLUMNS, false); // TODO: FIX
-    }
+    dma_chan[0] = dma_claim_unused_channel(true);
+    dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO0_TX0);
+    dma_channel_configure(dma_chan[0], &c, &pio0_hw->txf[0], NULL, MULTIPLEX * COLUMNS, false);
+    dma_chan[1] = dma_claim_unused_channel(true);
+    c = dma_channel_get_default_config(dma_chan[1]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO0_TX1);
+    dma_channel_configure(dma_chan[1], &c, &pio0_hw->txf[1], NULL, MULTIPLEX * COLUMNS, false);
+    dma_chan[2] = dma_claim_unused_channel(true);
+    c = dma_channel_get_default_config(dma_chan[2]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO0_TX2);
+    dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[2], NULL, MULTIPLEX * COLUMNS, false);
+    dma_chan[3] = dma_claim_unused_channel(true);
+    c = dma_channel_get_default_config(dma_chan[3]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO0_TX3);
+    dma_channel_configure(dma_chan[3], &c, &pio0_hw->txf[3], NULL, MULTIPLEX * COLUMNS, false);
+    dma_chan[4] = dma_claim_unused_channel(true);
+    c = dma_channel_get_default_config(dma_chan[4]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO1_TX0);
+    dma_channel_configure(dma_chan[4], &c, &pio1_hw->txf[0], NULL, MULTIPLEX * COLUMNS, false);
+    dma_chan[5] = dma_claim_unused_channel(true);
+    c = dma_channel_get_default_config(dma_chan[5]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO1_TX1);
+    dma_channel_configure(dma_chan[5], &c, &pio0_hw->txf[1], NULL, MULTIPLEX * COLUMNS, false);
     dma_channel_set_irq0_enabled(dma_chan[5], true);
     irq_set_exclusive_handler(DMA_IRQ_0, isr_data);
     irq_set_priority(DMA_IRQ_0, 1);

@@ -9,9 +9,9 @@ cd LED_Matrix
 mkdir build
 cp ../pico-sdk/external/pico_sdk_import.cmake .
 cd build
-cmake .. -DDEFINE_MULTIPLEX=16 -DDEFINE_MAX_RGB_LED_STEPS=500 #-DBCM=TRUE -DMBI5153=TRUE
+cmake .. -DDEFINE_MULTIPLEX=16 -DDEFINE_MAX_RGB_LED_STEPS=500 -DBCM=TRUE -DSPWM=TRUE #-DMBI5153=TRUE
 make -j $(($(nproc) * 2)) #VERBOSE=1
 if [ $? -eq 0 ]; then
     echo "Binary output:"
-    ls -la $DIR/LED_Matrix/build/led.*
+    ls -la $DIR/LED_Matrix/build/led_*.*
 fi
