@@ -89,5 +89,6 @@ target_link_libraries(led
 	pico_stdlib
 	hardware_dma
 	hardware_pio
+	hardware_timer
 	pico_multicore
 	FreeRTOS)

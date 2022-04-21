@@ -37,35 +37,41 @@ void matrix_start() {
     
     // PIO
     const uint instructions[] = { 
-        pio_encode_out(pio_pins, 8) | pio_encode_sideset(1, 0) , pio_encode_nop() | pio_encode_sideset(1, 1),                   // PMP Program
-        pio_encode_pull(false, true), pio_encode_mov(pio_x, pio_osr), pio_encode_jmp_x_dec(4), pio_encode_irq_wait(false, 0)    // Delay Program
+        pio_encode_out(pio_pins, 8) | pio_encode_sideset(1, 0),     // PMP Program
+        pio_encode_nop() | pio_encode_sideset(1, 1),                                           
+        pio_encode_pull(false, true),                               // Delay Program
+        pio_encode_mov(pio_x, pio_osr), 
+        pio_encode_jmp_x_dec(4), 
+        pio_encode_irq_wait(false, 0),
+        pio_encode_pull(false, true)  | pio_encode_sideset(1, 1),   // OE Program
+        pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(1, 0), 
+        pio_encode_jmp_x_dec(8),
+        pico_encode_nop()
     };
     for (uint i = 0; i < count_of(instructions); i++)
         pio0->instr_mem[i] = instructions[i];
 
     // PMP
     pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
-    pio0->sm[0].clkdiv = (8 << 16) | (0 << 8);          // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[0].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
     pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
     
     // Delay
-    pio0->sm[1].clkdiv = (1 << 16) | (0 << 8);          // Note: 125MHz / 1 = 125MHz - 1 + (0/256)
+    pio0->sm[1].clkdiv = (1 << 16) | (0 << 8);                      // Note: 125MHz / 1 = 125MHz - 1 + (0/256)
     pio0->sm[1].execctrl = (0x5 << 12) | (0x2 << 7);
     pio0->irq = 1 << 0;
     pio0->sm[1].instr = pio_encode_jmp(0x2);
     hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
     
     // OE
-    pio0->sm[2].clkdiv = (8 << 16) | (0 << 8);          // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
-    pio0->sm[2].execctrl = (0x5 << 12) | (0x2 << 7);
-    pio0->irq = 1 << 1;
-    pio0->sm[2].instr = pio_encode_jmp(0x2);
+    pio0->sm[2].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[2].execctrl = (0x9 << 12) | (0x6 << 7);
+    pio0->sm[2].instr = pio_encode_jmp(0x6);
     hw_set_bits(&pio0->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
     // TODO: Configure PIN 10 (OE)
-    // TODO: Add IO operations to PIO instructions
     
     // DMA
     dma_chan = dma_claim_unused_channel(true);
@@ -93,14 +99,14 @@ static void __not_in_flash_func(send_latch)() {
 void __not_in_flash_func(send_line)(uint8_t *line) {
     dma_hw->ints0 = 1 << dma_chan;
     dma_channel_set_read_addr(dma_chan, line, true);
-    pio_sm_put(pio0, 2, COLUMNS * 2 / POWER_DIVISOR);   // Start a timer for OE using PIO
+    pio_sm_put(pio0, 2, COLUMNS * 2 / POWER_DIVISOR);               // Start a timer for OE using PIO
 }
 
 void __not_in_flash_func(isr)() {
     static uint32_t rows = 0;
     static uint32_t counter = 0;
     
-    pio_sm_put(pio0, 1, 1000 / 8);                      // Start a timer with 1uS delay using PIO
+    pio_sm_put(pio0, 1, 1000 / 8);                                  // Start a timer with 1uS delay using PIO
     m->SetRow(rows);
     
     if (++rows >= MULTIPLEX) {
@@ -110,8 +116,8 @@ void __not_in_flash_func(isr)() {
     }  
     
     send_latch();
-    while(!pio_interrupt_get(pio0, 0));                 // Check if timer has expired
-    pio0->irq = 1 << 1;                                 // Release timer
+    while(!pio_interrupt_get(pio0, 0));                             // Check if timer has expired
+    pio0->irq = 1 << 0;                                             // Release timer
     
     // Kick off hardware to get ISR ticks
     send_line(buf[(bank + 1) % 2][rows][counter]);

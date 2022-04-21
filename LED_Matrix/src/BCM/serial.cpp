@@ -8,7 +8,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "pico/multicore.h"
-#include "config.h"
+#include "BCM/config.h"
 
 /*
     The Matrix state machine generates a lot of interrupts, MULTIPLEX * REFRESH_RATE. This can consume a decent

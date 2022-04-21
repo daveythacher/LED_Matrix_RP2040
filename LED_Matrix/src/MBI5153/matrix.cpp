@@ -10,13 +10,14 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/irq.h"
+#include "hardware/timer.h"
 #include "MBI5153/config.h"
 #include "Multiplex/Multiplex.h"
 
 test2 buf[2];
 volatile uint8_t bank = 0;
 static volatile bool stop = false;
-static int dma_chan;
+static int dma_chan[6];
 static Multiplex *m;
 
 static void isr();
@@ -36,89 +37,129 @@ void matrix_start() {
     
     // PIO
     const uint instructions[] = { 
-        pio_encode_out(pio_pins, 8) | pio_encode_sideset(1, 0) , pio_encode_nop() | pio_encode_sideset(1, 1),                   // PMP Program
-        pio_encode_pull(false, true), pio_encode_mov(pio_x, pio_osr), pio_encode_jmp_x_dec(4), pio_encode_irq_wait(false, 0)    // Delay Program
+        pio_encode_out(pio_pins, 1) | pio_encode_sideset(1, 0),     // PMP Program
+        pio_encode_nop() | pio_encode_sideset(1, 1) 
     };
-    for (uint i = 0; i < count_of(instructions); i++)
+    for (uint i = 0; i < count_of(instructions); i++) {
         pio0->instr_mem[i] = instructions[i];
+        pio1->instr_mem[i] = instructions[i];
+    }
 
-    // PMP
+/*
+    6 PIOs for shifters
+    1 PIO for shift clock / latch
+    1 PIO for GCLK
+*/
+
+    // Parallel shifter bus
     pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
-    pio0->sm[0].clkdiv = (8 << 16) | (0 << 8);          // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[0].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
     pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
-    // TODO: Add Parallel shifter bus
-    
-    // OE
-    // TODO: Add GCLK and ISR state machine
-    
-    // Delay
-    pio0->sm[1].clkdiv = (1 << 16) | (0 << 8);          // Note: 125MHz / 1 = 125MHz - 1 + (0/256)
-    pio0->sm[1].execctrl = (0x5 << 12) | (0x2 << 7);
-    pio0->irq = 1 << 0;
-    pio0->sm[1].instr = pio_encode_jmp(0x2);
+    pio0->sm[1].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
+    pio0->sm[1].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
+    pio0->sm[2].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio0->sm[2].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
+    pio0->sm[2].execctrl = (1 << 17) | (0x1 << 12);
+    hw_set_bits(&pio0->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
+    pio0->sm[3].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio0->sm[3].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
+    pio0->sm[3].execctrl = (1 << 17) | (0x1 << 12);
+    hw_set_bits(&pio0->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
+    pio1->sm[0].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio1->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
+    pio1->sm[0].execctrl = (1 << 17) | (0x1 << 12);
+    hw_set_bits(&pio1->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
+    pio1->sm[1].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio1->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
+    pio1->sm[1].execctrl = (1 << 17) | (0x1 << 12);
+    hw_set_bits(&pio1->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
+    // TODO: Update settings and instructions
+    
+    // GCLK
+    // TODO: Add GCLK and ISR state machine 
+    // TODO: Setup pin 10 (GCLK)
+    
+    // CLK and LAT
+    // Add PIO settings and instructions
     
     // DMA
-    dma_chan = dma_claim_unused_channel(true);
-    dma_channel_config c = dma_channel_get_default_config(dma_chan);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
-    channel_config_set_read_increment(&c, true);
-    channel_config_set_dreq(&c, DREQ_PIO0_TX0);
-    dma_channel_configure(dma_chan, &c, &pio0_hw->txf[0], NULL, COLUMNS, false);
-    dma_channel_set_irq0_enabled(dma_chan, true);
-    irq_set_exclusive_handler(DMA_IRQ_0, isr);
-    irq_set_priority(DMA_IRQ_0, 0);
-    irq_set_enabled(DMA_IRQ_0, true);    
-    send_line(buf[1][0][0]);
+    for (uint8_t i = 0; i < 6; i++) {
+        dma_chan[i] = dma_claim_unused_channel(true);
+        dma_channel_config c = dma_channel_get_default_config(dma_chan[i]);
+        channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+        channel_config_set_read_increment(&c, true);
+        channel_config_set_dreq(&c, DREQ_PIO0_TX0);                                                 // TODO: FIX
+        dma_channel_configure(dma_chan[i], &c, &pio0_hw->txf[0], NULL, MULTIPLEX * COLUMNS, false); // TODO: FIX
+    }
+    dma_channel_set_irq0_enabled(dma_chan[5], true);
+    irq_set_exclusive_handler(DMA_IRQ_0, isr_data);
+    irq_set_priority(DMA_IRQ_0, 1);
+    irq_set_enabled(DMA_IRQ_0, true);   
     
     extern void work;
     work();
 }
 
-static void __not_in_flash_func(enable_display)(bool enable) {
-    if (enable)
-        gpio_clr_mask(1 << 10);
-    else
-        gpio_set_mask(1 << 10);
+void __not_in_flash_func(send_line)(uint8_t bank_num) {
+    dma_hw->ints0 = 1 << dma_chan[5];
+    for (uint8_t i = 0; i < 6; i++) {
+        uint8_t *line = buf[bank_num][i][0][0];
+        dma_channel_set_read_addr(dma_chan[i], line, true);
+    }
 }
 
-static void __not_in_flash_func(send_latch)() {
-    gpio_set_mask(1 << 9);
-    __asm__ __volatile__ ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
-    gpio_clr_mask(1 << 9);
-}
-
-void __not_in_flash_func(send_line)(uint8_t *line) {
-    dma_hw->ints0 = 1 << dma_chan;
-    dma_channel_set_read_addr(dma_chan, line, true);
-}
-
-// TODO: Rework for data
-void __not_in_flash_func(isr)() {
-    static uint32_t rows = 0;
-    static uint32_t counter = 0;
+void __not_in_flash_func(isr_data)() {
+    stop = true;
+    while(stop);
     
-    enable_display(false);
-    pio_sm_put(pio0, 1, 1000 / 8);                      // Start a timer with 1uS delay using PIO
+    // VSYNC CMD
+    uint32_t time = time_us_32();
+    // TODO: Make pin 10 (GCLK) GPIO
+    while((time_us_32() - time) < 3);
+    // TODO: Send VSYNC
+
+    // Dead time
+    time = time_us_32();
+    // TODO: Set GCLK HIGH
+    while((time_us_32() - time) < 1);
+    // TODO: Set GCLK LOW
+    while((time_us_32() - time) < 3);    
+    
+    // TODO: Make pin 10 (GCLK) PIO
+    // TODO: Kick off hardware to get ISR ticks (GCLK)
+}
+
+void __not_in_flash_func(isr_multiplex)() {
+    static uint32_t rows = 0;
+    static uint8_t flag = bank;
+    
+    if (stop) {                                                     // Bail if VSYNC is pending
+        stop = false;
+        return;
+    }
+    
+    uint32_t time = time_us_32();
     m->SetRow(rows);
     
-    if (++rows >= MULTIPLEX) {
+    if (bank != flag) {
+        send_line(bank);
+        flag = bank;
+    }
+    
+    if (++rows >= MULTIPLEX)
         rows = 0;
-        if (++counter >= (1 << PWM_bits))
-            counter = 0;
-    }  
     
-    send_latch();
-    while(!pio_interrupt_get(pio0, 0));                 // Check if timer has expired
-    pio0->irq = 1 << 1;                                 // Release timer
-    enable_display(true);
+    while((time_us_32() - time) < 1);                               // Check if timer has expired
     
-    // Kick off hardware to get ISR ticks
-    send_line(buf[(bank + 1) % 2][rows][counter]);
+    // TODO: Kick off hardware to get ISR ticks (GCLK)
 }
-
-// TODO: Add Multiplexing ISR
-
