@@ -8,4 +8,5 @@ target_link_libraries(led_SPWM INTERFACE
     hardware_dma
     hardware_pio
     hardware_timer
+    led_multiplex
 )

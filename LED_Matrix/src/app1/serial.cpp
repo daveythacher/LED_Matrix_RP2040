@@ -87,3 +87,7 @@ void serial_start() {
     xTaskCreateStatic( serial_task, "SER", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xStack, &xTaskBuffer );
 }
 
+void loop() {
+    vTaskStartScheduler();
+}
+

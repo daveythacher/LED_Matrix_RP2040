@@ -44,14 +44,6 @@ add_compile_options(
     -Wall
 )
 
-add_library(FreeRTOS STATIC 
-    FreeRTOS-Kernel/list.c
-    FreeRTOS-Kernel/queue.c
-    FreeRTOS-Kernel/tasks.c
-    FreeRTOS-Kernel/portable/GCC/ARM_CM0/port.c 
-    FreeRTOS_helpers.c)
-target_include_directories(FreeRTOS PUBLIC . FreeRTOS-Kernel/include FreeRTOS-Kernel/portable/GCC/ARM_CM0)
-
 add_subdirectory(lib)
 
 function(build_flavor TARGET)
@@ -81,10 +73,7 @@ function(build_flavor TARGET)
     pico_enable_stdio_uart(led_${TARGET} 0)
 
     # pull in dependencies
-    target_link_libraries(led_${TARGET} 
-	    pico_stdlib
-	    led_multiplex
-	    FreeRTOS)
+    target_link_libraries(led_${TARGET} pico_stdlib)
 endfunction()
 
 function(build_defined TARGET)
