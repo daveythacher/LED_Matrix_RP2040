@@ -52,7 +52,7 @@ add_library(FreeRTOS STATIC
     FreeRTOS_helpers.c)
 target_include_directories(FreeRTOS PUBLIC . FreeRTOS-Kernel/include FreeRTOS-Kernel/portable/GCC/ARM_CM0)
 
-add_subdirectory(src/Multiplex)
+add_subdirectory(lib)
 
 function(build_flavor TARGET)
     add_executable(led_${TARGET} main.cpp)
@@ -93,6 +93,6 @@ function(build_defined TARGET)
     endif()
 endfunction()
 
-build_defined(BCM)
-build_defined(SPWM)
-build_defined(MBI5153)
+#TODO: Move this to build.sh
+build_defined(app1)
+build_defined(app2)
