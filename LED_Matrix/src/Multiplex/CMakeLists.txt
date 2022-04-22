@@ -4,3 +4,4 @@ target_sources(led_multiplex INTERFACE
     Decoder.cpp
     Direct.cpp
 )
+target_link_libraries(led_multiplex INTERFACE pico_stdlib)

@@ -83,10 +83,6 @@ function(build_flavor TARGET)
     # pull in dependencies
     target_link_libraries(led_${TARGET} 
 	    pico_stdlib
-	    hardware_dma
-	    hardware_pio
-	    hardware_timer
-	    pico_multicore
 	    led_multiplex
 	    FreeRTOS)
 endfunction()
