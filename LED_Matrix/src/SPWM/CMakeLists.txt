@@ -6,7 +6,7 @@ target_sources(led_SPWM PRIVATE
 target_link_libraries(led_SPWM 
     pico_stdlib
     hardware_dma
-	hardware_pio
-	hardware_timer
-	pico_multicore
+    hardware_pio
+    hardware_timer
+    pico_multicore
 )
