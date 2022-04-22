@@ -52,12 +52,10 @@ add_library(FreeRTOS STATIC
     FreeRTOS_helpers.c)
 target_include_directories(FreeRTOS PUBLIC . FreeRTOS-Kernel/include FreeRTOS-Kernel/portable/GCC/ARM_CM0)
 
+add_subdirectory(src/Multiplex)
+
 function(build_flavor TARGET)
-    add_executable(led_${TARGET} 
-        main.cpp
-        src/Multiplex/Multiplex.cpp
-        src/Multiplex/Decoder.cpp
-        src/Multiplex/Direct.cpp)
+    add_executable(led_${TARGET} main.cpp)
     add_subdirectory(src/${TARGET})
     include_directories(. include)
 
@@ -89,6 +87,7 @@ function(build_flavor TARGET)
 	    hardware_pio
 	    hardware_timer
 	    pico_multicore
+	    led_multiplex
 	    FreeRTOS)
 endfunction()
 
