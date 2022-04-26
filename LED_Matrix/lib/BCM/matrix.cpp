@@ -10,7 +10,6 @@
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
-#include "hardware/irq.h"
 #include "hardware/timer.h"
 #include "BCM/config.h"
 #include "Multiplex/Multiplex.h"
@@ -21,7 +20,7 @@ static volatile bool stop = false;
 static int dma_chan;
 static Multiplex *m;
 
-static void isr();
+void matrix_dma_isr();
 static void send_line(uint8_t *line);
 
 void matrix_start() {
@@ -76,10 +75,7 @@ void matrix_start() {
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO0_TX0);
     dma_channel_configure(dma_chan, &c, &pio0_hw->txf[0], NULL, COLUMNS, false);
-    dma_channel_set_irq0_enabled(dma_chan, true);
-    irq_set_exclusive_handler(DMA_IRQ_0, isr);
-    irq_set_priority(DMA_IRQ_0, 0);
-    irq_set_enabled(DMA_IRQ_0, true);    
+    dma_channel_set_irq0_enabled(dma_chan, true); 
     send_line(buf[1][0][0]);
 }
 
@@ -95,7 +91,7 @@ void __not_in_flash_func(send_line)(uint8_t *line) {
     pio_sm_put(pio0, 1, COLUMNS * 2 / POWER_DIVISOR);                           // Start a timer for OE using PIO
 }
 
-void __not_in_flash_func(isr)() {
+void __not_in_flash_func(matrix_dma_isr)() {
     static uint32_t rows = 0;
     static uint32_t counter = 0;
     static uint32_t bits = 0;

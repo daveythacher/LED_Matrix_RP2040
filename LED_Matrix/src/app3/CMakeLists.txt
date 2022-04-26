@@ -1,4 +1,4 @@
-target_sources(led_app1 PRIVATE
+target_sources(led_app3 PRIVATE
     serial.cpp
     isr.cpp
     ../../FreeRTOS-Kernel/list.c
@@ -6,11 +6,11 @@ target_sources(led_app1 PRIVATE
     ../../FreeRTOS-Kernel/tasks.c
     ../../FreeRTOS-Kernel/portable/GCC/ARM_CM0/port.c 
     ../../FreeRTOS_helpers.c)
-target_include_directories(led_app1 PUBLIC 
+target_include_directories(led_app3 PUBLIC 
     ../../FreeRTOS-Kernel/include 
     ../../FreeRTOS-Kernel/portable/GCC/ARM_CM0)
-target_link_libraries(led_app1 
+target_link_libraries(led_app3 
     pico_stdlib
     pico_multicore
-    led_BCM
+    led_MBI5153
 )

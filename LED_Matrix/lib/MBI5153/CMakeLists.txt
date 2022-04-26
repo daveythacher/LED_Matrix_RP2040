@@ -1,12 +1,12 @@
-target_sources(led_MBI5153 PRIVATE
+add_library(led_MBI5153 INTERFACE)
+target_sources(led_MBI5153 INTERFACE
     matrix.cpp
-    serial.cpp
     worker.cpp
 )
-target_link_libraries(led_MBI5153 
+target_link_libraries(led_MBI5153 INTERFACE
     pico_stdlib
     hardware_dma
     hardware_pio
     hardware_timer
-    pico_multicore
+    led_multiplex
 )

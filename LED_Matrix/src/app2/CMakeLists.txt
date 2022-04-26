@@ -1,5 +1,6 @@
 target_sources(led_app2 PRIVATE
     serial.cpp
+    isr.cpp
     ../../FreeRTOS-Kernel/list.c
     ../../FreeRTOS-Kernel/queue.c
     ../../FreeRTOS-Kernel/tasks.c

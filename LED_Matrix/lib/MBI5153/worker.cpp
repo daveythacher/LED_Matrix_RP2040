@@ -30,17 +30,16 @@ static void build_table_pwm(uint8_t bits) {
     }
 }
 
-static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
+/*void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
     buf[bank][0][y][x] = index_table[r0];
     buf[bank][1][y][x] = index_table[g0];
     buf[bank][2][y][x] = index_table[b0];
     buf[bank][3][y][x] = index_table[r1];
     buf[bank][4][y][x] = index_table[g1];
     buf[bank][5][y][x] = index_table[b1];
-}
+}*/
 
 void __not_in_flash_func(work)() {
     build_table_pwm(PWM_bits);
-    memset(buf, 0, sizeof(buf));
 }
 

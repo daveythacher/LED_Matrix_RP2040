@@ -71,7 +71,7 @@ static StackType_t xStack[ configMINIMAL_STACK_SIZE ];
 // This could be UART/RS-485, SPI, Ethernet, Etc.
 //  If Ethernet it would be interesting to know if a webserver is possible.
 static void serial_task(void *arg) {
-    extern void work;
+    extern void work();
     work();
     // TODO:
     
@@ -85,5 +85,9 @@ static void serial_task(void *arg) {
 
 void serial_start() {
     xTaskCreateStatic( serial_task, "SER", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xStack, &xTaskBuffer );
+}
+
+void loop() {
+    vTaskStartScheduler();
 }
 
