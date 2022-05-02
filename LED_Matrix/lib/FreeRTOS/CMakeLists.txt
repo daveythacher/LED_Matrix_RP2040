@@ -9,5 +9,6 @@ target_sources(FreeRTOS INTERFACE
 target_include_directories(FreeRTOS INTERFACE
     ../../include/FreeRTOS
     FreeRTOS-Kernel/include 
-    FreeRTOS-Kernel/portable/GCC/ARM_CM0)
+    FreeRTOS-Kernel/portable/GCC/ARM_CM0
+)
 target_link_libraries(FreeRTOS INTERFACE pico_stdlib)
