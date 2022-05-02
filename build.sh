@@ -13,5 +13,5 @@ cmake .. -DDEFINE_MULTIPLEX=16 -DDEFINE_MAX_RGB_LED_STEPS=500 -Dapp1=TRUE -Dapp2
 make -j $(($(nproc) * 2)) #VERBOSE=1
 if [ $? -eq 0 ]; then
     echo "Binary output:"
-    ls -la $DIR/LED_Matrix/build/led_*.*
+    ls -la $DIR/LED_Matrix/build/src/led_*.*
 fi

@@ -47,9 +47,9 @@ add_compile_options(
 add_subdirectory(lib)
 
 function(build_flavor TARGET)
-    add_executable(led_${TARGET} main.cpp)
-    add_subdirectory(src/${TARGET})
-    include_directories(. include)
+    add_executable(led_${TARGET} ${TARGET}/main.cpp)
+    add_subdirectory(${TARGET})
+    include_directories(. ../include)
 
     target_compile_definitions(led_${TARGET} PUBLIC 
         DEFINE_MULTIPLEX=${DEFINE_MULTIPLEX} 
@@ -62,15 +62,9 @@ function(build_flavor TARGET)
         DEFINE_USE_CIE1931=${DEFINE_USE_CIE1931}
     )
 
-    pico_set_binary_type(led_${TARGET} copy_to_ram)
-
     # create map/bin/hex file etc.
     pico_add_extra_outputs(led_${TARGET})
     pico_add_dis_output2(led_${TARGET})
-
-    # enable usb output, disable uart output
-    pico_enable_stdio_usb(led_${TARGET} 1)
-    pico_enable_stdio_uart(led_${TARGET} 0)
 
     # pull in dependencies
     target_link_libraries(led_${TARGET} pico_stdlib)
@@ -82,7 +76,4 @@ function(build_defined TARGET)
     endif()
 endfunction()
 
-#TODO: Move this to build.sh
-build_defined(app1)
-build_defined(app2)
-build_defined(app3)
+add_subdirectory(src)
