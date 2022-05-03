@@ -18,6 +18,7 @@
     constexpr int MULTIPLEX_NUM = DEFINE_MULTIPLEX_NUM;
     constexpr bool USE_CIE1931 = (DEFINE_USE_CIE1931 == 1);
     constexpr float SERIAL_CLOCK = (DEFINE_SERIAL_CLOCK * 1000000.0);
+    constexpr int BLANK_TIME = DEFINE_BLANK_TIME;
     
     #include <math.h>
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));

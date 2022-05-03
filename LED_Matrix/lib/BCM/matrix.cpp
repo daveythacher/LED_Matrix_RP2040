@@ -52,7 +52,7 @@ void matrix_start() {
     pio_add_program(pio0, &pio_programs);
     
     // Verify Serial Clock
-    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH);
+    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * (1 << PWM_bits));
     static_assert(x2 >= 1.0);
     constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x >= 1.0);
@@ -119,7 +119,7 @@ void __not_in_flash_func(matrix_dma_isr)() {
     
     send_latch();
     if (counter == 1)
-        while((time_us_32() - time) < 1);                                       // Check if timer has expired
+        while((time_us_32() - time) < BLANK_TIME);                              // Check if timer has expired
     
     // Kick off hardware to get ISR ticks
     send_line(buf[(bank + 1) % 2][rows][bits]);

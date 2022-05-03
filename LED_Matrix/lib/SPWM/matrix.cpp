@@ -114,7 +114,7 @@ void __not_in_flash_func(matrix_dma_isr)() {
     }  
     
     send_latch();
-    while((time_us_32() - time) < 1);                                           // Check if timer has expired
+    while((time_us_32() - time) < BLANK_TIME);                                  // Check if timer has expired
     
     // Kick off hardware to get ISR ticks
     send_line(buf[(bank + 1) % 2][rows][counter]);
