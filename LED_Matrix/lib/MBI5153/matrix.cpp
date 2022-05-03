@@ -52,34 +52,40 @@ void matrix_start() {
     1 PIO for GCLK
 */
 
+    // Verify Serial Clock
+    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * FPS * 16.0);
+    static_assert(x2 >= 1.0);
+    constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
+    static_assert(x >= 1.0);
+
     // Parallel shifter bus
     pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
-    pio0->sm[0].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
-    pio0->sm[1].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[1].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[1].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
-    pio0->sm[2].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[2].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[2].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[2].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio0->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
-    pio0->sm[3].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[3].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[3].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[3].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio0->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
-    pio1->sm[0].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio1->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio1->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio1->sm[0].execctrl = (1 << 17) | (0x1 << 12);
     hw_set_bits(&pio1->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
-    pio1->sm[1].clkdiv = (8 << 16) | (0 << 8);                      // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio1->sm[1].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio1->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio1->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio1->sm[1].execctrl = (1 << 17) | (0x1 << 12);

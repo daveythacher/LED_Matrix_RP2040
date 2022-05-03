@@ -49,10 +49,20 @@ void matrix_start() {
         .origin = -1,
     };
     pio_add_program(pio0, &pio_programs);
+    
+    // Verify FPS and Refresh
+    constexpr float x3 = MAX_REFRESH / (FPS * (1 << PWM_bits)) * 1.0;
+    static_assert(x3 >= 1.0);
+    
+    // Verify Serial Clock
+    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH);
+    assert(x2 >= 1.0);
+    constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
+    static_assert(x >= 1.0);
 
     // PMP
     pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
-    pio0->sm[0].clkdiv = (8 << 16) | (0 << 8);                                  // Note: 125MHz / 8 = 15.625MHz - 8 + (0/256)
+    pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);

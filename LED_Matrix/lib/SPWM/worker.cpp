@@ -6,7 +6,6 @@
  
 #include <stdint.h>
 #include <string.h>
-#include <assert.h>
 #include <math.h>
 #include <algorithm>
 #include <queue>
@@ -55,12 +54,7 @@ static uint8_t index_table[256][6][1 << PWM_bits];
 static void build_tree_lut(uint8_t *tree_lut, uint8_t lower);
 static void destroy_tree_lut(uint8_t *tree_lut);
 
-static void build_table_pwm(uint8_t lower, uint8_t upper) {
-    //assert(upper >= 0 && upper <= 5);     // 0 to log2(uint32_t)
-    assert(upper == 0);                     // This is not the full version, this is refresh hack for complexity reduction
-    assert(lower <= 8);                     // tree_lut uses uint8_t
-    assert(lower >= 1);                     // set_pixel needs atleast one bit, this is speed hack for custom version
-    
+static void build_table_pwm(uint8_t lower, uint8_t upper) {    
     uint8_t *tree_lut = nullptr;
     build_tree_lut(tree_lut, lower);
     memset(index_table, 0, sizeof(index_table));
@@ -114,6 +108,11 @@ static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uin
 }
 
 void __not_in_flash_func(work)() {
+    //static_assert(upper >= 0 && upper <= 5);    // 0 to log2(uint32_t)
+    static_assert(upper == 0);                  // This is not the full version, this is refresh hack for complexity reduction
+    static_assert(lower <= 8);                  // tree_lut uses uint8_t
+    static_assert(lower >= 1);                  // set_pixel needs atleast one bit, this is speed hack for custom version
+    
     build_table_pwm(lower, upper);
     
     while(1) {

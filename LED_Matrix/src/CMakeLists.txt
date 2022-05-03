@@ -6,6 +6,7 @@ set(DEFINE_COLUMNS 128 CACHE STRING "Chain length")
 set(DEFINE_MULTIPLEX_NUM 0 CACHE STRING "Address pin/Multiplexing type enum")
 set(DEFINE_POWER_DIVISOR 1 CACHE STRING "Divisor for lowering average power. Requires bulk energy storage to smooth peak current")
 set(DEFINE_USE_CIE1931 1 CACHE STRING "Use CIE1931 color temperature mapping table")
+set(DEFINE_SERIAL_CLOCK 15.625 CACHE STRING "HUB75 serial clock speed in MHz")
 
 # create disassembly with source
 function(pico_add_dis_output2 TARGET)
