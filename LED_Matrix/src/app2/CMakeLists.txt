@@ -3,6 +3,13 @@ target_sources(led_${TARGET} PRIVATE
     isr.cpp
 )
 
+target_include_directories(led_${TARGET} PRIVATE
+    ../../include
+    ../../include/FreeRTOS
+    ../../lib/FreeRTOS/FreeRTOS-Kernel/include 
+    ../../lib/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM0
+)
+
 target_compile_options(led_${TARGET} PRIVATE 
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
     -fno-exceptions 

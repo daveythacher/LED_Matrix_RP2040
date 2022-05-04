@@ -6,7 +6,6 @@
  
 #include <stdint.h>
 #include "pico/stdlib.h"
-#include "pico/multicore.h"
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
