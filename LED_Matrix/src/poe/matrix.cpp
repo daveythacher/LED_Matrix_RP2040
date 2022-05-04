@@ -5,6 +5,7 @@
  */
  
 #include <stdint.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
@@ -37,6 +38,9 @@ void matrix_start() {
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
+    // Zero out blank sections
+    memset(buf, 0, sizeof(buf));
+    
     // PIO
     const uint16_t instructions[] = { 
         (uint16_t) (pio_encode_out(pio_pins, 8) | pio_encode_sideset(1, 0)),    // PMP Program
@@ -52,6 +56,7 @@ void matrix_start() {
         .origin = -1,
     };
     pio_add_program(pio0, &pio_programs);
+    pio_add_program(pio1, &pio_programs);
     
     // Verify FPS and Refresh
     constexpr float x3 = MAX_REFRESH / (FPS * (1 << PWM_bits)) * 1.0;
@@ -143,6 +148,6 @@ void __not_in_flash_func(matrix_dma_isr)() {
     
     // Kick off hardware to get ISR ticks
     send_line(buf[(bank + 1) % 2][rows][counter][num]);
-    pio_sm_put(pio0, n / 4, COLUMNS * 2 / POWER_DIVISOR);                       // Start a timer for OE using PIO
+    pio_sm_put(pio0, n / 2, COLUMNS * 2 / POWER_DIVISOR);                       // Start a timer for OE using PIO
 }
 

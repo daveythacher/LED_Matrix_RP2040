@@ -17,7 +17,7 @@ cd build
 #cmake .. -DDEFINE_MULTIPLEX=8 -DDEFINE_MAX_RGB_LED_STEPS=62 -DDEFINE_MAX_REFRESH=400 -Dapp2=TRUE                            #Max resolution of 16x128 400Hz 9-bit color - Code issue limits color depth
 
 #cmake .. -DDEFINE_MULTIPLEX=16 -DDEFINE_MAX_RGB_LED_STEPS=500 -DDEFINE_MAX_REFRESH=200 -Dapp1=TRUE                          #Max resolution of 32x128 200Hz 15-bit color - Runs out of serial bandwidth
-#cmake .. -DDEFINE_MULTIPLEX=16 -DDEFINE_MAX_RGB_LED_STEPS=500 -Dapp2=TRUE                                                   #Max resolution of 32x128 3.8kHz 15-bit color
+#cmake .. -DDEFINE_MULTIPLEX=16 -DDEFINE_MAX_RGB_LED_STEPS=500 -Dapp2=TRUE                                                   #Max resolution of 32x128 3.8kHz 15-bit color - Runs out of memory and CPU
 #cmake .. -DDEFINE_MULTIPLEX=16 -DDEFINE_MAX_RGB_LED_STEPS=500 -Dapp3=TRUE                                                   #Max resolution of 32x256 3.8kHz 15-bit color - Runs out of memory
 
 #cmake .. -DDEFINE_MULTIPLEX=32 -DDEFINE_MAX_RGB_LED_STEPS=500 -DDEFINE_MAX_REFRESH=200 -Dapp1=TRUE                          #Max resolution of 64x64 200Hz 12-bit color - Runs out of serial bandwidth
@@ -28,7 +28,7 @@ cd build
 #cmake .. -DDEFINE_MULTIPLEX=2 -DDEFINE_MAX_RGB_LED_STEPS=250 -DDEFINE_COLUMNS=32 -Dapp2=TRUE                                #Max resolution of 4x32 3.8kHz 21-bit color - Runs out of memory (code issue)
 #cmake .. -DDEFINE_MULTIPLEX=32 -DDEFINE_MAX_RGB_LED_STEPS=4000 -Dapp3=TRUE                                                  #Max resolution of 64x128 3.8kHz 21-bit color - Runs out of memory
 
-cmake .. -DDEFINE_MULTIPLEX=16 -DDEFINE_MAX_RGB_LED_STEPS=2000 -Dpoe=TRUE                                                   #Max resolution of 32x128 400Hz 12-bit color - Runs out of memory and CPU
+cmake .. -DDEFINE_MULTIPLEX=16 -DDEFINE_MAX_RGB_LED_STEPS=2000 -Dpoe=TRUE                                                   #Max resolution of 32x128 3.8kHz 12-bit color - Runs out of memory and CPU
 make -j $(($(nproc) * 2)) #VERBOSE=1
 if [ $? -eq 0 ]; then
     echo "Binary output:"
