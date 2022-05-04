@@ -31,6 +31,7 @@ void matrix_start() {
     }
     for (int i = 0; i < 9; i++)
         gpio_set_function(i, GPIO_FUNC_PIO0);
+    gpio_set_function(10, GPIO_FUNC_PIO0);
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     

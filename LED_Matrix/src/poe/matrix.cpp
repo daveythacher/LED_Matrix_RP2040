@@ -9,7 +9,7 @@
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
-#include "SPWM/config.h"
+#include "config.h"
 #include "Multiplex/Multiplex.h"
 
 test2 buf[2];
@@ -30,7 +30,10 @@ void matrix_start() {
     }
     for (int i = 0; i < 9; i++)
         gpio_set_function(i, GPIO_FUNC_PIO0);
-    gpio_set_function(10, GPIO_FUNC_PIO0);
+    gpio_set_function(10, GPIO_FUNC_PIO1);
+    gpio_set_function(16, GPIO_FUNC_PIO1);
+    gpio_set_function(17, GPIO_FUNC_PIO1);
+    gpio_set_function(18, GPIO_FUNC_PIO1);
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
@@ -70,12 +73,30 @@ void matrix_start() {
     pio_sm_claim(pio0, 0);
     
     // OE
-    pio0->sm[1].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio0->sm[1].pinctrl = (1 << PIO_SM1_PINCTRL_SIDESET_COUNT_LSB) | (10 << PIO_SM1_PINCTRL_SIDESET_BASE_LSB);
-    pio0->sm[1].execctrl = (1 << 17) | (0x5 << 12) | (0x2 << 7);
-    pio0->sm[1].instr = pio_encode_jmp(0x2);
-    hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
-    pio_sm_claim(pio0, 1);
+    pio1->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
+    pio1->sm[0].pinctrl = (1 << PIO_SM1_PINCTRL_SIDESET_COUNT_LSB) | (10 << PIO_SM1_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[0].execctrl = (1 << 17) | (0x5 << 12) | (0x2 << 7);
+    pio1->sm[0].instr = pio_encode_jmp(0x2);
+    hw_set_bits(&pio1->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
+    pio_sm_claim(pio1, 0);
+    pio1->sm[1].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
+    pio1->sm[1].pinctrl = (1 << PIO_SM1_PINCTRL_SIDESET_COUNT_LSB) | (16 << PIO_SM1_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[1].execctrl = (1 << 17) | (0x5 << 12) | (0x2 << 7);
+    pio1->sm[1].instr = pio_encode_jmp(0x2);
+    hw_set_bits(&pio1->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
+    pio_sm_claim(pio1, 1);
+    pio1->sm[2].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
+    pio1->sm[2].pinctrl = (1 << PIO_SM1_PINCTRL_SIDESET_COUNT_LSB) | (17 << PIO_SM1_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[2].execctrl = (1 << 17) | (0x5 << 12) | (0x2 << 7);
+    pio1->sm[2].instr = pio_encode_jmp(0x2);
+    hw_set_bits(&pio1->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
+    pio_sm_claim(pio1, 2);
+    pio1->sm[3].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
+    pio1->sm[3].pinctrl = (1 << PIO_SM1_PINCTRL_SIDESET_COUNT_LSB) | (18 << PIO_SM1_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[3].execctrl = (1 << 17) | (0x5 << 12) | (0x2 << 7);
+    pio1->sm[3].instr = pio_encode_jmp(0x2);
+    hw_set_bits(&pio1->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
+    pio_sm_claim(pio1, 3);
     
     // DMA
     dma_chan = dma_claim_unused_channel(true);
@@ -83,9 +104,9 @@ void matrix_start() {
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO0_TX0);
-    dma_channel_configure(dma_chan, &c, &pio0_hw->txf[0], NULL, COLUMNS, false);
+    dma_channel_configure(dma_chan, &c, &pio0_hw->txf[0], NULL, COLUMNS / 4, false);
     dma_channel_set_irq0_enabled(dma_chan, true); 
-    send_line(buf[1][0][0]);
+    send_line(buf[1][0][0][0]);
 }
 
 static void __not_in_flash_func(send_latch)() {
@@ -97,26 +118,31 @@ static void __not_in_flash_func(send_latch)() {
 void __not_in_flash_func(send_line)(uint8_t *line) {
     dma_hw->ints0 = 1 << dma_chan;
     dma_channel_set_read_addr(dma_chan, line, true);
-    pio_sm_put(pio0, 1, COLUMNS * 2 / POWER_DIVISOR);                           // Start a timer for OE using PIO
 }
 
 void __not_in_flash_func(matrix_dma_isr)() {
     static uint32_t rows = 0;
     static uint32_t counter = 0;
+    static uint32_t num = 0;
     
     uint32_t time = time_us_32();                                               // Start a timer with 1uS delay using PIO
+    uint32_t n = num;
     m->SetRow(rows);
     
-    if (++rows >= MULTIPLEX) {
-        rows = 0;
-        if (++counter >= (1 << PWM_bits))
-            counter = 0;
-    }  
+    if (++num >= 8) {
+        num = 0;
+        if (++rows >= MULTIPLEX) {
+            rows = 0;
+            if (++counter >= (1 << PWM_bits))
+                counter = 0;
+        }  
     
-    send_latch();
-    while((time_us_32() - time) < BLANK_TIME);                                  // Check if timer has expired
+        send_latch();
+        while((time_us_32() - time) < BLANK_TIME);                              // Check if timer has expired
+    }
     
     // Kick off hardware to get ISR ticks
-    send_line(buf[(bank + 1) % 2][rows][counter]);
+    send_line(buf[(bank + 1) % 2][rows][counter][num]);
+    pio_sm_put(pio0, n / 4, COLUMNS * 2 / POWER_DIVISOR);                       // Start a timer for OE using PIO
 }
 

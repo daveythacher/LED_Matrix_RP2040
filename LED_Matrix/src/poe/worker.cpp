@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <queue>
 #include "pico/multicore.h"
-#include "SPWM/config.h"
+#include "config.h"
 
 /*
     This file implements Scrambled PWM (S-PWM) in software using memory look up tables.
@@ -97,9 +97,11 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
 static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
     extern test2 buf[];
     uint8_t *c[6] = { index_table[r0][0], index_table[g0][1], index_table[b0][2], index_table[r1][3], index_table[g1][4], index_table[b1][5] };
+    uint32_t num = x / (COLUMNS / 8);
+    uint32_t n = (x % (COLUMNS / 8)) * ((num % 2) + 1);
 
     for (uint32_t i = 0; i < (1 << lower); i++) {
-        uint8_t *p = &buf[bank][y][i * 2][x];
+        uint8_t *p = &buf[bank][y][i][num][n];
         *p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
         for (uint32_t j = 0; j < 6; j++)
             ++c[j];
