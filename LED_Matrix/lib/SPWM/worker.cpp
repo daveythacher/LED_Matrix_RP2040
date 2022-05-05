@@ -99,7 +99,7 @@ static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uin
     uint8_t *c[6] = { index_table[r0][0], index_table[g0][1], index_table[b0][2], index_table[r1][3], index_table[g1][4], index_table[b1][5] };
 
     for (uint32_t i = 0; i < (1 << lower); i++) {
-        uint8_t *p = &buf[bank][y][i * 2][x];
+        uint8_t *p = &buf[bank][y][i][x];
         *p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
         for (uint32_t j = 0; j < 6; j++)
             ++c[j];
