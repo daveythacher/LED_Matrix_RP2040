@@ -2,7 +2,20 @@
 
 def cfgs = [
         [
-            name: "test",
+            name: "P6-BCM",
+            enable: true,
+            app: "app1",
+            multiplex: "8",
+            multiplex_num: "1",
+            max_rgb_led_steps: "500",
+            max_refresh: "200",
+            fps: "30",
+            columns: "128",
+            serial_clock: "15.625",
+            blank_time: "1"
+        ],
+        [
+            name: "P4-BCM",
             enable: true,
             app: "app1",
             multiplex: "16",
@@ -15,12 +28,38 @@ def cfgs = [
             blank_time: "1"
         ],
         [
-            name: "test2",
+            name: "P4-SPWM",
             enable: true,
             app: "app2",
             multiplex: "16",
             multiplex_num: "1",
             max_rgb_led_steps: "500",
+            max_refresh: "3840",
+            fps: "30",
+            columns: "128",
+            serial_clock: "15.625",
+            blank_time: "1"
+        ],
+        [
+            name: "P4-MBI5153",
+            enable: true,
+            app: "app3",
+            multiplex: "16",
+            multiplex_num: "1",
+            max_rgb_led_steps: "4000",
+            max_refresh: "3840",
+            fps: "30",
+            columns: "128",
+            serial_clock: "15.625",
+            blank_time: "1"
+        ],
+        [
+            name: "POE",
+            enable: true,
+            app: "poe",
+            multiplex: "16",
+            multiplex_num: "1",
+            max_rgb_led_steps: "2000",
             max_refresh: "3840",
             fps: "30",
             columns: "128",
