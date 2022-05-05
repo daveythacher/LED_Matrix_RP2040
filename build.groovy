@@ -44,7 +44,7 @@ def build_flavor(Map c) {
     f << "cp \$DIR/../../lib/pico-sdk/external/pico_sdk_import.cmake ../..\n"
     f << "mkdir build\n"
     f << "cd build\n"
-    f << sprintf("cmake ../../.. -D%s=TRUE -DDEFINE_MULTIPLEX=%s -DDEFINE_MULTIPLEX_NUM=%s -DDEFINE_MAX_RGB_LED_STEPS=%s -DDEFINE_MAX_REFRESH=%s -DDEFINE_FPS=%s -DDEFINE_COLUMNS=%s -DDEFINE_SERIAL_CLOCK=%s -DDEFINE_BLANK_TIME=%s 2>&1\n", c.app, c.multiplex, c.multiplex_num, c.max_rgb_led_steps, c.max_refresh, c.fps, c.columns, c.serial_clock, c.blank_time)
+    f << sprintf("cmake ../../.. -DAPP=%s -DDEFINE_MULTIPLEX=%s -DDEFINE_MULTIPLEX_NUM=%s -DDEFINE_MAX_RGB_LED_STEPS=%s -DDEFINE_MAX_REFRESH=%s -DDEFINE_FPS=%s -DDEFINE_COLUMNS=%s -DDEFINE_SERIAL_CLOCK=%s -DDEFINE_BLANK_TIME=%s 2>&1\n", c.app, c.multiplex, c.multiplex_num, c.max_rgb_led_steps, c.max_refresh, c.fps, c.columns, c.serial_clock, c.blank_time)
     f << "make -j \$((\$(nproc) * 2)) 2>&1 #VERBOSE=1\n"
     f << "if [ \$? -eq 0 ]; then\n"
     f << "\techo \"Binary output:\"\n"

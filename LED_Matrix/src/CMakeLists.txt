@@ -7,14 +7,4 @@ function(build_flavor TARGET)
     pico_add_dis_output2(led_${TARGET})
 endfunction()
 
-function(build_defined TARGET)
-    if (DEFINED ${TARGET})
-        build_flavor(${TARGET})
-    endif()
-endfunction()
-
-
-build_defined(app1)
-build_defined(app2)
-build_defined(app3)
-build_defined(poe)
+build_flavor(${APP})
