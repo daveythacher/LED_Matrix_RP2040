@@ -3,8 +3,8 @@
  * Author: David Thacher
  * License: GPL 3.0
  */
- 
- #include "pico/stdlib.h"
+
+#include "debug.h"
 
 extern void matrix_start();
 extern void serial_start();
@@ -12,6 +12,7 @@ extern void isr_start();
 extern "C" void usb_start();
 
 int main() {
+    debug_start();
     usb_start();
     matrix_start();
     serial_start();
