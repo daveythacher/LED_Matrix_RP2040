@@ -5,9 +5,6 @@ target_sources(led_${TARGET} PRIVATE
 
 target_include_directories(led_${TARGET} PRIVATE
     ../../include
-    ../../include/FreeRTOS
-    ../../lib/FreeRTOS/FreeRTOS-Kernel/include 
-    ../../lib/FreeRTOS/FreeRTOS-Kernel/portable/GCC/ARM_CM0
 )
 
 target_compile_options(led_${TARGET} PRIVATE 
@@ -49,5 +46,4 @@ target_link_libraries(led_${TARGET}
     pico_stdlib
     pico_multicore
     led_SPWM
-    FreeRTOS
 )

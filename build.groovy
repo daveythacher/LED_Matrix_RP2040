@@ -65,19 +65,6 @@ def cfgs = [
             columns: "128",
             serial_clock: "15.625",
             blank_time: "1"
-        ],
-        [
-            name: "P4-SPWM-USB",
-            enable: true,
-            app: "usb_spwm",
-            multiplex: "16",
-            multiplex_num: "1",
-            max_rgb_led_steps: "500",
-            max_refresh: "3840",
-            fps: "30",
-            columns: "128",
-            serial_clock: "15.625",
-            blank_time: "1"
         ]
     ]
 

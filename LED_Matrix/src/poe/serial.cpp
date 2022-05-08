@@ -12,9 +12,7 @@ static volatile bool isReady;
 static test buffers[2];
 static uint8_t buffer = 0;
 
-// This could be UART/RS-485, SPI, Ethernet, Etc.
-//  If Ethernet it would be interesting to know if a webserver is possible.
-static void serial_task() {
+void serial_task() {
     extern void work();
     multicore_launch_core1(work);
     // TODO:
@@ -29,10 +27,5 @@ static void serial_task() {
 
 void serial_start() {
     
-}
-
-void loop() {
-    while(1)
-        serial_task();
 }
 
