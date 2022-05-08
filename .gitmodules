@@ -1,6 +1,3 @@
-[submodule "LED_Matrix/lib/FreeRTOS/FreeRTOS-Kernel"]
-	path = LED_Matrix/lib/FreeRTOS/FreeRTOS-Kernel
-	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
 [submodule "LED_Matrix/lib/pico-sdk"]
 	path = LED_Matrix/lib/pico-sdk
 	url = https://github.com/raspberrypi/pico-sdk.git
