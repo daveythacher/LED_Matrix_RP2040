@@ -36,7 +36,7 @@ target_compile_definitions(led_${TARGET} PRIVATE
     DEFINE_BLANK_TIME=${DEFINE_BLANK_TIME}
 )
 
-pico_set_binary_type(led_${TARGET} copy_to_ram)
+#pico_set_binary_type(led_${TARGET} copy_to_ram)
 
 # enable usb output, disable uart output
 pico_enable_stdio_usb(led_${TARGET} 1)

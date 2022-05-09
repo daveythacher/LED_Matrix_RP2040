@@ -18,7 +18,7 @@ static void build_table_pwm(uint8_t bits) {
     
     for (uint32_t i = 0; i < 256; i++) {
         uint32_t steps;
-        if (USE_CIE1931)
+        if (!USE_CIE1931)
             steps = (uint32_t) round((i / 255.0) * ((1 << bits) - 1));
         else {
             float x = i * 100 / 255.0;
