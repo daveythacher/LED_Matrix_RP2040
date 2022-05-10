@@ -1,5 +1,14 @@
 #!/usr/bin/env groovy
 
+/* 
+ * File:   build.groovy
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
+@Grab(group='org.apache.commons', module='commons-lang3', version='3.11' )
+import org.apache.commons.lang3.SystemUtils
+
 def cfgs = [
         [
             name: "P6-BCM",
@@ -96,7 +105,7 @@ def cfgs = [
 
 stop = false
 
-def build_flavor(Map c) {
+def build_flavor_linux(Map c) {
     if (!c.enable)
         return "Skipping"
     new File("./LED_Matrix/build/" + c.name).mkdirs()
@@ -124,6 +133,15 @@ def build_flavor(Map c) {
         stop = true
     }
     return proc.text
+}
+
+def build_flavor(Map c) {
+    if (SystemUtils.IS_OS_LINUX)
+        return build_flavor_linux(c)
+    else {
+        stop = true
+        return "Unsupported Build Platform\n"
+    }
 }
 
 cfgs.each {
