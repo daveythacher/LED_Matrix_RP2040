@@ -51,12 +51,12 @@
 
 extern uint8_t bank;
 static uint8_t index_table[256][6][1 << PWM_bits];
-static void build_tree_lut(uint8_t *tree_lut, uint8_t lower);
+static void build_tree_lut(uint8_t **tree_lut, uint8_t lower);
 static void destroy_tree_lut(uint8_t *tree_lut);
 
 static void build_table_pwm(uint8_t lower, uint8_t upper) {    
     uint8_t *tree_lut = nullptr;
-    build_tree_lut(tree_lut, lower);
+    build_tree_lut(&tree_lut, lower);
     memset(index_table, 0, sizeof(index_table));
     
     for (uint32_t i = 0; i < 256; i++) {
@@ -70,16 +70,13 @@ static void build_table_pwm(uint8_t lower, uint8_t upper) {
             else
                 steps = round(pow((x + 16) / 116.0, 3) * (1 << (lower + upper)));
         }
-        for (uint32_t j = 0; j < steps;) {
-            for (uint32_t k = 0; k < (uint32_t) (1 << lower) && j < steps; k++) {
-                index_table[i][0][tree_lut[k]] = (index_table[i][0][tree_lut[k]] << 1) + 1;
-                index_table[i][1][tree_lut[k]] = index_table[i][0][tree_lut[k]] << 1;
-                index_table[i][2][tree_lut[k]] = index_table[i][1][tree_lut[k]] << 1;
-                index_table[i][3][tree_lut[k]] = index_table[i][2][tree_lut[k]] << 1;
-                index_table[i][4][tree_lut[k]] = index_table[i][3][tree_lut[k]] << 1;
-                index_table[i][5][tree_lut[k]] = index_table[i][4][tree_lut[k]] << 1;
-                j++;
-            }
+        for (uint32_t j = 0; j < steps; j++) {
+            index_table[i][0][tree_lut[j]] = (index_table[i][0][tree_lut[j]] << 1) + 1;
+            index_table[i][1][tree_lut[j]] = index_table[i][0][tree_lut[j]] << 1;
+            index_table[i][2][tree_lut[j]] = index_table[i][1][tree_lut[j]] << 1;
+            index_table[i][3][tree_lut[j]] = index_table[i][2][tree_lut[j]] << 1;
+            index_table[i][4][tree_lut[j]] = index_table[i][3][tree_lut[j]] << 1;
+            index_table[i][5][tree_lut[j]] = index_table[i][4][tree_lut[j]] << 1;
         }
     }
     
@@ -125,33 +122,33 @@ void __not_in_flash_func(work)() {
     }
 }
 
-void build_tree_lut(uint8_t *tree_lut, uint8_t lower) {
+void build_tree_lut(uint8_t **tree_lut, uint8_t lower) {
 #ifdef USE_MALLOC_TREE_LUT
-    tree_lut = (uint8_t *) malloc(1 << lower);
-    if (tree_lut == NULL)
+    *tree_lut = (uint8_t *) malloc(1 << lower);
+    if (*tree_lut == NULL)
         assert(false);
     
     if (lower == 0)
-        tree_lut[0] = 0;
+        *tree_lut[0] = 0;
     else {
         std::queue<uint8_t> queue;
         std::queue<uint8_t> tmp;
         uint8_t index = 2;
         for (uint8_t i = lower; i > 0; i--) {
             if (i == lower) {
-                tree_lut[0] = 1 << (i - 1);
-                tree_lut[1] = 0;
-                queue.push(tree_lut[0]);
+                *tree_lut[0] = 1 << (i - 1);
+                *tree_lut[1] = 0;
+                queue.push(*tree_lut[0]);
             }
             else {
                 tmp = queue;
                 queue = {};
                 while (!tmp.empty()) {
                     uint8_t var = tmp.front();
-                    tree_lut[index] = var - (1 << (i - 1));
-                    tree_lut[index + 1] = var + (1 << (i - 1));
-                    queue.push(tree_lut[index]);
-                    queue.push(tree_lut[index + 1]);
+                    *tree_lut[index] = var - (1 << (i - 1));
+                    *tree_lut[index + 1] = var + (1 << (i - 1));
+                    queue.push(*tree_lut[index]);
+                    queue.push(*tree_lut[index + 1]);
                     index += 2;
                     tmp.pop();
                 }
@@ -159,39 +156,39 @@ void build_tree_lut(uint8_t *tree_lut, uint8_t lower) {
         }
     }
 #else
-    const uint8_t tree_lut0[] = { 0 };
-    const uint8_t tree_lut1[] = { 1, 0 };
-    const uint8_t tree_lut2[] = { 2, 0, 1, 3 };
-    const uint8_t tree_lut3[] = { 4, 0, 2, 6, 1, 3, 5, 7 };
-    const uint8_t tree_lut4[] = { 8, 0, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15 };
-    const uint8_t tree_lut5[] = { 16, 0, 8, 24, 4, 12, 20, 28, 2, 6, 10, 14, 18, 22, 26, 30, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31 };
-    const uint8_t tree_lut6[] = { 32, 0, 16, 48, 8, 24, 40, 56, 4, 12, 20, 28, 36, 44, 52, 60, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63 };
-    const uint8_t tree_lut7[] = { 64, 0, 32, 96, 16, 48, 80, 112, 8, 24, 40, 56, 72, 88, 104, 120, 4, 12, 20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 108, 116, 124, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95, 97, 99, 101, 103, 105, 107, 109, 111, 113, 115, 117, 119, 121, 123, 125, 127 };
+    static const uint8_t tree_lut0[] = { 0 };
+    static const uint8_t tree_lut1[] = { 1, 0 };
+    static const uint8_t tree_lut2[] = { 2, 0, 1, 3 };
+    static const uint8_t tree_lut3[] = { 4, 0, 2, 6, 1, 3, 5, 7 };
+    static const uint8_t tree_lut4[] = { 8, 0, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15 };
+    static const uint8_t tree_lut5[] = { 16, 0, 8, 24, 4, 12, 20, 28, 2, 6, 10, 14, 18, 22, 26, 30, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31 };
+    static const uint8_t tree_lut6[] = { 32, 0, 16, 48, 8, 24, 40, 56, 4, 12, 20, 28, 36, 44, 52, 60, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63 };
+    static const uint8_t tree_lut7[] = { 64, 0, 32, 96, 16, 48, 80, 112, 8, 24, 40, 56, 72, 88, 104, 120, 4, 12, 20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 108, 116, 124, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95, 97, 99, 101, 103, 105, 107, 109, 111, 113, 115, 117, 119, 121, 123, 125, 127 };
 
     switch (lower) {
         case 0:
-            tree_lut = (uint8_t *) tree_lut0;
+            *tree_lut = (uint8_t *) tree_lut0;
             break;
         case 1:
-            tree_lut = (uint8_t *) tree_lut1;
+            *tree_lut = (uint8_t *) tree_lut1;
             break;
         case 2:
-            tree_lut = (uint8_t *) tree_lut2;
+            *tree_lut = (uint8_t *) tree_lut2;
             break;
         case 3:
-            tree_lut = (uint8_t *) tree_lut3;
+            *tree_lut = (uint8_t *) tree_lut3;
             break;
         case 4:
-            tree_lut = (uint8_t *) tree_lut4;
+            *tree_lut = (uint8_t *) tree_lut4;
             break;
         case 5:
-            tree_lut = (uint8_t *) tree_lut5;
+            *tree_lut = (uint8_t *) tree_lut5;
             break;
         case 6:
-            tree_lut = (uint8_t *) tree_lut6;
+            *tree_lut = (uint8_t *) tree_lut6;
             break;
         case 7:
-            tree_lut = (uint8_t *) tree_lut7;
+            *tree_lut = (uint8_t *) tree_lut7;
             break;
         default:
             assert(false);

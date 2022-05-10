@@ -41,15 +41,17 @@ void matrix_start() {
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(1, 1)),
         (uint16_t) (pio_encode_pull(false, true)  | pio_encode_sideset(1, 1)),  // OE Program
         (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(1, 0)), 
-        (uint16_t) (pio_encode_jmp_x_dec(8)),
+        (uint16_t) (pio_encode_jmp_x_dec(4)),
         (uint16_t) (pio_encode_nop())
     };
     static const struct pio_program pio_programs = {
         .instructions = instructions,
         .length = count_of(instructions),
-        .origin = -1,
+        .origin = 0,
     };
     pio_add_program(pio0, &pio_programs);
+    pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
+    pio_sm_set_consecutive_pindirs(pio0, 1, 10, 1, true);
     
     // Verify Serial Clock
     constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * (1 << PWM_bits));
@@ -58,11 +60,11 @@ void matrix_start() {
     static_assert(x >= 1.0);
 
     // PMP
-    pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
     pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[0].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
     pio_sm_claim(pio0, 0);
     
@@ -102,6 +104,8 @@ void __not_in_flash_func(matrix_dma_isr)() {
     static uint32_t counter = 0;
     static uint32_t bits = 0;
     uint32_t time = 0;
+    
+    while(!pio_sm_is_tx_fifo_empty(pio0, 0));                                   // Wait for PMP to finish (Note timing here is loose.)
     
     if (counter == 0) {
         time = time_us_32();                                                    // Start a timer with 1uS delay using PIO
