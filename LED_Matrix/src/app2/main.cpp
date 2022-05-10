@@ -4,7 +4,6 @@
  * License: GPL 3.0
  */
  
-#include <stdio.h>
 #include "pico/stdlib.h"
 
 extern void matrix_start();
@@ -18,10 +17,7 @@ int main() {
     serial_start();
     isr_start();
     
-    sleep_ms(15*1000);
-    
     while (1) {
-        printf("Running...\n");
         serial_task();
     }
 }

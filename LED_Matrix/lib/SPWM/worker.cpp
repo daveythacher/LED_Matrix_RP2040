@@ -54,8 +54,6 @@ static uint8_t index_table[256][6][1 << PWM_bits];
 static void build_tree_lut(uint8_t **tree_lut, uint8_t lower);
 static void destroy_tree_lut(uint8_t *tree_lut);
 
-#include <stdio.h>
-
 static void build_table_pwm(uint8_t lower, uint8_t upper) {    
     uint8_t *tree_lut = nullptr;
     build_tree_lut(&tree_lut, lower);
@@ -95,7 +93,7 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
 
 static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
     extern test2 buf[];    
-    uint8_t *c[6] = { &index_table[r0][0][0], &index_table[g0][1][0], &index_table[b0][2][0], &index_table[r1][3][0], &index_table[g1][4][0], &index_table[b1][5][0] };
+    uint8_t *c[6] = { index_table[r0][0], index_table[g0][1], index_table[b0][2], index_table[r1][3], index_table[g1][4], index_table[b1][5] };
 
     for (uint32_t i = 0; i < (1 << lower); i++) {
         uint8_t *p = &buf[bank][y][i][x];
@@ -114,15 +112,12 @@ void __not_in_flash_func(work)() {
     build_table_pwm(lower, upper);
     
     while(1) {
-        printf("work: hmmm...\n");
         test *p = (test *) multicore_fifo_pop_blocking_inline();
-        uint32_t t = time_us_32();
         for (uint32_t y = 0; y < MULTIPLEX; y++) {
             for (uint32_t x = 0; x < COLUMNS; x++) {
                 set_pixel(x, y, (*p)[y][x][0], (*p)[y][x][1], (*p)[y][x][2], (*p)[y + MULTIPLEX][x][0], (*p)[y + MULTIPLEX][x][1], (*p)[y + MULTIPLEX][x][2]);
             }
         }
-        printf("work: Took %li uS\n", time_us_32() - t);
         bank = (bank + 1) % 2;          // This will cause some screen tearing, however to avoid dynamic memory overflow and lowering FPS this was allowed.
     }
 }

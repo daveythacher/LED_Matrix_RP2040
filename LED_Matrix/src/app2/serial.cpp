@@ -5,7 +5,6 @@
  */
  
 #include <stdint.h>
-#include <stdio.h>
 #include "pico/multicore.h"
 #include "SPWM/config.h"
 
@@ -33,7 +32,6 @@ void serial_task() {
     buffer = (buffer + 1) % 2;
     
     if (isReady) {
-        printf("serial_task: yup...\n");
         multicore_fifo_push_blocking((uint32_t) &buffers[(buffer + 1) % 2]);
         isReady = false;
     }

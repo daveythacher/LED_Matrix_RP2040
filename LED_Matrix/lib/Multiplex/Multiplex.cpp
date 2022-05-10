@@ -5,13 +5,17 @@
  */
 
 #include <assert.h>
+#include "hardware/gpio.h"
 #include "Multiplex/Decoder.h"
 #include "Multiplex/Direct.h"
 
 Multiplex *Multiplex::ptr = nullptr;
 
 Multiplex::Multiplex() {
-    // Do nothing
+    for (int i = 0; i < 5; i++) {
+        gpio_init(i + 11);
+        gpio_set_dir(i + 11, GPIO_OUT);
+    }
 }
 
 Multiplex::~Multiplex() {
