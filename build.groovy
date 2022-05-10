@@ -65,6 +65,32 @@ def cfgs = [
             columns: "128",
             serial_clock: "15.625",
             blank_time: "1"
+        ],
+        [
+            name: "Cube",
+            enable: true,
+            app: "app1",
+            multiplex: "4",
+            multiplex_num: "0",
+            max_rgb_led_steps: "2000",
+            max_refresh: "250",
+            fps: "30",
+            columns: "16",
+            serial_clock: "15.625",
+            blank_time: "1"
+        ],
+        [
+            name: "HT1632C",
+            enable: true,
+            app: "HT1632C",
+            multiplex: "16",                // Not used
+            multiplex_num: "0",             // Not used
+            max_rgb_led_steps: "2000",      // Not used
+            max_refresh: "3840",            // Not used
+            fps: "30",                      // Not used
+            columns: "128",
+            serial_clock: "15.625",
+            blank_time: "1"                 // Not used
         ]
     ]
 
