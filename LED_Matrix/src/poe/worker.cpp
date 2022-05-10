@@ -95,7 +95,7 @@ static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uin
     extern test2 buf[];
     uint8_t *c[6] = { index_table[r0][0], index_table[g0][1], index_table[b0][2], index_table[r1][3], index_table[g1][4], index_table[b1][5] };
     uint32_t num = x / (COLUMNS / 8);
-    uint32_t n = (x % (COLUMNS / 8)) * ((num % 2) + 1);
+    uint32_t n = (x % (COLUMNS / 8)) + ((num % 2) * COLUMNS / 8);
 
     for (uint32_t i = 0; i < (1 << lower); i++) {
         uint8_t *p = &buf[bank][y][i][num][n];
@@ -117,7 +117,7 @@ void __not_in_flash_func(work)() {
         test *p = (test *) multicore_fifo_pop_blocking_inline();
         for (int y = 0; y < MULTIPLEX; y++)
             for (int x = 0; x < COLUMNS; x++)
-                set_pixel(x, y, *p[y][x][0], *p[y][x][1], *p[y][x][2], *p[y + MULTIPLEX][x][0], *p[y + MULTIPLEX][x][1], *p[y + MULTIPLEX][x][2]);
+                set_pixel(x, y, (*p)[y][x][0], (*p)[y][x][1], (*p)[y][x][2], (*p)[y + MULTIPLEX][x][0], (*p)[y + MULTIPLEX][x][1], (*p)[y + MULTIPLEX][x][2]);
         bank = (bank + 1) % 2;          // This will cause some screen tearing, however to avoid dynamic memory overflow and lowering FPS this was allowed.
     }
 }

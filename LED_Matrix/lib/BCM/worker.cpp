@@ -27,16 +27,14 @@ static void build_table_pwm(uint8_t bits) {
             else
                 steps = round(pow((x + 16) / 116.0, 3) * ((1 << bits) - 1));
         }
-        for (uint32_t j = 0; j < steps; j++) {
-            for (uint32_t k = 0; k < bits; k++) {
-                if ((1 << k) & j) {
-                    index_table[i][0][k] = 1;
-                    index_table[i][1][k] = 2;
-                    index_table[i][2][k] = 4;
-                    index_table[i][3][k] = 8;
-                    index_table[i][4][k] = 16;
-                    index_table[i][5][k] = 32;
-                }
+        for (uint32_t j = 0; j < bits; j++) {
+            if ((1 << j) & steps) {
+                index_table[i][0][j] = 1;
+                index_table[i][1][j] = 2;
+                index_table[i][2][j] = 4;
+                index_table[i][3][j] = 8;
+                index_table[i][4][j] = 16;
+                index_table[i][5][j] = 32;
             }
         }
     }
@@ -69,7 +67,7 @@ void __not_in_flash_func(work)() {
         test *p = (test *) multicore_fifo_pop_blocking_inline();
         for (int y = 0; y < MULTIPLEX; y++)
             for (int x = 0; x < COLUMNS; x++)
-                set_pixel(x, y, *p[y][x][0], *p[y][x][1], *p[y][x][2], *p[y + MULTIPLEX][x][0], *p[y + MULTIPLEX][x][1], *p[y + MULTIPLEX][x][2]);
+                set_pixel(x, y, (*p)[y][x][0], (*p)[y][x][1], (*p)[y][x][2], (*p)[y + MULTIPLEX][x][0], (*p)[y + MULTIPLEX][x][1], (*p)[y + MULTIPLEX][x][2]);
         bank = (bank + 1) % 2;          // This will cause some screen tearing, however to avoid dynamic memory overflow and lowering FPS this was allowed.
     }
 }

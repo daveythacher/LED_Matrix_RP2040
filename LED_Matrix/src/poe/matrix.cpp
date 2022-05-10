@@ -155,6 +155,6 @@ void __not_in_flash_func(matrix_dma_isr)() {
     
     // Kick off hardware to get ISR ticks
     send_line(buf[(bank + 1) % 2][rows][counter][num]);
-    pio_sm_put(pio0, n / 2, COLUMNS * 2 / POWER_DIVISOR);                       // Start a timer for OE using PIO
+    pio_sm_put(pio1, n / 2, COLUMNS * 2 / (POWER_DIVISOR * 4));                 // Start a timer for OE using PIO
 }
 

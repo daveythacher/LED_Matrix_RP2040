@@ -31,11 +31,9 @@ void serial_task() {
     isReady = true;
     buffer = (buffer + 1) % 2;
     
-    while (1) {
-        if (isReady) {
-            multicore_fifo_push_blocking((uint32_t) &buffers[(buffer + 1) % 2]);
-            isReady = false;
-        }
+    if (isReady) {
+        multicore_fifo_push_blocking((uint32_t) &buffers[(buffer + 1) % 2]);
+        isReady = false;
     }
 }
 
