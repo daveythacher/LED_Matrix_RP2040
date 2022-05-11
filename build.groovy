@@ -134,10 +134,7 @@ stop = false
 apps = ""
 flags = ""
 
-def build_flavor(Map c) {
-    if (!c.enable)
-        return "Skipping"
-        
+def build_flavor(Map c) {        
     if (apps == "")
         apps = c.name
     else
@@ -165,12 +162,8 @@ def build_linux() {
     f << "\texit 1\n"
     f << "fi\n"
     "chmod +x ./LED_Matrix/build/build.sh".execute().waitFor()
-    def proc = "./LED_Matrix/build/build.sh".execute()
-    proc.waitFor()
-    if (proc.exitValue() == 1) {
-        stop = true
-    }
-    return proc.text
+    print "Please run:\n"
+    print "./LED_Matrix/build/build.sh\n"
 }
 
 def build() {
@@ -182,12 +175,6 @@ def build() {
     }
 }
 
-cfgs.each {
-    print "\nBuilding " + it.name + ":\n"
-    build_flavor(it)
-}
-
-print build()
-if (stop)
-    System.exit(1)
+cfgs.each { build_flavor(it) }
+build()
 
