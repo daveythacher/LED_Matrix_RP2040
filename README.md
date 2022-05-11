@@ -11,20 +11,20 @@ groovy build.groovy
 For adding or disabling flavors, see build.groovy. Flavor configuration blocks looks like this:
 ``` Groovy
         [
-            name: "P4-BCM",
+            name: "P4-SPWM",
             enable: true,
-            app: "app1",
+            app: "app2",
             multiplex: "16",
             multiplex_num: "0",
             max_rgb_led_steps: "500",
-            max_refresh: "200",
+            max_refresh: "3840",
             fps: "30",
             columns: "128",
             serial_clock: "15.625",
             blank_time: "1",
             power_divisor: "1",
             use_cie1931: "1"
-        ],
+        ]
 ```
 
 ## Panel Selection
