@@ -1,5 +1,32 @@
 # LED_Matrix_RP2040
 
+## Building
+For Linux:
+
+```bash
+groovy build.groovy
+./LED_Matrix/build/build.sh
+```
+
+For adding or disabling flavors, see build.groovy. Flavor configuration blocks looks like this:
+``` Groovy
+        [
+            name: "P4-BCM",
+            enable: true,
+            app: "app1",
+            multiplex: "16",
+            multiplex_num: "0",
+            max_rgb_led_steps: "500",
+            max_refresh: "200",
+            fps: "30",
+            columns: "128",
+            serial_clock: "15.625",
+            blank_time: "1",
+            power_divisor: "1",
+            use_cie1931: "1"
+        ],
+```
+
 ## Panel Selection
 
 Good luck with this as most vendors provide little information with this. Asking questions via message is also not to be trusted.
