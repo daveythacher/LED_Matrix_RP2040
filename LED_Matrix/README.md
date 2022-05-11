@@ -2,6 +2,8 @@ Place to talk about internal code stuff
 
 Critical sections of code are RAM functions, as I do not trust XIP cache for this. Be mindful of interrupts. Currently multiplexing generates a lot of interrupts, which can cause issues. Be mindful of interrupt allocation, which can also cause issues.
 
+Someday the build logic will need to change away from preprocessor logic. Could use CMake to generate config headers. Most of the current structure should support this. Groovy could generate the configure files for config heres. There will need to be a fake header layer for the library and application logic. CMake will need to manage the locations of these. Lot of work and code that at this point is for nothing really.
+
 ## lib folder
 This is a folder for different libraries which could be used by multiple applications.
 
@@ -19,7 +21,3 @@ I did implement these as C++ class. To add more just extent the interface and ad
 This folder for different applications. These pick a matrix algorithm. CMake still configures preprocessor for size, multiplex algorithm, etc. The idea here is build flavors. Some matrix algorithms require a completely different implementation or cannot work in all cases. Rather than do anything smart, I just did this.
 
 This is kind of pain, but this is a microcontroller. I did not want to lose memory or make this really painful to manage. Parallel development should be possible.
-
-## FreeRTOS-Kernel
-This is non-SMP version of FreeRTOS idea being this could be used for certain things. SMP support is likely not needed/recommended for this project. Avoid high tick rate, context swaps and queue usage if possible as these can potentionally lead to issues. Use static version of tasks and queues.
-
