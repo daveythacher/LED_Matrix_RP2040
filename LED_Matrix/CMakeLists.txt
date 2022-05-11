@@ -27,5 +27,4 @@ function(pico_add_dis_output2 TARGET)
         COMMAND ${CMAKE_OBJDUMP} -S $<TARGET_FILE:${TARGET}> >$<IF:$<BOOL:$<TARGET_PROPERTY:${TARGET},OUTPUT_NAME>>,$<TARGET_PROPERTY:${TARGET},OUTPUT_NAME>,$<TARGET_PROPERTY:${TARGET},NAME>>.dis2)
 endfunction()
 
-add_subdirectory(lib)
 add_subdirectory(src)

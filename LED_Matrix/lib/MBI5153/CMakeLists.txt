@@ -9,7 +9,6 @@ target_sources(led_MBI5153 INTERFACE
 )
 
 target_link_libraries(led_MBI5153 INTERFACE
-    pico_stdlib
     pico_multicore
     hardware_dma
     hardware_pio

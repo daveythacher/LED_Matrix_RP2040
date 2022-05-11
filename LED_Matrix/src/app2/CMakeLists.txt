@@ -3,6 +3,10 @@ target_sources(led_${TARGET} PRIVATE
     isr.cpp
 )
 
+add_subdirectory(../../lib/SPWM "lib/SPWM")
+add_subdirectory(../../lib/Multiplex "lib/Multiplex")
+add_subdirectory(../../lib/serial_spi "lib/serial_spi")
+
 target_include_directories(led_${TARGET} PRIVATE
     ../../include
 )
@@ -46,4 +50,5 @@ target_link_libraries(led_${TARGET}
     pico_stdlib
     pico_multicore
     led_SPWM
+    serial_spi
 )

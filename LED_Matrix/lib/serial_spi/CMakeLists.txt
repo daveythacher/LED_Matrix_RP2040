@@ -1,16 +1,14 @@
-add_library(led_multiplex)
+add_library(serial_spi)
 
-target_sources(led_multiplex PRIVATE
-    Multiplex.cpp
-    Decoder.cpp
-    Direct.cpp
+target_sources(serial_spi PRIVATE
+    serial_spi.cpp
 )
 
-target_include_directories(led_multiplex PRIVATE
+target_include_directories(serial_spi PRIVATE
     ../../include
 )
 
-target_compile_options(led_multiplex PRIVATE 
+target_compile_options(serial_spi PRIVATE 
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
     -fno-exceptions 
     -fno-check-new 
@@ -25,7 +23,11 @@ target_compile_options(led_multiplex PRIVATE
 )
 
 # Use caution here!
-target_link_libraries(led_multiplex PRIVATE 
+target_link_libraries(serial_spi PRIVATE 
     hardware_gpio
     hardware_irq
+    hardware_spi
+    hardware_dma        # Cannot use full API!
+    hardware_resets
+    hardware_clocks
 )

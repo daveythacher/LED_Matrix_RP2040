@@ -9,7 +9,6 @@ target_sources(led_SPWM INTERFACE
 )
 
 target_link_libraries(led_SPWM INTERFACE
-    pico_stdlib
     pico_multicore
     hardware_dma
     hardware_pio

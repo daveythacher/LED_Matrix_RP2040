@@ -5,6 +5,10 @@ target_sources(led_${TARGET} PRIVATE
     worker.cpp
 )
 
+add_subdirectory(../../lib/Multiplex "lib/Multiplex")
+add_subdirectory(../../lib/serial_spi "lib/serial_spi")
+
+
 target_include_directories(led_${TARGET} PRIVATE
     .
     ../../include
@@ -52,4 +56,5 @@ target_link_libraries(led_${TARGET}
     hardware_pio
     hardware_timer
     led_multiplex
+    serial_spi
 )
