@@ -14,7 +14,7 @@ static serial_spi_callback func;
 
 void serial_spi_start(serial_spi_callback callback) {
     func = callback;
-    // TODO:
+    // TODO: 
 }
 
 void serial_spi_isr() {

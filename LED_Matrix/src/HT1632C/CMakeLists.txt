@@ -4,8 +4,6 @@ target_sources(led_${TARGET} PRIVATE
     matrix.cpp
 )
 
-add_subdirectory(../../lib/serial_spi "lib/serial_spi")
-
 target_include_directories(led_${TARGET} PRIVATE
     .
     ../../include
@@ -28,9 +26,9 @@ target_compile_options(led_${TARGET} PRIVATE
 target_compile_definitions(led_${TARGET} PRIVATE 
     PICO_HEAP_SIZE=2048
     PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64
-    DEFINE_COLUMNS=${DEFINE_COLUMNS}
-    DEFINE_POWER_DIVISOR=${DEFINE_POWER_DIVISOR}
-    DEFINE_SERIAL_CLOCK=${DEFINE_SERIAL_CLOCK}
+    DEFINE_COLUMNS=${${TARGET}_DEFINE_COLUMNS}
+    DEFINE_POWER_DIVISOR=${${TARGET}_DEFINE_POWER_DIVISOR}
+    DEFINE_SERIAL_CLOCK=${${TARGET}_DEFINE_SERIAL_CLOCK}
 )
 
 pico_set_binary_type(led_${TARGET} copy_to_ram)
