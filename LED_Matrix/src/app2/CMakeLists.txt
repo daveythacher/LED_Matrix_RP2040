@@ -45,6 +45,7 @@ pico_enable_stdio_uart(led_${TARGET} 0)
 target_link_libraries(led_${TARGET} 
     pico_stdlib
     pico_multicore
+    hardware_dma
     led_SPWM
     serial_spi
 )

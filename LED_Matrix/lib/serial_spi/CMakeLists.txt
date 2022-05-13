@@ -26,7 +26,7 @@ target_compile_options(serial_spi PRIVATE
 target_link_libraries(serial_spi PRIVATE 
     hardware_gpio
     hardware_irq
-    hardware_spi
+    hardware_pio        # Cannot use full API!
     hardware_dma        # Cannot use full API!
     hardware_resets
     hardware_clocks

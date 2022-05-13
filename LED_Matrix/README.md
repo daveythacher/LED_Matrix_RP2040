@@ -21,3 +21,4 @@ I did implement these as C++ class. To add more just extent the interface and ad
 This folder for different applications. These pick a matrix algorithm. CMake still configures preprocessor for size, multiplex algorithm, etc. The idea here is build flavors. Some matrix algorithms require a completely different implementation or cannot work in all cases. Rather than do anything smart, I just did this.
 
 This is kind of pain, but this is a microcontroller. I did not want to lose memory or make this really painful to manage. Parallel development should be possible.
+
