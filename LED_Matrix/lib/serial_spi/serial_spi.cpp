@@ -82,18 +82,18 @@ void serial_spi_start(serial_spi_callback callback, int dma, PIO p, int sm) {
         channel_config_set_dreq(&c, DREQ_PIO0_RX0 + pio_sm);
     else
         channel_config_set_dreq(&c, DREQ_PIO1_RX0 + pio_sm);
-    dma_channel_set_irq0_enabled(dma_chan, true); 
+    dma_channel_set_irq1_enabled(dma_chan, true); 
     
     serial_spi_reload();
 }
 
 // Warning: Weak protocol/state machine!
-void serial_spi_reload() {
+void __not_in_flash_func(serial_spi_reload)() {
     static uint8_t *buf;
     static uint16_t len;
     static bool recovering = false;
     
-    if (dma_channel_get_irq0_status(dma_chan)) {
+    if (dma_channel_get_irq1_status(dma_chan)) {
         uint32_t *ptr = (uint32_t *) buf;                                       // Warning: Endiness is assumed to be little!
         
         if (*ptr == 0x20131990 && *(ptr + 1) == ~*ptr) {                        // Note: 1 in 2^64 chance of failing to detect error
@@ -116,7 +116,7 @@ void serial_spi_reload() {
     }
 }
 
-void serial_spi_isr() {
+void __not_in_flash_func(serial_spi_isr)() {
     serial_spi_reload();
     dma_hw->ints0 = 1 << dma_chan;
 }
