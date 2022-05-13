@@ -106,21 +106,23 @@ void __not_in_flash_func(matrix_dma_isr)() {
     static uint32_t rows = 0;
     static uint32_t counter = 0;
     
-    while(!pio_sm_is_tx_fifo_empty(pio0, 0));                                   // Wait for PMP to finish (Note timing here is loose.)
-    
-    uint32_t time = time_us_32();                                               // Start a timer with uS ticks
-    m->SetRow(rows);
-    
-    if (++rows >= MULTIPLEX) {
-        rows = 0;
-        if (++counter >= (1 << PWM_bits))
-            counter = 0;
-    }  
-    
-    send_latch();
-    while((time_us_32() - time) < BLANK_TIME);                                  // Check if timer has expired
-    
-    // Kick off hardware to get ISR ticks
-    send_line(buf[(bank + 1) % 2][rows][counter]);
+    if (dma_channel_get_irq0_status(dma_chan)) {
+        while(!pio_sm_is_tx_fifo_empty(pio0, 0));                               // Wait for PMP to finish (Note timing here is loose.)
+        
+        uint32_t time = time_us_32();                                           // Start a timer with uS ticks
+        m->SetRow(rows);
+        
+        if (++rows >= MULTIPLEX) {
+            rows = 0;
+            if (++counter >= (1 << PWM_bits))
+                counter = 0;
+        }  
+        
+        send_latch();
+        while((time_us_32() - time) < BLANK_TIME);                              // Check if timer has expired
+        
+        // Kick off hardware to get ISR ticks
+        send_line(buf[(bank + 1) % 2][rows][counter]);
+    }
 }
 

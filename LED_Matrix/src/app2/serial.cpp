@@ -10,8 +10,13 @@
 #include "SPWM/config.h"
 #include "serial_spi/serial_spi.h"
 
+typedef struct {
+    uint64_t marker;
+    test buffer;
+} serial_type;
+
 static volatile bool isReady;
-static test buffers[2];
+static serial_type buffers[2];
 static uint8_t buffer = 0;
 
 static int serial_dma_chan;
@@ -36,15 +41,15 @@ void serial_task() {
     buffer = (buffer + 1) % 2;*/
     
     if (isReady) {
-        multicore_fifo_push_blocking((uint32_t) &buffers[buffer]);
+        multicore_fifo_push_blocking((uint32_t) &buffers[buffer].buffer);
         buffer = (buffer + 1) % 2;
         isReady = false;
     }
 }
 
 void callback(uint8_t **buf, uint16_t *len) {
-    *buf = (uint8_t *) buffers[(buffer + 1) % 2];
-    *len = sizeof(test);
+    *buf = (uint8_t *) &buffers[(buffer + 1) % 2];
+    *len = sizeof(serial_type);
     isReady = true;
 }
 

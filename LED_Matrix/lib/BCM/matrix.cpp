@@ -103,29 +103,32 @@ void __not_in_flash_func(matrix_dma_isr)() {
     static uint32_t rows = 0;
     static uint32_t counter = 0;
     static uint32_t bits = 0;
-    uint32_t time = 0;
     
-    while(!pio_sm_is_tx_fifo_empty(pio0, 0));                                   // Wait for PMP to finish (Note timing here is loose.)
-    
-    if (counter == 0) {
-        time = time_us_32();                                                    // Start a timer with 1uS delay using PIO
-        m->SetRow(rows);
-    }
-     
-    if (++counter >= (uint32_t) (1 << bits)) {                                  // Note: Could optimize this to use less interrupts
-        counter = 0;                                                            //  Use sys_tick to count down from roundup(15.625M / COLUMNS) uS
-        if (++bits >= PWM_bits) {                                               //  Reduce interrupt count by (1 << PWM_bits) / PWM_bits
-            bits = 0;
-            if (++rows >= MULTIPLEX)
-                rows = 0;
+    if (dma_channel_get_irq0_status(dma_chan)) {
+        uint32_t time = 0;
+        
+        while(!pio_sm_is_tx_fifo_empty(pio0, 0));                               // Wait for PMP to finish (Note timing here is loose.)
+        
+        if (counter == 0) {
+            time = time_us_32();                                                // Start a timer with 1uS delay using PIO
+            m->SetRow(rows);
         }
+         
+        if (++counter >= (uint32_t) (1 << bits)) {                              // Note: Could optimize this to use less interrupts
+            counter = 0;                                                        //  Use sys_tick to count down from roundup(15.625M / COLUMNS) uS
+            if (++bits >= PWM_bits) {                                           //  Reduce interrupt count by (1 << PWM_bits) / PWM_bits
+                bits = 0;
+                if (++rows >= MULTIPLEX)
+                    rows = 0;
+            }
+        }
+        
+        send_latch();
+        if (counter == 1)
+            while((time_us_32() - time) < BLANK_TIME);                          // Check if timer has expired
+        
+        // Kick off hardware to get ISR ticks
+        send_line(buf[(bank + 1) % 2][rows][bits]);
     }
-    
-    send_latch();
-    if (counter == 1)
-        while((time_us_32() - time) < BLANK_TIME);                              // Check if timer has expired
-    
-    // Kick off hardware to get ISR ticks
-    send_line(buf[(bank + 1) % 2][rows][bits]);
 }
 

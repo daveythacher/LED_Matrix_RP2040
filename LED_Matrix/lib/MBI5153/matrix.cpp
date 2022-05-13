@@ -151,24 +151,26 @@ void matrix_start() {
 }*/
 
 void __not_in_flash_func(matrix_dma_isr)() {
-    stop = true;
-    while(stop);
-    
-    // VSYNC CMD
-    uint32_t time = time_us_32();
-    // TODO: Make pin 10 (GCLK) GPIO
-    while((time_us_32() - time) < 3);
-    // TODO: Send VSYNC
+    if (dma_channel_get_irq0_status(dma_chan[5])) {
+        stop = true;
+        while(stop);
+        
+        // VSYNC CMD
+        uint32_t time = time_us_32();
+        // TODO: Make pin 10 (GCLK) GPIO
+        while((time_us_32() - time) < 3);
+        // TODO: Send VSYNC
 
-    // Dead time
-    time = time_us_32();
-    // TODO: Set GCLK HIGH
-    while((time_us_32() - time) < 1);
-    // TODO: Set GCLK LOW
-    while((time_us_32() - time) < 3);    
-    
-    // TODO: Make pin 10 (GCLK) PIO
-    // TODO: Kick off hardware to get ISR ticks (GCLK)
+        // Dead time
+        time = time_us_32();
+        // TODO: Set GCLK HIGH
+        while((time_us_32() - time) < 1);
+        // TODO: Set GCLK LOW
+        while((time_us_32() - time) < 3);    
+        
+        // TODO: Make pin 10 (GCLK) PIO
+        // TODO: Kick off hardware to get ISR ticks (GCLK)
+    }
 }
 
 /*void __not_in_flash_func(matrix_pio_isr)() {
