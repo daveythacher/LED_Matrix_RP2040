@@ -22,114 +22,6 @@ DEFINE_SERIAL_CLOCK         15.625      "HUB75 serial clock speed in MHz"
 DEFINE_BLANK_TIME           1           "Multiplex blanking time in uS"
 */
 
-def cfgs = [
-        [
-            name: "P6-BCM",
-            enable: true,
-            app: "app1",
-            multiplex: "8",
-            multiplex_num: "0",
-            max_rgb_led_steps: "500",
-            max_refresh: "200",
-            fps: "30",
-            columns: "128",
-            serial_clock: "15.625",
-            blank_time: "1",
-            power_divisor: "1",
-            use_cie1931: "1"
-        ],
-        [
-            name: "P4-BCM",
-            enable: true,
-            app: "app1",
-            multiplex: "16",
-            multiplex_num: "0",
-            max_rgb_led_steps: "500",
-            max_refresh: "200",
-            fps: "30",
-            columns: "128",
-            serial_clock: "15.625",
-            blank_time: "1",
-            power_divisor: "1",
-            use_cie1931: "1"
-        ],
-        [
-            name: "P4-SPWM",
-            enable: true,
-            app: "app2",
-            multiplex: "16",
-            multiplex_num: "0",
-            max_rgb_led_steps: "500",
-            max_refresh: "3840",
-            fps: "30",
-            columns: "128",
-            serial_clock: "15.625",
-            blank_time: "1",
-            power_divisor: "1",
-            use_cie1931: "1"
-        ],
-        [
-            name: "P4-MBI5153",
-            enable: true,
-            app: "app3",
-            multiplex: "16",
-            multiplex_num: "0",
-            max_rgb_led_steps: "4000",
-            max_refresh: "3840",
-            fps: "30",
-            columns: "128",
-            serial_clock: "15.625",
-            blank_time: "1",
-            power_divisor: "1",
-            use_cie1931: "1"
-        ],
-        [
-            name: "POE",
-            enable: true,
-            app: "poe",
-            multiplex: "16",
-            multiplex_num: "0",
-            max_rgb_led_steps: "2000",
-            max_refresh: "3840",
-            fps: "30",
-            columns: "128",
-            serial_clock: "15.625",
-            blank_time: "1",
-            power_divisor: "1",
-            use_cie1931: "1"
-        ],
-        [
-            name: "Cube",
-            enable: true,
-            app: "app1",
-            multiplex: "4",
-            multiplex_num: "0",
-            max_rgb_led_steps: "2000",
-            max_refresh: "250",
-            fps: "30",
-            columns: "16",
-            serial_clock: "15.625",
-            blank_time: "1",
-            power_divisor: "1",
-            use_cie1931: "1"
-        ],
-        [
-            name: "HT1632C",
-            enable: true,
-            app: "HT1632C",
-            multiplex: "16",                // Not used
-            multiplex_num: "0",             // Not used
-            max_rgb_led_steps: "2000",      // Not used
-            max_refresh: "3840",            // Not used
-            fps: "30",                      // Not used
-            columns: "128",
-            serial_clock: "15.625",
-            blank_time: "1",                // Not used
-            power_divisor: "1",
-            use_cie1931: "1"                // Not used
-        ]
-    ]
-
 stop = false
 apps = ""
 flags = ""
@@ -175,6 +67,15 @@ def build() {
     }
 }
 
-cfgs.each { build_flavor(it) }
+def cli = new CliBuilder(usage: 'build.groovy [-h] -c <cfg.xml>')
+cli.with { 
+    h longOpt: 'help', 'Show usage information' 
+    c longOpt: 'config', args:1, argName: 'cfg.xml', required: true, 'XML build configuration file'
+}
+def options = cli.parse(args)
+if (!options) return
+if (options.h) cli.usage()
+
+new XmlSlurper().parse(new File(options.c)).build.each { build_flavor(it.attributes()) }
 build()
 

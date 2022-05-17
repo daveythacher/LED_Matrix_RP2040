@@ -8,23 +8,12 @@ groovy build.groovy
 ./LED_Matrix/build/build.sh
 ```
 
-For adding or disabling flavors, see build.groovy. Flavor configuration blocks looks like this:
-``` Groovy
-        [
-            name: "P4-SPWM",
-            enable: true,
-            app: "app2",
-            multiplex: "16",
-            multiplex_num: "0",
-            max_rgb_led_steps: "500",
-            max_refresh: "3840",
-            fps: "30",
-            columns: "128",
-            serial_clock: "15.625",
-            blank_time: "1",
-            power_divisor: "1",
-            use_cie1931: "1"
-        ]
+For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
+``` XML
+<cfg>
+    <build name="P4-SPWM" enable="true" app="app2" multiplex="16" multiplex_num="0" max_rgb_led_steps="500" max_refresh="3840" fps="30" columns="128" serial_clock="15.625" blank_time="1" power_divisor="1" use_cie1931="1"/>
+    <!-- ... -->
+</cfg>
 ```
 
 ## Configuration
@@ -62,7 +51,7 @@ This is the target serial bandwidth, in MHz. This is used by the compiler to ver
 This is the number of uS the LEDs will be off during multplexing to prevent ghosting. This is usually 1-4uS. Note this number should be whole numbers only.
 
 ### power_divisor
-This can be used for brightness control. It turns the LEDs off prematurely by dividing the on time by this number. Note this will reduce the average power, but full peak power is still used. 100 percent / 1. Note this number should be whole numbers only.
+This can be used for brightness control. It turns the LEDs off prematurely by dividing the on time by this number. Note this will reduce the average power, but full peak power is still used. 100 percent / 1 = 100 percent. Note this number should be whole numbers only.
 
 ### use_cie1931
 This enables or disables the use of the CIE1931 gamma correction table. To enable set to 1, otherwise set to 0.
@@ -136,4 +125,5 @@ Now lets consider lowering the power consumption to 6.8 Watts using the three ap
 1. 8mA * 32 columns * 16 rows / 8 scan * 4 panels * 3.3V = 6.8 Watts. 11 - roundup(log2(30 / 8)) - log2(8) = 6 bits
 2. 30mA * .25 current gain * 32 columns * 16 rows / 8 scan * 4 panels * 3.3V = 6.4 Watts. 11 - roundup(log2(1 / .25)) - log2(8) = 6 bits
 3. 30mA * 32 columns * 16 rows / 8 scan * 4 panels * 5V = 38.4 Watts. 11 - roundup(log2(38.4 / 6.8)) - log2(8) = 5 bits
+
 
