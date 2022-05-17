@@ -4,7 +4,7 @@
 For Linux:
 
 ```bash
-groovy build.groovy
+groovy build.groovy -c cfg.xml
 ./LED_Matrix/build/build.sh
 ```
 
