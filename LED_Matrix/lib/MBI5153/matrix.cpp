@@ -6,7 +6,7 @@
  
 #include <stdint.h>
 #include <string.h>
-#include "pico/stdlib.h"
+#include "pico/platform.h"
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
@@ -98,7 +98,7 @@ void matrix_start() {
     // TODO: Setup pin 10 (GCLK)
     
     // CLK and LAT
-    // Add PIO settings and instructions
+    // TODO: Add PIO settings and instructions
     
     // DMA
     dma_chan[0] = dma_claim_unused_channel(true);

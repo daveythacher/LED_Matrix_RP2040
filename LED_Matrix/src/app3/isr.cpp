@@ -4,7 +4,7 @@
  * License: GPL 3.0
  */
 
-#include "pico/stdlib.h"
+#include "pico/platform.h"
 #include "hardware/irq.h"
 
 extern void matrix_dma_isr();

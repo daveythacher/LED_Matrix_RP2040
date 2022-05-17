@@ -27,6 +27,43 @@ For adding or disabling flavors, see build.groovy. Flavor configuration blocks l
         ]
 ```
 
+### Configuration
+name - This is the name given to the configuration and corresponding binary. Note binary will have the following prefix: led_
+
+enable - This must be true or false. If false this build will not be included in the build script.
+
+app - This is a string for the corresponding application in src folder. These applications determine the serial implementation protocol, if used and LED Matrix algorithm. app1 is BCM and is only supported for standard LED driver panels. app2 is SPWM and is only supported for standard LED driver panels. app3 is for MBI5153 LED driver panels only. Other application specific options also exist. In most cases SPWM better than BCM, however BCM should be used for lower refresh panels. P6 16x32 panels generally do not support high refresh for example. SPWM can be trickier to configure. The current SPWM algorithm is not complete and is mostly a hack for RP2040. This is not believed to cause an issue and may actually be required.
+
+multiplex - This is the scan number marked on the back of the panel. This number is usually in the middle near a S prefix.
+
+multiplex_num - This is a number for multiplexing approach used. 0 is for decoder based pin mapping, used in standard implemenations. 1 is for direct pin mapping, used in low multiplex panels.
+
+max_rgb_led_steps - This is the number of nA's supported by the LEDs without multiplexing. This is generally something along order of 2000-4000. However this assumes the LED is capable of lighting up slightly at 2nA. It also assumes that the min constant forward current of the red, green and blue colors is 8mA. 8mA / 2nA = 4000. The library will determine the max number of PWM bits from this number. By dividing this number by the multiplex and taking the log2 of the result. Note if you lower the forward current you should change this value to avoid wasting serial bandwidth and memory. The compiler will check for errors if this is set to an unsupported value. There is only so much memory on the RP2040, so lowering this may be required. This lower the color depth on the device. Note this number should be whole numbers only.
+
+max_refresh - This number is the refresh rate in Hz of the panels multiplexing. When using BCM this will override the FPS. This number should never exceed 3840Hz for most panels. Note this number should be whole numbers only.
+
+fps - This is the number of frames sent per second. This is used for compile timing verfication of timing in SPWM and MBI5153 LED Matrix algorithms. This number should reflect the max number of FPS you plan to use. Note this reserves serial bandwidth to support this. This setting does not exist for BCM LED Matrix algorithm. Note this number should be whole numbers only.
+
+columns - This is the number of real columns in the panel. Not the number of columns you see in the panel. If you have 16x32 with 4 scan panel you will need to set this to 64. panel_rows / (2 * scan) * panel_columns. Mapping of pixel location is not handled by the RP2040, this should be done in application logic or by logic driving serial bus. Note this number should be whole numbers only.
+
+serial_clock - This is the target serial bandwidth, in MHz. This is used by the compiler to verify the timing. This should not exceed 25MHz for most panels. Note you may wish to lower this is in some cases to meet timing and/or promote signal stability. Note this number can have decimals.
+
+blank_time - This is the number of uS the LEDs will be off during multplexing to prevent ghosting. This is usually 1-4uS. Note this number should be whole numbers only.
+
+power_divisor - This can be used for brightness control. It turns the LEDs off prematurely by dividing the on time by this number. Note this will reduce the average power, but full peak power is still used. 100 percent / 1. Note this number should be whole numbers only.
+
+use_cie1931 - This enables or disables the use of the CIE1931 gamma correction table. To enable set to 1, otherwise set to 0.
+
+Timing algorithm for SPWM:
+serial_clock / (multiplex *  columns * max_refresh) >= 1.0
+max_refresh / (fps * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
+
+Timing algorithm for BCM:
+serial_clock / (multiplex * columns * max_refresh * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
+
+Timing algorithm for MBI5153:
+WIP - TBD
+
 ## Panel Selection
 
 Good luck with this as most vendors provide little information with this. Asking questions via message is also not to be trusted.

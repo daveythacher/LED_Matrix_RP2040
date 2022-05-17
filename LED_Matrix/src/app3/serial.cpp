@@ -63,6 +63,6 @@ void serial_start() {
     
     isReady = false;
     serial_dma_chan = dma_claim_unused_channel(true);
-    serial_spi_start(&callback, serial_dma_chan, pio1, 0); 
+    serial_spi_start(&callback, serial_dma_chan, pio1, 3); 
 }
 
