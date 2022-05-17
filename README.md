@@ -55,13 +55,16 @@ power_divisor - This can be used for brightness control. It turns the LEDs off p
 use_cie1931 - This enables or disables the use of the CIE1931 gamma correction table. To enable set to 1, otherwise set to 0.
 
 Timing algorithm for SPWM:
+
 serial_clock / (multiplex *  columns * max_refresh) >= 1.0
 max_refresh / (fps * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
 
 Timing algorithm for BCM:
+
 serial_clock / (multiplex * columns * max_refresh * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
 
 Timing algorithm for MBI5153:
+
 WIP - TBD
 
 ## Panel Selection
