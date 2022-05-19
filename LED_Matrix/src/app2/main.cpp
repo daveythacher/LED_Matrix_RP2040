@@ -15,7 +15,7 @@ int main() {
     isr_start();
     
     while (1) {
-        serial_task();
+        //serial_task();
     }
 }
 

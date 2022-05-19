@@ -15,7 +15,7 @@ void __not_in_flash_func(dma_isr0)() {
 }
 
 void __not_in_flash_func(dma_isr1)() {
-    serial_dma_isr();
+    //serial_dma_isr();
 }
 
 void isr_start() {
