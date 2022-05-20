@@ -5,7 +5,8 @@
  */
 
 
-#include "debug/debug.h"
+//#include "debug/debug.h"
+#define debug(...)
 
 // Pico
 #include "pico/stdlib.h"
@@ -76,7 +77,7 @@ static struct usb_device_configuration dev_config = {
                         .endpoint_control = &usb_dpram->ep_ctrl[0].out,
                         .buffer_control = &usb_dpram->ep_buf_ctrl[1].out,
                         // First free EPX buffer
-                        .data_buffer = &usb_dpram->epx_data[0 * 64 * 2],
+                        .data_buffer = &usb_dpram->epx_data[0 * 64],
                 },
                 {
                         .descriptor = &ep2_in,
@@ -84,7 +85,7 @@ static struct usb_device_configuration dev_config = {
                         .endpoint_control = &usb_dpram->ep_ctrl[1].in,
                         .buffer_control = &usb_dpram->ep_buf_ctrl[2].in,
                         // Second free EPX buffer
-                        .data_buffer = &usb_dpram->epx_data[1 * 64 * 2],
+                        .data_buffer = &usb_dpram->epx_data[1 * 64],
                 }
         }
 };
@@ -158,7 +159,6 @@ void usb_setup_endpoint(const struct usb_endpoint_configuration *ep) {
     // Get the data buffer as an offset of the USB controller's DPRAM
     uint32_t dpram_offset = usb_buffer_offset(ep->data_buffer);
     uint32_t reg = EP_CTRL_ENABLE_BITS
-                   | (1 << 30)
                    | EP_CTRL_INTERRUPT_PER_BUFFER
                    | (ep->descriptor->bmAttributes << EP_CTRL_BUFFER_TYPE_LSB)
                    | dpram_offset;
@@ -241,14 +241,12 @@ static inline bool ep_is_tx(struct usb_endpoint_configuration *ep) {
 void usb_start_transfer(struct usb_endpoint_configuration *ep, uint8_t *buf, uint16_t len) {
     // We are asserting that the length is <= 64 bytes for simplicity of the example.
     // For multi packet transfers see the tinyusb port.
-    assert(len <= (64 * 2));
-    uint16_t len0 = len % 65;
-    uint16_t len1 = len - len0;
+    assert(len <= 64);
 
     debug("Start transfer of len %d on ep addr 0x%x\n", len, ep->descriptor->bEndpointAddress);
 
     // Prepare buffer control register value
-    uint32_t val = len0 | USB_BUF_CTRL_AVAIL | (len1 << 16) | (1 << 26);
+    uint32_t val = len | USB_BUF_CTRL_AVAIL;
 
     if (ep_is_tx(ep)) {
         // Need to copy the data from the user buffer to the usb memory
@@ -256,12 +254,11 @@ void usb_start_transfer(struct usb_endpoint_configuration *ep, uint8_t *buf, uin
             buf = (uint8_t *) ep->data_buffer;
         memcpy((void *) ep->data_buffer, (void *) buf, len);
         // Mark as full
-        val |= USB_BUF_CTRL_FULL | (1 << 31);
+        val |= USB_BUF_CTRL_FULL;
     }
 
     // Set pid and flip for next transfer
     val |= ep->next_pid ? USB_BUF_CTRL_DATA1_PID : USB_BUF_CTRL_DATA0_PID;
-    val |= ep->next_pid ? (USB_BUF_CTRL_DATA0_PID << 16) : (USB_BUF_CTRL_DATA1_PID << 16);
     ep->next_pid ^= 1u;
 
     *ep->buffer_control = val;
@@ -439,24 +436,13 @@ void usb_handle_setup_packet(void) {
  *
  * @param ep, the endpoint to notify.
  */
-static void usb_handle_ep_buff_done(struct usb_endpoint_configuration *ep, uint ep_num, bool in) {
+static void usb_handle_ep_buff_done(struct usb_endpoint_configuration *ep) {
     uint32_t buffer_control = *ep->buffer_control;
-    ep_num = (ep_num * 2) + (in ? 0 : 1);
-    
-    if ((usb_hw->buf_cpu_should_handle & (1 << ep_num)) == 0) {
-        // Get the transfer length for this endpoint
-        uint16_t len = buffer_control & USB_BUF_CTRL_LEN_MASK;
+    // Get the transfer length for this endpoint
+    uint16_t len = buffer_control & USB_BUF_CTRL_LEN_MASK;
 
-        // Call that endpoints buffer done handler
-        ep->handler((uint8_t *) ep->data_buffer, len);
-    }
-    else {
-        // Get the transfer length for this endpoint
-        uint16_t len = buffer_control & (USB_BUF_CTRL_LEN_MASK << 16);
-
-        // Call that endpoints buffer done handler
-        ep->handler((uint8_t *) ep->data_buffer + 64, len);
-    }
+    // Call that endpoints buffer done handler
+    ep->handler((uint8_t *) ep->data_buffer, len);
 }
 
 /**
@@ -473,7 +459,7 @@ static void usb_handle_buff_done(uint ep_num, bool in) {
         struct usb_endpoint_configuration *ep = &dev_config.endpoints[i];
         if (ep->descriptor && ep->handler) {
             if (ep->descriptor->bEndpointAddress == ep_addr) {
-                usb_handle_ep_buff_done(ep, ep_num, in);
+                usb_handle_ep_buff_done(ep);
                 return;
             }
         }
@@ -592,10 +578,10 @@ void usb_start() {
     debug("USB Device Low-Level hardware example\n");
     usb_device_init();
 
-    // Wait until configured
+    /*// Wait until configured
     while (!configured) {
         tight_loop_contents();
-    }
+    }*/
 
     // Get ready to rx from host
     usb_start_transfer(usb_get_endpoint_configuration(EP1_OUT_ADDR), NULL, 64);

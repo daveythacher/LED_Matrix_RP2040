@@ -11,6 +11,14 @@
 
 #define debug(...)      printf(__VA_ARGS__)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void debug_start();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

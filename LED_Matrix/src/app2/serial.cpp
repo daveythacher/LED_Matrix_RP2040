@@ -10,11 +10,15 @@
 #include "SPWM/config.h"
 //#include "serial_spi/serial_spi.h"
 
+extern "C" void usb_start();
+
 static test buffers[2];
 static uint8_t buffer = 0;
 
 void serial_start() {
     extern void work();
+    
+    usb_start();
     multicore_launch_core1(work);
 }
 
