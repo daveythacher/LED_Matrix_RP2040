@@ -45,5 +45,5 @@ target_link_libraries(led_${TARGET}
     pico_runtime
     pico_multicore
     led_BCM
-    serial_spi
+    serial_usb
 )

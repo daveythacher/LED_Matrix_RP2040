@@ -7,7 +7,6 @@
 extern void matrix_start();
 extern void serial_start();
 extern void isr_start();
-extern void serial_task();
 
 int main() {
     matrix_start();
@@ -15,7 +14,7 @@ int main() {
     isr_start();
     
     while (1) {
-        serial_task();
+        // Do nothing
     }
 }
 
