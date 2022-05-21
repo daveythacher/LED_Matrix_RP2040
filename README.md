@@ -11,7 +11,7 @@ groovy build.groovy -c cfg.xml
 For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
 ``` XML
 <cfg>
-    <build name="P4-SPWM" enable="true" app="app2" multiplex="16" multiplex_num="0" max_rgb_led_steps="500" max_refresh="3840" fps="30" columns="128" serial_clock="15.625" blank_time="1" power_divisor="1" use_cie1931="1"/>
+    <build name="P4-BCM" enable="true" app="usb" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" fps="30" columns="128" serial_clock="25.0" blank_time="1" power_divisor="1" use_cie1931="1"/>
     <!-- ... -->
 </cfg>
 ```
@@ -24,7 +24,7 @@ This is the name given to the configuration and corresponding binary. Note binar
 This must be true or false. If false this build will not be included in the build script.
 
 ### app
-This is a string for the corresponding application in src folder. These applications determine the serial implementation protocol, if used and LED Matrix algorithm. app1 is BCM and is only supported for standard LED driver panels. app2 is SPWM and is only supported for standard LED driver panels. app3 is for MBI5153 LED driver panels only. Other application specific options also exist. In most cases SPWM better than BCM, however BCM should be used for lower refresh panels. P6 16x32 panels generally do not support high refresh for example. SPWM can be trickier to configure. The current SPWM algorithm is not complete and is mostly a hack for RP2040. This is not believed to cause an issue and may actually be required.
+This is a string for the corresponding application in src folder. These applications determine the serial implementation protocol, if used and LED Matrix algorithm. usb and spi are BCM. These are only supported for standard LED driver panels. app3 is for MBI5153 LED driver panels only. Other application specific options also exist.
 
 ### multiplex
 This is the scan number marked on the back of the panel. This number is usually in the middle near a S prefix.
@@ -33,13 +33,13 @@ This is the scan number marked on the back of the panel. This number is usually 
 This is a number for multiplexing approach used. 0 is for decoder based pin mapping, used in standard implemenations. 1 is for direct pin mapping, used in low multiplex panels.
 
 ### max_rgb_led_steps
-This is the number of nA's supported by the LEDs without multiplexing. This is generally something along order of 2000-4000. However this assumes the LED is capable of lighting up slightly at 2nA. It also assumes that the min constant forward current of the red, green and blue colors is 8mA. 8mA / 2nA = 4000. The library will determine the max number of PWM bits from this number. By dividing this number by the multiplex and taking the log2 of the result. Note if you lower the forward current you should change this value to avoid wasting serial bandwidth and memory. The compiler will check for errors if this is set to an unsupported value. There is only so much memory on the RP2040, so lowering this may be required. This lower the color depth on the device. Note this number should be whole numbers only.
+This is the number of nA's supported by the LEDs without multiplexing. This is generally something along order of 2000-4000. However this assumes the LED is capable of lighting up slightly at 2nA. It also assumes that the min constant forward current of the red, green and blue colors is 8mA. 8mA / 2nA = 4000. The library will determine the max number of PWM bits from this number. By dividing this number by the multiplex and taking the log2 of the result. Note if you lower the forward current you should change this value to avoid wasting serial bandwidth and memory. The compiler will check for errors if this is set to an unsupported value. There is only so much memory on the RP2040, so lowering this may be required. This lowers the color depth on the device. Note this number should be whole numbers only.
 
 ### max_refresh
 This number is the refresh rate in Hz of the panels multiplexing. When using BCM this will override the FPS. This number should never exceed 3840Hz for most panels. Note this number should be whole numbers only.
 
 ### fps 
-This is the number of frames sent per second. This is used for compile timing verfication of timing in SPWM and MBI5153 LED Matrix algorithms. This number should reflect the max number of FPS you plan to use. Note this reserves serial bandwidth to support this. This setting does not exist for BCM LED Matrix algorithm. Note this number should be whole numbers only.
+This is the number of frames sent per second. This is used for compile timing verfication of timing in MBI5153 LED Matrix algorithm. This number should reflect the max number of FPS you plan to use. Note this reserves serial bandwidth to support this. This setting does not exist for BCM LED Matrix algorithm. Note this number should be whole numbers only.
 
 ### columns
 This is the number of real columns in the panel. Not the number of columns you see in the panel. If you have 16x32 with 4 scan panel you will need to set this to 64. panel_rows / (2 * scan) * panel_columns. Mapping of pixel location is not handled by the RP2040, this should be done in application logic or by logic driving serial bus. Note this number should be whole numbers only.
@@ -55,12 +55,6 @@ This can be used for brightness control. It turns the LEDs off prematurely by di
 
 ### use_cie1931
 This enables or disables the use of the CIE1931 gamma correction table. To enable set to 1, otherwise set to 0.
-
-### Timing algorithm for SPWM:
-
-serial_clock / (multiplex *  columns * max_refresh) >= 1.0
-
-max_refresh / (fps * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
 
 ### Timing algorithm for BCM:
 
@@ -82,9 +76,11 @@ Ideal sizes for message boards are P6 1:8 and P5 1:16. These have support bracke
 
 High refresh displays need special control circuits in multiplexing and LED drivers. This is hard to find in P6, but can be found in P5, P4, P3, P2.5, etc. Most panels are capable of 100Hz which should not show flicker to many people. However some people will want higher refreshes. 
 
-Controller algorithm comes into play here. LED panels only support so much serial bandwidth. Traditional PWM implemented with or without BCM generally yields lower refreshes and consumes more serial bandwidth. Computationally this can be very expensive, however BCM and SIMD can accelerate this. Scrambled PWM (S-PWM) allows for higher refreshes and more color depth for the same serial bandwidth. Computationally this is even more expensive, however using large memory look up tables can accelerate this. S-PWM is more tricky to configure as you have to consider FPS in datastream, which is generally not an issue for traditional PWM.
+Controller algorithm comes into play here. LED panels only support so much serial bandwidth. Traditional PWM implemented with or without BCM generally yields lower refreshes and consumes more serial bandwidth. Computationally this can be very expensive, however BCM and SIMD can accelerate this. Scrambled PWM (S-PWM) allows for higher refreshes and more color depth for the same serial bandwidth. Computationally this is even more expensive, however using large memory look up tables can accelerate this. S-PWM is more tricky to configure as you have to consider FPS in datastream, which is generally not an issue for traditional PWM. 
 
-Some panels use hardware PWM which is similar to traditional PWM however the computation require is reduced. Serial bandwidth is problematic still due to multiplexing. Note versions of these hardware PWM drivers also exist with S-PWM helpers built in, these are still struggle with multiplexing and serial bandwidth however can be useful in certain applications.
+S-PWM supports trading color depth for refresh dynamically. If you change the frame frequently the color depth will be reduced, however for lower frame rates the color depth will increase. The loss of color depth is fairly small, however the refresh rate can be very high. You need hardware PWM for this to work. This is not very useful over standard LED drivers, however is possible if you fully support the algorithm. It's impact is just far more limited.
+
+Some panels use hardware PWM which is similar to traditional PWM however the computation require is reduced. Serial bandwidth is problematic still due to multiplexing. Note versions of these hardware PWM drivers also exist with S-PWM helpers built in, these still struggle with multiplexing and serial bandwidth however can be useful in certain applications. Note you would need variable FPS on serial bus via VSYNC command.
 
 Some panels use memory with hardware PWM which is similar to controller or receiver card buit in. These are more expensive in small displays but cheaper in larger displays. In some applicaitons these can also be cheaper for example if using a Pi which allows for better stability without extra components. These panels are generally higher refresh and color depth. These generally work for high color depth in single scan with long chains (expensive) and high pixel density panels/chains.
 
