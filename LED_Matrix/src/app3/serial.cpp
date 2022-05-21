@@ -23,22 +23,22 @@ static int serial_dma_chan;
 
 void serial_task() {
 
-    /*for (int x = 0; x < COLUMNS; x++) {
+    for (int x = 0; x < COLUMNS; x++) {
         for (int y = 0; y < (2 * MULTIPLEX); y++) {
             if ((x % MULTIPLEX) == y) {
-                buffers[buffer][y][x][0] = 0;
-                buffers[buffer][y][x][1] = 0;
-                buffers[buffer][y][x][2] = 0;
+                buffers[buffer].buffer[y][x][0] = 0;
+                buffers[buffer].buffer[y][x][1] = 0;
+                buffers[buffer].buffer[y][x][2] = 0;
             }
             else {
-                buffers[buffer][y][x][0] = 0xFF;
-                buffers[buffer][y][x][1] = 0xFF;
-                buffers[buffer][y][x][2] = 0xFF;
+                buffers[buffer].buffer[y][x][0] = 0xFF;
+                buffers[buffer].buffer[y][x][1] = 0xFF;
+                buffers[buffer].buffer[y][x][2] = 0xFF;
             }
         }
     }
     isReady = true;
-    buffer = (buffer + 1) % 2;*/
+    buffer = (buffer + 1) % 2;
     
     if (isReady) {
         multicore_fifo_push_blocking((uint32_t) &buffers[buffer].buffer);
@@ -59,10 +59,10 @@ void serial_dma_isr() {
 
 void serial_start() {
     extern void work();
-    work();
+    multicore_launch_core1(work);
     
     isReady = false;
     serial_dma_chan = dma_claim_unused_channel(true);
-    serial_spi_start(&callback, serial_dma_chan, pio1, 3); 
+    serial_spi_start(&callback, serial_dma_chan, pio1, 0); 
 }
 

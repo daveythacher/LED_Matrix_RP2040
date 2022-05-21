@@ -26,7 +26,7 @@
     constexpr int upper = PWM_bits - lower;
     
     typedef uint8_t test[2 * MULTIPLEX][COLUMNS][3];
-    typedef uint16_t test2[6][MULTIPLEX][COLUMNS];
+    typedef uint16_t test2[6][MULTIPLEX][16][COLUMNS / 16];
 
 #endif
 

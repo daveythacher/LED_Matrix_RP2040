@@ -19,10 +19,12 @@ volatile uint8_t bank = 0;
 static volatile bool stop = false;
 static int dma_chan[6];
 static Multiplex *m;
+static void send_cmd(uint8_t cmd);
 
 void matrix_dma_isr();
 //void matrix_pio_isr();
-//static void send_line(uint8_t bank_num);
+
+static uint16_t cfg_str[6][COLUMNS / 16];
 
 void matrix_start() {
     // Init Matrix hardware
@@ -39,8 +41,29 @@ void matrix_start() {
     
     // PIO
     const uint instructions[] = { 
-        pio_encode_out(pio_pins, 1) | pio_encode_sideset(1, 0),     // PMP Program
-        pio_encode_nop() | pio_encode_sideset(1, 1) 
+        pio_encode_out(pio_pins, 1),    // PMP Program
+        pio_encode_irq_wait(false, 4),
+        pio_encode_jmp(0),
+        pio_encode_pull(false, true),   // CLK/LAT Program
+        pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0),
+        pio_encode_pull(false, true),
+        pio_encode_mov(pio_y, pio_osr),
+        pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 1),
+        pio_encode_nop(),
+        pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 0),
+        pio_encode_jmp_x_dec(7),
+        pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 3),
+        pio_encode_nop(),
+        pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 2),
+        pio_encode_jmp_y_dec(11),
+        pio_encode_irq_set(false, 0),
+        pio_encode_jmp(3),
+        pio_encode_pull(false, true),   // GCLK Program
+        pio_encode_mov(pio_x, pio_osr),
+        pio_encode_nop(),
+        pio_encode_jmp_x_dec(19),
+        pio_encode_irq_set(false, 1),
+        pio_encode_jmp(17)
     };
     for (uint i = 0; i < count_of(instructions); i++) {
         pio0->instr_mem[i] = instructions[i];
@@ -56,7 +79,7 @@ void matrix_start() {
     // Verify Serial Clock
     constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * FPS * 16.0);
     static_assert(x2 >= 1.0);
-    constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
+    constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 4.0);
     static_assert(x >= 1.0);
 
     // Parallel shifter bus
@@ -101,54 +124,61 @@ void matrix_start() {
     // TODO: Add PIO settings and instructions
     
     // DMA
-    dma_chan[0] = dma_claim_unused_channel(true);
+    for (int i = 0; i < 6; i++)
+        dma_chan[i] = dma_claim_unused_channel(true);
+        
     dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO0_TX0);
-    dma_channel_configure(dma_chan[0], &c, &pio0_hw->txf[0], NULL, MULTIPLEX * COLUMNS, false);
-    dma_chan[1] = dma_claim_unused_channel(true);
+    dma_channel_configure(dma_chan[0], &c, &pio0_hw->txf[0], NULL, COLUMNS / 16, false);
     c = dma_channel_get_default_config(dma_chan[1]);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO0_TX1);
-    dma_channel_configure(dma_chan[1], &c, &pio0_hw->txf[1], NULL, MULTIPLEX * COLUMNS, false);
-    dma_chan[2] = dma_claim_unused_channel(true);
+    dma_channel_configure(dma_chan[1], &c, &pio0_hw->txf[1], NULL, COLUMNS / 16, false);
     c = dma_channel_get_default_config(dma_chan[2]);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO0_TX2);
-    dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[2], NULL, MULTIPLEX * COLUMNS, false);
-    dma_chan[3] = dma_claim_unused_channel(true);
+    dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[2], NULL, COLUMNS / 16, false);
     c = dma_channel_get_default_config(dma_chan[3]);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO0_TX3);
-    dma_channel_configure(dma_chan[3], &c, &pio0_hw->txf[3], NULL, MULTIPLEX * COLUMNS, false);
-    dma_chan[4] = dma_claim_unused_channel(true);
+    dma_channel_configure(dma_chan[3], &c, &pio0_hw->txf[3], NULL, COLUMNS / 16, false);
     c = dma_channel_get_default_config(dma_chan[4]);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO1_TX0);
-    dma_channel_configure(dma_chan[4], &c, &pio1_hw->txf[0], NULL, MULTIPLEX * COLUMNS, false);
-    dma_chan[5] = dma_claim_unused_channel(true);
+    dma_channel_configure(dma_chan[4], &c, &pio1_hw->txf[0], NULL, COLUMNS / 16, false);
     c = dma_channel_get_default_config(dma_chan[5]);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO1_TX1);
-    dma_channel_configure(dma_chan[5], &c, &pio0_hw->txf[1], NULL, MULTIPLEX * COLUMNS, false);
-    dma_channel_set_irq0_enabled(dma_chan[5], true);
+    dma_channel_configure(dma_chan[5], &c, &pio1_hw->txf[1], NULL, COLUMNS / 16, false);
      
     memset(buf, 0, sizeof(buf));
+    
+    // MBI5153 Configuration
+    for (uint16_t i = 0; i < (COLUMNS / 16); i++) {
+        cfg_str[0][i] = 0;  // TODO: Fix
+        cfg_str[1][i] = 0;  // TODO: Fix
+        cfg_str[2][i] = 0;  // TODO: Fix
+        cfg_str[3][i] = 0;  // TODO: Fix
+        cfg_str[4][i] = 0;  // TODO: Fix
+        cfg_str[5][i] = 0;  // TODO: Fix
+    }
+    for (uint8_t i = 0; i < 6; i++)
+        dma_channel_set_read_addr(dma_chan[i], (uint8_t *) cfg_str[i], true);
+    send_cmd(0);            // TODO: FIX
+    // TODO: Capture interrupt
 }
 
-/*void __not_in_flash_func(send_line)(uint8_t bank_num) {
-    dma_hw->ints0 = 1 << dma_chan[5];
-    for (uint8_t i = 0; i < 6; i++) {
-        uint8_t *line = (uint8_t *) &buf[bank_num][i][0][0];
-        dma_channel_set_read_addr(dma_chan[i], line, true);
-    }
-}*/
+void __not_in_flash_func(send_cmd)(uint8_t cmd) {
+    pio_sm_put(pio1, 3, COLUMNS - cmd);
+    pio_sm_put(pio1, 3, cmd);
+}
 
 void __not_in_flash_func(matrix_dma_isr)() {
     if (dma_channel_get_irq0_status(dma_chan[5])) {
@@ -186,7 +216,9 @@ void __not_in_flash_func(matrix_dma_isr)() {
     m->SetRow(rows);
     
     if (bank != flag) {
-        send_line(bank);
+        for (int i = 0; i < 6; i++)
+            dma_channel_set_read_addr(dma_chan[i], (uint8_t *) &buf[bank_num][i][0][0], true);
+        send_cmd(1);
         flag = bank;
     }
     
