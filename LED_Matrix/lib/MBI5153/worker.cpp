@@ -48,7 +48,9 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
 }
 
 void __not_in_flash_func(work)() {
+    extern void isr_start();
     build_table_pwm(PWM_bits);
+    isr_start();
     
     while(1) {
         test *p = (test *) multicore_fifo_pop_blocking_inline();

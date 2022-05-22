@@ -42,35 +42,47 @@ void matrix_start() {
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
     // PIO
-    const uint instructions[] = { 
-        pio_encode_out(pio_pins, 1),    // PMP Program
-        pio_encode_irq_wait(false, 4),
-        pio_encode_jmp(0),
-        pio_encode_pull(false, true),   // CLK/LAT Program
-        pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0),
-        pio_encode_pull(false, true),
-        pio_encode_mov(pio_y, pio_osr),
-        pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 1),
-        pio_encode_nop(),
-        pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 0),
-        pio_encode_jmp_x_dec(7),
-        pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 3),
-        pio_encode_nop(),
-        pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 2),
-        pio_encode_jmp_y_dec(11),
-        pio_encode_irq_set(false, 0),
-        pio_encode_jmp(3),
-        pio_encode_pull(false, true),   // GCLK Program
-        pio_encode_mov(pio_x, pio_osr),
-        pio_encode_nop(),
-        pio_encode_jmp_x_dec(19),
-        pio_encode_irq_set(false, 1),
-        pio_encode_jmp(17)
+    const uint16_t instructions[] = { 
+        (uint16_t) (pio_encode_out(pio_pins, 1)),                   // PMP Program
+        (uint16_t) (pio_encode_irq_wait(false, 4)),
+        (uint16_t) (pio_encode_jmp(0)),
+        (uint16_t) (pio_encode_pull(false, true)),                  // CLK/LAT Program
+        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_pull(false, true)),
+        (uint16_t) (pio_encode_mov(pio_y, pio_osr)),
+        (uint16_t) (pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 1)),
+        (uint16_t) (pio_encode_nop()),
+        (uint16_t) (pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_jmp_x_dec(7)),
+        (uint16_t) (pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 3)),
+        (uint16_t) (pio_encode_nop()),
+        (uint16_t) (pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 2)),
+        (uint16_t) (pio_encode_jmp_y_dec(11)),
+        (uint16_t) (pio_encode_irq_set(false, 0)),
+        (uint16_t) (pio_encode_jmp(3)),
+        (uint16_t) (pio_encode_pull(false, true)),                  // GCLK Program
+        (uint16_t) (pio_encode_mov(pio_x, pio_osr)),
+        (uint16_t) (pio_encode_nop()),
+        (uint16_t) (pio_encode_jmp_x_dec(19)),
+        (uint16_t) (pio_encode_irq_set(false, 1)),
+        (uint16_t) (pio_encode_jmp(17))
     };
-    for (uint i = 0; i < count_of(instructions); i++) {
-        pio0->instr_mem[i] = instructions[i];
-        pio1->instr_mem[i] = instructions[i];
-    }
+    static const struct pio_program pio_programs = {
+        .instructions = instructions,
+        .length = count_of(instructions),
+        .origin = 0,
+    };
+    pio_add_program(pio0, &pio_programs);
+    pio_add_program(pio1, &pio_programs);
+    pio_sm_set_consecutive_pindirs(pio0, 0, 0, 1, true);
+    pio_sm_set_consecutive_pindirs(pio0, 1, 1, 1, true);
+    pio_sm_set_consecutive_pindirs(pio0, 2, 2, 1, true);
+    pio_sm_set_consecutive_pindirs(pio0, 3, 3, 1, true);
+    pio_sm_set_consecutive_pindirs(pio1, 0, 4, 1, true);
+    pio_sm_set_consecutive_pindirs(pio1, 1, 5, 1, true);
+    pio_sm_set_consecutive_pindirs(pio1, 2, 9, 1, true);
+    pio_sm_set_consecutive_pindirs(pio1, 2, 11, 1, true);
+    pio_sm_set_consecutive_pindirs(pio1, 3, 10, 1, true);
 
 /*
     6 PIOs for shifters
@@ -90,40 +102,57 @@ void matrix_start() {
     pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[0].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
     pio0->sm[1].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[1].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[1].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
     pio0->sm[2].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[2].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[2].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[2].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
     pio0->sm[3].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[3].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio0->sm[3].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[3].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
     pio1->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio1->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio1->sm[0].execctrl = (1 << 17) | (0x1 << 12);
+    pio1->sm[0].instr = pio_encode_jmp(0);
     hw_set_bits(&pio1->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
     pio1->sm[1].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio1->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio1->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
     pio1->sm[1].execctrl = (1 << 17) | (0x1 << 12);
+    pio1->sm[1].instr = pio_encode_jmp(0);
     hw_set_bits(&pio1->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
     // TODO: Update settings and instructions
     
     // CLK and LAT
     // TODO: Add PIO settings and instructions
+    pio1->sm[2].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
+    pio1->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[2].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
+    pio1->sm[2].execctrl = (1 << 17) | (0x1 << 12);
+    pio1->sm[2].instr = pio_encode_jmp(0);
+    hw_set_bits(&pio1->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
     
     // GCLK
     // TODO: Add GCLK and ISR state machine 
-    // TODO: Setup pin 10 (GCLK)
+    pio1->sm[3].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
+    pio1->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[3].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
+    pio1->sm[3].execctrl = (1 << 17) | (0x1 << 12);
+    pio1->sm[3].instr = pio_encode_jmp(0);
+    hw_set_bits(&pio1->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
     
     pio_set_irq0_source_enabled(pio1, pis_interrupt0, true);
     pio_set_irq0_source_enabled(pio1, pis_interrupt1, true);
@@ -206,9 +235,9 @@ void __not_in_flash_func(matrix_pio_isr0)() {
 
                 // Dead time
                 time = time_us_32();
-                // TODO: Set GCLK HIGH
+                gpio_set_mask(1 << 10);
                 while((time_us_32() - time) < 1);
-                // TODO: Set GCLK LOW
+                gpio_clr_mask(1 << 10);
                 while((time_us_32() - time) < 3);    
                     
                 // Kick off hardware to get ISR ticks (GCLK)
