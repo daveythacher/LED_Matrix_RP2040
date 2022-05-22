@@ -33,11 +33,8 @@ void matrix_start() {
     }
     for (int i = 0; i < 4; i++)
         gpio_set_function(i, GPIO_FUNC_PIO0);
-    for (int i = 4; i < 6; i++)
+    for (int i = 4; i < 11; i++)
         gpio_set_function(i, GPIO_FUNC_PIO1);
-    gpio_set_function(9, GPIO_FUNC_PIO1);
-    gpio_set_function(10, GPIO_FUNC_PIO1);
-    gpio_set_function(11, GPIO_FUNC_PIO1);
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
@@ -62,8 +59,8 @@ void matrix_start() {
         (uint16_t) (pio_encode_jmp(3)),
         (uint16_t) (pio_encode_pull(false, true)),                  // GCLK Program
         (uint16_t) (pio_encode_mov(pio_x, pio_osr)),
-        (uint16_t) (pio_encode_nop()),
-        (uint16_t) (pio_encode_jmp_x_dec(19)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(1, 1)),
+        (uint16_t) (pio_encode_jmp_x_dec(19) | pio_encode_sideset(1, 0)),
         (uint16_t) (pio_encode_irq_set(false, 1)),
         (uint16_t) (pio_encode_jmp(17))
     };
@@ -80,8 +77,7 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio0, 3, 3, 1, true);
     pio_sm_set_consecutive_pindirs(pio1, 0, 4, 1, true);
     pio_sm_set_consecutive_pindirs(pio1, 1, 5, 1, true);
-    pio_sm_set_consecutive_pindirs(pio1, 2, 9, 1, true);
-    pio_sm_set_consecutive_pindirs(pio1, 2, 11, 1, true);
+    pio_sm_set_consecutive_pindirs(pio1, 2, 8, 2, true);
     pio_sm_set_consecutive_pindirs(pio1, 3, 10, 1, true);
 
 /*
@@ -97,61 +93,57 @@ void matrix_start() {
     static_assert(x >= 1.0);
 
     // Parallel shifter bus
-    pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
     pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
-    pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 0x0;
+    pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
+    pio0->sm[0].execctrl = (1 << 17) | (0x1F << 12);
     pio0->sm[0].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
     pio0->sm[1].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio0->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
-    pio0->sm[1].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 0x1;
+    pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
+    pio0->sm[1].execctrl = (1 << 17) | (0x1F << 12);
     pio0->sm[1].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
     pio0->sm[2].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio0->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio0->sm[2].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
-    pio0->sm[2].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 0x2;
+    pio0->sm[2].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
+    pio0->sm[2].execctrl = (1 << 17) | (0x1F << 12);
     pio0->sm[2].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
     pio0->sm[3].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio0->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio0->sm[3].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
-    pio0->sm[3].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 0x3;
+    pio0->sm[3].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
+    pio0->sm[3].execctrl = (1 << 17) | (0x1F << 12);
     pio0->sm[3].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
     pio1->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio1->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
-    pio1->sm[0].execctrl = (1 << 17) | (0x1 << 12);
+    pio1->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 0x4;
+    pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
+    pio1->sm[0].execctrl = (1 << 17) | (0x1F << 12);
     pio1->sm[0].instr = pio_encode_jmp(0);
     hw_set_bits(&pio1->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
     pio1->sm[1].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio1->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio1->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
-    pio1->sm[1].execctrl = (1 << 17) | (0x1 << 12);
+    pio1->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 0x5;
+    pio1->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
+    pio1->sm[1].execctrl = (1 << 17) | (0x1F << 12);
     pio1->sm[1].instr = pio_encode_jmp(0);
     hw_set_bits(&pio1->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
-    // TODO: Update settings and instructions
     
     // CLK and LAT
-    // TODO: Add PIO settings and instructions
     pio1->sm[2].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio1->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio1->sm[2].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
-    pio1->sm[2].execctrl = (1 << 17) | (0x1 << 12);
-    pio1->sm[2].instr = pio_encode_jmp(0);
+    pio1->sm[2].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[2].shiftctrl = 0;
+    pio1->sm[2].execctrl = (1 << 17) | (0x1F << 12);
+    pio1->sm[2].instr = pio_encode_jmp(3);
     hw_set_bits(&pio1->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
     
     // GCLK
-    // TODO: Add GCLK and ISR state machine 
     pio1->sm[3].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio1->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio1->sm[3].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
-    pio1->sm[3].execctrl = (1 << 17) | (0x1 << 12);
-    pio1->sm[3].instr = pio_encode_jmp(0);
+    pio1->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (10 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);;
+    pio1->sm[3].shiftctrl = 0;
+    pio1->sm[3].execctrl = (1 << 17) | (0x1F << 12);
+    pio1->sm[3].instr = pio_encode_jmp(17);
     hw_set_bits(&pio1->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
     
     pio_set_irq0_source_enabled(pio1, pis_interrupt0, true);
@@ -248,7 +240,6 @@ void __not_in_flash_func(matrix_pio_isr0)() {
         
         for (int i = 0; i < 6; i++)
             dma_channel_set_read_addr(dma_chan[i], (uint8_t *) &buf[bank][i][rows - 1][counter - 1], true);
-
         send_cmd(1);
         pio_interrupt_clear(pio1, 0);
     }
