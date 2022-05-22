@@ -19,12 +19,10 @@ volatile uint8_t bank = 0;
 static volatile bool stop = false;
 static int dma_chan[6];
 static Multiplex *m;
-static void send_cmd(uint8_t cmd);
-
-void matrix_dma_isr();
-//void matrix_pio_isr();
-
 static uint16_t cfg_str[6][COLUMNS / 16];
+
+static void send_cmd(uint8_t cmd);
+void matrix_pio_isr();
 
 void matrix_start() {
     // Init Matrix hardware
@@ -33,9 +31,13 @@ void matrix_start() {
         gpio_init(i);
         gpio_set_dir(i, GPIO_OUT);
     }
-    for (int i = 0; i < 9; i++)
-        gpio_set_function(i, GPIO_FUNC_PIO0); // TODO: Fix
+    for (int i = 0; i < 4; i++)
+        gpio_set_function(i, GPIO_FUNC_PIO0);
+    for (int i = 4; i < 6; i++)
+        gpio_set_function(i, GPIO_FUNC_PIO1);
+    gpio_set_function(9, GPIO_FUNC_PIO1);
     gpio_set_function(10, GPIO_FUNC_PIO1);
+    gpio_set_function(11, GPIO_FUNC_PIO1);
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
@@ -116,12 +118,15 @@ void matrix_start() {
     hw_set_bits(&pio1->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
     // TODO: Update settings and instructions
     
+    // CLK and LAT
+    // TODO: Add PIO settings and instructions
+    
     // GCLK
     // TODO: Add GCLK and ISR state machine 
     // TODO: Setup pin 10 (GCLK)
     
-    // CLK and LAT
-    // TODO: Add PIO settings and instructions
+    pio_set_irq0_source_enabled(pio1, pis_interrupt0, true);
+    pio_set_irq0_source_enabled(pio1, pis_interrupt1, true);
     
     // DMA
     for (int i = 0; i < 6; i++)
@@ -161,71 +166,84 @@ void matrix_start() {
     memset(buf, 0, sizeof(buf));
     
     // MBI5153 Configuration
+    send_cmd(14);
     for (uint16_t i = 0; i < (COLUMNS / 16); i++) {
-        cfg_str[0][i] = 0;  // TODO: Fix
-        cfg_str[1][i] = 0;  // TODO: Fix
-        cfg_str[2][i] = 0;  // TODO: Fix
-        cfg_str[3][i] = 0;  // TODO: Fix
-        cfg_str[4][i] = 0;  // TODO: Fix
-        cfg_str[5][i] = 0;  // TODO: Fix
+        cfg_str[0][i] = (MULTIPLEX - 1) << 8;
+        cfg_str[1][i] = (MULTIPLEX - 1) << 8;
+        cfg_str[2][i] = (MULTIPLEX - 1) << 8;
+        cfg_str[3][i] = (MULTIPLEX - 1) << 8;
+        cfg_str[4][i] = (MULTIPLEX - 1) << 8;
+        cfg_str[5][i] = (MULTIPLEX - 1) << 8;
     }
     for (uint8_t i = 0; i < 6; i++)
         dma_channel_set_read_addr(dma_chan[i], (uint8_t *) cfg_str[i], true);
-    send_cmd(0);            // TODO: FIX
-    // TODO: Capture interrupt
+    send_cmd(4);
+    
+    // Interrupt from CFG1 write will trigger ISR ticks
+    pio_sm_put(pio1, 3, 512);
 }
 
 void __not_in_flash_func(send_cmd)(uint8_t cmd) {
-    pio_sm_put(pio1, 3, COLUMNS - cmd);
-    pio_sm_put(pio1, 3, cmd);
+    pio_sm_put(pio1, 2, COLUMNS - cmd);
+    pio_sm_put(pio1, 2, cmd);
 }
 
-void __not_in_flash_func(matrix_dma_isr)() {
-    if (dma_channel_get_irq0_status(dma_chan[5])) {
-        stop = true;
-        while(stop);
-        
-        // VSYNC CMD
-        uint32_t time = time_us_32();
-        // TODO: Make pin 10 (GCLK) GPIO
-        while((time_us_32() - time) < 3);
-        // TODO: Send VSYNC
+void __not_in_flash_func(matrix_pio_isr0)() {    
+    static uint8_t rows = 0;
+    static uint8_t counter = 0;
+    
+    if (pio_interrupt_get(pio1, 0)) {
+        if (++counter >= (COLUMNS / 16)) {
+            counter = 1;
+            if (++rows >= MULTIPLEX) {
+                uint32_t time = time_us_32();
+                rows = 1; 
+                gpio_init(10);
+                while (time_us_32() - time < 3);                    // Wait 50 GCLKs
+                stop = true;
+                while(stop);
+                send_cmd(2);                                        // Send VSYNC CMD
 
-        // Dead time
-        time = time_us_32();
-        // TODO: Set GCLK HIGH
-        while((time_us_32() - time) < 1);
-        // TODO: Set GCLK LOW
-        while((time_us_32() - time) < 3);    
+                // Dead time
+                time = time_us_32();
+                // TODO: Set GCLK HIGH
+                while((time_us_32() - time) < 1);
+                // TODO: Set GCLK LOW
+                while((time_us_32() - time) < 3);    
+                    
+                // Kick off hardware to get ISR ticks (GCLK)
+                gpio_set_function(10, GPIO_FUNC_PIO1);
+                pio_sm_put(pio1, 3, 512);
+            }
+        }
         
-        // TODO: Make pin 10 (GCLK) PIO
-        // TODO: Kick off hardware to get ISR ticks (GCLK)
-    }
-}
-
-/*void __not_in_flash_func(matrix_pio_isr)() {
-    static uint32_t rows = 0;
-    static uint8_t flag = bank;
-    
-    if (stop) {                                                     // Bail if VSYNC is pending
-        stop = false;
-        return;
-    }
-    
-    uint32_t time = time_us_32();
-    m->SetRow(rows);
-    
-    if (bank != flag) {
         for (int i = 0; i < 6; i++)
-            dma_channel_set_read_addr(dma_chan[i], (uint8_t *) &buf[bank_num][i][0][0], true);
+            dma_channel_set_read_addr(dma_chan[i], (uint8_t *) &buf[bank][i][rows - 1][counter - 1], true);
+
         send_cmd(1);
-        flag = bank;
+        pio_interrupt_clear(pio1, 0);
     }
+}
+
+void __not_in_flash_func(matrix_pio_isr1)() {
+    static uint32_t rows = 1;
     
-    if (++rows >= MULTIPLEX)
-        rows = 0;
-    
-    while((time_us_32() - time) < BLANK_TIME);                      // Check if timer has expired
-    
-    // TODO: Kick off hardware to get ISR ticks (GCLK)
-}*/
+    if (pio_interrupt_get(pio1, 1)) {
+        uint32_t time = time_us_32();
+        
+        if (stop) {                                                 // Bail if VSYNC is pending
+            stop = false;
+            return pio_interrupt_clear(pio1, 1);
+        }
+        
+        m->SetRow(rows);
+        if (++rows >= MULTIPLEX)
+            rows = 0;
+        
+        while((time_us_32() - time) < BLANK_TIME);                  // Check if timer has expired
+        
+        // Kick off hardware to get ISR ticks (GCLK)
+        pio_sm_put(pio1, 3, 512);
+        pio_interrupt_clear(pio1, 1);
+    }
+}
