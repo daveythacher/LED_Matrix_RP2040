@@ -19,6 +19,7 @@ volatile uint8_t bank = 0;
 static volatile bool stop = false;
 static int dma_chan[6];
 static Multiplex *m;
+static uint32_t rows = 1;
 static uint16_t cfg_str[6][COLUMNS / 16];
 
 static void send_cmd(uint8_t cmd);
@@ -210,15 +211,15 @@ void __not_in_flash_func(send_cmd)(uint8_t cmd) {
 }
 
 void __not_in_flash_func(matrix_pio_isr0)() {    
-    static uint8_t rows = 0;
+    static uint8_t row = 0;
     static uint8_t counter = 0;
     
     if (pio_interrupt_get(pio1, 0)) {
         if (++counter >= (COLUMNS / 16)) {
             counter = 1;
-            if (++rows >= MULTIPLEX) {
+            if (++row >= MULTIPLEX) {
                 uint32_t time = time_us_32();
-                rows = 1; 
+                row = 1; 
                 gpio_init(10);
                 gpio_init(8);
                 while (time_us_32() - time < 3);                    // Wait 50 GCLKs
@@ -227,6 +228,7 @@ void __not_in_flash_func(matrix_pio_isr0)() {
                 gpio_set_mask(1 << 10);
                 send_cmd(2);                                        // Send VSYNC CMD
                 gpio_set_mask(1 << 8);
+                m->SetRow(rows);
 
                 // Dead time
                 time = time_us_32();
@@ -243,15 +245,13 @@ void __not_in_flash_func(matrix_pio_isr0)() {
         }
         
         for (int i = 0; i < 6; i++)
-            dma_channel_set_read_addr(dma_chan[i], (uint8_t *) &buf[bank][i][rows - 1][counter - 1], true);
+            dma_channel_set_read_addr(dma_chan[i], (uint8_t *) &buf[bank][i][row - 1][counter - 1], true);
         send_cmd(1);
         pio_interrupt_clear(pio1, 0);
     }
 }
 
-void __not_in_flash_func(matrix_pio_isr1)() {
-    static uint32_t rows = 1;
-    
+void __not_in_flash_func(matrix_pio_isr1)() {    
     if (pio_interrupt_get(pio1, 1)) {
         uint32_t time = time_us_32();
         
