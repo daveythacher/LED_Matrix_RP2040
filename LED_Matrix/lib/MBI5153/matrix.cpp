@@ -140,13 +140,13 @@ void matrix_start() {
     
     // GCLK
     pio1->sm[3].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio1->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (10 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);;
+    pio1->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (10 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio1->sm[3].shiftctrl = 0;
     pio1->sm[3].execctrl = (1 << 17) | (0x1F << 12);
     pio1->sm[3].instr = pio_encode_jmp(17);
     hw_set_bits(&pio1->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
     
-    pio_set_irq0_source_enabled(pio1, pis_interrupt0, true);
+    pio_set_irq1_source_enabled(pio1, pis_interrupt0, true);
     pio_set_irq0_source_enabled(pio1, pis_interrupt1, true);
     
     // DMA
@@ -220,20 +220,24 @@ void __not_in_flash_func(matrix_pio_isr0)() {
                 uint32_t time = time_us_32();
                 rows = 1; 
                 gpio_init(10);
+                gpio_init(8);
                 while (time_us_32() - time < 3);                    // Wait 50 GCLKs
                 stop = true;
                 while(stop);
+                gpio_set_mask(1 << 10);
                 send_cmd(2);                                        // Send VSYNC CMD
+                gpio_set_mask(1 << 8);
 
                 // Dead time
                 time = time_us_32();
-                gpio_set_mask(1 << 10);
                 while((time_us_32() - time) < 1);
                 gpio_clr_mask(1 << 10);
+                gpio_clr_mask(1 << 8);
                 while((time_us_32() - time) < 3);    
                     
                 // Kick off hardware to get ISR ticks (GCLK)
                 gpio_set_function(10, GPIO_FUNC_PIO1);
+                gpio_set_function(8, GPIO_FUNC_PIO1);
                 pio_sm_put(pio1, 3, 512);
             }
         }
