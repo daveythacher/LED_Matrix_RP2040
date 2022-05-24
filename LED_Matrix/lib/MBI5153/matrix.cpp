@@ -10,6 +10,7 @@
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
+#include "hardware/irq.h"
 #include "hardware/timer.h"
 #include "MBI5153/config.h"
 #include "Multiplex/Multiplex.h"
@@ -39,7 +40,7 @@ void matrix_start() {
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
-    // PIO
+    // PIO                                                          // Note: There is a lot of loser timing issues.
     const uint16_t instructions[] = { 
         (uint16_t) (pio_encode_out(pio_pins, 1)),                   // PMP Program
         (uint16_t) (pio_encode_irq_wait(false, 4)),
@@ -52,10 +53,10 @@ void matrix_start() {
         (uint16_t) (pio_encode_nop()),
         (uint16_t) (pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_jmp_x_dec(7)),
-        (uint16_t) (pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 3)),
-        (uint16_t) (pio_encode_nop()),
-        (uint16_t) (pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 2)),
-        (uint16_t) (pio_encode_jmp_y_dec(11)),
+        (uint16_t) (pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 2)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
+        (uint16_t) (pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 3)),
+        (uint16_t) (pio_encode_jmp_y_dec(11) | pio_encode_sideset(2, 3)),
         (uint16_t) (pio_encode_irq_set(false, 0)),
         (uint16_t) (pio_encode_jmp(3)),
         (uint16_t) (pio_encode_pull(false, true)),                  // GCLK Program
@@ -63,6 +64,7 @@ void matrix_start() {
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(1, 1)),
         (uint16_t) (pio_encode_jmp_x_dec(19) | pio_encode_sideset(1, 0)),
         (uint16_t) (pio_encode_irq_set(false, 1)),
+        (uint16_t) (pio_encode_irq_wait(false, 1)),
         (uint16_t) (pio_encode_jmp(17))
     };
     static const struct pio_program pio_programs = {
@@ -80,6 +82,8 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio1, 1, 5, 1, true);
     pio_sm_set_consecutive_pindirs(pio1, 2, 8, 2, true);
     pio_sm_set_consecutive_pindirs(pio1, 3, 10, 1, true);
+    pio_set_irq1_source_enabled(pio1, pis_interrupt0, true);
+    pio_set_irq0_source_enabled(pio1, pis_interrupt1, true);
 
 /*
     6 PIOs for shifters
@@ -88,9 +92,9 @@ void matrix_start() {
 */
 
     // Verify Serial Clock
-    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * FPS * 16.0);
+    constexpr float x2 = 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x2 >= 1.0);
-    constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 4.0);
+    constexpr float x = 125000000.0 / (SERIAL_CLOCK * 0.8 * 4.0);
     static_assert(x >= 1.0);
 
     // Parallel shifter bus
@@ -140,15 +144,12 @@ void matrix_start() {
     hw_set_bits(&pio1->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
     
     // GCLK
-    pio1->sm[3].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
+    pio1->sm[3].clkdiv = ((uint32_t) floor(x2) << 16) | ((uint32_t) round((x2 - floor(x2)) * 255.0) << 8);
     pio1->sm[3].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (10 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio1->sm[3].shiftctrl = 0;
     pio1->sm[3].execctrl = (1 << 17) | (0x1F << 12);
     pio1->sm[3].instr = pio_encode_jmp(17);
     hw_set_bits(&pio1->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
-    
-    pio_set_irq1_source_enabled(pio1, pis_interrupt0, true);
-    pio_set_irq0_source_enabled(pio1, pis_interrupt1, true);
     
     // DMA
     for (int i = 0; i < 6; i++)
@@ -205,11 +206,13 @@ void matrix_start() {
     pio_sm_put(pio1, 3, 512);
 }
 
+// Note: This is a total loser hack.
 void __not_in_flash_func(send_cmd)(uint8_t cmd) {
-    pio_sm_put(pio1, 2, COLUMNS - cmd);
-    pio_sm_put(pio1, 2, cmd);
+    pio_sm_put(pio1, 2, COLUMNS - cmd + 1);
+    pio_sm_put(pio1, 2, cmd - 1);
 }
 
+// Note: This is the lower priority ISR which can be preempted by the other.
 void __not_in_flash_func(matrix_pio_isr0)() {    
     static uint8_t row = 0;
     static uint8_t counter = 0;
@@ -220,13 +223,17 @@ void __not_in_flash_func(matrix_pio_isr0)() {
             if (++row >= MULTIPLEX) {
                 uint32_t time = time_us_32();
                 row = 1; 
-                gpio_init(10);
-                gpio_init(8);
-                while (time_us_32() - time < 3);                    // Wait 50 GCLKs
+                while ((time_us_32() - time) < 3);                  // Wait 50 GCLKs
                 stop = true;
-                while(stop);
+                while(stop);                                        // Note: Loser timing hack
+                gpio_init(10);
+                gpio_set_dir(10, GPIO_OUT);
                 gpio_set_mask(1 << 10);
+                pio_interrupt_clear(pio1, 0);
                 send_cmd(2);                                        // Send VSYNC CMD
+                while(!pio_interrupt_get(pio1, 0));
+                gpio_init(8);
+                gpio_set_dir(8, GPIO_OUT);
                 gpio_set_mask(1 << 8);
                 m->SetRow(rows);
 
@@ -251,6 +258,7 @@ void __not_in_flash_func(matrix_pio_isr0)() {
     }
 }
 
+// Note: This is the higher priority ISR which can be preempt the other.
 void __not_in_flash_func(matrix_pio_isr1)() {    
     if (pio_interrupt_get(pio1, 1)) {
         uint32_t time = time_us_32();
@@ -264,6 +272,11 @@ void __not_in_flash_func(matrix_pio_isr1)() {
         if (++rows >= MULTIPLEX)
             rows = 0;
         
+        // Warning: Loser timing hack stalls lower priority ISR!
+        //  Blocking in ISR is very bad practice. However this logic is simpler this way.
+        //  This causes less issues in BCM. Here it can create untracked timing issue for FPS.
+        //  Working around this could be a challenge and may create more overhead. It is possible.
+        //  Overhead is not as much of a concern for larger notions of blanking time.
         while((time_us_32() - time) < BLANK_TIME);                  // Check if timer has expired
         
         // Kick off hardware to get ISR ticks (GCLK)
