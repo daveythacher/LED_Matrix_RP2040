@@ -215,8 +215,6 @@ void __not_in_flash_func(send_cmd)(uint8_t cmd) {
     pio_sm_put(pio1, 2, cmd - 1);
 }
 
-#warning(SYS_TICK timer needs needs to be replaced.)
-
 // Note: This is the lower priority ISR which can be preempted by the other.
 void __not_in_flash_func(matrix_pio_isr0)() {    
     static uint8_t row = 0;
@@ -226,9 +224,9 @@ void __not_in_flash_func(matrix_pio_isr0)() {
         if (++counter >= (COLUMNS / 16)) {
             counter = 1;
             if (++row >= MULTIPLEX) {
-                uint32_t time = time_us_32();
+                uint64_t time = time_us_64();
                 row = 1; 
-                while ((time_us_32() - time) < 3);                          // Wait 50 GCLKs
+                while ((time_us_64() - time) < 3);                          // Wait 50 GCLKs
                 stop = true;
                 while(stop);                                                // Note: Loser timing hack
                 gpio_init(10);
@@ -243,11 +241,11 @@ void __not_in_flash_func(matrix_pio_isr0)() {
                 m->SetRow(rows);
 
                 // Dead time
-                time = time_us_32();
-                while((time_us_32() - time) < 1);
+                time = time_us_64();
+                while((time_us_64() - time) < 1);
                 gpio_clr_mask(1 << 10);
                 gpio_clr_mask(1 << 8);
-                while((time_us_32() - time) < 3);    
+                while((time_us_64() - time) < 3);    
                     
                 // Kick off hardware to get ISR ticks (GCLK)
                 gpio_set_function(10, GPIO_FUNC_PIO1);
@@ -270,7 +268,7 @@ void __not_in_flash_func(matrix_pio_isr1)() {
         gpio_init(10);
         gpio_set_dir(10, GPIO_OUT);
         gpio_set_mask(1 << 10);   
-        uint32_t time = time_us_32();
+        uint64_t time = time_us_64();
         
         if (stop) {                                                         // Bail if VSYNC is pending
             stop = false;
@@ -282,7 +280,7 @@ void __not_in_flash_func(matrix_pio_isr1)() {
             rows = 0;
             
         // Support for anti-ghosting/pre-charge FET
-        while((time_us_32() - time) < (uint32_t) std::min(1, BLANK_TIME / 2));
+        while((time_us_64() - time) < (uint32_t) std::min(1, BLANK_TIME / 2));
         gpio_clr_mask(1 << 10);
         gpio_set_function(10, GPIO_FUNC_PIO1);
         
@@ -291,7 +289,7 @@ void __not_in_flash_func(matrix_pio_isr1)() {
         //  This causes less issues in BCM. Here it can create untracked timing issue for FPS.
         //  Working around this could be a challenge and may create more overhead. It is possible.
         //  Overhead is not as much of a concern for larger notions of blanking time.
-        while((time_us_32() - time) < (uint32_t) std::min(2, BLANK_TIME));  // Check if timer has expired
+        while((time_us_64() - time) < (uint32_t) std::min(2, BLANK_TIME));  // Check if timer has expired
         
         // Kick off hardware to get ISR ticks (GCLK)
         pio_sm_put(pio1, 3, 512);
