@@ -6,6 +6,7 @@
  
 #include <stdint.h>
 #include <string.h>
+#include <algorithm>
 #include "pico/platform.h"
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
@@ -40,12 +41,12 @@ void matrix_start() {
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
-    // PIO                                                          // Note: There is a lot of loser timing issues.
+    // PIO                                                                  // Note: There is a lot of loser timing issues.
     const uint16_t instructions[] = { 
-        (uint16_t) (pio_encode_out(pio_pins, 1)),                   // PMP Program
+        (uint16_t) (pio_encode_out(pio_pins, 1)),                           // PMP Program
         (uint16_t) (pio_encode_irq_wait(false, 4)),
         (uint16_t) (pio_encode_jmp(0)),
-        (uint16_t) (pio_encode_pull(false, true)),                  // CLK/LAT Program
+        (uint16_t) (pio_encode_pull(false, true)),                          // CLK/LAT Program
         (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_pull(false, true)),
         (uint16_t) (pio_encode_mov(pio_y, pio_osr)),
@@ -59,7 +60,7 @@ void matrix_start() {
         (uint16_t) (pio_encode_jmp_y_dec(11) | pio_encode_sideset(2, 3)),
         (uint16_t) (pio_encode_irq_set(false, 0)),
         (uint16_t) (pio_encode_jmp(3)),
-        (uint16_t) (pio_encode_pull(false, true)),                  // GCLK Program
+        (uint16_t) (pio_encode_pull(false, true)),                          // GCLK Program
         (uint16_t) (pio_encode_mov(pio_x, pio_osr)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(1, 1)),
         (uint16_t) (pio_encode_jmp_x_dec(19) | pio_encode_sideset(1, 0)),
@@ -93,8 +94,10 @@ void matrix_start() {
 
     // Verify Serial Clock
     constexpr float x2 = 125000000.0 / (SERIAL_CLOCK * 2.0);
+    static_assert(SERIAL_CLOCK / (MULTIPLEX * 512.0 * MAX_REFRESH) >= 1.0);
     static_assert(x2 >= 1.0);
     constexpr float x = 125000000.0 / (SERIAL_CLOCK * 0.8 * 4.0);
+    static_assert((SERIAL_CLOCK * 0.8) / (FPS * COLUMNS * 16.0 * MULTIPLEX) >= 1.0);
     static_assert(x >= 1.0);
 
     // Parallel shifter bus
@@ -212,6 +215,8 @@ void __not_in_flash_func(send_cmd)(uint8_t cmd) {
     pio_sm_put(pio1, 2, cmd - 1);
 }
 
+#warning(SYS_TICK timer needs needs to be replaced.)
+
 // Note: This is the lower priority ISR which can be preempted by the other.
 void __not_in_flash_func(matrix_pio_isr0)() {    
     static uint8_t row = 0;
@@ -223,14 +228,14 @@ void __not_in_flash_func(matrix_pio_isr0)() {
             if (++row >= MULTIPLEX) {
                 uint32_t time = time_us_32();
                 row = 1; 
-                while ((time_us_32() - time) < 3);                  // Wait 50 GCLKs
+                while ((time_us_32() - time) < 3);                          // Wait 50 GCLKs
                 stop = true;
-                while(stop);                                        // Note: Loser timing hack
+                while(stop);                                                // Note: Loser timing hack
                 gpio_init(10);
                 gpio_set_dir(10, GPIO_OUT);
                 gpio_set_mask(1 << 10);
                 pio_interrupt_clear(pio1, 0);
-                send_cmd(2);                                        // Send VSYNC CMD
+                send_cmd(2);                                                // Send VSYNC CMD
                 while(!pio_interrupt_get(pio1, 0));
                 gpio_init(8);
                 gpio_set_dir(8, GPIO_OUT);
@@ -251,6 +256,7 @@ void __not_in_flash_func(matrix_pio_isr0)() {
             }
         }
         
+        // Note: This is slow! Adds about 1uS
         for (int i = 0; i < 6; i++)
             dma_channel_set_read_addr(dma_chan[i], (uint8_t *) &buf[bank][i][row - 1][counter - 1], true);
         send_cmd(1);
@@ -260,10 +266,13 @@ void __not_in_flash_func(matrix_pio_isr0)() {
 
 // Note: This is the higher priority ISR which can be preempt the other.
 void __not_in_flash_func(matrix_pio_isr1)() {    
-    if (pio_interrupt_get(pio1, 1)) {
+    if (pio_interrupt_get(pio1, 1)) {  
+        gpio_init(10);
+        gpio_set_dir(10, GPIO_OUT);
+        gpio_set_mask(1 << 10);   
         uint32_t time = time_us_32();
         
-        if (stop) {                                                 // Bail if VSYNC is pending
+        if (stop) {                                                         // Bail if VSYNC is pending
             stop = false;
             return pio_interrupt_clear(pio1, 1);
         }
@@ -271,13 +280,18 @@ void __not_in_flash_func(matrix_pio_isr1)() {
         m->SetRow(rows);
         if (++rows >= MULTIPLEX)
             rows = 0;
+            
+        // Support for anti-ghosting/pre-charge FET
+        while((time_us_32() - time) < (uint32_t) std::min(1, BLANK_TIME / 2));
+        gpio_clr_mask(1 << 10);
+        gpio_set_function(10, GPIO_FUNC_PIO1);
         
-        // Warning: Loser timing hack stalls lower priority ISR!
+        // Warning: Loser timing hack stalls lower priority ISR! (Hacked/fixed with multicore)
         //  Blocking in ISR is very bad practice. However this logic is simpler this way.
         //  This causes less issues in BCM. Here it can create untracked timing issue for FPS.
         //  Working around this could be a challenge and may create more overhead. It is possible.
         //  Overhead is not as much of a concern for larger notions of blanking time.
-        while((time_us_32() - time) < BLANK_TIME);                  // Check if timer has expired
+        while((time_us_32() - time) < (uint32_t) std::min(2, BLANK_TIME));  // Check if timer has expired
         
         // Kick off hardware to get ISR ticks (GCLK)
         pio_sm_put(pio1, 3, 512);

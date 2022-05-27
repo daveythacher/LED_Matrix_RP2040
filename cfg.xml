@@ -1,7 +1,7 @@
 <cfg>
     <build name="P6-BCM" enable="true" app="spi" multiplex="8" multiplex_num="0" max_rgb_led_steps="500" max_refresh="200" fps="30" columns="128" serial_clock="15.625" blank_time="1" power_divisor="1" use_cie1931="1"/>
     <build name="P4-BCM" enable="true" app="usb" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" fps="30" columns="128" serial_clock="25.0" blank_time="1" power_divisor="1" use_cie1931="1"/>
-    <build name="P4-MBI5153" enable="false" app="app3" multiplex="16" multiplex_num="0" max_rgb_led_steps="4000" max_refresh="3840" fps="30" columns="128" serial_clock="15.625" blank_time="1" power_divisor="1" use_cie1931="1"/>
+    <build name="P4-MBI5153" enable="false" app="app3" multiplex="16" multiplex_num="0" max_rgb_led_steps="4000" max_refresh="1000" fps="30" columns="128" serial_clock="15.625" blank_time="1" power_divisor="1" use_cie1931="1"/>
     <build name="Cube" enable="true" app="usb" multiplex="4" multiplex_num="0" max_rgb_led_steps="2000" max_refresh="250" fps="30" columns="16" serial_clock="15.625" blank_time="1" power_divisor="1" use_cie1931="1"/>
     <!-- HT1632C does not use the following: multiplex, multiplex_num, max_rgb_led_steps, max_refresh, fps, blank_time, use_cie1931 -->
     <build name="HT1632C" enable="false" app="HT1632C" multiplex="0" multiplex_num="0" max_rgb_led_steps="0" max_refresh="0" fps="0" columns="128" serial_clock="15.625" blank_time="0" power_divisor="1" use_cie1931="0"/>
