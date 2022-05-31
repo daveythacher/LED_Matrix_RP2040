@@ -94,7 +94,7 @@ void matrix_start() {
 
     // Verify Serial Clock
     constexpr float x2 = 125000000.0 / (SERIAL_CLOCK * 2.0);
-    static_assert(SERIAL_CLOCK / (MULTIPLEX * 512.0 * MAX_REFRESH) >= 1.0);
+    static_assert(SERIAL_CLOCK / (MULTIPLEX * 1.0 * (1 << PWM_bits) * MAX_REFRESH) >= 1.0);
     static_assert(x2 >= 1.0);
     constexpr float x = 125000000.0 / (SERIAL_CLOCK * 0.8 * 4.0);
     static_assert((SERIAL_CLOCK * 0.8) / (FPS * COLUMNS * 16.0 * MULTIPLEX) >= 1.0);

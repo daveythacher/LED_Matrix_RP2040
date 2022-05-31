@@ -21,9 +21,7 @@
     constexpr int BLANK_TIME = DEFINE_BLANK_TIME;
     
     #include <math.h>
-    constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
-    constexpr int lower = std::min((int) round(log2(MAX_REFRESH / FPS)), PWM_bits);
-    constexpr int upper = PWM_bits - lower;
+    constexpr int PWM_bits = std::max((int) round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX)), 9);
     
     typedef uint8_t test[2 * MULTIPLEX][COLUMNS][3];
     typedef uint16_t test2[6][MULTIPLEX][16][COLUMNS / 16];
