@@ -123,3 +123,4 @@ Now lets consider lowering the power consumption to 6.8 Watts using the three ap
 3. 30mA * 32 columns * 16 rows / 8 scan * 4 panels * 5V = 38.4 Watts. 11 - roundup(log2(38.4 / 6.8)) - log2(8) = 5 bits
 
 
+
