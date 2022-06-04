@@ -44,19 +44,19 @@ void matrix_start() {
     // PIO                                                                  // Note: There is a lot of loser timing issues.
     const uint16_t instructions[] = { 
         (uint16_t) (pio_encode_out(pio_pins, 1)),                           // PMP Program
-        (uint16_t) (pio_encode_irq_wait(false, 4)),
+        (uint16_t) (pio_encode_wait_gpio(true, 8)),                         // TODO: FIX THIS (THIS GONNA BE TERRIBLE!!!)
         (uint16_t) (pio_encode_jmp(0)),
         (uint16_t) (pio_encode_pull(false, true)),                          // CLK/LAT Program
         (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_pull(false, true)),
         (uint16_t) (pio_encode_mov(pio_y, pio_osr)),
-        (uint16_t) (pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 1)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 1)),
         (uint16_t) (pio_encode_nop()),
-        (uint16_t) (pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_jmp_x_dec(7)),
-        (uint16_t) (pio_encode_irq_set(false, 4) | pio_encode_sideset(2, 2)),
+        (uint16_t) (pio_encode_nop()| pio_encode_sideset(2, 2)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-        (uint16_t) (pio_encode_irq_clear(false, 4) | pio_encode_sideset(2, 3)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 3)),
         (uint16_t) (pio_encode_jmp_y_dec(11) | pio_encode_sideset(2, 3)),
         (uint16_t) (pio_encode_irq_set(false, 0)),
         (uint16_t) (pio_encode_jmp(3)),

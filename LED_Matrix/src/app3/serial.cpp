@@ -26,9 +26,9 @@ void serial_task() {
     for (int x = 0; x < COLUMNS; x++) {
         for (int y = 0; y < (2 * MULTIPLEX); y++) {
             if ((x % MULTIPLEX) == y) {
-                buffers[buffer].buffer[y][x][0] = 0;
-                buffers[buffer].buffer[y][x][1] = 0;
-                buffers[buffer].buffer[y][x][2] = 0;
+                buffers[buffer].buffer[y][x][0] = 0xAA;
+                buffers[buffer].buffer[y][x][1] = 0xAA;
+                buffers[buffer].buffer[y][x][2] = 0xAA;
             }
             else {
                 buffers[buffer].buffer[y][x][0] = 0xFF;
