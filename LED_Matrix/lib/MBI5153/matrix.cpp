@@ -13,6 +13,7 @@
 #include "hardware/dma.h"
 #include "hardware/irq.h"
 #include "hardware/timer.h"
+#include "hardware/structs/bus_ctrl.h"
 #include "MBI5153/config.h"
 #include "Multiplex/Multiplex.h"
 
@@ -25,6 +26,7 @@ static uint32_t rows = 1;
 static uint16_t cfg_str[6][COLUMNS / 16];
 
 static void send_cmd(uint8_t cmd);
+void matrix_pio_isr0();
 void matrix_pio_isr();
 
 void matrix_start() {
@@ -83,8 +85,6 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio1, 1, 5, 1, true);
     pio_sm_set_consecutive_pindirs(pio1, 2, 7, 3, true);
     pio_sm_set_consecutive_pindirs(pio1, 3, 10, 1, true);
-    pio_set_irq1_source_enabled(pio1, pis_interrupt0, true);
-    pio_set_irq0_source_enabled(pio1, pis_interrupt1, true);
 
 /*
     6 PIOs for shifters
@@ -158,6 +158,7 @@ void matrix_start() {
     for (int i = 0; i < 6; i++)
         dma_chan[i] = dma_claim_unused_channel(true);
         
+    bus_ctrl_hw->priority = (1 << 8) | (1 << 12);
     dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
     channel_config_set_read_increment(&c, true);
@@ -193,6 +194,7 @@ void matrix_start() {
     
     // MBI5153 Configuration
     send_cmd(14);
+    
     for (uint16_t i = 0; i < (COLUMNS / 16); i++) {
         cfg_str[0][i] = (MULTIPLEX - 1) << 8;
         cfg_str[1][i] = (MULTIPLEX - 1) << 8;
@@ -201,17 +203,30 @@ void matrix_start() {
         cfg_str[4][i] = (MULTIPLEX - 1) << 8;
         cfg_str[5][i] = (MULTIPLEX - 1) << 8;
     }
+    
+    // Wait for send_cmd(14)
+    while(!pio_interrupt_get(pio1, 0));
+    pio_interrupt_clear(pio1, 0);
+    
+    // Interrupt from CFG1 write will trigger ISR ticks
     for (uint8_t i = 0; i < 6; i++)
         dma_channel_set_read_addr(dma_chan[i], (uint8_t *) cfg_str[i], true);
     send_cmd(4);
     
-    // Interrupt from CFG1 write will trigger ISR ticks
+    // Wait for send_cmd(4)
+    while(!pio_interrupt_get(pio1, 0));
+    pio_set_irq1_source_enabled(pio1, pis_interrupt0, true);
+    pio_set_irq0_source_enabled(pio1, pis_interrupt1, true);
+    
+    // Start DCLK
+    matrix_pio_isr0();
+    
+    // Start GCLK
     pio_sm_put(pio1, 3, 512);
 }
 
-// Note: This is a total loser hack.
 void __not_in_flash_func(send_cmd)(uint8_t cmd) {
-    pio_sm_put(pio1, 2, COLUMNS - cmd + 1);
+    pio_sm_put(pio1, 2, COLUMNS - cmd - 1);
     pio_sm_put(pio1, 2, cmd - 1);
 }
 
@@ -226,7 +241,7 @@ void __not_in_flash_func(matrix_pio_isr0)() {
             if (++row >= MULTIPLEX) {
                 uint64_t time = time_us_64();
                 row = 1; 
-                while ((time_us_64() - time) < 3);                          // Wait 50 GCLKs
+                while ((time_us_64() - time) < 1);                          // Wait 50 GCLKs
                 stop = true;
                 while(stop);                                                // Note: Loser timing hack
                 gpio_init(10);
@@ -256,7 +271,7 @@ void __not_in_flash_func(matrix_pio_isr0)() {
         
         // Note: This is slow! Adds about 1uS
         for (int i = 0; i < 6; i++)
-            dma_channel_set_read_addr(dma_chan[i], (uint8_t *) &buf[bank][i][row - 1][counter - 1], true);
+            dma_channel_set_read_addr(dma_chan[i], (uint8_t *) &buf[(bank + 1) % 2][i][row - 1][counter - 1], true);
         send_cmd(1);
         pio_interrupt_clear(pio1, 0);
     }

@@ -46,5 +46,4 @@ target_link_libraries(led_${TARGET}
     pico_runtime
     pico_multicore
     led_MBI5153
-    serial_spi
 )
