@@ -44,20 +44,20 @@ void matrix_start() {
     // PIO                                                                  // Note: There is a lot of loser timing issues.
     const uint16_t instructions[] = { 
         (uint16_t) (pio_encode_out(pio_pins, 1)),                           // PMP Program
-        (uint16_t) (pio_encode_wait_gpio(true, 8)),                         // TODO: FIX THIS (THIS GONNA BE TERRIBLE!!!)
+        (uint16_t) (pio_encode_wait_gpio(true, 7)),
         (uint16_t) (pio_encode_jmp(0)),
         (uint16_t) (pio_encode_pull(false, true)),                          // CLK/LAT Program
         (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_pull(false, true)),
         (uint16_t) (pio_encode_mov(pio_y, pio_osr)),
-        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 1)),
-        (uint16_t) (pio_encode_nop()),
-        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_jmp_x_dec(7)),
-        (uint16_t) (pio_encode_nop()| pio_encode_sideset(2, 2)),
-        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 3)),
-        (uint16_t) (pio_encode_jmp_y_dec(11) | pio_encode_sideset(2, 3)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(3, 3)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(3, 3)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(3, 0)),
+        (uint16_t) (pio_encode_jmp_x_dec(7) | pio_encode_sideset(3, 0)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(3, 4)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(3, 4)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(3, 7)),
+        (uint16_t) (pio_encode_jmp_y_dec(11) | pio_encode_sideset(3, 7)),
         (uint16_t) (pio_encode_irq_set(false, 0)),
         (uint16_t) (pio_encode_jmp(3)),
         (uint16_t) (pio_encode_pull(false, true)),                          // GCLK Program
@@ -81,7 +81,7 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio0, 3, 3, 1, true);
     pio_sm_set_consecutive_pindirs(pio1, 0, 4, 1, true);
     pio_sm_set_consecutive_pindirs(pio1, 1, 5, 1, true);
-    pio_sm_set_consecutive_pindirs(pio1, 2, 8, 2, true);
+    pio_sm_set_consecutive_pindirs(pio1, 2, 7, 3, true);
     pio_sm_set_consecutive_pindirs(pio1, 3, 10, 1, true);
     pio_set_irq1_source_enabled(pio1, pis_interrupt0, true);
     pio_set_irq0_source_enabled(pio1, pis_interrupt1, true);
@@ -140,7 +140,7 @@ void matrix_start() {
     
     // CLK and LAT
     pio1->sm[2].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio1->sm[2].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[2].pinctrl = (3 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (7 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
     pio1->sm[2].shiftctrl = 0;
     pio1->sm[2].execctrl = (1 << 17) | (0x1F << 12);
     pio1->sm[2].instr = pio_encode_jmp(3);
