@@ -9,7 +9,6 @@
     
     // -- DO NOT EDIT BELOW THIS LINE --
     
-    constexpr int POWER_DIVISOR = DEFINE_POWER_DIVISOR;
     constexpr int MULTIPLEX = DEFINE_MULTIPLEX;
     constexpr int MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
     constexpr int MAX_REFRESH = DEFINE_MAX_REFRESH;

@@ -13,10 +13,8 @@ import org.apache.commons.lang3.SystemUtils
 DEFINE_MULTIPLEX            32          "Multiplex Scan of panel"
 DEFINE_MAX_RGB_LED_STEPS    8000        "Min LED const forward current in nA divided by min light current in nA"
 DEFINE_MAX_REFRESH          3840        "Max refresh of panel"
-DEFINE_FPS                  30          "Frames per second"
 DEFINE_COLUMNS              128         "Chain length"
 DEFINE_MULTIPLEX_NUM        0           "Address pin/Multiplexing type enum"
-DEFINE_POWER_DIVISOR        1           "Divisor for lowering average power. Requires bulk energy storage to smooth peak current"
 DEFINE_USE_CIE1931          1           "Use CIE1931 color temperature mapping table"
 DEFINE_SERIAL_CLOCK         15.625      "HUB75 serial clock speed in MHz"
 DEFINE_BLANK_TIME           1           "Multiplex blanking time in uS"
@@ -32,7 +30,7 @@ def build_flavor(Map c) {
     else
         apps += sprintf(";%s", c.name)
          
-    flags += sprintf(" -D%s_APP=%s -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NUM=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_FPS=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_POWER_DIVISOR=%s -D%s_DEFINE_USE_CIE1931=%s", c.name, c.app, c.name, c.multiplex, c.name, c.multiplex_num, c.name, c.max_rgb_led_steps, c.name, c.max_refresh, c.name, c.fps, c.name, c.columns, c.name, c.serial_clock, c.name, c.blank_time, c.name, c.power_divisor, c.name, c.use_cie1931)
+    flags += sprintf(" -D%s_APP=%s -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NUM=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_USE_CIE1931=%s", c.name, c.app, c.name, c.multiplex, c.name, c.multiplex_num, c.name, c.max_rgb_led_steps, c.name, c.max_refresh, c.name, c.columns, c.name, c.serial_clock, c.name, c.blank_time, c.name, c.use_cie1931)
 }
 
 def build_linux() {

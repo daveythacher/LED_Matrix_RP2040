@@ -11,7 +11,7 @@ groovy build.groovy -c cfg.xml
 For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
 ``` XML
 <cfg>
-    <build name="P4-BCM" enable="true" app="usb" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" fps="30" columns="128" serial_clock="25.0" blank_time="1" power_divisor="1" use_cie1931="1"/>
+    <build name="P4-BCM" enable="true" app="usb" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1" use_cie1931="1"/>
     <!-- ... -->
 </cfg>
 ```
@@ -24,7 +24,7 @@ This is the name given to the configuration and corresponding binary. Note binar
 This must be true or false. If false this build will not be included in the build script.
 
 ### app
-This is a string for the corresponding application in src folder. These applications determine the serial implementation protocol, if used and LED Matrix algorithm. usb and spi are BCM. These are only supported for standard LED driver panels. app3 is for MBI5153 LED driver panels only. Other application specific options also exist.
+This is a string for the corresponding application in src folder. These applications determine the serial implementation protocol, if used and LED Matrix algorithm. usb and spi are BCM. These are only supported for standard LED driver panels.
 
 ### multiplex
 This is the scan number marked on the back of the panel. This number is usually in the middle near a S prefix.
@@ -37,10 +37,6 @@ This is the number of uA's supported by the LEDs without multiplexing. This is g
 
 ### max_refresh
 This number is the refresh rate in Hz of the panels multiplexing. When using BCM this will override the FPS. This number should never exceed 3840Hz for most panels. Note this number should be whole numbers only.
-
-### fps 
-This is the number of frames sent per second. This is used for compile timing verfication of timing in MBI5153 LED Matrix algorithm. This number should reflect the max number of FPS you plan to use. Note this reserves serial bandwidth to support this. This setting does not exist for BCM LED Matrix algorithm. Note this number should be whole numbers only.
-
 ### columns
 This is the number of real columns in the panel. Not the number of columns you see in the panel. If you have 16x32 with 4 scan panel you will need to set this to 64. panel_rows / (2 * scan) * panel_columns. Mapping of pixel location is not handled by the RP2040, this should be done in application logic or by logic driving serial bus. Note this number should be whole numbers only.
 
@@ -50,19 +46,12 @@ This is the target serial bandwidth, in MHz. This is used by the compiler to ver
 ### blank_time
 This is the number of uS the LEDs will be off during multplexing to prevent ghosting. This is usually 1-4uS. Note this number should be whole numbers only.
 
-### power_divisor
-This can be used for brightness control. It turns the LEDs off prematurely by dividing the on time by this number. Note this will reduce the average power, but full peak power is still used. 100 percent / 1 = 100 percent. Note this number should be whole numbers only.
-
 ### use_cie1931
 This enables or disables the use of the CIE1931 gamma correction table. To enable set to 1, otherwise set to 0.
 
 ### Timing algorithm for BCM:
 
 serial_clock / (multiplex * columns * max_refresh * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
-
-### Timing algorithm for MBI5153:
-
-WIP - TBD
 
 ## Panel Selection
 

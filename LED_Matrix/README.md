@@ -10,9 +10,9 @@ This is a folder for different libraries which could be used by multiple applica
 ### Matrix Alogirthms
 I did not implement these as C++ classes. The memory footprints vary and currently are defined by the preprocessor. I do not want to support dynamic memory as this can be a pain. I also do not want to use union for the different algorithms of matrix. This forced me to use static and only support one at a time.
 
-Currently they all use the same symbol, matrix_start to get going. They are compiled as library: led_BCM, led_MBI5153, etc. You must link against one of these. Note ISR logic is handled in application implementation. There are two callbacks allocated to matrix algorithms, matrix_dma_isr and matrix_pio_isr. 
+Currently they all use the same symbol, matrix_start to get going. They are compiled as library: led_BCM, etc. You must link against one of these. Note ISR logic is handled in application implementation. There is one callbacks allocated to matrix algorithms, matrix_dma_isr. 
 
-To add more you just create folder, define matrix_start, have CMake build a library with led_ prefix, define matrix_dma_isr and matrix_pio_isr if needed, define set_pixel, etc. CMake should link against all dependencies used by the lib. Each matrix algorithm is its own library.
+To add more you just create folder, define matrix_start, have CMake build a library with led_ prefix, define matrix_dma_isr if needed, define set_pixel, etc. CMake should link against all dependencies used by the lib. Each matrix algorithm is its own library.
 
 ### Multiplex Alogirthms
 I did implement these as C++ class. To add more just extent the interface and add it to the factory in the base class. CMake should link against all dependencies used by the lib. There is only one multiplex library for all multiplex algorithms.
