@@ -19,3 +19,7 @@ void isr_start() {
     irq_set_enabled(DMA_IRQ_0, true);   
 }
 
+void isr_start_core1() {
+    // Do nothing
+}
+

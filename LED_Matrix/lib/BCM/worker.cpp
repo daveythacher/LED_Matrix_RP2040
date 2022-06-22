@@ -61,7 +61,9 @@ static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uin
 }
 
 void __not_in_flash_func(work)() {
+    extern void isr_start_core1();
     build_table_pwm(PWM_bits);
+    isr_start_core1();
     
     while(1) {
         test *p = (test *) multicore_fifo_pop_blocking_inline();

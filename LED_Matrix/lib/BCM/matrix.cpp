@@ -25,18 +25,21 @@ static void send_line(uint8_t *line);
 void matrix_start() {
     // Init Matrix hardware
     // IO
-    for (int i = 0; i < 16; i++) {
-        gpio_init(i);
-        gpio_set_dir(i, GPIO_OUT);
+    for (int i = 0; i < 14; i++) {
+        gpio_init(i + 8);
+        gpio_set_dir(i + 8, GPIO_OUT);
     }
-    for (int i = 0; i < 10; i++)
-        gpio_set_function(i, GPIO_FUNC_PIO0);
+    for (int i = 0; i < 8; i++)
+        gpio_set_function(i + 8, GPIO_FUNC_PIO0);
+    gpio_init(22);
+    gpio_set_dir(22, GPIO_OUT);
+    gpio_set_function(22, GPIO_FUNC_PIO0);
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
     // PIO
     const uint16_t instructions[] = { 
-        (uint16_t) (pio_encode_out(pio_pins, 8) | pio_encode_sideset(1, 0)),    // PMP Program
+        (uint16_t) (pio_encode_out(pio_pins, 6) | pio_encode_sideset(1, 0)),    // PMP Program
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(1, 1)),
         (uint16_t) (pio_encode_pull(false, true)  | pio_encode_sideset(1, 1)),  // OE Program
         (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(1, 0)), 
@@ -49,8 +52,8 @@ void matrix_start() {
         .origin = 0,
     };
     pio_add_program(pio0, &pio_programs);
-    pio_sm_set_consecutive_pindirs(pio0, 0, 0, 9, true);
-    pio_sm_set_consecutive_pindirs(pio0, 1, 10, 1, true);
+    pio_sm_set_consecutive_pindirs(pio0, 0, 8, 7, true);
+    pio_sm_set_consecutive_pindirs(pio0, 1, 22, 1, true);
     
     // Verify Serial Clock
     constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * (1 << PWM_bits));
@@ -60,8 +63,8 @@ void matrix_start() {
 
     // PMP
     pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << 25) | (1 << 19);
+    pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | 8;
+    pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << 25) | (1 << 19);
     pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
     pio0->sm[0].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
@@ -69,7 +72,7 @@ void matrix_start() {
     
     // OE
     pio0->sm[1].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio0->sm[1].pinctrl = (1 << PIO_SM1_PINCTRL_SIDESET_COUNT_LSB) | (10 << PIO_SM1_PINCTRL_SIDESET_BASE_LSB);
+    pio0->sm[1].pinctrl = (1 << PIO_SM1_PINCTRL_SIDESET_COUNT_LSB) | (22 << PIO_SM1_PINCTRL_SIDESET_BASE_LSB);
     pio0->sm[1].execctrl = (1 << 17) | (0x5 << 12) | (0x2 << 7);
     pio0->sm[1].instr = pio_encode_jmp(0x2);
     hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
@@ -87,9 +90,9 @@ void matrix_start() {
 }
 
 static void __not_in_flash_func(send_latch)() {
-    gpio_set_mask(1 << 9);
+    gpio_set_mask(1 << 15);
     __asm__ __volatile__ ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
-    gpio_clr_mask(1 << 9);
+    gpio_clr_mask(1 << 15);
 }
 
 void __not_in_flash_func(send_line)(uint8_t *line) {

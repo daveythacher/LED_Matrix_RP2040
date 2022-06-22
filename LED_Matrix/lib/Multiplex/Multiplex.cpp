@@ -13,8 +13,8 @@ Multiplex *Multiplex::ptr = nullptr;
 
 Multiplex::Multiplex() {
     for (int i = 0; i < 5; i++) {
-        gpio_init(i + 11);
-        gpio_set_dir(i + 11, GPIO_OUT);
+        gpio_init(i + 16);
+        gpio_set_dir(i + 16, GPIO_OUT);
     }
 }
 

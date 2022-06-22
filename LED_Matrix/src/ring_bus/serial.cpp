@@ -8,10 +8,10 @@
 #include "pico/multicore.h"
 #include "hardware/dma.h"
 #include "BCM/config.h"
-#include "serial_spi/serial_spi.h"
+#include "serial_ring/serial_ring.h"
 
 typedef struct {
-    uint64_t marker;
+    uint32_t id;
     test buffer;
 } serial_type;
 
@@ -19,7 +19,8 @@ static volatile bool isReady;
 static serial_type buffers[2];
 static uint8_t buffer = 0;
 
-static int serial_dma_chan;
+static int serial_dma_chan_rx;
+static int serial_dma_chan_tx;
 
 void serial_task() {
 
@@ -40,21 +41,25 @@ void serial_task() {
     isReady = true;
     buffer = (buffer + 1) % 2;*/
     
-    if (isReady) {
-        multicore_fifo_push_blocking((uint32_t) &buffers[buffer].buffer);
-        buffer = (buffer + 1) % 2;
+    if (isReady) {    
+        multicore_fifo_push_blocking((uint32_t) &buffers[(buffer + 1) % 2].buffer);
         isReady = false;
     }
 }
 
-void callback(uint8_t **buf, uint16_t *len) {
-    *buf = (uint8_t *) &buffers[(buffer + 1) % 2];
+void callback(uint8_t **buf_rx, uint8_t **buf_tx, uint16_t *len) {
+    *buf_rx = (uint8_t *) &buffers[(buffer + 1) % 2];   // Back buffer
+    *buf_tx = (uint8_t *) &buffers[buffer];             // Front buffer
     *len = sizeof(serial_type);
-    isReady = true;
+    
+    if (buffers[buffer].id == 0)                        // Previous Back buffer will be Front buffer now
+        isReady = true;
+    buffers[buffer].id--;                               // Decrement hop counter, we consumed a hop.
+    buffer = (buffer + 1) % 2;                          // Swap buffers for next time
 }
 
 void serial_dma_isr() {
-    serial_spi_isr();
+    serial_ring_isr();
 }
 
 void serial_start() {
@@ -62,7 +67,8 @@ void serial_start() {
     multicore_launch_core1(work);
     
     isReady = false;
-    serial_dma_chan = dma_claim_unused_channel(true);
-    serial_spi_start(&callback, serial_dma_chan, pio1, 0); 
+    serial_dma_chan_rx = dma_claim_unused_channel(true);
+    serial_dma_chan_tx = dma_claim_unused_channel(true);
+    serial_ring_start(&callback, serial_dma_chan_rx, serial_dma_chan_tx); 
 }
 

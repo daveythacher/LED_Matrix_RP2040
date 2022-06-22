@@ -1,14 +1,14 @@
-add_library(serial_spi)
+add_library(serial_ring)
 
-target_sources(serial_spi PRIVATE
-    serial_spi.cpp
+target_sources(serial_ring PRIVATE
+    serial_ring.cpp
 )
 
-target_include_directories(serial_spi PRIVATE
+target_include_directories(serial_ring PRIVATE
     ../../include
 )
 
-target_compile_options(serial_spi PRIVATE 
+target_compile_options(serial_ring PRIVATE 
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
     -fno-exceptions 
     -fno-check-new 
@@ -23,10 +23,10 @@ target_compile_options(serial_spi PRIVATE
 )
 
 # Use caution here!
-target_link_libraries(serial_spi PRIVATE 
+target_link_libraries(serial_ring PRIVATE 
     hardware_gpio
     hardware_irq
-    hardware_pio        # Cannot use full API!
+    hardware_uart
     hardware_dma        # Cannot use full API!
     hardware_resets
     hardware_clocks

@@ -22,8 +22,11 @@ void isr_start() {
     irq_set_exclusive_handler(DMA_IRQ_0, dma_isr0);
     irq_set_priority(DMA_IRQ_0, 0);
     irq_set_enabled(DMA_IRQ_0, true);   
+}
+
+void isr_start_core1() {
     irq_set_exclusive_handler(DMA_IRQ_1, dma_isr1);
-    irq_set_priority(DMA_IRQ_1, 1 << 6);
+    irq_set_priority(DMA_IRQ_1, 0);
     irq_set_enabled(DMA_IRQ_1, true);   
 }
 
