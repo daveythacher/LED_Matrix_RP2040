@@ -66,9 +66,9 @@ Ideal sizes for message boards are P6 1:8 and P5 1:16. These have support bracke
 
 ### Refresh
 
-High refresh displays need special control circuits in multiplexing and LED drivers. This is hard to find in P6, but can be found in P5, P4, P3, P2.5, etc. Most panels are capable of 100Hz which should not show flicker to many people. However some people will want higher refreshes for things like movement, cameras, headaches, flicker, etc.
+High refresh displays need special control circuits in multiplexing and LED drivers. This is hard to find in P6, but can be found in P5, P4, P3, P2.5, etc. Most panels are capable of 100-240Hz which should not show flicker to many people. However some people will want higher refreshes for things like movement, cameras, headaches, flicker, etc.
 
-Generally high refresh rate is generally accomplished using hardware PWM. This is more effiecent in terms of bus cycles. Traditional PWM is used in many cases however this is being replaced somewhat by S-PWM. S-PWM allows you to lower the color depth aka PWM bits in response to multiplex or scan rate. The LEDs are only capable of so much contrast to there is no point to using a ton of PWM bits. These cycles can be converted to refresh rate instead. S-PWM enable this and smoother frame changes. S-PWM makes more sense for hardware more than it does for software.
+Generally high refresh rate is generally accomplished using hardware PWM. This is more efficient in terms of bus cycles. Traditional PWM is used in many cases however this is being replaced somewhat by S-PWM. S-PWM allows you to lower the color depth aka PWM bits in response to multiplex or scan rate. The LEDs are only capable of so much contrast to there is no point to using a ton of PWM bits. These cycles can be converted to refresh rate instead. S-PWM enable this and smoother frame changes. S-PWM makes more sense for hardware more than it does for software.
 
 BCM make have higher notions of flicker than hardware PWM. BCM is used for software Traditional PWM to emulate hardware Traditional PWM. BCM is computationally better than PWM. This however causes a lot of high to low transistions which may be more noticable to some due the the difference of wide intensity difference. S-PWM is not used as configuration can scale the refresh and PWM bits manually.
 
