@@ -1,14 +1,14 @@
-add_library(serial_ring)
+add_library(serial_uart)
 
-target_sources(serial_ring PRIVATE
-    serial_ring.cpp
+target_sources(serial_uart PRIVATE
+    serial_uart.cpp
 )
 
-target_include_directories(serial_ring PRIVATE
+target_include_directories(serial_uart PRIVATE
     ../../include
 )
 
-target_compile_options(serial_ring PRIVATE 
+target_compile_options(serial_uart PRIVATE 
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
     -fno-exceptions 
     -fno-check-new 
@@ -23,7 +23,7 @@ target_compile_options(serial_ring PRIVATE
 )
 
 # Use caution here!
-target_link_libraries(serial_ring PRIVATE 
+target_link_libraries(serial_uart PRIVATE 
     hardware_gpio
     hardware_irq
     hardware_uart
