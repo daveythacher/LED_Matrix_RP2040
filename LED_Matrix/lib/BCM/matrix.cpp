@@ -29,10 +29,8 @@ void matrix_start() {
         gpio_init(i + 8);
         gpio_set_dir(i + 8, GPIO_OUT);
     }
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 7; i++)
         gpio_set_function(i + 8, GPIO_FUNC_PIO0);
-    gpio_init(22);
-    gpio_set_dir(22, GPIO_OUT);
     gpio_set_function(22, GPIO_FUNC_PIO0);
     gpio_clr_mask(0x7FFF);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
@@ -108,8 +106,6 @@ void __not_in_flash_func(matrix_dma_isr)() {
     
     if (dma_channel_get_irq0_status(dma_chan)) {
         uint64_t time = 0;
-        
-        while(!pio_sm_is_tx_fifo_empty(pio0, 0));                               // Wait for PMP to finish (Note timing here is loose.)
         
         if (counter == 0) {
             time = time_us_64();                                                // Start a timer with 1uS delay using PIO

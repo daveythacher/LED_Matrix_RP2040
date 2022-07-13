@@ -17,9 +17,9 @@ static int serial_dma_chan;
 
 void serial_task() {
 
-    /*for (int x = 0; x < COLUMNS; x++) {
+    for (int x = 0; x < COLUMNS; x++) {
         for (int y = 0; y < (2 * MULTIPLEX); y++) {
-            if ((x % MULTIPLEX) == y) {
+            if ((x % (2 * MULTIPLEX)) == y) {
                 buffers[buffer][y][x][0] = 0;
                 buffers[buffer][y][x][1] = 0;
                 buffers[buffer][y][x][2] = 0;
@@ -32,7 +32,7 @@ void serial_task() {
         }
     }
     isReady = true;
-    buffer = (buffer + 1) % 2;*/
+    buffer = (buffer + 1) % 2;
     
     if (isReady) {    
         multicore_fifo_push_blocking((uint32_t) &buffers[(buffer + 1) % 2]);
