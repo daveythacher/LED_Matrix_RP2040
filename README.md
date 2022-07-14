@@ -11,7 +11,7 @@ groovy build.groovy -c cfg.xml
 For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
 ``` XML
 <cfg>
-    <build name="P4-BCM" enable="true" app="usb" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1" use_cie1931="1"/>
+    <build name="P4-BCM" enable="true" app="usb" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1" red_game="2.2" green_gamma="2.2" blue_gamma="2.2"/>
     <!-- ... -->
 </cfg>
 ```
@@ -49,8 +49,14 @@ This is the target serial bandwidth, in MHz. This is used by the compiler to ver
 ### blank_time
 This is the number of uS the LEDs will be off during multplexing to prevent ghosting. This is usually 1-4uS. Note this number should be whole numbers only.
 
-### use_cie1931
-This enables or disables the use of the CIE1931 gamma correction table. To enable set to 1, otherwise set to 0.
+### red_gamma
+Gamma curve value for Red LED.
+
+### green_gamma
+Gamma curve value for Green LED.
+
+### blue_gamma
+Gamma curve value for Blue LED.
 
 ### Timing algorithm for BCM:
 
@@ -90,11 +96,9 @@ You can further lower power consumption by lowering power supply voltage. As the
 
 ### Color Temperature
 
-As the LED current is reduced the require forward voltage is also reduced. This allows for the overall voltage of the LED power rail to be less. Down to around 3.3V. When lowering the peak power consumption this is generally provided for free. However to clarification purposes it is mentioned explictly. Note this does not apply to average power consumption.
+As the LED current is reduced the required forward voltage is also reduced. This allows for the overall voltage of the LED power rail to be less. Down to around 3.3V. When lowering the peak power consumption this is generally provided for free. Note this does not apply to average power consumption.
 
-However this can lead to problems for color temperature. This can be done two ways. The first is to change the LED driver resistor to be a reflection of the required current limit. The other is to program the software current gain to be a reflection of the required current limit. If this is not done the red LED is generally brighter than it is supposed to be.
-
-There is way to do this in software with gamma curve but it reduces color depth significantly.
+Messing this up can lead to issues for color temperature of white. The color may be too warm or too cool. Current balancing to the get the color temperature may be required. Note some LEDs are different. There can also be differences in performance between LED colors. Manipulate the current for the peak (full) current to get the color temperature correct. Then adjust the color intensity using gamma curves per color.
 
 ## Color Depth
 
