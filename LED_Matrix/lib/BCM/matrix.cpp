@@ -16,6 +16,7 @@
 test2 buf[2];
 volatile uint8_t bank = 0;
 static volatile bool stop = false;
+static uint8_t brightness = 16;
 static int dma_chan;
 static Multiplex *m;
 
@@ -87,6 +88,10 @@ void matrix_start() {
     send_line(buf[1][0][0]);
 }
 
+void __not_in_flash_func(set_brightness)(uint8_t b) {
+    brightness = b % 17;
+}
+
 static void __not_in_flash_func(send_latch)() {
     gpio_set_mask(1 << 15);
     __asm__ __volatile__ ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
@@ -96,7 +101,7 @@ static void __not_in_flash_func(send_latch)() {
 void __not_in_flash_func(send_line)(uint8_t *line) {
     dma_hw->ints0 = 1 << dma_chan;
     dma_channel_set_read_addr(dma_chan, line, true);
-    pio_sm_put(pio0, 1, COLUMNS * 2);                                           // Start a timer for OE using PIO
+    pio_sm_put(pio0, 1, COLUMNS * 2 * brightness / 16);                         // Start a timer for OE using PIO
 }
 
 void __not_in_flash_func(matrix_dma_isr)() {
