@@ -17,23 +17,22 @@ static void build_table_pwm(uint8_t bits) {
     memset(index_table, 0, sizeof(index_table));
     
     for (uint32_t i = 0; i < 256; i++) {
-        uint32_t r = round(pow((i / 255.0), 1.0 / RED_GAMMA) * 255.0);
-        uint32_t g = round(pow((i / 255.0), 1.0 / GREEN_GAMMA) * 255.0);
-        uint32_t b = round(pow((i / 255.0), 1.0 / BLUE_GAMMA) * 255.0);
-        uint32_t offset = 8 - bits;
+        uint32_t r = round(pow((i / 255.0), 1.0 / RED_GAMMA) * ((1 << bits) - 1));
+        uint32_t g = round(pow((i / 255.0), 1.0 / GREEN_GAMMA) * ((1 << bits) - 1));
+        uint32_t b = round(pow((i / 255.0), 1.0 / BLUE_GAMMA) * ((1 << bits) - 1));
 
-        for (uint32_t j = offset; j < 8; j++) {
+        for (uint32_t j = 0; j < bits; j++) {
             if ((1 << j) & r) {
-                index_table[i][0][j - offset] = 1;
-                index_table[i][3][j - offset] = 8;
+                index_table[i][0][j] = 1;
+                index_table[i][3][j] = 8;
             }
             if ((1 << j) & g) {
-                index_table[i][0][j - offset] = 2;
-                index_table[i][3][j - offset] = 16;
+                index_table[i][0][j] = 2;
+                index_table[i][3][j] = 16;
             }
             if ((1 << j) & b) {
-                index_table[i][0][j - offset] = 4;
-                index_table[i][3][j - offset] = 32;
+                index_table[i][0][j] = 4;
+                index_table[i][3][j] = 32;
             }
         }
     }
