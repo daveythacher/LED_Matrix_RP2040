@@ -26,7 +26,7 @@
     constexpr int PWM_bits = std::min(round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX)), 8.0);
     
     typedef uint8_t test[2 * MULTIPLEX][COLUMNS][3];
-    typedef uint8_t test2[MULTIPLEX][PWM_bits][COLUMNS];
+    typedef uint8_t test2[MULTIPLEX][PWM_bits][COLUMNS + 1];
 
 #endif
 
