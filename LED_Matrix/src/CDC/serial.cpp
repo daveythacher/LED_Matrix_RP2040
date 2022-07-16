@@ -5,10 +5,9 @@
  */
  
 #include <stdint.h>
+#include <stdio.h>
 #include "pico/multicore.h"
 #include "BCM/config.h"
-
-extern "C" void usb_start();
 
 static test buffers[2];
 static uint8_t buffer = 0;
@@ -16,13 +15,12 @@ static uint8_t buffer = 0;
 void serial_start() {
     extern void work();
     
-    usb_start();
     multicore_launch_core1(work);
 }
 
-extern "C" void usb_receive(uint8_t *buf, uint16_t len) {
-    uint8_t row = buf[0] >> 2;
-    uint16_t col = ((buf[0] & 63) << 8) + buf[1];
+static void usb_receive(uint8_t *buf, uint16_t len) {
+    uint8_t row = 0;
+    uint16_t col = 0;
     
     for (uint16_t i = 2; i < len; i+= 3) {
         buffers[buffer][row][col][0] = buf[i + 0];
@@ -38,5 +36,15 @@ extern "C" void usb_receive(uint8_t *buf, uint16_t len) {
             }
         }
     }
+}
+
+void serial_task() {
+   uint8_t buf[sizeof(test)];
+   
+    for (int i = sizeof(buf); i > 0; i--)
+        buf[i] = getc(stdin);
+        
+   usb_receive(buf, sizeof(buf));
+   printf("Received\n");
 }
 
