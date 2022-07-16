@@ -9,8 +9,6 @@
     
     // -- DO NOT EDIT BELOW THIS LINE --
     
-    #include <algorithm>
-    
     constexpr int MULTIPLEX = DEFINE_MULTIPLEX;
     constexpr int MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
     constexpr int MAX_REFRESH = DEFINE_MAX_REFRESH;
@@ -23,7 +21,7 @@
     constexpr float BLUE_GAMMA = DEFINE_BLUE_GAMMA;
     
     #include <math.h>
-    constexpr int PWM_bits = std::min(round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX)), 8.0);
+    constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
     
     typedef uint8_t test[2 * MULTIPLEX][COLUMNS][3];
     typedef uint8_t test2[MULTIPLEX][PWM_bits][COLUMNS + 1];
