@@ -43,18 +43,25 @@ void matrix_start() {
     memset(&null[1], 0, COLUMNS);
     null[0] = COLUMNS;
     
+    // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
+    //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
+    //      Works like Hardware PWM without the high refresh
+    //      This is more or less how it would work with MACHXO2 FPGA and PIC32MX using PMP.
+    //          Bus performance is better with RP2040. (Lower cost due to memory, CPU, hardware integration.)
+    //  OE is not used in this implementation and held to low to enable the display
+    //      Last shift will display display.
     /*while (1) {
-        counter2 = (1 << PWM_bits); LAT = 0;
+        counter2 = (1 << PWM_bits); LAT = 0;    // Start of frame, manually push into FIFO (data stream protocol)
         do {
-            counter = COLUMNS;
+            counter = COLUMNS;                  // Start of payload, DMA push into FIFO (data stream protocol)
             do {
-                DAT = DATA; CLK = 0;
-                CLK = 1;
+                DAT = DATA; CLK = 0;            // Payload data, DMA push into FIFO (data stream protocol)
+                CLK = 1;                        // Automate CLK pulse
             } while (--counter > 0); CLK = 0;
-            LAT = 1;
+            LAT = 1;                            // Automate LAT pulse at end of payload (bitplane shift)
             LAT = 0;
         } while (--counter2 > 0);
-        IRQ = 1;
+        IRQ = 1;                                // Call CPU at end of frame
     }*/
     
     // PIO
