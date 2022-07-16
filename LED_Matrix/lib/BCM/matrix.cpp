@@ -39,7 +39,7 @@ void matrix_start() {
     gpio_clr_mask(0x5FFF00);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
-    memset(buf, COLUMNS, sizeof(buf));
+    memset(buf, COLUMNS - 1, sizeof(buf));
     memset(&null[1], 0, COLUMNS);
     null[0] = COLUMNS;
     
@@ -65,9 +65,18 @@ void matrix_start() {
     }*/
     
     // PIO
-    const uint16_t instructions[] = { // TODO:
+    const uint16_t instructions[] = {
+        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),   // PIO SM
+        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_mov(pio_y, pio_osr) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_out(pio_pins, 6) | pio_encode_sideset(2, 0)),    // PMP Program
-        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 1))
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 1)),
+        (uint16_t) (pio_encode_jmp_y_dec(4) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_jmp_x_dec(2) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_irq_set(false, 0) | pio_encode_sideset(2, 0))
     };
     static const struct pio_program pio_programs = {
         .instructions = instructions,
@@ -83,11 +92,11 @@ void matrix_start() {
     constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x >= 1.0);
 
-    // PMP
+    // PMP / SM
     pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
     pio0->sm[0].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | 8;
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << 25) | (1 << 19);
-    pio0->sm[0].execctrl = (1 << 17) | (0x1 << 12);
+    pio0->sm[0].execctrl = (1 << 17) | (10 << 12);
     pio0->sm[0].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
     pio_sm_claim(pio0, 0);
@@ -116,7 +125,7 @@ void __not_in_flash_func(send_line)(uint32_t rows, uint8_t buffer) {
         for (uint32_t k = 0; k < (uint32_t) (1 << i); k++)
             address_table[(1 << i) + k] = buf[buffer][rows][i];
     address_table[(1 << PWM_bits) - 1] = null;
-    pio_sm_put(pio0, 0, 1 << PWM_bits);
+    pio_sm_put(pio0, 0, (1 << PWM_bits) - 1);
     dma_channel_set_read_addr(dma_chan[1], address_table, true);
 }
 
