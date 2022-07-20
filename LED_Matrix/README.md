@@ -23,7 +23,7 @@ This folder for different applications. These pick a matrix algorithm. CMake sti
 This is kind of pain, but this is a microcontroller. I did not want to lose memory or make this really painful to manage. Parallel development should be possible.
 
 ## Benchmark
-May be worth correcting jitter with DMA bus priority and/or using non-stripped RAM. However, this is not believed to be required. DMA to PIO latency would be more critical than jitter or computation latency, but I am not sure there is a significant issue. Manually mapping this will likely increase complexity and reduce available RAM.
+May be worth correcting jitter using non-stripped RAM. However, this is not believed to be required. DMA to PIO latency would be more critical than jitter or computation latency, but I am not sure there is a significant issue. Manually mapping this will likely increase complexity and reduce available RAM.
 
 ### copy_to_ram vs default linker script
 Currently copy_to_ram is used as this code base is fairly small and it can fit.
