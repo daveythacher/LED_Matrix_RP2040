@@ -22,3 +22,19 @@ This folder for different applications. These pick a matrix algorithm. CMake sti
 
 This is kind of pain, but this is a microcontroller. I did not want to lose memory or make this really painful to manage. Parallel development should be possible.
 
+## Benchmark
+May be worth correcting jitter with DMA bus priority and/or using non-stripped RAM. However, this is not believed to be required. DMA to PIO latency would be more critical than jitter or computation latency, but I am not sure there is a significant issue. Manually mapping this will likely increase complexity and reduce available RAM.
+
+### copy_to_ram vs default linker script
+Currently copy_to_ram is used as this code base is fairly small and it can fit.
+
+Results from computation latency test on Core 1 without UART serial ISR: (16x64 7 bit)
+
+Increased jitter from 64ns to 289ns, moving from default to copy_to_ram. Increased computation latency from 1.06mS to 1.09mS, moving from default to copy_to_ram. This is believed to be from stripped RAM arbitration.
+
+### __not_in_flash_func
+Currently these are only assigned on ISRs, functions called by ISRs and critical functions where latency would cause issues. Bigger lower priority things should not get this, these will fight for space in XIP.
+
+Results from computation latency test on Core 1 without UART serial ISR: (16x64 7 bit)
+
+Increased computation latency from 1.09mS to 1.11mS, when using copy_to_ram. The exact reason for this is not known, but is still believed to be arbitration related. Using default linker script with __not_in_flash_func improves computation latency. This is higher than default linker script without __not_in_flash_func.
