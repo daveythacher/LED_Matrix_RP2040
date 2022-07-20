@@ -38,3 +38,4 @@ Currently these are only assigned on ISRs, functions called by ISRs and critical
 Results from computation latency test on Core 1 without UART serial ISR: (16x64 7 bit)
 
 Increased computation latency from 1.09mS to 1.11mS, when using copy_to_ram. The exact reason for this is not known, but is still believed to be arbitration related. Using default linker script with __not_in_flash_func improves computation latency. This is higher than default linker script without __not_in_flash_func.
+

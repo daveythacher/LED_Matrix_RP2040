@@ -11,6 +11,7 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/timer.h"
+#include "hardware/structs/bus_ctrl.h"
 #include "BCM/config.h"
 #include "Multiplex/Multiplex.h"
 
@@ -103,6 +104,7 @@ void matrix_start() {
     pio_set_irq0_source_enabled(pio0, pis_interrupt0, true);
     
     // DMA
+    bus_ctrl_hw->priority = (1 << 12) | (1 << 8);
     dma_chan[0] = dma_claim_unused_channel(true);
     dma_chan[1] = dma_claim_unused_channel(true);
     dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);

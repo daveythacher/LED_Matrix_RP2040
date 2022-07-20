@@ -77,3 +77,4 @@ void __not_in_flash_func(work)() {
         bank = (bank + 1) % 2;          // This will cause some screen tearing, however to avoid dynamic memory overflow and lowering FPS this was allowed.
     }
 }
+

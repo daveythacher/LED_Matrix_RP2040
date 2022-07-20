@@ -15,7 +15,7 @@ static test buffers[2];
 static uint8_t buffer = 0;
 static int serial_dma_chan;
 
-void serial_task() {  
+void serial_task() { 
     if (isReady) {    
         multicore_fifo_push_blocking((uint32_t) &buffers[(buffer + 1) % 2]);
         isReady = false;
