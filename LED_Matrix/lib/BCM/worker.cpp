@@ -27,12 +27,12 @@ static void build_table_pwm(uint8_t bits) {
                 index_table[i][3][j] = 8;
             }
             if ((1 << j) & g) {
-                index_table[i][0][j] = 2;
-                index_table[i][3][j] = 16;
+                index_table[i][1][j] = 2;
+                index_table[i][4][j] = 16;
             }
             if ((1 << j) & b) {
-                index_table[i][0][j] = 4;
-                index_table[i][3][j] = 32;
+                index_table[i][2][j] = 4;
+                index_table[i][5][j] = 32;
             }
         }
     }
