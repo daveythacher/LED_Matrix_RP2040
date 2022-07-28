@@ -15,9 +15,8 @@
 #include "BCM/config.h"
 #include "Multiplex/Multiplex.h"
 
-test2 buf[2];
-volatile uint8_t bank = 0;
-static volatile bool stop = false;
+test2 buf[3];
+static uint8_t bank = 0;
 static int dma_chan[2];
 static Multiplex *m;
 static struct {uint32_t len; uint8_t *data;} address_table[(1 << PWM_bits) + 1];
@@ -151,14 +150,20 @@ void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
 
 void __not_in_flash_func(matrix_dma_isr)() {
     static uint32_t rows = 0;
+    extern volatile bool vsync;
     
     if (dma_channel_get_irq0_status(dma_chan[0])) {
         uint64_t time = time_us_64();                                           // Start a timer with 1uS delay
         
-        if (++rows >= MULTIPLEX)
-            rows = 0;                      
+        if (++rows >= MULTIPLEX) {
+            rows = 0;
+            if (vsync) {
+                bank = (bank + 1) % 3;
+                vsync = false;
+            }
+        }
         m->SetRow(rows);
-        load_line(rows, (bank + 1) % 2);
+        load_line(rows, bank);
 
         while((time_us_64() - time) < BLANK_TIME);                              // Check if timer has expired
         send_line();                                                            // Kick off hardware

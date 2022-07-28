@@ -10,7 +10,8 @@
 #include "pico/multicore.h"
 #include "BCM/config.h"
 
-extern uint8_t bank;
+static uint8_t bank = 1;
+volatile bool vsync = false;
 static uint8_t index_table[256][6][PWM_bits];
 
 static void build_table_pwm(uint8_t bits) {
@@ -74,7 +75,8 @@ void __not_in_flash_func(work)() {
         for (int y = 0; y < MULTIPLEX; y++)
             for (int x = 0; x < COLUMNS; x++)
                 set_pixel(x, y, (*p)[y][x][0], (*p)[y][x][1], (*p)[y][x][2], (*p)[y + MULTIPLEX][x][0], (*p)[y + MULTIPLEX][x][1], (*p)[y + MULTIPLEX][x][2]);
-        bank = (bank + 1) % 2;          // This will cause some screen tearing, however to avoid dynamic memory overflow and lowering FPS this was allowed.
+        bank = (bank + 1) % 3;
+        vsync = true;
     }
 }
 
