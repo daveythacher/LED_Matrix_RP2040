@@ -6,12 +6,10 @@
  
 #include <stdio.h>
 #include "pico/stdio.h"
-#include "BCM/config.h"
-
-extern void matrix_start();
-extern void serial_start();
-extern void isr_start();
-extern void serial_task();
+#include "Matrix/BCM/config.h"
+#include "Matrix/matrix.h"
+#include "ISR/isr.h"
+#include "Serial/serial.h"
 
 int main() {
     stdio_init_all();

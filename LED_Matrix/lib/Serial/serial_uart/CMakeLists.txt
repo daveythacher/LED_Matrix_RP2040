@@ -5,7 +5,7 @@ target_sources(serial_uart PRIVATE
 )
 
 target_include_directories(serial_uart PRIVATE
-    ../../include
+    ../../../include
 )
 
 target_compile_options(serial_uart PRIVATE 

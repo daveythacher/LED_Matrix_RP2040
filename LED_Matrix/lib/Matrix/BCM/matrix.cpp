@@ -12,7 +12,8 @@
 #include "hardware/dma.h"
 #include "hardware/timer.h"
 #include "hardware/structs/bus_ctrl.h"
-#include "BCM/config.h"
+#include "Matrix/BCM/config.h"
+#include "Matrix/matrix.h"
 #include "Multiplex/Multiplex.h"
 
 test2 buf[3];
@@ -22,7 +23,6 @@ static Multiplex *m;
 static struct {uint32_t len; uint8_t *data;} address_table[(1 << PWM_bits) + 1];
 static uint8_t null_table[COLUMNS + 1];
 
-void matrix_dma_isr();
 static void send_line();
 static void load_line(uint32_t rows, uint8_t buffer);
 

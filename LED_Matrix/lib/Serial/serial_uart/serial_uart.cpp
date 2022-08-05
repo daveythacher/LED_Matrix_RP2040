@@ -8,7 +8,7 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/uart.h"
-#include "serial_uart/serial_uart.h"
+#include "Serial/serial_uart/serial_uart.h"
 
 static serial_uart_callback func;
 static int dma_chan;

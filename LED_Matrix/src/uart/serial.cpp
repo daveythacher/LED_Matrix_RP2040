@@ -7,8 +7,9 @@
 #include <stdint.h>
 #include "pico/multicore.h"
 #include "hardware/dma.h"
-#include "BCM/config.h"
-#include "serial_uart/serial_uart.h"
+#include "Matrix/BCM/config.h"
+#include "Matrix/matrix.h"
+#include "Serial/serial_uart/serial_uart.h"
 
 static volatile bool isReady;
 static test buffers[2];
@@ -52,7 +53,6 @@ void __not_in_flash_func(serial_dma_isr)() {
 }
 
 void serial_start() {
-    extern void work();
     multicore_launch_core1(work);
     
     isReady = false;

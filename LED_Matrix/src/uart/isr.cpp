@@ -6,15 +6,14 @@
 
 #include "pico/platform.h"
 #include "hardware/irq.h"
+#include "Matrix/matrix.h"
+#include "Serial/serial.h"
 
-extern void matrix_dma_isr();
-extern void serial_dma_isr();
-
-void __not_in_flash_func(dma_isr0)() {
+static void __not_in_flash_func(dma_isr0)() {
     matrix_dma_isr();
 }
 
-void __not_in_flash_func(dma_isr1)() {
+static void __not_in_flash_func(dma_isr1)() {
     serial_dma_isr();
 }
 

@@ -7,14 +7,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "pico/multicore.h"
-#include "BCM/config.h"
+#include "Matrix/BCM/config.h"
+#include "Matrix/matrix.h"
 
 static test buffers[2];
 static uint8_t buffer = 0;
 
-void serial_start() {
-    extern void work();
-    
+void serial_start() {    
     multicore_launch_core1(work);
 }
 

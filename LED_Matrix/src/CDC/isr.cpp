@@ -6,8 +6,7 @@
 
 #include "pico/platform.h"
 #include "hardware/irq.h"
-
-extern void matrix_dma_isr();
+#include "Matrix/matrix.h"
 
 void __not_in_flash_func(dma_isr0)() {
     matrix_dma_isr();
