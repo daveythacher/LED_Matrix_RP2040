@@ -32,7 +32,7 @@ def build_flavor(Map c) {
     else
         apps += sprintf(";%s", c.name)
          
-    flags += sprintf(" -D%s_APP=%s -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NUM=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_RED_GAMMA=%s -D%s_DEFINE_GREEN_GAMMA=%s -D%s_DEFINE_BLUE_GAMMA=%s", c.name, c.app, c.name, c.multiplex, c.name, c.multiplex_num, c.name, c.max_rgb_led_steps, c.name, c.max_refresh, c.name, c.columns, c.name, c.serial_clock, c.name, c.blank_time, c.name, c.red_gamma, c.name, c.green_gamma, c.name, c.blue_gamma)
+    flags += sprintf(" -D%s_APP=%s -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NUM=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_RED_GAMMA=%s -D%s_DEFINE_GREEN_GAMMA=%s -D%s_DEFINE_BLUE_GAMMA=%s -D%s_DEFINE_ALGORITHM=%s", c.name, c.app, c.name, c.multiplex, c.name, c.multiplex_num, c.name, c.max_rgb_led_steps, c.name, c.max_refresh, c.name, c.columns, c.name, c.serial_clock, c.name, c.blank_time, c.name, c.red_gamma, c.name, c.green_gamma, c.name, c.blue_gamma, c.name, c.algorithm)
 }
 
 def build_linux() {

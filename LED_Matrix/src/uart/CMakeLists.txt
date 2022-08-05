@@ -45,6 +45,6 @@ pico_enable_stdio_uart(led_${TARGET} 0)
 target_link_libraries(led_${TARGET} 
     pico_runtime
     pico_multicore
-    led_BCM
+    led_${${TARGET}_DEFINE_ALGORITHM}
     serial_uart
 )
