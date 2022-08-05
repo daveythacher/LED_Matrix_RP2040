@@ -5,7 +5,7 @@
  */
  
 #include "Serial/serial_uart/serial_uart.h"
-#include "Matrix/BCM/config.h"
+#include "Matrix/config.h"
 #include "Matrix/matrix.h"
 #include "Serial/serial.h"
 #include "ISR/isr.h"

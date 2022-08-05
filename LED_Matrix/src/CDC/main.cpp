@@ -6,7 +6,7 @@
  
 #include <stdio.h>
 #include "pico/stdio.h"
-#include "Matrix/BCM/config.h"
+#include "Matrix/config.h"
 #include "Matrix/matrix.h"
 #include "ISR/isr.h"
 #include "Serial/serial.h"

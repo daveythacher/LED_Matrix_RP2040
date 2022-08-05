@@ -8,7 +8,7 @@
 #include <string.h>
 #include <math.h>
 #include "pico/multicore.h"
-#include "Matrix/BCM/config.h"
+#include "Matrix/config.h"
 
 static uint8_t bank = 1;
 volatile bool vsync = false;

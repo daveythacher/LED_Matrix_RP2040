@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "pico/multicore.h"
-#include "Matrix/BCM/config.h"
+#include "Matrix/config.h"
 #include "Matrix/matrix.h"
 
 static test buffers[2];

@@ -12,7 +12,7 @@
 #include "hardware/dma.h"
 #include "hardware/timer.h"
 #include "hardware/structs/bus_ctrl.h"
-#include "Matrix/BCM/config.h"
+#include "Matrix/config.h"
 #include "Matrix/matrix.h"
 #include "Multiplex/Multiplex.h"
 
