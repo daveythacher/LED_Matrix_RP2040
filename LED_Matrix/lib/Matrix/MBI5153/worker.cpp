@@ -9,11 +9,11 @@
 #include <math.h>
 #include "pico/multicore.h"
 #include "Matrix/config.h"
-#include "Matrix/BCM/memory_format.h"
+#include "Matrix/GEN3/memory_format.h"
 
 static uint8_t bank = 1;
 volatile bool vsync = false;
-static uint8_t index_table[256][6][PWM_bits];
+static uint16_t index_table[256][3];
 
 static void build_table_pwm(uint8_t bits) {
     memset(index_table, 0, sizeof(index_table));
@@ -23,20 +23,9 @@ static void build_table_pwm(uint8_t bits) {
         uint32_t g = round(pow((i / 255.0), 1.0 / GREEN_GAMMA) * ((1 << bits) - 1));
         uint32_t b = round(pow((i / 255.0), 1.0 / BLUE_GAMMA) * ((1 << bits) - 1));
 
-        for (uint32_t j = 0; j < bits; j++) {
-            if ((1 << j) & r) {
-                index_table[i][0][j] = 1;
-                index_table[i][3][j] = 8;
-            }
-            if ((1 << j) & g) {
-                index_table[i][1][j] = 2;
-                index_table[i][4][j] = 16;
-            }
-            if ((1 << j) & b) {
-                index_table[i][2][j] = 4;
-                index_table[i][5][j] = 32;
-            }
-        }
+        index_table[i][0] = r;
+        index_table[i][1] = g;
+        index_table[i][2] = b;
     }
 }
 
@@ -56,14 +45,13 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
 
 static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
     extern test2 buf[];
-    uint8_t *c[6] = { index_table[r0][0],  index_table[g0][1], index_table[b0][2], index_table[r1][3], index_table[g1][4], index_table[b1][5] };
-
-    for (uint32_t i = 0; i < PWM_bits; i++) {
-        uint8_t *p = &buf[bank][y][i][x + 1];
-        *p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
-        for (uint32_t j = 0; j < 6; j++)
-            ++c[j];
-    }
+    
+    buf[bank][y][x % 16][0][x / 16] = index_table[r0][0];
+    buf[bank][y][x % 16][1][x / 16] = index_table[g0][1];
+    buf[bank][y][x % 16][2][x / 16] = index_table[b0][2];
+    buf[bank][y][x % 16][3][x / 16] = index_table[r0][0];
+    buf[bank][y][x % 16][4][x / 16] = index_table[g0][1];
+    buf[bank][y][x % 16][5][x / 16] = index_table[b0][2];
 }
 
 void __not_in_flash_func(work)() {

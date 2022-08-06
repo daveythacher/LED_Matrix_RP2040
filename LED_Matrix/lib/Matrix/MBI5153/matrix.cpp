@@ -14,7 +14,7 @@
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/config.h"
 #include "Matrix/matrix.h"
-#include "Matrix/BCM/memory_format.h"
+#include "Matrix/GEN3/memory_format.h"
 #include "Multiplex/Multiplex.h"
 
 test2 buf[3];

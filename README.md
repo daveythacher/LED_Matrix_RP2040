@@ -20,11 +20,25 @@ For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks 
 ### name 
 This is the name given to the configuration and corresponding binary. Note binary will have the following prefix: led_
 
+This name must be different from the algorithm. Currently this means something other than the following: BCM, TLC5958 and MBI5153
+
 ### enable 
 This must be true or false. If false this build will not be included in the build script.
 
 ### app
 This is a string for the corresponding application in src folder. These applications determine the serial implementation protocol, if used and LED Matrix algorithm. usb and uart are BCM. These are only supported for standard LED driver panels.
+
+### algorithm
+This is the name of the LED panel driver or algorithm used to talk to the panel. 
+
+GEN 1 panels (standard panels) currently use BCM. (FM612x are not supported currently. Traditional PWM requires external FPGA, which is not supported by this code base.)
+
+GEN 2 panels (hardware PWM panels without memory) are not supported currently. 
+
+GEN 3 panels (hardware PWM panels with memory) can only be MBI5153 (incomplete) or TLC5958 (incomplete) currently.
+
+### fps
+This is the number of FPS desired by GEN 3 panels. This is used to verify the serial clock requirements.
 
 ### multiplex
 This is the scan number marked on the back of the panel. This number is usually in the middle near a S prefix.
