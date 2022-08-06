@@ -11,7 +11,7 @@ groovy build.groovy -c cfg.xml
 For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
 ``` XML
 <cfg>
-    <build name="P4-BCM" enable="true" app="usb" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1" red_game="2.2" green_gamma="2.2" blue_gamma="2.2"/>
+    <build name="P4-BCM" enable="true" app="usb" alogrithm="BCM" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1" red_game="2.2" green_gamma="2.2" blue_gamma="2.2"/>
     <!-- ... -->
 </cfg>
 ```
