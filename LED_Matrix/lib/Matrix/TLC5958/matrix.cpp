@@ -14,18 +14,19 @@
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/config.h"
 #include "Matrix/matrix.h"
-#include "Matrix/GEN3/memory_format.h"
+#include "Matrix/TLC5958/memory_format.h"
 #include "Multiplex/Multiplex.h"
 
 test2 buf[3];
 static uint8_t bank = 0;
 static int dma_chan[2];
 static Multiplex *m;
-static struct {uint32_t len; uint8_t *data;} address_table[(1 << PWM_bits) + 1];
-static uint8_t null_table[COLUMNS + 1];
+static bool isFinished = false;
+static struct {uint32_t len; uint8_t *data;} address_table[2][(MULTIPLEX * 16) + 1];
+static struct {uint32_t period; uint32_t duty_cycle;} lat_pwm;
 
 static void send_line();
-static void load_line(uint32_t rows, uint8_t buffer);
+static void load_line(uint8_t buffer);
 
 void matrix_start() {
     // Init Matrix hardware
@@ -40,18 +41,19 @@ void matrix_start() {
     gpio_set_dir(22, GPIO_OUT);
     gpio_clr_mask(0x5FFF00);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
-    
-    memset(buf, COLUMNS - 1, sizeof(buf));
-    memset(null_table, 0, COLUMNS + 1);
-    null_table[0] = COLUMNS - 1;
 
-    for (uint32_t i = 0; i < (1 << PWM_bits); i++)
-        address_table[i].len = COLUMNS + 1;
+    lat_pwm.period = (COLUMNS / 16) * 48;
+    lat_pwm.duty_cycle = lat_pwm.period - 1;
+    for (uint32_t i = 0; i < (MULTIPLEX * 16); i++) {
+        address_table[0][i].len = (COLUMNS / 16) * 3;
+        address_table[1][i].len = 2;
+        address_table[1][i].data = &lat_pwm[0];
+    }
     
-    address_table[(1 << PWM_bits) - 1].data = null_table;
-    address_table[(1 << PWM_bits) - 1].len = COLUMNS + 1;
-    address_table[1 << PWM_bits].data = NULL;
-    address_table[1 << PWM_bits].len = 0;
+    address_table[0][MULTIPLEX * 16].data = NULL;
+    address_table[0][MULTIPLEX * 16].len = 0;
+    address_table[1][MULTIPLEX * 16].data = NULL;
+    address_table[1][MULTIPLEX * 16].len = 0;
     
     // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
     //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
@@ -73,6 +75,12 @@ void matrix_start() {
         } while (counter2-- > 0);
         IRQ = 1;                                    // Call CPU at end of frame
     }*/
+    
+    /*
+        1 - CLK/LAT
+        1 - DAT
+        1 - GCLK
+    */
     
     // PIO
     const uint16_t instructions[] = {
@@ -133,23 +141,28 @@ void matrix_start() {
     channel_config_set_ring(&c, true, 3);                                       // 1 << 3 byte boundary on write ptr
     dma_channel_configure(dma_chan[1], &c, &dma_hw->ch[dma_chan[0]].al3_transfer_count, &address_table[0], 2, false);
     
-    load_line(0, 1);
+    load_line(1);
     send_line();
 }
 
 void __not_in_flash_func(send_line)() {
     dma_hw->ints0 = 1 << dma_chan[0];
-    pio_sm_put(pio0, 0, (1 << PWM_bits) - 1);
     dma_channel_set_read_addr(dma_chan[1], &address_table[0], true);
 }
 
-void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
-    for (uint32_t i = 0; i < PWM_bits; i++)
-        for (uint32_t k = 0; k < (uint32_t) (1 << i); k++)
-            address_table[(1 << i) + k - 1].data = buf[buffer][rows][i];
+void __not_in_flash_func(load_line)(uint8_t buffer) {
+    for (uint32_t i = 0; i < (MULTIPLEX * 16); i++)
+        address_table[0][i].data = buf[buffer][i / 16][i % 16];
 }
 
-void __not_in_flash_func(matrix_dma_isr)() {
+void __not_in_flash_func(matrix_dma_isr)() {    
+    if (dma_channel_get_irq0_status(dma_chan[0])) {
+        isFinished = true;
+        dma_hw->ints0 = 1 << dma_chan[0];
+    }
+}
+
+void __not_in_flash_func(matrix_gclk_isr)() {
     static uint32_t rows = 0;
     extern volatile bool vsync;
     

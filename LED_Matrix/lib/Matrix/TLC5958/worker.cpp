@@ -9,7 +9,7 @@
 #include <math.h>
 #include "pico/multicore.h"
 #include "Matrix/config.h"
-#include "Matrix/GEN3/memory_format.h"
+#include "Matrix/TLC5958/memory_format.h"
 
 static uint8_t bank = 1;
 volatile bool vsync = false;
@@ -46,12 +46,12 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
 static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
     extern test2 buf[];
     
-    buf[bank][y][x % 16][0][x / 16] = index_table[r0][0];
-    buf[bank][y][x % 16][1][x / 16] = index_table[g0][1];
-    buf[bank][y][x % 16][2][x / 16] = index_table[b0][2];
-    buf[bank][y][x % 16][3][x / 16] = index_table[r0][0];
-    buf[bank][y][x % 16][4][x / 16] = index_table[g0][1];
-    buf[bank][y][x % 16][5][x / 16] = index_table[b0][2];
+    buf[bank][y][x % 16][x / 16][0] = index_table[r0][0];
+    buf[bank][y][x % 16][x / 16][1] = index_table[g0][1];
+    buf[bank][y][x % 16][x / 16][2] = index_table[b0][2];
+    buf[bank][y + MULTIPLEX][x % 16][x / 16][0] = index_table[r1][0];
+    buf[bank][y + MULTIPLEX][x % 16][x / 16][1] = index_table[g1][1];
+    buf[bank][y + MULTIPLEX][x % 16][x / 16][2] = index_table[b1][2];
 }
 
 void __not_in_flash_func(work)() {

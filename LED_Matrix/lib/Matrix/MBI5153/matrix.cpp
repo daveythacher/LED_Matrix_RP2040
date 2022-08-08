@@ -74,6 +74,12 @@ void matrix_start() {
         IRQ = 1;                                    // Call CPU at end of frame
     }*/
     
+    /*
+        1 - CLK/LAT
+        1 - DAT
+        1 - GCLK
+    */
+    
     // PIO
     const uint16_t instructions[] = {
         (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),   // PIO SM
