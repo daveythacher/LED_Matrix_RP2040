@@ -76,7 +76,7 @@ void matrix_start() {
     
     /*
         1 - CLK/LAT
-        1 - DAT
+        6 - DAT
         1 - GCLK
     */
     

@@ -19,14 +19,11 @@
 
 test2 buf[3];
 static uint8_t bank = 0;
-static int dma_chan[2];
+static int dma_chan;
 static Multiplex *m;
 static bool isFinished = false;
-static struct {uint32_t len; uint8_t *data;} address_table[2][(MULTIPLEX * 16) + 1];
-static struct {uint32_t period; uint32_t duty_cycle;} lat_pwm;
 
 static void send_line();
-static void load_line(uint8_t buffer);
 
 void matrix_start() {
     // Init Matrix hardware
@@ -41,40 +38,6 @@ void matrix_start() {
     gpio_set_dir(22, GPIO_OUT);
     gpio_clr_mask(0x5FFF00);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
-
-    lat_pwm.period = (COLUMNS / 16) * 48;
-    lat_pwm.duty_cycle = lat_pwm.period - 1;
-    for (uint32_t i = 0; i < (MULTIPLEX * 16); i++) {
-        address_table[0][i].len = (COLUMNS / 16) * 3;
-        address_table[1][i].len = 2;
-        address_table[1][i].data = &lat_pwm[0];
-    }
-    
-    address_table[0][MULTIPLEX * 16].data = NULL;
-    address_table[0][MULTIPLEX * 16].len = 0;
-    address_table[1][MULTIPLEX * 16].data = NULL;
-    address_table[1][MULTIPLEX * 16].len = 0;
-    
-    // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
-    //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
-    //      Works like Hardware PWM without the high refresh
-    //      This is more or less how it would work with MACHXO2 FPGA and PIC32MX using PMP.
-    //          Bus performance is better with RP2040. (Lower cost due to memory, CPU, hardware integration.)
-    //  OE is not used in this implementation and held to low to enable the display
-    //      Last shift will display display.
-    /*while (1) {
-        counter2 = (1 << PWM_bits) - 1; LAT = 0;    // Start of frame, manually push into FIFO (data stream protocol)
-        do {
-            counter = COLUMNS - 1;                  // Start of payload, DMA push into FIFO (data stream protocol)
-            do {
-                DAT = DATA; CLK = 0;                // Payload data, DMA push into FIFO (data stream protocol)
-                CLK = 1;                            // Automate CLK pulse
-            } while (counter-- > 0); CLK = 0;
-            LAT = 1;                                // Automate LAT pulse at end of payload (bitplane shift)
-            LAT = 0;
-        } while (counter2-- > 0);
-        IRQ = 1;                                    // Call CPU at end of frame
-    }*/
     
     /*
         1 - CLK/LAT
@@ -123,64 +86,52 @@ void matrix_start() {
     
     // DMA
     bus_ctrl_hw->priority = (1 << 12) | (1 << 8);
-    dma_chan[0] = dma_claim_unused_channel(true);
-    dma_chan[1] = dma_claim_unused_channel(true);
-    dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);
+    dma_chan = dma_claim_unused_channel(true);
+    
+    // CLK/LAT DMA
+    dma_channel_config c = dma_channel_get_default_config(dma_chan);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO0_TX0);
-    channel_config_set_chain_to(&c, dma_chan[1]);
-    channel_config_set_irq_quiet(&c, true);
-    dma_channel_configure(dma_chan[0], &c, &pio0_hw->txf[0], NULL, 0, false);
-    dma_channel_set_irq0_enabled(dma_chan[0], true); 
+    dma_channel_configure(dma_chan, &c, &pio0_hw->txf[0], NULL, COLUMNS / 16 * 3, false);
+    dma_channel_set_irq0_enabled(dma_chan, true); 
     
-    c = dma_channel_get_default_config(dma_chan[1]);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_32);
-    channel_config_set_read_increment(&c, true);
-    channel_config_set_write_increment(&c, true);
-    channel_config_set_ring(&c, true, 3);                                       // 1 << 3 byte boundary on write ptr
-    dma_channel_configure(dma_chan[1], &c, &dma_hw->ch[dma_chan[0]].al3_transfer_count, &address_table[0], 2, false);
-    
-    load_line(1);
+    extern void matrix_fifo_isr_0();
+    irq_set_exclusive_handler(DMA_SIO_0, matrix_fifo_isr_0);
+    irq_set_priority(DMA_SIO_0, 0xFF);
+    irq_set_enabled(DMA_SIO_0, true);  
+
     send_line();
 }
 
 void __not_in_flash_func(send_line)() {
-    dma_hw->ints0 = 1 << dma_chan[0];
-    dma_channel_set_read_addr(dma_chan[1], &address_table[0], true);
-}
-
-void __not_in_flash_func(load_line)(uint8_t buffer) {
-    for (uint32_t i = 0; i < (MULTIPLEX * 16); i++)
-        address_table[0][i].data = buf[buffer][i / 16][i % 16];
+    dma_hw->ints0 = 1 << dma_chan;
+    // TODO:
 }
 
 void __not_in_flash_func(matrix_dma_isr)() {    
-    if (dma_channel_get_irq0_status(dma_chan[0])) {
+    if (dma_channel_get_irq0_status(dma_chan)) {
         isFinished = true;
-        dma_hw->ints0 = 1 << dma_chan[0];
+        dma_hw->ints0 = 1 << dma_chan;
     }
 }
 
-void __not_in_flash_func(matrix_gclk_isr)() {
+void __not_in_flash_func(matrix_gclk_task)() {
     static uint32_t rows = 0;
     extern volatile bool vsync;
     
-    if (dma_channel_get_irq0_status(dma_chan[0])) {
-        uint64_t time = time_us_64();                                           // Start a timer with 1uS delay
+    uint64_t time = time_us_64();                                               // Start a timer with 1uS delay
         
-        if (++rows >= MULTIPLEX) {
-            rows = 0;
-            if (vsync) {
-                bank = (bank + 1) % 3;
-                vsync = false;
-            }
+    if (++rows >= MULTIPLEX) {
+        rows = 0;
+        if (vsync) {
+            bank = (bank + 1) % 3;
+            vsync = false;
         }
-        m->SetRow(rows);
-        load_line(rows, bank);
-
-        while((time_us_64() - time) < BLANK_TIME);                              // Check if timer has expired
-        send_line();                                                            // Kick off hardware
     }
+    m->SetRow(rows);
+
+    while((time_us_64() - time) < BLANK_TIME);                                  // Check if timer has expired
+    send_line();                                                                // Kick off hardware
 }
 
