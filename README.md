@@ -76,6 +76,18 @@ Gamma curve value for Blue LED.
 
 serial_clock / (multiplex * columns * max_refresh * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
 
+### Timing algorithm for GEN3: (MBI5153, etc.) - WIP
+
+(serial_clock * 0.75) / (multiplex * columns * fps * 16) >= 1.0
+
+serial_clock / (multiplex * max_refresh * 2^max(round(log2(max_rgb_led_steps / multiplex)), seg_bits)) >= 1.0
+
+### Timing algorithm for TLC5958: - WIP
+
+(serial_clock * 0.75) / (multiplex * columns * fps * 16 * 3) >= 1.0
+
+serial_clock / (multiplex * max_refresh * 2^max(round(log2(max_rgb_led_steps / multiplex)), seg_bits)) >= 1.0
+
 ## Panel Selection
 
 Good luck with this as most vendors provide little information with this. Asking questions via message is also not to be trusted.
