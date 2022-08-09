@@ -77,7 +77,7 @@ void __not_in_flash_func(work)() {
     // This code base consumes the FIFO! (No one else can have it/use it!)
     //  This is true for all Matrix implementations!
     irq_set_exclusive_handler(SIO_IRQ_PROC1, matrix_fifo_isr_1);
-    irq_set_priority(SIO_IRQ_PROC1, 0xFF);                                          // Let anything preempt this!
+    irq_set_priority(SIO_IRQ_PROC1, 0xFF);                                      // Let anything preempt this!
     irq_set_enabled(SIO_IRQ_PROC1, true);   
     
     while(1) {
