@@ -153,14 +153,41 @@ void matrix_start() {
         dma_chan[i] = dma_claim_unused_channel(true);
     
     // DAT DMA
-    dma_channel_config c;
-    for (int i = 0; i < 6; i++) {
-        c = dma_channel_get_default_config(dma_chan[i]);
-        channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
-        channel_config_set_read_increment(&c, true);
-        channel_config_set_dreq(&c, DREQ_PIO0_TX0);
-        dma_channel_configure(dma_chan[i], &c, &pio0_hw->txf[0], NULL, COLUMNS / 16, false);
-    }
+    dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO0_TX0);
+    dma_channel_configure(dma_chan[0], &c, &pio0_hw->txf[0], NULL, COLUMNS / 16, false);
+    
+    c = dma_channel_get_default_config(dma_chan[1]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO0_TX1);
+    dma_channel_configure(dma_chan[1], &c, &pio0_hw->txf[1], NULL, COLUMNS / 16, false);
+    
+    c = dma_channel_get_default_config(dma_chan[2]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO0_TX2);
+    dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[2], NULL, COLUMNS / 16, false);
+    
+    c = dma_channel_get_default_config(dma_chan[3]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO0_TX3);
+    dma_channel_configure(dma_chan[3], &c, &pio0_hw->txf[3], NULL, COLUMNS / 16, false);
+    
+    c = dma_channel_get_default_config(dma_chan[4]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO1_TX0);
+    dma_channel_configure(dma_chan[4], &c, &pio1_hw->txf[0], NULL, COLUMNS / 16, false);
+    
+    c = dma_channel_get_default_config(dma_chan[5]);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
+    channel_config_set_read_increment(&c, true);
+    channel_config_set_dreq(&c, DREQ_PIO1_TX1);
+    dma_channel_configure(dma_chan[5], &c, &pio1_hw->txf[1], NULL, COLUMNS / 16, false);
     
     // TODO: Boot procedure
     
