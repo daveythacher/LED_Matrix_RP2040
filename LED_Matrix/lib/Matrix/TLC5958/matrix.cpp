@@ -6,6 +6,7 @@
  
 #include <stdint.h>
 #include <string.h>
+#include <algorithm>
 #include "pico/platform.h"
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
@@ -22,6 +23,11 @@ static uint8_t bank = 0;
 static int dma_chan;
 static Multiplex *m;
 static bool isFinished = false;
+static uint8_t lat_cmd = 2;
+static uint8_t seg_bits = 8;
+
+static void start_clk(uint8_t cmd);
+static void start_gclk(uint8_t bits);
 
 void matrix_start() {
     // Init Matrix hardware
@@ -34,6 +40,7 @@ void matrix_start() {
         gpio_set_function(i + 8, GPIO_FUNC_PIO0);
     gpio_init(22);
     gpio_set_dir(22, GPIO_OUT);
+    gpio_set_function(22, GPIO_FUNC_PIO0);
     gpio_clr_mask(0x5FFF00);
     m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
@@ -45,19 +52,25 @@ void matrix_start() {
     
     // PIO
     const uint16_t instructions[] = {
-        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),   // PIO SM
+        (uint16_t) (pio_encode_out(pio_pins, 1)),                               // DAT Program (125 MHz Clock)
+        (uint16_t) (pio_encode_wait_gpio(true, 14)),
+        (uint16_t) (pio_encode_wait_gpio(false, 14)),
+        (uint16_t) (pio_encode_pull(false, true) | pio_encode_side_set(2, 0)),  // CLK/LAT Program (Cannot exceed 25MHz Clock)
         (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_out(pio_null, 24) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_out(pio_null, 24) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_mov(pio_y, pio_osr) | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_out(pio_pins, 6) | pio_encode_sideset(2, 0)),    // PMP Program
-        (uint16_t) (pio_encode_jmp_y_dec(6) | pio_encode_sideset(2, 1)),
-        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_jmp_x_dec(3) | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(2, 0))
+        (uint16_t) (pio_encode_jmp_y_dec(7) | pio_encode_sideset(2, 1)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
+        (uint16_t) (pio_encode_jmp_x_dec(11) | pio_encode_sideset(2, 3)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
+        (uint16_t) (pio_encode_pull(false, true) | pio_encode_side_set(1, 0)),  // GCLK Program (Cannot exceed 33MHz Clock)
+        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(1, 0)),
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(1, 0)),
+        (uint16_t) (pio_encode_jmp_x_dec(16) | pio_encode_sideset(1, 1)),
+        (uint16_t) (pio_encode_nop() | pico_encode_sideset(1, 0))
     };
     static const struct pio_program pio_programs = {
         .instructions = instructions,
@@ -65,22 +78,49 @@ void matrix_start() {
         .origin = 0,
     };
     pio_add_program(pio0, &pio_programs);
-    pio_sm_set_consecutive_pindirs(pio0, 0, 8, 8, true);
+    pio_sm_set_consecutive_pindirs(pio0, 0, 8, 6, true);
+    pio_sm_set_consecutive_pindirs(pio0, 1, 14, 2, true);
+    pio_sm_set_consecutive_pindirs(pio0, 2, 22, 1, true);
     
     // Verify Serial Clock
-    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * (1 << PWM_bits));
-    static_assert(x2 >= 1.0);
-    constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
+    static_assert(SERIAL_CLOCK <= 33000000.0);
+    
+    constexpr float x = (SERIAL_CLOCK * 0.75) / (MULTIPLEX * COLUMNS * FPS * 16 * 3);
     static_assert(x >= 1.0);
+    constexpr float CLK = x * 125000000.0 / (SERIAL_CLOCK * 2.0 * 0.75);
+    static_assert(CLK >= 1.0);
+    
+    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * MAX_REFRESH * (1 << std::max(PWM_bits, 8)));
+    static_assert(x2 >= 1.0);
+    constexpr float GCLK = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
+    static_assert(GCLK >= 1.0);
 
-    // PMP / SM
-    pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-    pio0->sm[0].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | 8;
+    // DAT SM
+    pio0->sm[0].clkdiv = 0;
+    pio0->sm[0].execctrl = (1 << 17) | (2 << 12);
     pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << 25) | (1 << 19);
-    pio0->sm[0].execctrl = (1 << 17) | (12 << 12);
+    pio0->sm[0].pinctrl = (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 8;
     pio0->sm[0].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
     pio_sm_claim(pio0, 0);
+
+    // CLK/LAT SM
+    pio0->sm[1].clkdiv = ((uint32_t) floor(CLK) << 16) | ((uint32_t) round((CLK - floor(CLK)) * 255.0) << 8);
+    pio0->sm[1].execctrl = (13 << 12);
+    pio0->sm[1].shiftctrl = 0;
+    pio0->sm[1].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio0->sm[1].instr = pio_encode_jmp(3);
+    hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
+    pio_sm_claim(pio0, 1);
+
+    // GCLK SM
+    pio0->sm[2].clkdiv = ((uint32_t) floor(GCLK) << 16) | ((uint32_t) round((GCLK - floor(GCLK)) * 255.0) << 8);
+    pio0->sm[2].execctrl = (18 << 12);
+    pio0->sm[2].shiftctrl = 0;
+    pio0->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (22 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio0->sm[2].instr = pio_encode_jmp(14);
+    hw_set_bits(&pio0->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
+    pio_sm_claim(pio0, 2);
     
     // DMA
     bus_ctrl_hw->priority = (1 << 12) | (1 << 8);
@@ -99,12 +139,21 @@ void matrix_start() {
     irq_set_priority(DMA_SIO_0, 0xFF);                                          // Let anything preempt this!
     irq_set_enabled(DMA_SIO_0, true);
     
-    // TODO:                                                                    // Kick off hardware (GCLK)
+    start_gclk(seg_bits);                                                       // Kick off hardware (GCLK)
 }
 
-void __not_in_flash_func(matrix_dma_isr)() {    
+// Keep this short and sweet!
+void __not_in_flash_func(matrix_dma_isr)() { 
+    static uint16_t counter = 0;
+       
     if (dma_channel_get_irq0_status(dma_chan)) {
-        isFinished = true;
+        if (++counter >= (MULTIPLEX * 16)) {                                    // Fire rate: MULTIPLEX * 16 * FPS
+            isFinished = true;
+            counter = 0;
+        }
+        else
+            start_clk(lat_cmd);
+        dma_hw->ints0 = 1 << dma_chan;
     }
 }
 
@@ -118,7 +167,7 @@ void __not_in_flash_func(matrix_gclk_task)() {
         if (vsync) {
             bank = (bank + 1) % 3;
             vsync = false;
-            //TODO:                                                             // Kick off hardware (CLK)
+            start_clk(lat_cmd);                                                 // Kick off hardware (CLK)
         }
         if (isFinished) {
             // TODO:                                                            // VSYNC Procedure
@@ -128,6 +177,15 @@ void __not_in_flash_func(matrix_gclk_task)() {
     m->SetRow(rows);
 
     while((time_us_64() - time) < BLANK_TIME);                                  // Check if timer has expired
-    // TODO:                                                                    // Kick off hardware (GCLK)
+    start_gclk(seg_bits);                                                       // Kick off hardware (GCLK)
+}
+
+void start_clk(uint8_t cmd) {
+    // TODO: Reload DMA
+    // TODO: Reload PIO (CLK/LAT)
+}
+
+void start_gclk(uint8_t bits) {
+    // TODO: Reload PIO (GCLK)
 }
 
