@@ -23,8 +23,6 @@ static int dma_chan;
 static Multiplex *m;
 static bool isFinished = false;
 
-static void send_line();
-
 void matrix_start() {
     // Init Matrix hardware
     // IO
@@ -88,7 +86,7 @@ void matrix_start() {
     bus_ctrl_hw->priority = (1 << 12) | (1 << 8);
     dma_chan = dma_claim_unused_channel(true);
     
-    // CLK/LAT DMA
+    // DAT DMA
     dma_channel_config c = dma_channel_get_default_config(dma_chan);
     channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
     channel_config_set_read_increment(&c, true);
@@ -98,28 +96,21 @@ void matrix_start() {
     
     extern void matrix_fifo_isr_0();
     irq_set_exclusive_handler(DMA_SIO_0, matrix_fifo_isr_0);
-    irq_set_priority(DMA_SIO_0, 0xFF);
-    irq_set_enabled(DMA_SIO_0, true);  
-
-    send_line();
-}
-
-void __not_in_flash_func(send_line)() {
-    dma_hw->ints0 = 1 << dma_chan;
-    // TODO:
+    irq_set_priority(DMA_SIO_0, 0xFF);                                          // Let anything preempt this!
+    irq_set_enabled(DMA_SIO_0, true);
+    
+    // TODO:                                                                    // Kick off hardware (GCLK)
 }
 
 void __not_in_flash_func(matrix_dma_isr)() {    
     if (dma_channel_get_irq0_status(dma_chan)) {
         isFinished = true;
-        dma_hw->ints0 = 1 << dma_chan;
     }
 }
 
 void __not_in_flash_func(matrix_gclk_task)() {
     static uint32_t rows = 0;
     extern volatile bool vsync;
-    
     uint64_t time = time_us_64();                                               // Start a timer with 1uS delay
         
     if (++rows >= MULTIPLEX) {
@@ -127,11 +118,16 @@ void __not_in_flash_func(matrix_gclk_task)() {
         if (vsync) {
             bank = (bank + 1) % 3;
             vsync = false;
+            //TODO:                                                             // Kick off hardware (CLK)
+        }
+        if (isFinished) {
+            // TODO:                                                            // VSYNC Procedure
+            return;
         }
     }
     m->SetRow(rows);
 
     while((time_us_64() - time) < BLANK_TIME);                                  // Check if timer has expired
-    send_line();                                                                // Kick off hardware
+    // TODO:                                                                    // Kick off hardware (GCLK)
 }
 

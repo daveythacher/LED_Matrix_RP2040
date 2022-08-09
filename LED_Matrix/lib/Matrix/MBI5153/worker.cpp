@@ -32,6 +32,7 @@ static void build_table_pwm(uint8_t bits) {
 // Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
 //  Allows inlining to RAM func. (Currently linker is copy-to-RAM)
 //  May be better to use -ffunction-sections and -fdata-sections with custom linker script
+//   I do not want to worry with custom linker script, if possible.
 //      .ram_text : {
 //          *(.text.multicore_fifo_pop_blocking)
 //          . = ALIGN(4);

@@ -32,8 +32,10 @@ static void build_table_pwm(uint8_t bits) {
 // Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
 //  Allows inlining to RAM func. (Currently linker is copy-to-RAM)
 //  May be better to use -ffunction-sections and -fdata-sections with custom linker script
+//   I do not want to worry with custom linker script, if possible.
 //      .ram_text : {
 //          *(.text.multicore_fifo_pop_blocking)
+//          *(.text.multicore_fifo_push_blocking)
 //          . = ALIGN(4);
 //      } > RAM AT> FLASH
 //      .text : {
@@ -41,6 +43,18 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
     while (!multicore_fifo_rvalid())
         __wfe();
     return sio_hw->fifo_rd;
+}
+
+// Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
+static inline void __not_in_flash_func(multicore_fifo_push_blocking_inline)(uint32_t data) {
+    // We wait for the fifo to have some space
+    while (!multicore_fifo_wready())
+        tight_loop_contents();
+
+    sio_hw->fifo_wr = data;
+
+    // Fire off an event to the other core
+    __sev();
 }
 
 static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
@@ -61,8 +75,11 @@ void __not_in_flash_func(work)() {
     extern void matrix_fifo_isr_1();
     build_table_pwm(PWM_bits);
     isr_start_core1();
+    
+    // This code base consumes the FIFO! (No one else can have it/use it!)
+    //  This is true for all Matrix implementations!
     irq_set_exclusive_handler(DMA_SIO_1, matrix_fifo_isr_1);
-    irq_set_priority(DMA_SIO_1, 0xFF);
+    irq_set_priority(DMA_SIO_1, 0xFF);                                          // Let anything preempt this!
     irq_set_enabled(DMA_SIO_1, true);   
     
     while(1) {
