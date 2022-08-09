@@ -12,6 +12,7 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/timer.h"
+#include "hardware/irq.h"
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/config.h"
 #include "Matrix/matrix.h"
@@ -23,8 +24,8 @@ static uint8_t bank = 0;
 static int dma_chan[6];
 static Multiplex *m;
 static bool isFinished = false;
-static uint8_t lat_cmd = 2;
-static uint8_t seg_bits = 7;
+static const uint8_t lat_cmd = 2;
+static const uint8_t seg_bits = 7;
 
 static void start_clk(uint8_t cmd);
 static void start_gclk(uint8_t bits);
@@ -61,7 +62,7 @@ void matrix_start() {
         (uint16_t) (pio_encode_out(pio_pins, 1)),                               // DAT Program (125 MHz Clock)
         (uint16_t) (pio_encode_wait_gpio(true, 14)),
         (uint16_t) (pio_encode_wait_gpio(false, 14)),
-        (uint16_t) (pio_encode_pull(false, true) | pio_encode_side_set(2, 0)),  // CLK/LAT Program (Cannot exceed 25MHz Clock)
+        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),   // CLK/LAT Program (Cannot exceed 25MHz Clock)
         (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_mov(pio_y, pio_osr) | pio_encode_sideset(2, 0)),
@@ -72,11 +73,11 @@ void matrix_start() {
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
         (uint16_t) (pio_encode_jmp_x_dec(11) | pio_encode_sideset(2, 3)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-        (uint16_t) (pio_encode_pull(false, true) | pio_encode_side_set(1, 0)),  // GCLK Program (Cannot exceed 33MHz Clock)
+        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(1, 0)),   // GCLK Program (Cannot exceed 33MHz Clock)
         (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(1, 0)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(1, 0)),
         (uint16_t) (pio_encode_jmp_x_dec(16) | pio_encode_sideset(1, 1)),
-        (uint16_t) (pio_encode_nop() | pico_encode_sideset(1, 0))
+        (uint16_t) (pio_encode_nop() | pio_encode_sideset(1, 0))
     };
     static const struct pio_program pio_programs = {
         .instructions = instructions,
@@ -102,39 +103,49 @@ void matrix_start() {
     constexpr float CLK = x * 125000000.0 / (SERIAL_CLOCK * 2.0 * 0.75);
     static_assert(CLK >= 1.0);
     
-    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * MAX_REFRESH * (1 << std::max(PWM_bits, seg_bits)));
+    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * MAX_REFRESH * (1 << std::max(PWM_bits, (int) seg_bits)));
     static_assert(x2 >= 1.0);
     constexpr float GCLK = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(GCLK >= 1.0);
 
-    // TODO: Add DAT SM(s)
-    // TODO: Fix indexes
     // DAT SM
-    pio0->sm[0].clkdiv = 0;
-    pio0->sm[0].execctrl = (1 << 17) | (2 << 12);
-    pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
-    pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 8;
-    pio0->sm[0].instr = pio_encode_jmp(0);
-    hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
-    pio_sm_claim(pio0, 0);
+    for (int i = 0; i < 4; i++) {
+        pio0->sm[i].clkdiv = 0;
+        pio0->sm[i].execctrl = (1 << 17) | (2 << 12);
+        pio0->sm[i].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
+        pio0->sm[i].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (8 + i);
+        pio0->sm[i].instr = pio_encode_jmp(0);
+        hw_set_bits(&pio0->ctrl, 1 << (PIO_CTRL_SM_ENABLE_LSB + i));
+        pio_sm_claim(pio0, i);
+    }
+    
+    for (int i = 0; i < 2; i++) {
+        pio1->sm[i].clkdiv = 0;
+        pio1->sm[i].execctrl = (1 << 17) | (2 << 12);
+        pio1->sm[i].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
+        pio1->sm[i].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (12 + i);
+        pio1->sm[i].instr = pio_encode_jmp(0);
+        hw_set_bits(&pio1->ctrl, 1 << (PIO_CTRL_SM_ENABLE_LSB + i));
+        pio_sm_claim(pio1, i);
+    }
 
     // CLK/LAT SM
-    pio0->sm[1].clkdiv = ((uint32_t) floor(CLK) << 16) | ((uint32_t) round((CLK - floor(CLK)) * 255.0) << 8);
-    pio0->sm[1].execctrl = (13 << 12);
-    pio0->sm[1].shiftctrl = 0;
-    pio0->sm[1].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio0->sm[1].instr = pio_encode_jmp(3);
-    hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
-    pio_sm_claim(pio0, 1);
+    pio1->sm[1].clkdiv = ((uint32_t) floor(CLK) << 16) | ((uint32_t) round((CLK - floor(CLK)) * 255.0) << 8);
+    pio1->sm[1].execctrl = (13 << 12);
+    pio1->sm[1].shiftctrl = 0;
+    pio1->sm[1].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[1].instr = pio_encode_jmp(3);
+    hw_set_bits(&pio1->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
+    pio_sm_claim(pio1, 2);
 
     // GCLK SM
-    pio0->sm[2].clkdiv = ((uint32_t) floor(GCLK) << 16) | ((uint32_t) round((GCLK - floor(GCLK)) * 255.0) << 8);
-    pio0->sm[2].execctrl = (18 << 12);
-    pio0->sm[2].shiftctrl = 0;
-    pio0->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (22 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
-    pio0->sm[2].instr = pio_encode_jmp(14);
-    hw_set_bits(&pio0->ctrl, 4 << PIO_CTRL_SM_ENABLE_LSB);
-    pio_sm_claim(pio0, 2);
+    pio1->sm[2].clkdiv = ((uint32_t) floor(GCLK) << 16) | ((uint32_t) round((GCLK - floor(GCLK)) * 255.0) << 8);
+    pio1->sm[2].execctrl = (18 << 12);
+    pio1->sm[2].shiftctrl = 0;
+    pio1->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (22 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+    pio1->sm[2].instr = pio_encode_jmp(14);
+    hw_set_bits(&pio1->ctrl, 8 << PIO_CTRL_SM_ENABLE_LSB);
+    pio_sm_claim(pio1, 3);
     
     // DMA
     bus_ctrl_hw->priority = (1 << 12) | (1 << 8);
@@ -153,9 +164,9 @@ void matrix_start() {
     dma_channel_set_irq0_enabled(dma_chan[5], true); 
     
     extern void matrix_fifo_isr_0();
-    irq_set_exclusive_handler(DMA_SIO_0, matrix_fifo_isr_0);
-    irq_set_priority(DMA_SIO_0, 0xFF);                                          // Let anything preempt this!
-    irq_set_enabled(DMA_SIO_0, true);
+    irq_set_exclusive_handler(SIO_IRQ_PROC0, matrix_fifo_isr_0);
+    irq_set_priority(SIO_IRQ_PROC0, 0xFF);                                          // Let anything preempt this!
+    irq_set_enabled(SIO_IRQ_PROC0, true);
     
     start_gclk(seg_bits);                                                       // Kick off hardware (GCLK)
 }

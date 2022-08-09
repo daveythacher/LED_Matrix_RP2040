@@ -8,6 +8,7 @@
 #include <string.h>
 #include <math.h>
 #include "pico/multicore.h"
+#include "hardware/irq.h"
 #include "Matrix/config.h"
 #include "Matrix/TLC5958/memory_format.h"
 
@@ -57,15 +58,12 @@ static inline void __not_in_flash_func(multicore_fifo_push_blocking_inline)(uint
     __sev();
 }
 
-static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
+static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0) {
     extern test2 buf[];
     
     buf[bank][y][x % 16][x / 16][0] = index_table[r0][0];
     buf[bank][y][x % 16][x / 16][1] = index_table[g0][1];
     buf[bank][y][x % 16][x / 16][2] = index_table[b0][2];
-    buf[bank][y + MULTIPLEX][x % 16][x / 16][0] = index_table[r1][0];
-    buf[bank][y + MULTIPLEX][x % 16][x / 16][1] = index_table[g1][1];
-    buf[bank][y + MULTIPLEX][x % 16][x / 16][2] = index_table[b1][2];
 }
 
 // Rewritten to use super loop. Interrupt rate can be very high, so dedicating a whole CPU core to it.
@@ -78,9 +76,9 @@ void __not_in_flash_func(work)() {
     
     // This code base consumes the FIFO! (No one else can have it/use it!)
     //  This is true for all Matrix implementations!
-    irq_set_exclusive_handler(DMA_SIO_1, matrix_fifo_isr_1);
-    irq_set_priority(DMA_SIO_1, 0xFF);                                          // Let anything preempt this!
-    irq_set_enabled(DMA_SIO_1, true);   
+    irq_set_exclusive_handler(SIO_IRQ_PROC1, matrix_fifo_isr_1);
+    irq_set_priority(SIO_IRQ_PROC1, 0xFF);                                          // Let anything preempt this!
+    irq_set_enabled(SIO_IRQ_PROC1, true);   
     
     while(1) {
         matrix_gclk_task();
@@ -98,7 +96,7 @@ void __not_in_flash_func(matrix_fifo_isr_0)() {
         test *p = (test *) multicore_fifo_pop_blocking_inline();
         for (int y = 0; y < MULTIPLEX; y++)
             for (int x = 0; x < COLUMNS; x++)
-                set_pixel(x, y, (*p)[y][x][0], (*p)[y][x][1], (*p)[y][x][2], (*p)[y + MULTIPLEX][x][0], (*p)[y + MULTIPLEX][x][1], (*p)[y + MULTIPLEX][x][2]);
+                set_pixel(x, y, (*p)[y][x][0], (*p)[y][x][1], (*p)[y][x][2]);
         bank = (bank + 1) % 3;
         vsync = true;
         // TODO: Clear ISR flag
