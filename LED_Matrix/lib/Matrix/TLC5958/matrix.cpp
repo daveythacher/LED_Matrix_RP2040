@@ -78,7 +78,7 @@ void matrix_start() {
         .origin = 0,
     };
     pio_add_program(pio0, &pio_programs);
-    pio_sm_set_consecutive_pindirs(pio0, 0, 8, 6, true);
+    pio_sm_set_consecutive_pindirs(pio0, 0, 8, 1, true);
     pio_sm_set_consecutive_pindirs(pio0, 1, 14, 2, true);
     pio_sm_set_consecutive_pindirs(pio0, 2, 22, 1, true);
     
@@ -90,7 +90,7 @@ void matrix_start() {
     constexpr float CLK = x * 125000000.0 / (SERIAL_CLOCK * 2.0 * 0.75);
     static_assert(CLK >= 1.0);
     
-    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * MAX_REFRESH * (1 << std::max(PWM_bits, 8)));
+    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * MAX_REFRESH * (1 << std::max(PWM_bits, seg_bits)));
     static_assert(x2 >= 1.0);
     constexpr float GCLK = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(GCLK >= 1.0);
@@ -98,8 +98,8 @@ void matrix_start() {
     // DAT SM
     pio0->sm[0].clkdiv = 0;
     pio0->sm[0].execctrl = (1 << 17) | (2 << 12);
-    pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << 25) | (1 << 19);
-    pio0->sm[0].pinctrl = (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 8;
+    pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (16 << 25) | (1 << 19);
+    pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | 8;
     pio0->sm[0].instr = pio_encode_jmp(0);
     hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
     pio_sm_claim(pio0, 0);
@@ -128,7 +128,7 @@ void matrix_start() {
     
     // DAT DMA
     dma_channel_config c = dma_channel_get_default_config(dma_chan);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+    channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO0_TX0);
     dma_channel_configure(dma_chan, &c, &pio0_hw->txf[0], NULL, COLUMNS / 16 * 3, false);
