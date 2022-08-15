@@ -27,7 +27,7 @@ static bool isFinished = false;
 static const uint8_t lat_cmd = 2;
 static const uint8_t seg_bits = 8;
 
-static void start_clk(uint8_t cmd);
+static void start_clk(uint16_t counter, uint8_t cmd);
 static void start_gclk(uint8_t bits);
 
 void matrix_start() {
@@ -61,11 +61,11 @@ void matrix_start() {
         (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_mov(pio_y, pio_osr) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_jmp_y_dec(7) | pio_encode_sideset(2, 1)),
+        (uint16_t) (pio_encode_jmp_x_dec(7) | pio_encode_sideset(2, 1)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-        (uint16_t) (pio_encode_jmp_x_dec(11) | pio_encode_sideset(2, 3)),
+        (uint16_t) (pio_encode_jmp_y_dec(11) | pio_encode_sideset(2, 3)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
         (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(1, 0)),   // GCLK Program (Cannot exceed 33MHz Clock)
         (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(1, 0)),
@@ -156,7 +156,7 @@ void __not_in_flash_func(matrix_dma_isr)() {
             counter = 0;
         }
         else
-            start_clk(lat_cmd);
+            start_clk(counter, lat_cmd);
         dma_hw->ints0 = 1 << dma_chan;
     }
 }
@@ -165,31 +165,34 @@ void __not_in_flash_func(matrix_gclk_task)() {
     static uint32_t rows = 0;
     extern volatile bool vsync;
     uint64_t time = time_us_64();                                               // Start a timer with 1uS delay
-        
-    if (++rows >= MULTIPLEX) {
-        rows = 0;
-        if (vsync) {
-            bank = (bank + 1) % 3;
-            vsync = false;
-            start_clk(lat_cmd);                                                 // Kick off hardware (CLK)
+    
+    if (pio0->sm[2].instr == 14) {
+        if (++rows >= MULTIPLEX) {
+            rows = 0;
+            if (vsync) {
+                bank = (bank + 1) % 3;
+                vsync = false;
+                start_clk(lat_cmd);                                             // Kick off hardware (CLK)
+            }
+            if (isFinished) {
+                // TODO:                                                        // VSYNC Procedure
+                return;
+            }
         }
-        if (isFinished) {
-            // TODO:                                                            // VSYNC Procedure
-            return;
-        }
-    }
-    m->SetRow(rows);
+        m->SetRow(rows);
 
-    while((time_us_64() - time) < BLANK_TIME);                                  // Check if timer has expired
-    start_gclk(seg_bits);                                                       // Kick off hardware (GCLK)
+        while((time_us_64() - time) < BLANK_TIME);                              // Check if timer has expired
+        start_gclk(seg_bits);                                                   // Kick off hardware (GCLK)
+    }
 }
 
-void start_clk(uint8_t cmd) {
-    // TODO: Reload DMA
-    // TODO: Reload PIO (CLK/LAT)
+void start_clk(uint16_t counter, uint8_t cmd) {
+    dma_channel_set_read_addr(dma_chan, buf[buffer][counter / 16][counter % 16], true);
+    pio_sm_put_blocking(0, 1, (COLUMNS / 16 * 3) - cmd);
+    pio_sm_put_blocking(0, 1, cmd);
 }
 
 void start_gclk(uint8_t bits) {
-    // TODO: Reload PIO (GCLK)
+    pio_sm_put_blocking(0, 2, (1 << seg_bits) + 1));
 }
 

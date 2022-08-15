@@ -92,19 +92,21 @@ void __not_in_flash_func(work)() {
 //  serial packet. There is a decent amount of overhead here which could be optimized out, however for
 //  simplicity and compatibility, I did this barbaric hack.
 void __not_in_flash_func(matrix_fifo_isr_0)() {
-    if (1) { // TODO: Add proper check
+    if (multicore_fifo_rvalid()) {
         test *p = (test *) multicore_fifo_pop_blocking_inline();
         for (int y = 0; y < MULTIPLEX; y++)
             for (int x = 0; x < COLUMNS; x++)
                 set_pixel(x, y, (*p)[y][x][0], (*p)[y][x][1], (*p)[y][x][2]);
         bank = (bank + 1) % 3;
         vsync = true;
-        // TODO: Clear ISR flag
+        multicore_fifo_clear_irq();
     }
 }
 
 // Barbaric however it allows this to work within the existing code structure!
 void __not_in_flash_func(matrix_fifo_isr_1)() {
-    // TODO: Loop back
+    if (multicore_fifo_rvalid())
+        multicore_fifo_push_blocking_inline(multicore_fifo_pop_blocking_inline());
+    multicore_fifo_clear_irq();
 }
 
