@@ -29,6 +29,7 @@ static const uint8_t seg_bits = 8;
 
 static void start_clk(uint16_t counter, uint8_t cmd);
 static void start_gclk(uint8_t bits);
+static void send_cmd(uint8_t cmd);
 
 void matrix_start() {
     // Init Matrix hardware
@@ -176,9 +177,7 @@ void __not_in_flash_func(matrix_gclk_task)() {
                 start_clk(lat_cmd);                                             // Kick off hardware (CLK)
             }
             if (isFinished) {
-                pio_sm_put_blocking(0, 1, 1);                                   // VSYNC Procedure
-                pio_sm_put_blocking(0, 1, 3);
-                while (pio0->sm[1].instr != 3);                                 // Wait for VSYNC to be sent
+                send_cmd(3);                                                    // VSYNC Procedure
                 m->SetRow(rows);
                 time = time_us_64();                                            // Restart timer with 3uS delay
                 while((time_us_64() - time) < std::max(BLANK_TIME, 3));         // Check if timer has expired
@@ -200,5 +199,11 @@ void start_clk(uint16_t counter, uint8_t cmd) {
 
 void start_gclk(uint8_t bits) {
     pio_sm_put_blocking(0, 2, (1 << seg_bits) + 1));
+}
+
+void send_cmd(uint8_t cmd) {
+    pio_sm_put_blocking(0, 1, 1);
+    pio_sm_put_blocking(0, 1, cmd);
+    while (pio0->sm[1].instr != 3); 
 }
 
