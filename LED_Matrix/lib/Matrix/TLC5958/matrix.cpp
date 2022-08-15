@@ -24,7 +24,7 @@ static uint8_t bank = 0;
 static int dma_chan;
 static Multiplex *m;
 static bool isFinished = false;
-static const uint8_t lat_cmd = 2;
+static const uint8_t lat_cmd = 1;
 static const uint8_t seg_bits = 8;
 
 static void start_clk(uint16_t counter, uint8_t cmd);
@@ -134,7 +134,8 @@ void matrix_start() {
     channel_config_set_dreq(&c, DREQ_PIO0_TX0);
     dma_channel_configure(dma_chan, &c, &pio0_hw->txf[0], NULL, COLUMNS / 16 * 3, false);
     
-    // TODO: Boot procedure
+    // TODO: Boot procedure - this is not supported well by this software design
+    // TODO:    Add more preprocessor macros...yikes! (This is basically what it takes for static compilation. CMake could help possibly.)
     
     dma_channel_set_irq0_enabled(dma_chan, true); 
     
@@ -175,7 +176,12 @@ void __not_in_flash_func(matrix_gclk_task)() {
                 start_clk(lat_cmd);                                             // Kick off hardware (CLK)
             }
             if (isFinished) {
-                // TODO:                                                        // VSYNC Procedure
+                pio_sm_put_blocking(0, 1, 1);                                   // VSYNC Procedure
+                pio_sm_put_blocking(0, 1, 3);
+                while (pio0->sm[1].instr != 3);                                 // Wait for VSYNC to be sent
+                m->SetRow(rows);
+                time = time_us_64();                                            // Restart timer with 3uS delay
+                while((time_us_64() - time) < std::max(BLANK_TIME, 3));         // Check if timer has expired
                 return;
             }
         }
