@@ -154,7 +154,13 @@ void __not_in_flash_func(matrix_dma_isr)() {
     extern volatile bool vsync;
     
     if (dma_channel_get_irq0_status(dma_chan[0])) {
-        uint64_t time = time_us_64();                                           // Start a timer with 1uS delay
+        uint64_t time;
+        
+        // Make sure the FIFO is empty (Warning this will block for a long time if SERIAL_CLOCK is low!)
+        //  Warning bug exists with LAT automation when SERIAL_CLOCK is low. (Use assembly delay based on SERIAL_CLOCK? Not needed for this, most of the time.)
+        //  ISR already has undefined behavior from ISR blocking (BLANK_TIME), which is very bad! (Expected to small and likely okay for this.)
+        while(!pio_sm_is_tx_fifo_empty(pio0, 0));                               
+        time = time_us_64();                                                    // Start a timer with 1uS delay
         
         if (++rows >= MULTIPLEX) {
             rows = 0;
@@ -166,7 +172,7 @@ void __not_in_flash_func(matrix_dma_isr)() {
         m->SetRow(rows);
         load_line(rows, bank);
 
-        while((time_us_64() - time) < BLANK_TIME);                              // Check if timer has expired
+        while((time_us_64() - time) < BLANK_TIME);                              // Check if timer has expired (TODO: Implement ISR for long delays, if needed.)
         send_line();                                                            // Kick off hardware
     }
 }
