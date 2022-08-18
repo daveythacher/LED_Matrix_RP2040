@@ -56,7 +56,7 @@ void __not_in_flash_func(serial_uart_reload)() {
 void __not_in_flash_func(serial_uart_isr)() {
     if (dma_channel_get_irq1_status(dma_chan)) {
         serial_uart_reload();
-        dma_hw->ints0 = 1 << dma_chan;
+        dma_hw->ints1 = 1 << dma_chan;
     }
 }
 

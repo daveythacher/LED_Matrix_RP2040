@@ -39,3 +39,10 @@ Results from computation latency test on Core 1 without UART serial ISR: (16x64 
 
 Increased computation latency from 1.09mS to 1.11mS, when using copy_to_ram. The exact reason for this is not known, but is still believed to be arbitration related. Using default linker script with __not_in_flash_func improves computation latency. This is higher than default linker script without __not_in_flash_func.
 
+## Interrupts
+Core 0 should run all matrix interrupts. Core 1 should run all serial interrupts. Core 1 is allocated background work for matrix. The main loop for handling serial protocol is allocated to core 0.
+
+For BCM, things are simple. Main loop on core 0 for pushing to core 1 via FIFO after serial packet is received. Main loop on core 1 processes serial packets into bitplane buffer. Matrix ISR for multiplexing runs on Core 0 interrupting serial protocol processing. Serial ISR for reloading DMA buffer runs on core 1 interrupting serial packet processing. Core 0 is mostly consumed by Matrix multiplexing in ISR. Core 1 is mostly consumed by serial packet processing.
+
+For GEN3/TLC5958, things are weird. Main loop on core 0 for pushing to core 1 via FIFO after serial packet is received. Main loop on core 1 handles multiplexing of matrix. Matrix ISR for DMA runs on Core 0 interrupting FIFO ISR and serial protocol processing. Serial ISR for reloading DMA buffer runs on core 1 interrupting FIFO ISR and matrix multiplexing. FIFO ISR on core 1 loops the message back to core 0. FIFO ISR on core 0 processes serial packet into bitplane buffer. Core 0 is mostly consumed by serial packet processing and matrix DMA reload. Core 1 is mostly consumed by matrix multiplexing.
+
