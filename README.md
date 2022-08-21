@@ -1,4 +1,19 @@
 # LED_Matrix_RP2040
+This code base builds a hardware module for abstracting multiplexing of LED matrix. The implementation is a memory mapped controller based on RP2040. 24 bit RGB data is sent over an IO bus to the RP2040 which is converted into the correct format for the LED display. This data is then replayed to the LED matrix repeatedly.
+
+Pixel mapping is handled by the application which produces 24 bit RGB data over the IO bus. Note IO bus may increase latency of the display. The IO bus will likely limit the size and frame rate of the display. The RP2040 has a decent amount of resources however performance tradeoffs are expected due to processing power, IO bus bandwidth/latency, memory, and HUB75 serial bandwidth. This project was originally created for a small PoE display. It is in no way capable of competing against a video wall and represents a smaller version of receiver card, in theory.
+
+Static configuration is used but a configuration file exists which makes adjusting this fairly straightforward. Below there are some timing equations to help guide the configuration. Compile time checks will attempt to verify this configuration also. Note you are still required to perform required testing as these only help with certain issues.
+
+## Status
+This code base is a work in progress. Some sections are still experimental.
+
+I am not responsible in any way for any damages or issues created in any way as a result of this code base. This code base is licensed under GPL 3 and the terms of that are expected to be upheld. Credit where credit is due is also required.
+
+## Contributing, feedback, questions, etc.
+If in doubt use the discussion feature. I am okay with meaningful discussion in issues however please use the discussion feature first.
+
+Some weird conventions are used. These should be documented in LED_Matrix/README.md. This is the place for documenting technical interworkings and troubleshooting. (Outside of comments.)
 
 ## Building
 For Linux:
@@ -26,7 +41,7 @@ This name must be different from the algorithm. Currently this means something o
 This must be true or false. If false this build will not be included in the build script.
 
 ### app
-This is a string for the corresponding application in src folder. These applications determine the serial implementation protocol, if used and LED Matrix algorithm. usb and uart are BCM. These are only supported for standard LED driver panels.
+This is a string for the corresponding application in src folder. These applications determine the serial implementation protocol.
 
 ### algorithm
 This is the name of the LED panel driver or algorithm used to talk to the panel. 
@@ -44,7 +59,7 @@ This is the number of FPS desired by GEN 3 panels. This is used to verify the se
 This is the scan number marked on the back of the panel. This number is usually in the middle near a S prefix.
 
 ### multiplex_num
-This is a number for multiplexing approach used. 0 is for decoder based pin mapping, used in standard implemenations. 1 is for direct pin mapping, used in low multiplex panels.
+This is a number for multiplexing approach used. 0 is for decoder based pin mapping, used in standard implemenations. 1 is for direct pin mapping, used in low multiplex panels. (Shift registers are not supported. Note pixel mapping is handled by the application which sends serial data to this code base.)
 
 ### max_rgb_led_steps
 This is the number of uA's supported by the LEDs without multiplexing. (This is generally something along order of 2000-8000.) Assuming the LED is capable of lighting up slightly at 2uA and the min constant forward current of the red, green and blue colors is 8mA. You should have 4000 steps or support around 12 bits of PWM if the panel was single scan.(8mA / 2uA = 4000)

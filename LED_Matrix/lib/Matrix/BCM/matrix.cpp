@@ -59,7 +59,7 @@ void matrix_start() {
     //      This is more or less how it would work with MACHXO2 FPGA and PIC32MX using PMP.
     //          Bus performance is better with RP2040. (Lower cost due to memory, CPU, hardware integration.)
     //  OE is not used in this implementation and held to low to enable the display
-    //      Last shift will display display.
+    //      Last shift will disable display.
     /*while (1) {
         counter2 = (1 << PWM_bits) - 1; LAT = 0;    // Start of frame, manually push into FIFO (data stream protocol)
         do {
@@ -143,6 +143,8 @@ void __not_in_flash_func(send_line)() {
     dma_channel_set_read_addr(dma_chan[1], &address_table[0], true);
 }
 
+// This is done to reduce interrupt rate. Use DMA to automate the BCM bitplanes instead of CPU.
+//  This is possible due to PIO state machine.
 void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
     for (uint32_t i = 0; i < PWM_bits; i++)
         for (uint32_t k = 0; k < (uint32_t) (1 << i); k++)
@@ -170,7 +172,8 @@ void __not_in_flash_func(matrix_dma_isr)() {
             }
         }
         m->SetRow(rows);
-        load_line(rows, bank);
+        load_line(rows, bank);                                                  // Note this is a fairly expensive operation. This is done in parallel with blank time.
+                                                                                //  This is why no ISR for long delays has been implemented. (It is not believed to be required.)
 
         while((time_us_64() - time) < BLANK_TIME);                              // Check if timer has expired (TODO: Implement ISR for long delays, if needed.)
         send_line();                                                            // Kick off hardware
