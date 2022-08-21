@@ -25,7 +25,6 @@ DEFINE_GREEN_GAIN           1.0         "Gain for Green LED (TLC5958 only)"
 DEFINE_BLUE_GAIN            1.0         "Gain for Blue LED (TLC5958 only)"
 */
 
-stop = false
 apps = ""
 flags = ""
 
@@ -66,10 +65,8 @@ def build_linux() {
 def build() {
     if (SystemUtils.IS_OS_LINUX)
         return build_linux()
-    else {
-        stop = true
+    else
         return "Unsupported Build Platform\n"
-    }
 }
 
 def cli = new CliBuilder(usage: 'build.groovy [-h] -c <cfg.xml>')

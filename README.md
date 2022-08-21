@@ -15,6 +15,12 @@ If in doubt use the discussion feature. I am okay with meaningful discussion in 
 
 Some weird conventions are used. These should be documented in LED_Matrix/README.md. This is the place for documenting technical interworkings and troubleshooting. (Outside of comments.)
 
+## Setup
+For Linux: (Will install dependencies and download code)
+```bash
+./setup.sh
+```
+
 ## Building
 For Linux:
 
@@ -29,6 +35,11 @@ For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks 
     <build name="P4-BCM" enable="true" app="usb" alogrithm="BCM" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1" red_game="2.2" green_gamma="2.2" blue_gamma="2.2" red_gain="1.0" green_gain="1.0" blue_gain="1.0"/>
     <!-- ... -->
 </cfg>
+```
+
+For generating doxygen documentation
+```bash
+doxygen Doxyfile
 ```
 
 ## Configuration
