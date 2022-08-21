@@ -17,9 +17,12 @@ DEFINE_COLUMNS              128         "Chain length"
 DEFINE_MULTIPLEX_NUM        0           "Address pin/Multiplexing type enum"
 DEFINE_SERIAL_CLOCK         15.625      "HUB75 serial clock speed in MHz"
 DEFINE_BLANK_TIME           1           "Multiplex blanking time in uS"
-DEFINE_RED_GAMMA            1           "Gamma value for Red LED color temperature mapping table"
-DEFINE_GREEN_GAMMA          1           "Gamma value for Green LED color temperature mapping table"
-DEFINE_BLUE_GAMMA           1           "Gamma value for Blue LED color temperature mapping table"
+DEFINE_RED_GAMMA            2.2         "Gamma value for Red LED color temperature mapping table"
+DEFINE_GREEN_GAMMA          2.2         "Gamma value for Green LED color temperature mapping table"
+DEFINE_BLUE_GAMMA           2.2         "Gamma value for Blue LED color temperature mapping table"
+DEFINE_RED_GAIN             1.0         "Gain for Red LED (TLC5958 only)"
+DEFINE_GREEN_GAIN           1.0         "Gain for Green LED (TLC5958 only)"
+DEFINE_BLUE_GAIN            1.0         "Gain for Blue LED (TLC5958 only)"
 */
 
 stop = false
@@ -33,7 +36,7 @@ def build_flavor(Map c) {
         else
             apps += sprintf(";%s", c.name)
              
-        flags += sprintf(" -D%s_APP=%s -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NUM=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_RED_GAMMA=%s -D%s_DEFINE_GREEN_GAMMA=%s -D%s_DEFINE_BLUE_GAMMA=%s -D%s_DEFINE_ALGORITHM=%s -D%s_DEFINE_FPS=%s", c.name, c.app, c.name, c.multiplex, c.name, c.multiplex_num, c.name, c.max_rgb_led_steps, c.name, c.max_refresh, c.name, c.columns, c.name, c.serial_clock, c.name, c.blank_time, c.name, c.red_gamma, c.name, c.green_gamma, c.name, c.blue_gamma, c.name, c.algorithm, c.name, c.fps)
+        flags += sprintf(" -D%s_APP=%s -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NUM=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_RED_GAMMA=%s -D%s_DEFINE_GREEN_GAMMA=%s -D%s_DEFINE_BLUE_GAMMA=%s -D%s_DEFINE_ALGORITHM=%s -D%s_DEFINE_FPS=%s -D%s_DEFINE_RED_GAIN=%s -D%s_DEFINE_GREEN_GAIN=%s -D%s_DEFINE_BLUE_GAIN=%s", c.name, c.app, c.name, c.multiplex, c.name, c.multiplex_num, c.name, c.max_rgb_led_steps, c.name, c.max_refresh, c.name, c.columns, c.name, c.serial_clock, c.name, c.blank_time, c.name, c.red_gamma, c.name, c.green_gamma, c.name, c.blue_gamma, c.name, c.algorithm, c.name, c.fps, c.name, c.red_gain, c.name, c.green_gain, c.name, c.blue_gain)
     }
 }
 

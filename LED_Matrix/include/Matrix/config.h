@@ -20,6 +20,9 @@
     constexpr float RED_GAMMA = DEFINE_RED_GAMMA;
     constexpr float GREEN_GAMMA = DEFINE_GREEN_GAMMA;
     constexpr float BLUE_GAMMA = DEFINE_BLUE_GAMMA;
+    constexpr float RED_GAIN = DEFINE_RED_GAIN;
+    constexpr float GREEN_GAIN = DEFINE_GREEN_GAIN;
+    constexpr float BLUE_GAIN = DEFINE_BLUE_GAIN;
     
     #include <math.h>
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
