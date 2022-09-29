@@ -37,7 +37,7 @@ For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks 
 </cfg>
 ```
 
-For generating doxygen documentation
+For generating doxygen documentation:
 ```bash
 doxygen Doxyfile
 ```
@@ -90,22 +90,22 @@ This is the target serial bandwidth, in MHz. This is used by the compiler to ver
 This is the number of uS the LEDs will be off during multplexing to prevent ghosting. This is usually 1-4uS. Note this number should be whole numbers only.
 
 ### red_gamma
-Gamma curve value for Red LED.
+Gamma curve value for Red LED. Note this number can have decimals.
 
 ### green_gamma
-Gamma curve value for Green LED.
+Gamma curve value for Green LED. Note this number can have decimals.
 
 ### blue_gamma
-Gamma curve value for Blue LED.
+Gamma curve value for Blue LED. Note this number can have decimals.
 
 ### red_gain
-Constant current gain value for Red LED. (Only used by TLC5958.)
+Constant current gain value for Red LED. This value is constant multiple of the default gain. 1.0 configures the gain to be the default gain. Note this number can have decimals. (Only used by TLC5958.)
 
 ### green_gain
-Constant current gain value for Green LED. (Only used by TLC5958.)
+Constant current gain value for Green LED. This value is constant multiple of the default gain. 1.0 configures the gain to be the default gain. Note this number can have decimals. (Only used by TLC5958.)
 
 ### blue_gain
-Constant current gain value for Blue LED. (Only used by TLC5958.)
+Constant current gain value for Blue LED. This value is constant multiple of the default gain. 1.0 configures the gain to be the default gain. Note this number can have decimals. (Only used by TLC5958.)
 
 ### Timing algorithm for BCM:
 

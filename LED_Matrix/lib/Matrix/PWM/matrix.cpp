@@ -14,7 +14,7 @@
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/config.h"
 #include "Matrix/matrix.h"
-#include "Matrix/BCM/memory_format.h"
+#include "Matrix/PWM/memory_format.h"
 #include "Multiplex/Multiplex.h"
 
 test2 buf[3];
@@ -48,8 +48,6 @@ void matrix_start() {
     for (uint32_t i = 0; i < (1 << PWM_bits); i++)
         address_table[i].len = COLUMNS + 1;
     
-    address_table[(1 << PWM_bits) - 1].data = null_table;
-    address_table[(1 << PWM_bits) - 1].len = COLUMNS + 1;
     address_table[1 << PWM_bits].data = NULL;
     address_table[1 << PWM_bits].len = 0;
     
@@ -143,12 +141,11 @@ void __not_in_flash_func(send_line)() {
     dma_channel_set_read_addr(dma_chan[1], &address_table[0], true);
 }
 
-// This is done to reduce interrupt rate. Use DMA to automate the BCM bitplanes instead of CPU.
+// This is done to reduce interrupt rate. Use DMA to automate the PWM bitplanes instead of CPU.
 //  This is possible due to PIO state machine.
 void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
-    for (uint32_t i = 0; i < PWM_bits; i++)
-        for (uint32_t k = 0; k < (uint32_t) (1 << i); k++)
-            address_table[(1 << i) + k - 1].data = buf[buffer][rows][i];
+    for (uint32_t i = 0; i < (1 << PWM_bits); i++)
+            address_table[i].data = buf[buffer][rows][i];
 }
 
 void __not_in_flash_func(matrix_dma_isr)() {
