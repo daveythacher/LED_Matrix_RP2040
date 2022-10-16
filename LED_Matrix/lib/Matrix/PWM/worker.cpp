@@ -9,10 +9,12 @@
 #include <math.h>
 #include "pico/multicore.h"
 #include "Matrix/config.h"
+#include "Matrix/matrix.h"
 #include "Matrix/PWM/memory_format.h"
 
 static uint8_t bank = 1;
 volatile bool vsync = false;
+static uint8_t index_table[256][6][1 << PWM_bits];
 
 // Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
 //  Allows inlining to RAM func. (Currently linker is copy-to-RAM)
@@ -29,38 +31,15 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
     return sio_hw->fifo_rd;
 }
 
-static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {
+static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1) {    
     extern test2 buf[];
-
-    // SIMD Parallel Test instruction Producing 1x6 matrix of 1 or 0
-    //  Multiply 1x6 matrix by 1x6 matrix of weights [ 1, 2, 4, 8, 16, 32 ]
-    //  Parallel add of results or serial add of results producing *p
-    // Note SIMD is only capable on smaller data sets unless you have really large SIMD instructions.
-    //  In this case you only need 6-bit or 8-bit, but if you did multiple connectors this would need to increase.
-    //  In order for SIMD to be useful this must do multiple instructions in less time than serial execution.
-    //  RP2040 does not support SIMD.
-    //  Raspberry Pi does have SIMD however cache locality usually favors BCM, which may still support SIMD or lookup.
-
-    // Superscalar would be nice here!
-    
-    // Note bitplane 255 is computed as blank, this is done to create turn off display without OE
-    //  This is saves performance and memory, but could corrected.
-    //  This creates small accuracy problem.
+    uint8_t *c[6] = { index_table[r0][0],  index_table[g0][1], index_table[b0][2], index_table[r1][3], index_table[g1][4], index_table[b1][5] };
+   
     for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
         uint8_t *p = &buf[bank][y][i][x + 1];
-        *p = 0;
-        if (i < r0)
-            *p += 1;
-        if (i < g0)
-            *p += 2;
-        if (i < b0)
-            *p += 4;
-        if (i < r1)
-            *p += 8;
-        if (i < g1)
-            *p += 16;
-        if (i < b1)
-            *p += 32;
+        *p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
+        for (uint32_t j = 0; j < 6; j++)
+            ++c[j];
     }
 }
 
@@ -69,12 +48,26 @@ void __not_in_flash_func(work)() {
     isr_start_core1();
     
     while(1) {
-        test *p = (test *) multicore_fifo_pop_blocking_inline();
-        for (int y = 0; y < MULTIPLEX; y++)
-            for (int x = 0; x < COLUMNS; x++)
-                set_pixel(x, y, (*p)[y][x][0], (*p)[y][x][1], (*p)[y][x][2], (*p)[y + MULTIPLEX][x][0], (*p)[y + MULTIPLEX][x][1], (*p)[y + MULTIPLEX][x][2]);
-        bank = (bank + 1) % 3;
-        vsync = true;
+        packet *p = (packet *) multicore_fifo_pop_blocking_inline();
+        switch (p->cmd) {
+            case 0:
+                for (int y = 0; y < MULTIPLEX; y++)
+                    for (int x = 0; x < COLUMNS; x++)
+                        set_pixel(x, y, p->data[y][x][0], p->data[y][x][1], p->data[y][x][2], p->data[y + MULTIPLEX][x][0], p->data[y + MULTIPLEX][x][1], p->data[y + MULTIPLEX][x][2]);
+                bank = (bank + 1) % 3;
+                vsync = true;
+                break;
+            case 1:
+                update_index_table((uint8_t *) p->data, p->size, p->offset);
+                break;
+            default:
+                break;
+        }
     }
+}
+
+void update_index_table(uint8_t *buf, uint32_t size, uint32_t offset) {    
+    if ((size + offset) <= sizeof(index_table))
+        memcpy(index_table + offset, buf, size);
 }
 

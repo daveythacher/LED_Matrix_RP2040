@@ -9,36 +9,12 @@
 #include <math.h>
 #include "pico/multicore.h"
 #include "Matrix/config.h"
+#include "Matrix/matrix.h"
 #include "Matrix/BCM/memory_format.h"
 
 static uint8_t bank = 1;
 volatile bool vsync = false;
 static uint8_t index_table[256][6][PWM_bits];
-
-static void build_table_pwm(uint8_t bits) {
-    memset(index_table, 0, sizeof(index_table));
-    
-    for (uint32_t i = 0; i < 256; i++) {
-        uint32_t r = round(pow((i / 255.0), 1.0 / RED_GAMMA) * ((1 << bits) - 1));
-        uint32_t g = round(pow((i / 255.0), 1.0 / GREEN_GAMMA) * ((1 << bits) - 1));
-        uint32_t b = round(pow((i / 255.0), 1.0 / BLUE_GAMMA) * ((1 << bits) - 1));
-
-        for (uint32_t j = 0; j < bits; j++) {
-            if ((1 << j) & r) {
-                index_table[i][0][j] = 1;
-                index_table[i][3][j] = 8;
-            }
-            if ((1 << j) & g) {
-                index_table[i][1][j] = 2;
-                index_table[i][4][j] = 16;
-            }
-            if ((1 << j) & b) {
-                index_table[i][2][j] = 4;
-                index_table[i][5][j] = 32;
-            }
-        }
-    }
-}
 
 // Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
 //  Allows inlining to RAM func. (Currently linker is copy-to-RAM)
@@ -69,16 +45,29 @@ static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint8_t r0, uin
 
 void __not_in_flash_func(work)() {
     extern void isr_start_core1();
-    build_table_pwm(PWM_bits);
     isr_start_core1();
     
     while(1) {
-        test *p = (test *) multicore_fifo_pop_blocking_inline();
-        for (int y = 0; y < MULTIPLEX; y++)
-            for (int x = 0; x < COLUMNS; x++)
-                set_pixel(x, y, (*p)[y][x][0], (*p)[y][x][1], (*p)[y][x][2], (*p)[y + MULTIPLEX][x][0], (*p)[y + MULTIPLEX][x][1], (*p)[y + MULTIPLEX][x][2]);
-        bank = (bank + 1) % 3;
-        vsync = true;
+        packet *p = (packet *) multicore_fifo_pop_blocking_inline();
+        switch (p->cmd) {
+            case 0:
+                for (int y = 0; y < MULTIPLEX; y++)
+                    for (int x = 0; x < COLUMNS; x++)
+                        set_pixel(x, y, p->data[y][x][0], p->data[y][x][1], p->data[y][x][2], p->data[y + MULTIPLEX][x][0], p->data[y + MULTIPLEX][x][1], p->data[y + MULTIPLEX][x][2]);
+                bank = (bank + 1) % 3;
+                vsync = true;
+                break;
+            case 1:
+                update_index_table((uint8_t *) p->data, p->size, p->offset);
+                break;
+            default:
+                break;
+        }
     }
+}
+
+void update_index_table(uint8_t *buf, uint32_t size, uint32_t offset) {
+    if ((size + offset) <= sizeof(index_table))
+        memcpy(index_table + offset, buf, size);
 }
 

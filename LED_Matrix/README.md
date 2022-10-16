@@ -4,6 +4,9 @@ Critical sections of code are RAM functions, as I do not trust XIP cache for thi
 
 Someday the build logic will need to change away from preprocessor logic. Could use CMake to generate config headers. Most of the current structure should support this. Groovy could generate the configure files for config heres. There will need to be a fake header layer for the library and application logic. CMake will need to manage the locations of these. Lot of work and code that at this point is for nothing really.
 
+## Overview
+This code base is divided into two parts. The first part is applications which are front end protocols. The second part is matrix algorithms which are back end panel implementations. Not all features are implemented in this code base. For example: gamma, brightness, CIE1931, pixel mapping, etc. do not belong in this code base these are handled by the application logic. This code base allows the application logic to change the order of the pixels in the RGB pixel buffer which is sent over the front end protocol. This code base also allows the application logic to customize the index_table used to convert RGB pixel data into bitplanes via the front end protocol.
+
 ## lib folder
 This is a folder for different libraries which could be used by multiple applications.
 

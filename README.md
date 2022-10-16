@@ -32,7 +32,7 @@ groovy build.groovy -c cfg.xml
 For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
 ``` XML
 <cfg>
-    <build name="P4-BCM" enable="true" app="usb" alogrithm="BCM" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1" red_game="2.2" green_gamma="2.2" blue_gamma="2.2" red_gain="1.0" green_gain="1.0" blue_gain="1.0"/>
+    <build name="P4-BCM" enable="true" app="usb" alogrithm="BCM" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1" red_gain="1.0" green_gain="1.0" blue_gain="1.0"/>
     <!-- ... -->
 </cfg>
 ```
@@ -46,7 +46,7 @@ doxygen Doxyfile
 ### name 
 This is the name given to the configuration and corresponding binary. Note binary will have the following prefix: led_
 
-This name must be different from the algorithm. Currently this means something other than the following: BCM, TLC5958 and MBI5153
+This name must be different from the algorithm. Currently this means something other than the following: BCM, PWM, TLC5958 and MBI5153
 
 ### enable 
 This must be true or false. If false this build will not be included in the build script.
@@ -88,15 +88,6 @@ This is the target serial bandwidth, in MHz. This is used by the compiler to ver
 
 ### blank_time
 This is the number of uS the LEDs will be off during multplexing to prevent ghosting. This is usually 1-4uS. Note this number should be whole numbers only.
-
-### red_gamma
-Gamma curve value for Red LED. Note this number can have decimals.
-
-### green_gamma
-Gamma curve value for Green LED. Note this number can have decimals.
-
-### blue_gamma
-Gamma curve value for Blue LED. Note this number can have decimals.
 
 ### red_gain
 Constant current gain value for Red LED. This value is constant multiple of the default gain. 1.0 configures the gain to be the default gain. Note this number can have decimals. (Only used by TLC5958.)
@@ -153,13 +144,15 @@ LEDs generally support 11-13 bits of current division. This is the max color dep
 4. Reduce average/peak power by controlling the number of LEDs on at any given time. This gets tricky and is probably not recommended. There are two ways to do this: time sharing panels and modifying bitplanes.
 5. Reduce average/peak power with current limiter. This is advanced and will not work on certain LED drivers.
 
-You can further lower power consumption by lowering power supply voltage. As the LED current is reduced the require forward voltage is also reduced. However this can lead to problems for color temperature. 
+You can further lower power consumption by lowering power supply voltage. As the LED current is reduced the require forward voltage is also reduced. However this can lead to problems for color temperature. Note some LED drivers have min constant current limits.
 
 ### Color Temperature
 
 As the LED current is reduced the required forward voltage is also reduced. This allows for the overall voltage of the LED power rail to be less. Down to around 3.3V. When lowering the peak power consumption this is generally provided for free. Note this does not apply to average power consumption.
 
 Messing this up can lead to issues for color temperature of white. The color may be too warm or too cool. Current balancing to the get the color temperature may be required. Note some LEDs are different. There can also be differences in performance between LED colors. Manipulate the current for the peak (full) current to get the color temperature correct. Then adjust the color intensity using gamma curves per color.
+
+CIE1931 is another feature which can be used if desired. Note all color mapping is handled via lookup table called index_table. This table is created by the application logic and send over the serial interface before receiving RGB pixel data. This allows the application logic to have full control over this and pixel locations.
 
 ## Color Depth
 

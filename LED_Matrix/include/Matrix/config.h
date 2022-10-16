@@ -17,9 +17,6 @@
     constexpr int MULTIPLEX_NUM = DEFINE_MULTIPLEX_NUM;
     constexpr float SERIAL_CLOCK = (DEFINE_SERIAL_CLOCK * 1000000.0);
     constexpr int BLANK_TIME = DEFINE_BLANK_TIME;
-    constexpr float RED_GAMMA = DEFINE_RED_GAMMA;
-    constexpr float GREEN_GAMMA = DEFINE_GREEN_GAMMA;
-    constexpr float BLUE_GAMMA = DEFINE_BLUE_GAMMA;
     constexpr float RED_GAIN = DEFINE_RED_GAIN;
     constexpr float GREEN_GAIN = DEFINE_GREEN_GAIN;
     constexpr float BLUE_GAIN = DEFINE_BLUE_GAIN;
@@ -28,6 +25,13 @@
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
     
     typedef uint8_t test[2 * MULTIPLEX][COLUMNS][3];
+    
+    typedef struct {
+        uint8_t cmd;
+        uint32_t offset;
+        uint32_t size;
+        test data;
+    } packet;
 
 #endif
 

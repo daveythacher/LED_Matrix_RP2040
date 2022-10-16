@@ -12,7 +12,7 @@
 #include "Serial/serial_uart/serial_uart.h"
 
 static volatile bool isReady;
-static test buffers[2];
+static packet buffers[2];
 static volatile uint8_t buffer = 0;
 static int serial_dma_chan;
 
@@ -20,18 +20,19 @@ void serial_task() {
     for (int x = 0; x < COLUMNS; x++) {
         for (int y = 0; y < (2 * MULTIPLEX); y++) {
             if ((x % (2 * MULTIPLEX)) == y) {
-                buffers[buffer][y][x][0] = 0;
-                buffers[buffer][y][x][1] = 0;
-                buffers[buffer][y][x][2] = 0;
+                buffers[buffer].data[y][x][0] = 0;
+                buffers[buffer].data[y][x][1] = 0;
+                buffers[buffer].data[y][x][2] = 0;
             }
             else {
-                buffers[buffer][y][x][0] = 0xFF;
-                buffers[buffer][y][x][1] = 0xFF;
-                buffers[buffer][y][x][2] = 0xFF;
+                buffers[buffer].data[y][x][0] = 0xFF;
+                buffers[buffer].data[y][x][1] = 0xFF;
+                buffers[buffer].data[y][x][2] = 0xFF;
             }
         }
     }
     isReady = true;
+    buffers[buffer].cmd = 0;
     buffer = (buffer + 1) % 2;
 
     if (isReady) {    
@@ -43,7 +44,7 @@ void serial_task() {
 
 static void __not_in_flash_func(callback)(uint8_t **buf, uint16_t *len) {
     *buf = (uint8_t *) &buffers[(buffer + 1) % 2];
-    *len = sizeof(test);
+    *len = sizeof(packet);
     isReady = true;
     buffer = (buffer + 1) % 2;
 }
