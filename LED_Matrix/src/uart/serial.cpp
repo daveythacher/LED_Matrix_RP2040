@@ -17,6 +17,8 @@ static volatile uint8_t buffer = 0;
 static int serial_dma_chan;
 
 void serial_task() {  
+
+#ifndef TEST
     for (int x = 0; x < COLUMNS; x++) {
         for (int y = 0; y < (2 * MULTIPLEX); y++) {
             if ((x % (2 * MULTIPLEX)) == y) {
@@ -34,6 +36,7 @@ void serial_task() {
     isReady = true;
     buffers[buffer].cmd = 0;
     buffer = (buffer + 1) % 2;
+#endif
 
     if (isReady) {    
         multicore_fifo_push_blocking((uint32_t) &buffers[(buffer + 1) % 2]);

@@ -6,5 +6,5 @@
     <build name="TEST1" enable="false" app="uart" algorithm="TLC5958" fps="30" multiplex="8" multiplex_num="0" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1" red_gain="1.0" green_gain="1.0" blue_gain="1.0"/>
     <build name="TEST2" enable="false" app="uart" algorithm="MBI5153" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="4096" max_refresh="4000" columns="64" serial_clock="17.0" blank_time="10" red_gain="1.0" green_gain="1.0" blue_gain="1.0"/>
     <build name="TEST2-POE" enable="false" app="uart" algorithm="MBI5153" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1024" max_refresh="10000" columns="64" serial_clock="25.0" blank_time="10" red_gain="1.0" green_gain="1.0" blue_gain="1.0"/>
-    <build name="TEST3-POE" enable="true" app="uart" algorithm="PWM" fps="30" multiplex="8" multiplex_num="0" max_rgb_led_steps="500" max_refresh="2000" columns="16" serial_clock="17.0" blank_time="1" red_gain="1.0" green_gain="1.0" blue_gain="1.0"/>
+    <build name="TEST3-POE" enable="true" app="uart_v2" algorithm="PWM" fps="30" multiplex="8" multiplex_num="0" max_rgb_led_steps="500" max_refresh="2000" columns="16" serial_clock="17.0" blank_time="1" red_gain="1.0" green_gain="1.0" blue_gain="1.0"/>
 </cfg>

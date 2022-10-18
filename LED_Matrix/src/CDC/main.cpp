@@ -22,7 +22,6 @@ int main() {
     printf("Display size %dx%d\n", 2*MULTIPLEX, COLUMNS);
     printf("Target Refresh %dHz using %d PWM bits\n", MAX_REFRESH, PWM_bits);
     printf("This version is for standard shift register panels only!\n");
-    printf("Traditional PWM is used and implemented using BCM\n");
     printf("Blanking time is set to %duS\n", BLANK_TIME);
     
     while (1) {
