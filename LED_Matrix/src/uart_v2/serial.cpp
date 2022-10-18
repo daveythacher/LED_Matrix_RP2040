@@ -25,7 +25,7 @@ static int serial_dma_chan;
 
 void serial_task() {  
 
-#ifndef TEST
+#ifdef TEST
     for (int x = 0; x < COLUMNS; x++) {
         for (int y = 0; y < (2 * MULTIPLEX); y++) {
             if ((x % (2 * MULTIPLEX)) == y) {
