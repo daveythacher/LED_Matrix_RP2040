@@ -34,3 +34,6 @@
 LED_Matrix/build/*
 LED_Matrix/pico_sdk_import.cmake
 Hardware/*.pro
+Hardware/*.s#*
+Hardware/*.b#*
+Hardware/.*.lck
