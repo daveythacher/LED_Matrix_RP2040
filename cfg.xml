@@ -3,7 +3,7 @@
     <build name="P4" enable="true" app="CDC" algorithm="BCM" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1"/>
     <build name="Cube" enable="true" app="CDC" algorithm="BCM" fps="30" multiplex="4" multiplex_num="1" max_rgb_led_steps="2000" max_refresh="250" columns="16" serial_clock="15.625" blank_time="1"/>
     <build name="POE" enable="true" app="uart" algorithm="BCM" fps="30" multiplex="8" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="250" columns="64" serial_clock="17.0" blank_time="1"/>
-    <build name="TEST1" enable="false" app="uart" algorithm="TLC5958" fps="30" multiplex="8" multiplex_num="0" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1" red_gain="1.0" green_gain="1.0" blue_gain="1.0"/>
+    <build name="TEST1" enable="true" app="uart" algorithm="TLC5958" fps="30" multiplex="8" multiplex_num="0" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1" red_gain="126.2" green_gain="51.0" blue_gain="32.2"/>
     <build name="TEST2" enable="false" app="uart" algorithm="MBI5153" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="4096" max_refresh="4000" columns="64" serial_clock="17.0" blank_time="10"/>
     <build name="TEST2-POE" enable="false" app="uart" algorithm="MBI5153" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1024" max_refresh="10000" columns="64" serial_clock="25.0" blank_time="10"/>
     <build name="TEST3-POE" enable="true" app="uart_v2" algorithm="PWM" fps="30" multiplex="8" multiplex_num="0" max_rgb_led_steps="500" max_refresh="250" columns="64" serial_clock="17.0" blank_time="1"/>

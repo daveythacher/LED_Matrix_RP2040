@@ -84,7 +84,7 @@ void __not_in_flash_func(matrix_fifo_isr_0)() {
             case 0:
                 for (int y = 0; y < MULTIPLEX; y++)
                     for (int x = 0; x < COLUMNS; x++)
-                        set_pixel(x, y, p->data[y][x][0], p->data[y][x][1], (p->data[y][x][2]);
+                        set_pixel(x, y, p->data[y][x][0], p->data[y][x][1], p->data[y][x][2]);
                 bank = (bank + 1) % 3;
                 vsync = true;
                 break;

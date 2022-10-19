@@ -135,8 +135,27 @@ void matrix_start() {
     channel_config_set_dreq(&c, DREQ_PIO0_TX0);
     dma_channel_configure(dma_chan, &c, &pio0_hw->txf[0], NULL, COLUMNS / 16 * 3, false);
     
-    // TODO: Boot procedure - this is not supported well by this software design
-    // TODO:    Add more preprocessor macros...yikes! (This is basically what it takes for static compilation. CMake could help possibly.)
+    // Boot procedure
+    uint16_t cfg1[3 * COLUMNS / 16];
+    uint16_t cfg2[3 * COLUMNS / 16];
+    
+    for (uint8_t i = 0; i < COLUMNS / 16; i++) {
+        cfg1[(i * 3) + 0] = 0x15 | (((uint16_t) round(BLUE_GAIN * 510) & 0x3) << 14);
+        cfg1[(i * 3) + 1] = ((uint16_t) round(GREEN_GAIN * 510) << (23 - 16)) | ((uint16_t) round(BLUE_GAIN * 510) >> 2);
+        cfg1[(i * 3) + 2] = (0x9 << (44 - 32)) | (0x7 << (41 - 32)) | ((uint16_t) round(RED_GAIN * 510) << (32 - 32));
+        cfg2[(i * 3) + 0] = MULTIPLEX | (1 << 15);
+        cfg2[(i * 3) + 1] = (1 << (19 - 16));
+        cfg2[(i * 3) + 2] = (0x6 << (44 - 32));
+    }
+    
+    send_cmd(15);
+    dma_channel_set_read_addr(dma_chan, cfg1, true);
+    pio_sm_put_blocking(0, 1, (COLUMNS / 16 * 3) - 5);
+    pio_sm_put_blocking(0, 1, 5);
+    send_cmd(15);
+    dma_channel_set_read_addr(dma_chan, cfg2, true);
+    pio_sm_put_blocking(0, 1, (COLUMNS / 16 * 3) - 5);
+    pio_sm_put_blocking(0, 1, 5);
     
     dma_channel_set_irq0_enabled(dma_chan, true); 
     
@@ -174,13 +193,13 @@ void __not_in_flash_func(matrix_gclk_task)() {
             if (vsync) {
                 bank = (bank + 1) % 3;
                 vsync = false;
-                start_clk(lat_cmd);                                             // Kick off hardware (CLK)
+                start_clk(0, lat_cmd);                                          // Kick off hardware (CLK)
             }
             if (isFinished) {
                 send_cmd(3);                                                    // VSYNC Procedure
                 m->SetRow(rows);
                 time = time_us_64();                                            // Restart timer with 3uS delay
-                while((time_us_64() - time) < std::max(BLANK_TIME, 3));         // Check if timer has expired
+                while((time_us_64() - time) < (uint64_t) std::max(BLANK_TIME, 3));  // Check if timer has expired
                 return;
             }
         }
@@ -192,13 +211,13 @@ void __not_in_flash_func(matrix_gclk_task)() {
 }
 
 void start_clk(uint16_t counter, uint8_t cmd) {
-    dma_channel_set_read_addr(dma_chan, buf[buffer][counter / 16][counter % 16], true);
+    dma_channel_set_read_addr(dma_chan, buf[bank][counter / 16][counter % 16], true);
     pio_sm_put_blocking(0, 1, (COLUMNS / 16 * 3) - cmd);
     pio_sm_put_blocking(0, 1, cmd);
 }
 
 void start_gclk(uint8_t bits) {
-    pio_sm_put_blocking(0, 2, (1 << seg_bits) + 1));
+    pio_sm_put_blocking(0, 2, (1 << seg_bits) + 1);
 }
 
 void send_cmd(uint8_t cmd) {
