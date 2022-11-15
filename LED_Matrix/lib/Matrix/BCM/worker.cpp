@@ -32,7 +32,7 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
 }
 
 static uint8_t *get_table(uint16_t v, uint8_t i) {
-    v = v % (1 << PWM_bits);
+    v /= 65536 / (1 << PWM_bits);
     return index_table[v][i];
 }
 
