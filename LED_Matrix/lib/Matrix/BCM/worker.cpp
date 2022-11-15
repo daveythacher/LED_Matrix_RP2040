@@ -31,6 +31,18 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
     return sio_hw->fifo_rd;
 }
 
+// Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
+static inline void __not_in_flash_func(multicore_fifo_push_blocking_inline)(uint32_t data) {
+    // We wait for the fifo to have some space
+    while (!multicore_fifo_wready())
+        tight_loop_contents();
+
+    sio_hw->fifo_wr = data;
+
+    // Fire off an event to the other core
+    __sev();
+}
+
 static uint8_t *get_table(uint16_t v, uint8_t i) {
     v /= 65536 / (1 << PWM_bits);
     return index_table[v][i];
@@ -59,8 +71,6 @@ static void build_index_table() {
 }
 
 void __not_in_flash_func(work)() {
-    extern void isr_start_core1();
-    isr_start_core1();
     build_index_table();
     
     while(1) {
@@ -71,5 +81,9 @@ void __not_in_flash_func(work)() {
         bank = (bank + 1) % 3;
         vsync = true;
     }
+}
+
+void __not_in_flash_func(process)(void *arg) {
+    multicore_fifo_push_blocking_inline((uint32_t) arg);
 }
 

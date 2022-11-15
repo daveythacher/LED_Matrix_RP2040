@@ -159,11 +159,6 @@ void matrix_start() {
     
     dma_channel_set_irq0_enabled(dma_chan, true); 
     
-    extern void matrix_fifo_isr_0();
-    irq_set_exclusive_handler(SIO_IRQ_PROC0, matrix_fifo_isr_0);
-    irq_set_priority(SIO_IRQ_PROC0, 0xFF);                                      // Let anything preempt this!
-    irq_set_enabled(SIO_IRQ_PROC0, true);
-    
     start_gclk(seg_bits);                                                       // Kick off hardware (GCLK)
 }
 

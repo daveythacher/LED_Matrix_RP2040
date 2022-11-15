@@ -26,6 +26,12 @@
      *  @details Implemented in Matrix/<implementation>/worker.cpp
      */
     void work();
+    
+    /**
+     *  @brief Function used to pass data to worker
+     *  @details Implemented in Matrix/<implementation>/worker.cpp
+     */
+    void process(void *arg);
 
 #endif
 

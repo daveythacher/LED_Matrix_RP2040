@@ -9,6 +9,7 @@
 #include "hardware/dma.h"
 #include "hardware/uart.h"
 #include "Serial/serial_uart/serial_uart.h"
+#include "Matrix/matrix.h"
 
 static serial_uart_callback func;
 static int dma_chan;
@@ -46,11 +47,16 @@ void serial_uart_print(const char *s) {
 }
 
 void __not_in_flash_func(serial_uart_reload)() {
-    uint8_t *buf;
-    uint16_t len;
+    static uint8_t *ptr = 0;
+    static uint8_t *buf;
+    static uint16_t len;
         
     func(&buf, &len);
     dma_channel_configure(dma_chan, &c, buf, &uart_get_hw(uart0)->dr, len, true);
+    
+    if (ptr)
+        process((void *) ptr);
+    ptr = buf;
 }
 
 void __not_in_flash_func(serial_uart_isr)() {
