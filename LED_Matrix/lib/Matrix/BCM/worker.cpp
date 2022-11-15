@@ -32,6 +32,7 @@ static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(v
 }
 
 static uint8_t *get_table(uint16_t v, uint8_t i) {
+    v = v % (1 << PWM_bits);
     return index_table[v][i];
 }
 
@@ -48,9 +49,13 @@ static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint16_t r0, ui
 }
 
 static void build_index_table() {
-    for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-        // TODO:
-    }
+    for (uint32_t i = 0; i < (1 << PWM_bits); i++)
+        for (uint32_t j = 0; j < PWM_bits; j++)
+            for (uint8_t k = 0; k < 6; k++)
+                if (i & (1 << j))
+                    index_table[i][k][j] = 1 << k;
+                else
+                    index_table[i][k][j] = 0;
 }
 
 void __not_in_flash_func(work)() {
