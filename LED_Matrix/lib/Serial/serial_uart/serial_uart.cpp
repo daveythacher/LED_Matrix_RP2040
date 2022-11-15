@@ -42,10 +42,6 @@ void serial_uart_start(serial_uart_callback callback, int dma) {
     serial_uart_reload();
 }
 
-void serial_uart_print(const char *s) {
-    uart_puts(uart0, s);
-}
-
 void __not_in_flash_func(serial_uart_reload)() {
     static uint8_t *ptr = 0;
     static uint8_t *buf;

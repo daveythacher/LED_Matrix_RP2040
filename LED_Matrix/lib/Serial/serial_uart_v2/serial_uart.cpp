@@ -47,18 +47,6 @@ void serial_uart_start(serial_uart_callback callback, int dma) {
     serial_uart_reload(true);
 }
 
-// Note: Blocking call
-void serial_uart_print(const char *s) {
-    gpio_clr_mask(1 << 3);
-    uart_puts(uart0, s);
-    // Wait for transmitter to idle with FIFO empty
-    while (!(uart0_hw->fr & 1 << 7) || (uart0_hw->fr & 1 << 3));
-    gpio_set_mask(1 << 3);
-    // Hold transmitter idle for 1uS (This allows interrupt to fire.)
-    uint64_t time = time_us_64();
-    while((time_us_64() - time) < 2);
-}
-
 void __not_in_flash_func(serial_uart_reload)(bool isNew) {
     static uint8_t *ptr = 0;
     static uint8_t *buf;

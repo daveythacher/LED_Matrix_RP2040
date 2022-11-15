@@ -7,8 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
-#include "pico/multicore.h"
-#include "hardware/irq.h"
+#include "pico/platform.h"
 #include "Matrix/config.h"
 #include "Matrix/matrix.h"
 #include "Matrix/TLC5958/memory_format.h"

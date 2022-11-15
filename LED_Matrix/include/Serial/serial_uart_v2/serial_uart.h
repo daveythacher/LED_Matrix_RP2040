@@ -14,8 +14,5 @@
     
     void serial_uart_start(serial_uart_callback callback, int dma_chan);
     void serial_uart_isr();
-    void serial_uart_print(const char *s);
-    
-    #define serial_uart_printf(format, ...) { static char str[100]; snprintf(str, sizeof(str), format, ##__VA_ARGS__); serial_uart_print(str); }
     
 #endif

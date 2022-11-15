@@ -15,7 +15,7 @@
     
     /**
      *  @brief Callback for Serial state machine
-     *  @details Should not be blocked.
+     *  @details Only used for testing
      *  @details Implemented in src/<app>/serial.cpp
      */
     void serial_task();
