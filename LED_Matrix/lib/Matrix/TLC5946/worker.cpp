@@ -10,7 +10,7 @@
 #include "pico/platform.h"
 #include "Matrix/config.h"
 #include "Matrix/matrix.h"
-#include "Matrix/TLC5958/memory_format.h"
+#include "Matrix/TLC5946/memory_format.h"
 
 static uint8_t bank = 1;
 volatile bool vsync = false;
@@ -18,12 +18,13 @@ volatile bool vsync = false;
 static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0) {
     extern test2 buf[];
     
-    buf[bank][y][x % 16][x / 16][0] = r0;
-    buf[bank][y][x % 16][x / 16][1] = g0;
-    buf[bank][y][x % 16][x / 16][2] = b0;
+    buf[bank][y][x][0] = r0;
+    buf[bank][y][x][1] = g0;
+    buf[bank][y][x][2] = b0;
 }
 
 // Rewritten to use super loop. Interrupt rate can be very high, so dedicating a whole CPU core to it.
+//  This is different from TLC5958 in that multiplexing is handled as part of GCLK.
 void __not_in_flash_func(work)() {
     extern void matrix_gclk_task();
     
