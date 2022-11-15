@@ -32,7 +32,7 @@ groovy build.groovy -c cfg.xml
 For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
 ``` XML
 <cfg>
-    <build name="P4-BCM" enable="true" app="usb" alogrithm="BCM" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1"/>
+    <build name="P4-BCM" enable="true" app="uart" alogrithm="BCM" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1"/>
     <!-- ... -->
 </cfg>
 ```
@@ -46,7 +46,7 @@ doxygen Doxyfile
 ### name 
 This is the name given to the configuration and corresponding binary. Note binary will have the following prefix: led_
 
-This name must be different from the algorithm. Currently this means something other than the following: BCM, PWM, TLC5958 and MBI5153
+This name must be different from the algorithm. Currently this means something other than the following: BCM, PWM and TLC5958
 
 ### enable 
 This must be true or false. If false this build will not be included in the build script.
@@ -61,7 +61,7 @@ GEN 1 panels (standard panels) currently use BCM. (FM612x are not supported curr
 
 GEN 2 panels (hardware PWM panels without memory) are not supported currently. 
 
-GEN 3 panels (hardware PWM panels with memory) can only be MBI5153 (incomplete) or TLC5958 (incomplete) currently.
+GEN 3 panels (hardware PWM panels with memory) can only be TLC5958 (incomplete) currently.
 
 ### fps
 This is the number of FPS desired by GEN 3 panels. This is used to verify the serial clock requirements.
@@ -98,15 +98,9 @@ Constant current gain value for Green LED. This value is constant multiple of th
 ### blue_gain
 Constant current gain value for Blue LED. This value is constant multiple of the default gain. 1.0 configures the gain to be the default gain. Note this number can have decimals. (Only used/needed by TLC5958.)
 
-### Timing algorithm for BCM:
+### Timing algorithm for BCM and PWM:
 
 serial_clock / (multiplex * columns * max_refresh * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
-
-### Timing algorithm for GEN3: (MBI5153, etc.) - WIP
-
-(serial_clock * 0.75) / (multiplex * columns * fps * 16) >= 1.0
-
-serial_clock / (multiplex * max_refresh * 2^max(round(log2(max_rgb_led_steps / multiplex)), seg_bits)) >= 1.0
 
 ### Timing algorithm for TLC5958: - WIP
 
@@ -126,7 +120,7 @@ Ideal sizes for message boards are P6 1:8 and P5 1:16. These have support bracke
 
 High refresh displays need special control circuits in multiplexing and LED drivers. This is hard to find in P6, but can be found in P5, P4, P3, P2.5, etc. Most panels are capable of 100-240Hz which should not show flicker to many people. However some people will want higher refreshes for things like movement, cameras, headaches, flicker, etc.
 
-Generally high refresh rate is generally accomplished using hardware PWM. This is more efficient in terms of bus cycles. Traditional PWM is used in many cases however this is being replaced somewhat by S-PWM. S-PWM allows you to lower the color depth aka PWM bits in response to multiplex or scan rate. The LEDs are only capable of so much contrast, so there is no point to using more PWM bits than required. These cycles can be converted to refresh rate instead. S-PWM enables this and smoother frame changes. S-PWM makes more sense for hardware than it does for software.
+Generally high refresh rate is generally accomplished using hardware PWM. This is more efficient in terms of bus cycles. Traditional PWM is used in many cases however this is being replaced somewhat by S-PWM. S-PWM allows you to lower the color depth aka PWM bits in response to multiplex or scan rate. The LEDs are only capable of so much contrast, so there is no point to using more PWM bits than required. These cycles can be converted to refresh rate instead. S-PWM enables this and smoother frame changes. S-PWM makes more sense for hardware than it does for software. Mostly used for anti-ghosting for certain hardware configurations.
 
 BCM is used for software traditional PWM to emulate hardware traditional PWM. BCM is computationally better than PWM. S-PWM is not used as configuration can scale the refresh and PWM bits manually.
 

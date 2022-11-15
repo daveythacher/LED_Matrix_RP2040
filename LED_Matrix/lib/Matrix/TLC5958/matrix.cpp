@@ -88,14 +88,14 @@ void matrix_start() {
     static_assert(SERIAL_CLOCK <= 33000000.0);
     
     constexpr float x = (SERIAL_CLOCK * 0.75) / (MULTIPLEX * COLUMNS * FPS * 16 * 3);
-    static_assert(x >= 1.0);
+    static_assert(x >= 1.0, "SERIAL_CLOCK too low");
     constexpr float CLK = x * 125000000.0 / (SERIAL_CLOCK * 2.0 * 0.75);
-    static_assert(CLK >= 1.0);
+    static_assert(CLK >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
     
     constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * MAX_REFRESH * (1 << std::max(PWM_bits, (int) seg_bits)));
-    static_assert(x2 >= 1.0);
+    static_assert(x2 >= 1.0, "SERIAL_CLOCK too low");
     constexpr float GCLK = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
-    static_assert(GCLK >= 1.0);
+    static_assert(GCLK >= 1.0, "Unabled to configure PIO for MAX_REFRESH");
 
     // DAT SM
     pio0->sm[0].clkdiv = 0;

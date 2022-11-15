@@ -41,7 +41,6 @@ void serial_task() {
         }
     }
     isReady = true;
-    buffers[buffer].payload.cmd = 0;
     buffers[buffer].marker[0] = 0xABCD1234;
     buffers[buffer].marker[1] = ~(0xABCD1234);
     buffer = (buffer + 1) % 2;

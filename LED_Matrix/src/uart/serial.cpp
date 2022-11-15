@@ -34,7 +34,6 @@ void serial_task() {
         }
     }
     isReady = true;
-    buffers[buffer].cmd = 0;
     buffer = (buffer + 1) % 2;
 #endif
 

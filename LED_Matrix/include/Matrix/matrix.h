@@ -26,12 +26,6 @@
      *  @details Implemented in Matrix/<implementation>/worker.cpp
      */
     void work();
-    
-    /**
-     * @brief Update index_table.
-     * @details Implemented in Matrix/<implementation>/worker.cpp
-     */
-     void update_index_table(uint8_t *buf, uint32_t size, uint32_t offset);
 
 #endif
 
