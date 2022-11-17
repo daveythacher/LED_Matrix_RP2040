@@ -1,3 +1,4 @@
+# Internal Documentation
 Place to talk about internal code stuff
 
 Critical sections of code are RAM functions, as I do not trust XIP cache for this. Be mindful of interrupts. Currently multiplexing generates a lot of interrupts, which can cause issues. Be mindful of interrupt allocation, which can also cause issues.
@@ -5,7 +6,7 @@ Critical sections of code are RAM functions, as I do not trust XIP cache for thi
 Someday the build logic will need to change away from preprocessor logic. Could use CMake to generate config headers. Most of the current structure should support this. Groovy could generate the configure files for config heres. There will need to be a fake header layer for the library and application logic. CMake will need to manage the locations of these. Lot of work and code that at this point is for nothing really.
 
 ## Overview
-This code base is divided into two parts. The first part is applications which are front end protocols. The second part is matrix algorithms which are back end panel implementations. Not all features are implemented in this code base. For example: gamma, brightness, CIE1931, pixel mapping, etc. do not belong in this code base these are handled by the application logic. This code base allows the application logic to change the order of the pixels in the RGB pixel buffer which is sent over the front end protocol. This code base also allows the application logic to customize the index_table used to convert RGB pixel data into bitplanes via the front end protocol.
+This code base is divided into two parts. The first part is applications which are front end protocols. The second part is matrix algorithms which are back end panel implementations. Not all features are implemented in this code base. For example: gamma, brightness, CIE1931, pixel mapping, etc. do not belong in this code base these are handled by the application logic. This code base allows the application logic to change the order of the pixels in the RGB pixel buffer which is sent over the front end protocol.
 
 ## lib folder
 This is a folder for different libraries which could be used by multiple applications.
@@ -18,10 +19,13 @@ Currently they all use the same symbol, matrix_start to get going. They are comp
 To add more you just create folder, define matrix_start, have CMake build a library with led_ prefix, define matrix_dma_isr if needed, define set_pixel, etc. CMake should link against all dependencies used by the lib. Each matrix algorithm is its own library.
 
 ### Multiplex Alogirthms
-I did implement these as C++ class. To add more just extent the interface and add it to the factory in the base class. CMake should link against all dependencies used by the lib. There is only one multiplex library for all multiplex algorithms.
+CMake configuration selects these as configured for the specific build.
+
+### Serial Algorithms
+These are used by the src folder to implement different applications/front end protocols. Configuration for specific build picks the src folder implementation.
 
 ## src folder
-This folder for different applications. These pick a matrix algorithm. CMake still configures preprocessor for size, multiplex algorithm, etc. The idea here is build flavors. Some matrix algorithms require a completely different implementation or cannot work in all cases. Rather than do anything smart, I just did this.
+This folder for different applications. These pick a serial algorithm. CMake still configures preprocessor for size, multiplex algorithm, matrix algorithm, etc. The idea here is build flavors. Some matrix algorithms require a completely different implementation or cannot work in all cases.
 
 This is kind of pain, but this is a microcontroller. I did not want to lose memory or make this really painful to manage. Parallel development should be possible.
 
@@ -47,5 +51,5 @@ Note these results are old.
 ## Interrupts
 Core 0 should run all interrupts. Core 1 should run all processing for GEN 1 and all GCLK interrupts for GEN 2 and GEN 3. Note GEN 2 and GEN 3 process in the ISR, however the DMA is activated before. Processing in GEN 2 and GEN 3 should be very fast. There is no processing on Core 0 outside of interrupts.
 
-Serial protocol interrupts are the highest priority. Next is multiplexing interrupts, if any.
+Serial protocol interrupts are the highest priority. Next is multiplexing interrupts, if any. Matrix algorithms are free to configure interrupts on Core 1 if they desire. Matrix algorithms own Core 1.
 

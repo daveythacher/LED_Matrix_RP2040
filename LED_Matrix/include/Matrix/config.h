@@ -14,7 +14,6 @@
     constexpr int MAX_REFRESH = DEFINE_MAX_REFRESH;
     constexpr int FPS = DEFINE_FPS;
     constexpr int COLUMNS = DEFINE_COLUMNS;
-    constexpr int MULTIPLEX_NUM = DEFINE_MULTIPLEX_NUM;
     constexpr float SERIAL_CLOCK = (DEFINE_SERIAL_CLOCK * 1000000.0);
     constexpr int BLANK_TIME = DEFINE_BLANK_TIME;
     constexpr float RED_GAIN = DEFINE_RED_GAIN;

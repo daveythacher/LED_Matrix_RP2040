@@ -32,7 +32,7 @@ groovy build.groovy -c cfg.xml
 For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
 ``` XML
 <cfg>
-    <build name="P4-BCM" enable="true" app="uart" alogrithm="BCM" fps="30" multiplex="16" multiplex_num="0" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1"/>
+    <build name="P4-BCM" enable="true" app="uart" alogrithm="BCM" fps="30" multiplex="16" multiplex_name="Direct" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1"/>
     <!-- ... -->
 </cfg>
 ```
@@ -69,8 +69,8 @@ This is the number of FPS desired by GEN 3 panels. This is used to verify the se
 ### multiplex
 This is the scan number marked on the back of the panel. This number is usually in the middle near a S prefix.
 
-### multiplex_num
-This is a number for multiplexing approach used. 0 is for decoder based pin mapping, used in standard implemenations. 1 is for direct pin mapping, used in low multiplex panels. (Shift registers are not supported. Note pixel mapping is handled by the application which sends serial data to this code base.)
+### multiplex_name
+This is the name for multiplexing approach used. Currently available are Direct and Decoder. Direct is more common in low multiplex.
 
 ### max_rgb_led_steps
 This is the number of uA's supported by the LEDs without multiplexing. (This is generally something along order of 2000-8000.) Assuming the LED is capable of lighting up slightly at 2uA and the min constant forward current of the red, green and blue colors is 8mA. You should have 4000 steps or support around 12 bits of PWM if the panel was single scan.(8mA / 2uA = 4000)

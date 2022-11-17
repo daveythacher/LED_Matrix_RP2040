@@ -31,7 +31,6 @@
 test2 buf[3];
 static uint8_t bank = 0;
 static int dma_chan;
-static Multiplex *m;
 static bool isFinished = false;
 static const uint8_t lat_cmd = 1;
 static const uint8_t seg_bits = 8;
@@ -53,7 +52,6 @@ void matrix_start() {
     gpio_set_dir(22, GPIO_OUT);
     gpio_set_function(22, GPIO_FUNC_PIO0);
     gpio_clr_mask(0x5FFF00);
-    m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
     /*
         1 - CLK/LAT
@@ -201,13 +199,13 @@ void __not_in_flash_func(matrix_gclk_task)() {
             }
             if (isFinished) {
                 send_cmd(3);                                                    // VSYNC Procedure
-                m->SetRow(rows);
+                SetRow(rows);
                 time = time_us_64();                                            // Restart timer with 3uS delay
                 while((time_us_64() - time) < (uint64_t) std::max(BLANK_TIME, 3));  // Check if timer has expired
                 return;
             }
         }
-        m->SetRow(rows);
+        SetRow(rows);
 
         while((time_us_64() - time) < BLANK_TIME);                              // Check if timer has expired
         start_gclk(seg_bits);                                                   // Kick off hardware (GCLK)

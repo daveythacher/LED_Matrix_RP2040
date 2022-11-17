@@ -20,7 +20,6 @@
 test2 buf[3];
 static uint8_t bank = 0;
 static int dma_chan[2];
-static Multiplex *m;
 static struct {uint32_t len; uint8_t *data;} address_table[(1 << PWM_bits) + 1];
 static uint8_t null_table[COLUMNS + 1];
 
@@ -39,7 +38,6 @@ void matrix_start() {
     gpio_init(22);
     gpio_set_dir(22, GPIO_OUT);
     gpio_clr_mask(0x5FFF00);
-    m = Multiplex::getMultiplexer(MULTIPLEX_NUM);
     
     memset(buf, COLUMNS - 1, sizeof(buf));
     memset(null_table, 0, COLUMNS + 1);
@@ -172,7 +170,7 @@ void __not_in_flash_func(matrix_dma_isr)() {
                 vsync = false;
             }
         }
-        m->SetRow(rows);
+        SetRow(rows);
         load_line(rows, bank);                                                  // Note this is a fairly expensive operation. This is done in parallel with blank time.
                                                                                 //  This is why no ISR for long delays has been implemented. (It is not believed to be required.)
 

@@ -29,7 +29,6 @@ target_compile_definitions(led_${TARGET} PRIVATE
     DEFINE_MAX_REFRESH=${${TARGET}_DEFINE_MAX_REFRESH}    
     DEFINE_FPS=${${TARGET}_DEFINE_FPS}   
     DEFINE_COLUMNS=${${TARGET}_DEFINE_COLUMNS}
-    DEFINE_MULTIPLEX_NUM=${${TARGET}_DEFINE_MULTIPLEX_NUM}
     DEFINE_SERIAL_CLOCK=${${TARGET}_DEFINE_SERIAL_CLOCK}
     DEFINE_BLANK_TIME=${${TARGET}_DEFINE_BLANK_TIME}
     DEFINE_RED_GAIN=${${TARGET}_DEFINE_RED_GAIN}
@@ -47,6 +46,7 @@ target_link_libraries(led_${TARGET}
     pico_runtime
     pico_multicore
     led_${${TARGET}_DEFINE_ALGORITHM}
+    led_multiplex_${${TARGET}_DEFINE_MULTIPLEX_NAME}
     serial_uart_v2
 )
 
