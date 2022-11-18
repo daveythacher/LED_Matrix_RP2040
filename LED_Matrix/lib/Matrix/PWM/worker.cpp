@@ -43,7 +43,7 @@ static inline void __not_in_flash_func(multicore_fifo_push_blocking_inline)(uint
     __sev();
 }
 
-static uint8_t *get_table(uint16_t v, uint8_t i) {
+static uint8_t *__not_in_flash_func(get_table)(uint16_t v, uint8_t i) {
     v /= 65536 / (1 << PWM_bits);
     return index_table[v][i];
 }

@@ -147,12 +147,12 @@ void matrix_start() {
     
     send_cmd(15);
     dma_channel_set_read_addr(dma_chan, cfg1, true);
-    pio_sm_put_blocking(0, 1, (COLUMNS / 16 * 3) - 5);
-    pio_sm_put_blocking(0, 1, 5);
+    pio_sm_put_blocking(pio0, 1, (COLUMNS / 16 * 3) - 5);
+    pio_sm_put_blocking(pio0, 1, 5);
     send_cmd(15);
     dma_channel_set_read_addr(dma_chan, cfg2, true);
-    pio_sm_put_blocking(0, 1, (COLUMNS / 16 * 3) - 5);
-    pio_sm_put_blocking(0, 1, 5);
+    pio_sm_put_blocking(pio0, 1, (COLUMNS / 16 * 3) - 5);
+    pio_sm_put_blocking(pio0, 1, 5);
     
     dma_channel_set_irq0_enabled(dma_chan, true); 
     
@@ -202,19 +202,19 @@ void __not_in_flash_func(matrix_gclk_task)() {
     }
 }
 
-void start_clk(uint16_t counter, uint8_t cmd) {
+void __not_in_flash_func(start_clk)(uint16_t counter, uint8_t cmd) {
     dma_channel_set_read_addr(dma_chan, buf[bank][counter / 16][counter % 16], true);
-    pio_sm_put_blocking(0, 1, (COLUMNS / 16 * 3) - cmd);
-    pio_sm_put_blocking(0, 1, cmd);
+    pio_sm_put_blocking(pio0, 1, (COLUMNS / 16 * 3) - cmd);
+    pio_sm_put_blocking(pio0, 1, cmd);
 }
 
-void start_gclk(uint8_t bits) {
-    pio_sm_put_blocking(0, 2, (1 << seg_bits) + 1);
+void __not_in_flash_func(start_gclk)(uint8_t bits) {
+    pio_sm_put_blocking(pio0, 2, (1 << seg_bits) + 1);
 }
 
-void send_cmd(uint8_t cmd) {
-    pio_sm_put_blocking(0, 1, 1);
-    pio_sm_put_blocking(0, 1, cmd);
+void __not_in_flash_func(send_cmd)(uint8_t cmd) {
+    pio_sm_put_blocking(pio0, 1, 1);
+    pio_sm_put_blocking(pio0, 1, cmd);
     while (pio0->sm[1].instr != 3); 
 }
 
