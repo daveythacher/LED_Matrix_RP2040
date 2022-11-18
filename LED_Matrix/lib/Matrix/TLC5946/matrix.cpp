@@ -83,7 +83,7 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio1, 0, 21, 1, true);
     
     // Verify Serial Clock
-    static_assert(SERIAL_CLOCK <= 33000000.0, "Max clock for TLC5946 is 33MHz");
+    static_assert(SERIAL_CLOCK <= 25000000.0, "Code limits clock for TLC5946 to 25MHz");
     
     constexpr float x = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * 12);
     static_assert(x >= 1.0, "SERIAL_CLOCK too low");
@@ -199,7 +199,7 @@ void __not_in_flash_func(matrix_gclk_task)() {
     extern volatile bool vsync;
     uint64_t time;
     
-    if (pio1->sm[0].instr == 14) {
+    if (pio1->sm[0].instr == 8) {                                               // Check if blocked on FIFO
         gpio_set_mask(1 << 20);                                                 // Disable display and reset GCLK counter
         time = time_us_64();                                                    // Start a timer with 1uS delay
         
