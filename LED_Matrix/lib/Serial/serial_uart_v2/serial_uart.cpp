@@ -5,6 +5,7 @@
  */
  
 #include <stdint.h>
+#include <machine/endian.h>
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/uart.h"
@@ -17,6 +18,12 @@ static int dma_chan;
 static dma_channel_config c;
 
 static void serial_uart_reload(bool isNew);
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    #define ntohs(x) __bswap16(x)
+#else
+    #define ntohs(x) ((uint16_t)(x))
+#endif
 
 void serial_uart_start(serial_uart_callback callback, int dma) {
     func = callback;
@@ -52,12 +59,20 @@ void __not_in_flash_func(serial_uart_reload)(bool isNew) {
     static uint8_t *buf;
     static uint16_t len;
         
-    if (isNew)
+    if (isNew) {
+        uint16_t *p = (uint16_t *) buf;
+
+        for (uint16_t i = 0; i < len; i += 2)
+            p[i / 2] = ntohs(p[i / 2]);
+
         func(&buf, &len);
+    }
+
     dma_channel_configure(dma_chan, &c, buf, &uart_get_hw(uart0)->dr, len, true);
     
     if (ptr)
         process((void *) ptr);
+        
     ptr = buf;
 }
 
