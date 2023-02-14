@@ -11,7 +11,7 @@ import org.apache.commons.lang3.SystemUtils
 
 /*
 DEFINE_MULTIPLEX            32          "Multiplex Scan of panel"
-DEFINE_MAX_RGB_LED_STEPS    8000        "Min LED const forward current in nA divided by min light current in nA"
+DEFINE_MAX_RGB_LED_STEPS    8000        "Contrast Ratio - Min LED const forward current in nA divided by min light current in nA"
 DEFINE_MAX_REFRESH          3840        "Max refresh of panel"
 DEFINE_COLUMNS              128         "Chain length"
 DEFINE_SERIAL_CLOCK         15.625      "HUB75 serial clock speed in MHz"
