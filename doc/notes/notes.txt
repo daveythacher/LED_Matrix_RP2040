@@ -1,0 +1,42 @@
+Max color depth of 12 bits and pixel density per chain for GEN 1 is 32 columns. Making max pixel density 64-1024 pixels.
+For 8192 pixels would mean a PWM bitplane buffer of 2MB (including double buffering). (8 channels)
+Max RAM per channel is 256KB.
+
+Max color depth of 12 bits and pixel density per chain for GEN 2 is 32 columns. Making max pixel density 64-16384 pixels.
+For 131072 pixels would mean a bitplane buffer of 2MB (including double buffering). (8 channels)
+Max RAM per channel is 256KB.
+
+Max color depth of 12 bits and pixel density per chain for GEN 3 is 128 columns. Making max pixel density 256-8192 pixels.
+For 65536 pixels would mean a bitplane buffer of 1MB (including double buffering). (8 channels)
+Max RAM per channel is 128KB.
+Concerns exist for GEN 3 with clock signal(s) capacitive load which limit the GEN 3 scaling in chain length.
+ A repeater could address these concerns, which would allow the scaling to move beyond 8 times.
+
+Flicker free reduces pixel density in GEN 2. (It has not effect in GEN 3.)
+Pixel density becomes 64-512 pixels. (Bitplane buffer is 64KB including double buffering for 8 channels.)
+
+Flicker free reduces color depth or pixel density in GEN 1. (It has no effect in GEN 3.)
+Flicker free reduces color depth to 7-bits with 32 columns. Making max pixel density 64-1024 pixels.
+For 8192 pixels would mean a max PWM bitplane buffer would be 128KB (including double buffering). (8 channels)
+Max RAM per channel is 16KB. (32KB for dual)
+
+I think we should only consider flicker free designs.
+	Max panel is 32x32 for GEN 1 PWM (using 3-bits).
+		Not factoring in dot correction or light polution.
+	Max panel is 16x32 for GEN 2 PWM (using 9-bits).
+		Not factoring in dot correction or light polution.
+	Max panel is 64x128 for GEN 3 PWM (using 7-bits).
+		Not factoring in dot correction or light polution.
+	Max panel is 64x128 for ON/OF. (GEN 1)
+
+Using dot correction would lower the PWM bit count even lower.
+
+Outdoor panels have higher PWM bit count but lower pixel density per chain.
+	Indoor panels benefit the most from GEN 3. (These are less common.)
+		They can only be so bright so PWM bit is constrained by density (multiplex/cost) and contrast.
+
+PoE display has the potential to work on GEN 1 since the max PWM bits is limited.
+	Multiplex lower contrast by factor of 8.
+	Power lowers contrast by factor of 4.
+	Distance/Light polution lowers contrast by factor of 16.
+	GEN 1 has enough serial bandwidth for 4 PWM bits, while the LEDs are likely only capable of 3 PWM bits.
