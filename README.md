@@ -8,38 +8,9 @@ Static configuration is used but a configuration file exists which makes adjusti
 There is no intention of ever supporting anything but the RP2040 or derivatives of the RP2040. Emphasis is on the RP2040 alone, so no FPGA coprocessors. Design for the project to be a hardware module/library. Standalone operation is possible, but this is outside the scope of this project. Interfacing will be kept flexible to allow a wide range of integrations.
 
 ## Status
-This code base is a work in progress. Some sections are still experimental.
+This code base is a work in progress. Some sections are still experimental. See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/README.md#status) for more details.
 
 I am not responsible in any way for any damages or issues created in any way as a result of this code base. This code base is licensed under GPL 3 and the terms of that are expected to be upheld. Credit where credit is due is also required.
-
-### LED_Matrix/lib/Matrix
-BCM - not fully tested, working
-
-PWM - not fully tested, working
-
-TLC59546 - experimental
-
-TLC5958 - experimental
-
-
-### LED_Matrix/lib/Multiplex
-Decoder - working
-
-Direct - working
-
-### LED_Matrix/lib/Serial
-serial_pmp - experimental
-
-serial_uart - experimental
-
-serial_uart_v2 - experimental
-
-### LED_Matrix/src
-pmp - not fully tested, working
-
-uart - not fully tested, working
-
-uart_v2 - not fully tested, working
 
 ## Contributing, feedback, questions, etc.
 If in doubt use the discussion feature. I am okay with meaningful discussion in issues however please use the discussion feature first.
