@@ -53,3 +53,33 @@ Core 0 should run all interrupts. Core 1 should run all processing for GEN 1 and
 
 Serial protocol interrupts are the highest priority. Next is multiplexing interrupts, if any. Matrix algorithms are free to configure interrupts on Core 1 if they desire. Matrix algorithms own Core 1.
 
+## Status
+### LED_Matrix/lib/Matrix
+BCM - not fully tested, working
+
+PWM - not fully tested, working
+
+TLC59546 - experimental
+
+TLC5958 - experimental
+
+
+### LED_Matrix/lib/Multiplex
+Decoder - working
+
+Direct - working
+
+### LED_Matrix/lib/Serial
+serial_pmp - experimental
+
+serial_uart - experimental
+
+serial_uart_v2 - experimental
+
+### LED_Matrix/src
+pmp - not fully tested, working
+
+uart - not fully tested, working
+
+uart_v2 - not fully tested, working
+
