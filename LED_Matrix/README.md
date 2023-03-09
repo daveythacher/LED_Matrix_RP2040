@@ -59,6 +59,8 @@ BCM - not fully tested, working
 
 PWM - not fully tested, working
 
+ON_OFF - TODO
+
 TLC5946 - experimental
 
 TLC5958 - experimental
