@@ -59,7 +59,7 @@ BCM - not fully tested, working
 
 PWM - not fully tested, working
 
-TLC59546 - experimental
+TLC5946 - experimental
 
 TLC5958 - experimental
 
