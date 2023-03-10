@@ -20,7 +20,7 @@
 test2 buf[3];
 static uint8_t bank = 0;
 static int dma_chan[2];
-static struct {uint32_t len; uint8_t *data;} address_table[(1 << PWM_bits) + 1];
+static struct {uint32_t len; uint8_t *data;} address_table[3];
 static uint8_t null_table[COLUMNS + 1];
 
 static void send_line();
@@ -42,12 +42,12 @@ void matrix_start() {
     memset(buf, COLUMNS - 1, sizeof(buf));
     memset(null_table, 0, COLUMNS + 1);
     null_table[0] = COLUMNS - 1;
-
-    for (uint32_t i = 0; i < (1 << PWM_bits); i++)
-        address_table[i].len = COLUMNS + 1;
-    
-    address_table[1 << PWM_bits].data = NULL;
-    address_table[1 << PWM_bits].len = 0;
+        
+    address_table[0].len = COLUMNS + 1;
+    address_table[1].data = null_table;
+    address_table[1].len = COLUMNS + 1;
+    address_table[2].data = NULL;
+    address_table[2].len = 0;
     
     // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
     //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
@@ -95,7 +95,7 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio0, 0, 8, 8, true);
     
     // Verify Serial Clock
-    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * (1 << PWM_bits));
+    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * 2);
     static_assert(x2 >= 1.0, "SERIAL_CLOCK too low");
     constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
@@ -135,14 +135,14 @@ void matrix_start() {
 
 void __not_in_flash_func(send_line)() {
     dma_hw->ints0 = 1 << dma_chan[0];
-    pio_sm_put(pio0, 0, (1 << PWM_bits) - 1);
+    pio_sm_put(pio0, 0, 1);
     dma_channel_set_read_addr(dma_chan[1], &address_table[0], true);
 }
 
 // This is done to reduce interrupt rate. Use DMA to automate the PWM bitplanes instead of CPU.
 //  This is possible due to PIO state machine.
 void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
-    for (uint32_t i = 0; i < (1 << PWM_bits); i++)
+    for (uint32_t i = 0; i < 1; i++)
             address_table[i].data = buf[buffer][rows][i];
 }
 

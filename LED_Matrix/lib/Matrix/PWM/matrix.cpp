@@ -20,7 +20,7 @@
 test2 buf[3];
 static uint8_t bank = 0;
 static int dma_chan[2];
-static struct {uint32_t len; uint8_t *data;} address_table[(1 << PWM_bits) + 1];
+static struct {uint32_t len; uint8_t *data;} address_table[(1 << PWM_bits) + 2];
 static uint8_t null_table[COLUMNS + 1];
 
 static void send_line();
@@ -45,9 +45,11 @@ void matrix_start() {
 
     for (uint32_t i = 0; i < (1 << PWM_bits); i++)
         address_table[i].len = COLUMNS + 1;
-    
-    address_table[1 << PWM_bits].data = NULL;
-    address_table[1 << PWM_bits].len = 0;
+
+    address_table[1 << PWM_bits].data = null_table;
+    address_table[1 << PWM_bits].len = COLUMNS + 1;
+    address_table[(1 << PWM_bits) + 1].data = NULL;
+    address_table[(1 << PWM_bits) + 1].len = 0;
     
     // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
     //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
@@ -135,7 +137,7 @@ void matrix_start() {
 
 void __not_in_flash_func(send_line)() {
     dma_hw->ints0 = 1 << dma_chan[0];
-    pio_sm_put(pio0, 0, (1 << PWM_bits) - 1);
+    pio_sm_put(pio0, 0, 1 << PWM_bits);
     dma_channel_set_read_addr(dma_chan[1], &address_table[0], true);
 }
 

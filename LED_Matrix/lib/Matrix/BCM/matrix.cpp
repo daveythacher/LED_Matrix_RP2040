@@ -43,7 +43,7 @@ void matrix_start() {
     memset(null_table, 0, COLUMNS + 1);
     null_table[0] = COLUMNS - 1;
 
-    for (uint32_t i = 0; i < (1 << PWM_bits); i++)
+    for (uint32_t i = 0; i < (1 << PWM_bits) - 1; i++)
         address_table[i].len = COLUMNS + 1;
     
     address_table[(1 << PWM_bits) - 1].data = null_table;
