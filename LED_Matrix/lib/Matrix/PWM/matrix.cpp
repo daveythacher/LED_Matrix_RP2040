@@ -26,6 +26,13 @@ static uint8_t null_table[COLUMNS + 1];
 static void send_line();
 static void load_line(uint32_t rows, uint8_t buffer);
 
+/*
+    There are 2^PWM_bits + 1 shifts per period.
+    The last shift turns the columns off before multiplexing.
+
+    The serial protocol used by PIO is column length decremented by one followed by column values.
+*/
+
 void matrix_start() {
     // Init Matrix hardware
     // IO
