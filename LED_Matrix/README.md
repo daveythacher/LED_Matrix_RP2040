@@ -78,9 +78,9 @@ serial_uart - experimental
 serial_uart_v2 - experimental
 
 ### src:
-pmp - not fully tested, working
+pmp - not fully tested
 
-uart - not fully tested, working
+uart - not fully tested
 
-uart_v2 - not fully tested, working
+uart_v2 - not fully tested
 
