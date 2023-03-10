@@ -102,25 +102,25 @@ Constant current gain value for Green LED. This value is constant multiple of th
 ### blue_gain
 Constant current gain value for Blue LED. This value is constant multiple of the default gain. 1.0 configures the gain to be the default gain. Note this number can have decimals. (Only used/needed by TLC5958.)
 
-### Timing algorithm for BCM:
+### Timing algorithm for BCM: (Note blanking time may reduce refresh.)
 
 serial_clock / (multiplex * columns * max_refresh * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
 
-### Timing algorithm for PWM:
+### Timing algorithm for PWM: (Note blanking time may reduce refresh.)
 
 serial_clock / (multiplex * columns * max_refresh * 2^(round(log2(max_rgb_led_steps / multiplex)) + 1)) >= 1.0
 
-### Timing algorithm for ON_OFF:
+### Timing algorithm for ON_OFF: (Note blanking time may reduce refresh.)
 
 serial_clock / (multiplex * columns * max_refresh * 2) >= 1.0
 
-### Timing algorithm for TLC5946: - WIP
+### Timing algorithm for TLC5946: - WIP  (Note blanking time may reduce refresh.)
 
 serial_clock / (multiplex * columns * max_refresh * 12) >= 1.0
 
 serial_clock / (multiplex * max_refresh * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
 
-### Timing algorithm for TLC5958: - WIP
+### Timing algorithm for TLC5958: - WIP (Note blanking time may reduce refresh.)
 
 (serial_clock * 0.75) / (multiplex * columns * fps * 16 * 3) >= 1.0
 
