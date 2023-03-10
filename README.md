@@ -59,7 +59,7 @@ This is a string for the corresponding application in src folder. These applicat
 ### algorithm
 This is the name of the LED panel driver or algorithm used to talk to the panel. Note some drivers from Macroblock, ChipOne, etc. are not fully documented and are suspected of having a NDA. This project does not plan to use any information violating such agreeements. (Note the modular nature of this could allow dissemination without such information.)
 
-GEN 1 panels (standard panels) currently use BCM or traditional PWM. (Traditional PWM works better with FPGA, but this is not supported by this code base.) These generally require a tradeoff in quality, refresh and/or density.
+GEN 1 panels (standard panels) currently use ON/OFF (ON_OFF), BCM or PWM. (Traditional PWM works better with FPGA, but this is not supported by this code base.) These generally require a tradeoff in quality, refresh and/or density.
 
 GEN 2 panels (hardware PWM panels without memory) can only be TLC5946 (incomplete) currently. These allow higher refresh rates at high quality.
 
@@ -78,6 +78,8 @@ This is the name for multiplexing approach used. Currently available are Direct 
 This is the number of uA's supported by the LEDs without multiplexing. (This is generally something along order of 2000-8000.) Assuming the LED is capable of lighting up slightly at 2uA and the min constant forward current of the red, green and blue colors is 8mA. You should have 4000 steps or support around 12 bits of PWM if the panel was single scan.(8mA / 2uA = 4000) This is believed to be the contrast ratio of the LEDs, which determines aspects of the quality/dynamic range. (Mapping function/table and dot correct are important for ensuring color accuracy.)
 
 The library will determine the max number of PWM bits from this number. By dividing this number by the multiplex and taking the log2 of the result. Note if you lower the forward current you should change this value to avoid wasting serial bandwidth and memory. The compiler will check for errors if this is set to an unsupported value. There is only so much memory on the RP2040, so lowering this may be required. This lowers the color depth on the device. Note this number should be whole numbers only.
+
+Not used by ON_OFF.
 
 ### max_refresh
 This number is the refresh rate in Hz of the panels multiplexing. When using BCM this will override the FPS. Note this number should be whole numbers only.
@@ -100,9 +102,17 @@ Constant current gain value for Green LED. This value is constant multiple of th
 ### blue_gain
 Constant current gain value for Blue LED. This value is constant multiple of the default gain. 1.0 configures the gain to be the default gain. Note this number can have decimals. (Only used/needed by TLC5958.)
 
-### Timing algorithm for BCM and PWM:
+### Timing algorithm for BCM:
 
 serial_clock / (multiplex * columns * max_refresh * 2^round(log2(max_rgb_led_steps / multiplex))) >= 1.0
+
+### Timing algorithm for PWM:
+
+serial_clock / (multiplex * columns * max_refresh * 2^(round(log2(max_rgb_led_steps / multiplex)) + 1)) >= 1.0
+
+### Timing algorithm for ON_OFF:
+
+serial_clock / (multiplex * columns * max_refresh * 2) >= 1.0
 
 ### Timing algorithm for TLC5946: - WIP
 
