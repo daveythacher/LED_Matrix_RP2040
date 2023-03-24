@@ -34,6 +34,7 @@ void __not_in_flash_func(work)() {
 }
 
 // TODO: Convert this to DMA memcpy?
+// TODO: Scale 8-bit value to 12/16-bit value
 void __not_in_flash_func(process)(void *arg) {
     packet *p = (packet *) arg;
     for (int y = 0; y < MULTIPLEX; y++)
