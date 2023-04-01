@@ -84,3 +84,7 @@ uart - not fully tested
 
 uart_v2 - not fully tested
 
+## Random note
+I use a linker trick with C abstract class/functions to avoid complexity in compilation. This is also reduces code size and improves run time performance. It should be possible to do this with C++ using abstract class and templates. This would still require the linker or run time, which made this seem pointless to me. The code expression is currently close enough for templates to not make sense.
+
+This was done in Multiplex, Matrix and Serial. These are three abstract classes/APIs which the C preprocessor and CMake are used to modify compilation and linking. The strings used come from the configuration file directly.
