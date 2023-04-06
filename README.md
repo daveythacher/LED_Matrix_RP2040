@@ -1,7 +1,7 @@
 # LED_Matrix_RP2040
-This code base builds a hardware module for abstracting multiplexing of LED matrix. The implementation is a memory mapped controller based on RP2040. 48-bit RGB data is sent over an IO bus to the RP2040 which is converted into the correct format for the LED display. This data is then replayed to the LED matrix repeatedly. The purpose of this project is to enable high efficiency, high determinism  and low cost for maximum refresh, density and/or color depth potential. These are enabled by the RP2040's unique hardware configuration.
+This code base builds a hardware module for abstracting multiplexing of LED matrix. The implementation is a memory mapped controller based on RP2040. 24-bit RGB data is sent over an IO bus to the RP2040 which is converted into the correct format for the LED display. This data is then replayed to the LED matrix repeatedly. The purpose of this project is to enable high efficiency, high determinism  and low cost for maximum refresh, density and/or color depth potential. These are enabled by the RP2040's unique hardware configuration.
 
-Pixel mapping, brightness, color temperature/gamma, dot correction, scaling, etc. is handled by the application which produces 48-bit RGB data over the IO bus. Note IO bus may increase latency of the display. The IO bus will likely limit the size and frame rate of the display. The RP2040 has a decent amount of resources however performance tradeoffs are expected due to processing power, IO bus bandwidth/latency, memory, and HUB75 serial bandwidth. This project was originally created for a small PoE display. It is in no way capable of competing against a video wall and represents a smaller version of receiver card, in theory.
+Pixel mapping, brightness, color temperature/gamma, dot correction, scaling, etc. is handled by the application which produces 24-bit RGB data over the IO bus. Note IO bus may increase latency of the display. The IO bus will likely limit the size and frame rate of the display. The RP2040 has a decent amount of resources however performance tradeoffs are expected due to processing power, IO bus bandwidth/latency, memory, and HUB75 serial bandwidth. This project was originally created for a small PoE display. It is in no way capable of competing against a video wall and represents a smaller version of receiver card, in theory.
 
 Static configuration is used but a configuration file exists which makes adjusting this fairly straightforward. Below there are some timing equations to help guide the configuration. Compile time checks will attempt to verify this configuration also. Note you are still required to perform required testing as these only help with certain issues.
 
@@ -162,7 +162,7 @@ As the LED current is reduced the required forward voltage is also reduced. This
 
 Messing this up can lead to issues for color temperature of white. The color may be too warm or too cool. Current balancing to the get the color temperature may be required. Note some LEDs are different. There can also be differences in performance between LED colors. Manipulate the current for the peak (full) current to get the color temperature correct. Then adjust the color intensity using gamma curves per color or dot correction.
 
-CIE1931 is another feature which can be used if desired. Note all color mapping is handled via application logic. All values are mapped to RGB-48 and the firmware configuration will then decide how many of those bits can be used.
+CIE1931 is another feature which can be used if desired. Note all color mapping is handled via application logic. All values are mapped to RGB-24 and the firmware configuration will then decide how many of those bits can be used.
 
 ## Color Depth
 
