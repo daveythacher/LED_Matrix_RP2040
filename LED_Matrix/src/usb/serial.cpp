@@ -57,3 +57,8 @@ void serial_start() {
     serial_usb_start(&callback, serial_dma_chan[0], serial_dma_chan[1]); 
 }
 
+// TODO: Finish
+uint8_t serial_get_chan_count() {
+    return 3;
+}
+

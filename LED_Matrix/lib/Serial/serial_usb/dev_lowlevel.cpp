@@ -641,19 +641,21 @@ void ep0_out_handler(uint8_t *buf, uint16_t len) {
 // We block on late packets, which is not ideal. (Low bandwidth and high latency)
 //  To get around this the host application will drop frame(s), if desired/required.
 static void my_handler(uint8_t *buf, uint16_t len, uint8_t num) {
-    static uint16_t state = 0;
+    static uint32_t state = 0;
+    static const uint32_t limit = (1 << serial_get_chan_count()) - 1;
     uint8_t *ptr;
 
     num %= 15;
-    state |= 1 << num;
+    state |= 1 << (num - 1);
     func(&ptr, &len, num);
     address_table[num].len = len;
     address_table[num].dst = ptr;
     address_table[num].src = buf;
 
-    if (state == 0x7FFF) {
+    if (state == limit) {
         // TODO: Make sure DMA has finished!
         // TODO: DMA
+        //  Use serial_get_chan_count
 
         state = 0;
     }
@@ -722,27 +724,16 @@ void ep15_out_handler(uint8_t *buf, uint16_t len) {
 }
 
 static void kickoff() {
-    usb_start_transfer(usb_get_endpoint_configuration(EP1_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP2_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP3_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP4_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP5_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP6_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP7_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP8_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP9_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP10_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP11_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP12_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP13_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP14_OUT_ADDR), ep0_buf, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP15_OUT_ADDR), ep0_buf, 64);
+    for (int i = 0; i < serial_get_chan_count(); i++) {
+        usb_start_transfer(usb_get_endpoint_configuration(USB_DIR_OUT + i), ep0_buf, 64);
+    }
 }
 
 // TODO: Finish
 void serial_usb_isr() {
      if (dma_channel_get_irq1_status(dma_chan[0])) {
         // TODO:
+        //  Use serial_get_chan_count
 
         kickoff();
      }
@@ -762,6 +753,7 @@ void serial_usb_start(serial_usb_callback callback, int dma_chan_num0, int dma_c
     }
 
     // TODO: Prepare DMA
+    //  Use serial_get_chan_count
 
     // Get ready to rx from host
     kickoff();
