@@ -77,12 +77,16 @@ serial_uart - experimental
 
 serial_uart_v2 - experimental
 
+serial_usb - not finished
+
 ### src:
 pmp - not fully tested
 
 uart - not fully tested
 
 uart_v2 - not fully tested
+
+usb - not finished
 
 ## Random note
 I use a linker trick with C abstract class/functions to avoid complexity in compilation. This is also reduces code size and improves run time performance. It should be possible to do this with C++ using abstract class and templates. This would still require the linker or run time, which made this seem pointless to me. The code expression is currently close enough for templates to not make sense.
