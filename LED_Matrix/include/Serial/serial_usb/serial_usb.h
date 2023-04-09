@@ -12,7 +12,7 @@
 
     typedef void (*serial_usb_callback)(uint8_t **buf, uint16_t *len, uint8_t num);
     
-    void serial_usb_start(serial_usb_callback callback, int dma_chan);
+    void serial_usb_start(serial_usb_callback callback, int dma_chan0, int dma_chan1);
     void serial_usb_isr();
     
 #endif

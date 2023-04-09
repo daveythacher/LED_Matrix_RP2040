@@ -13,7 +13,7 @@
 
 static packet buffers[2];
 static volatile uint8_t buffer = 0;
-static int serial_dma_chan;
+static int serial_dma_chan[2];
 
 void serial_task() {  
 #ifdef TEST
@@ -37,7 +37,9 @@ void serial_task() {
 #endif
 }
 
+// TODO: Finish
 static void __not_in_flash_func(callback)(uint8_t **buf, uint16_t *len, uint8_t num) {
+    // TODO: Replace this to use num
     *buf = (uint8_t *) &buffers[(buffer + 1) % 2];
     *len = sizeof(packet);
     buffer = (buffer + 1) % 2;
@@ -50,7 +52,8 @@ void __not_in_flash_func(serial_dma_isr)() {
 void serial_start() {
     multicore_launch_core1(work);
     
-    serial_dma_chan = dma_claim_unused_channel(true);
-    serial_usb_start(&callback, serial_dma_chan); 
+    serial_dma_chan[0] = dma_claim_unused_channel(true);
+    serial_dma_chan[1] = dma_claim_unused_channel(true);
+    serial_usb_start(&callback, serial_dma_chan[0], serial_dma_chan[1]); 
 }
 
