@@ -59,6 +59,6 @@ void serial_start() {
 
 // TODO: Finish
 uint8_t serial_get_chan_count() {
-    return 3;
+    return 3;   // Cannot exceed 15!!!
 }
 
