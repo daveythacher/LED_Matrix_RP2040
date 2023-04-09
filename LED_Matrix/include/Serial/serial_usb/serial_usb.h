@@ -1,11 +1,11 @@
 /* 
- * File:   serial_uart.h
+ * File:   serial_usb.h
  * Author: David Thacher
  * License: GPL 3.0
  */
 
-#ifndef SERIAL_UART_H
-#define SERIAL_UART_H
+#ifndef SERIAL_USB_H
+#define SERIAL_USB_H
 
     #include <stdint.h>
     #include <stdio.h>

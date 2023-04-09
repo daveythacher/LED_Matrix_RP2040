@@ -54,6 +54,8 @@ void ep15_out_handler(uint8_t *buf, uint16_t len);
 static bool should_set_address = false;
 static uint8_t dev_addr = 0;
 static volatile bool configured = false;
+static serial_usb_callback func;
+static int dma_chan;
 
 // Global data buffer for EP0
 static uint8_t ep0_buf[64];
@@ -85,39 +87,108 @@ static struct usb_device_configuration dev_config = {
                 {
                         .descriptor = &ep1_out,
                         .handler = &ep1_out_handler,
-                        // EP1 starts at offset 0 for endpoint control
                         .endpoint_control = &usb_dpram->ep_ctrl[0].out,
                         .buffer_control = &usb_dpram->ep_buf_ctrl[1].out,
-                        // First free EPX buffer
                         .data_buffer = &usb_dpram->epx_data[0 * 64],
                 },
                 {
                         .descriptor = &ep2_out,
                         .handler = &ep2_out_handler,
-                        // EP1 starts at offset 0 for endpoint control
                         .endpoint_control = &usb_dpram->ep_ctrl[1].out,
                         .buffer_control = &usb_dpram->ep_buf_ctrl[2].out,
-                        // First free EPX buffer
                         .data_buffer = &usb_dpram->epx_data[1 * 64],
                 },
                 {
                         .descriptor = &ep3_out,
                         .handler = &ep3_out_handler,
-                        // EP1 starts at offset 0 for endpoint control
                         .endpoint_control = &usb_dpram->ep_ctrl[2].out,
                         .buffer_control = &usb_dpram->ep_buf_ctrl[3].out,
-                        // First free EPX buffer
                         .data_buffer = &usb_dpram->epx_data[2 * 64],
                 },
                 {
                         .descriptor = &ep4_out,
                         .handler = &ep4_out_handler,
-                        // EP1 starts at offset 0 for endpoint control
                         .endpoint_control = &usb_dpram->ep_ctrl[3].out,
                         .buffer_control = &usb_dpram->ep_buf_ctrl[4].out,
-                        // First free EPX buffer
                         .data_buffer = &usb_dpram->epx_data[3 * 64],
                 },
+                {
+                        .descriptor = &ep5_out,
+                        .handler = &ep5_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[4].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[5].out,
+                        .data_buffer = &usb_dpram->epx_data[4 * 64],
+                },
+                {
+                        .descriptor = &ep6_out,
+                        .handler = &ep6_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[5].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[6].out,
+                        .data_buffer = &usb_dpram->epx_data[5 * 64],
+                },
+                {
+                        .descriptor = &ep7_out,
+                        .handler = &ep7_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[6].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[7].out,
+                        .data_buffer = &usb_dpram->epx_data[6 * 64],
+                },
+                {
+                        .descriptor = &ep8_out,
+                        .handler = &ep8_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[7].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[8].out,
+                        .data_buffer = &usb_dpram->epx_data[7 * 64],
+                },
+                {
+                        .descriptor = &ep9_out,
+                        .handler = &ep9_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[8].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[9].out,
+                        .data_buffer = &usb_dpram->epx_data[8 * 64],
+                },
+                {
+                        .descriptor = &ep10_out,
+                        .handler = &ep10_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[9].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[10].out,
+                        .data_buffer = &usb_dpram->epx_data[9 * 64],
+                },
+                {
+                        .descriptor = &ep11_out,
+                        .handler = &ep11_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[10].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[11].out,
+                        .data_buffer = &usb_dpram->epx_data[10 * 64],
+                },
+                {
+                        .descriptor = &ep12_out,
+                        .handler = &ep12_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[11].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[12].out,
+                        .data_buffer = &usb_dpram->epx_data[11 * 64],
+                },
+                {
+                        .descriptor = &ep13_out,
+                        .handler = &ep13_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[12].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[13].out,
+                        .data_buffer = &usb_dpram->epx_data[12 * 64],
+                },
+                {
+                        .descriptor = &ep14_out,
+                        .handler = &ep14_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[13].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[14].out,
+                        .data_buffer = &usb_dpram->epx_data[13 * 64],
+                },
+                {
+                        .descriptor = &ep15_out,
+                        .handler = &ep15_out_handler,
+                        .endpoint_control = &usb_dpram->ep_ctrl[14].out,
+                        .buffer_control = &usb_dpram->ep_buf_ctrl[15].out,
+                        .data_buffer = &usb_dpram->epx_data[14 * 64],
+                }
         }
 };
 
@@ -130,7 +201,7 @@ static struct usb_device_configuration dev_config = {
  */
 struct usb_endpoint_configuration *usb_get_endpoint_configuration(uint8_t addr) {
     struct usb_endpoint_configuration *endpoints = dev_config.endpoints;
-    for (int i = 0; i < USB_NUM_ENDPOINTS; i++) {
+    for (int i = 0; i < USB_NUM_ENDPOINTS_NEW; i++) {
         if (endpoints[i].descriptor && (endpoints[i].descriptor->bEndpointAddress == addr)) {
             return &endpoints[i];
         }
@@ -180,8 +251,6 @@ static inline uint32_t usb_buffer_offset(volatile uint8_t *buf) {
  * @param ep
  */
 void usb_setup_endpoint(const struct usb_endpoint_configuration *ep) {
-    printf("Set up endpoint 0x%x with buffer address 0x%p\n", ep->descriptor->bEndpointAddress, ep->data_buffer);
-
     // EP0 doesn't have one so return if that is the case
     if (!ep->endpoint_control) {
         return;
@@ -202,7 +271,7 @@ void usb_setup_endpoint(const struct usb_endpoint_configuration *ep) {
  */
 void usb_setup_endpoints() {
     const struct usb_endpoint_configuration *endpoints = dev_config.endpoints;
-    for (int i = 0; i < USB_NUM_ENDPOINTS; i++) {
+    for (int i = 0; i < USB_NUM_ENDPOINTS_NEW; i++) {
         if (endpoints[i].descriptor && endpoints[i].handler) {
             usb_setup_endpoint(&endpoints[i]);
         }
@@ -274,8 +343,6 @@ void usb_start_transfer(struct usb_endpoint_configuration *ep, uint8_t *buf, uin
     // For multi packet transfers see the tinyusb port.
     assert(len <= 64);
 
-    printf("Start transfer of len %d on ep addr 0x%x\n", len, ep->descriptor->bEndpointAddress);
-
     // Prepare buffer control register value
     uint32_t val = len | USB_BUF_CTRL_AVAIL;
 
@@ -326,7 +393,7 @@ void usb_handle_config_descriptor(volatile struct usb_setup_packet *pkt) {
         const struct usb_endpoint_configuration *ep = dev_config.endpoints;
 
         // Copy all the endpoint descriptors starting from EP1
-        for (uint i = 2; i < USB_NUM_ENDPOINTS; i++) {
+        for (uint i = 2; i < USB_NUM_ENDPOINTS_NEW; i++) {
             if (ep[i].descriptor) {
                 memcpy((void *) buf, ep[i].descriptor, sizeof(struct usb_endpoint_descriptor));
                 buf += sizeof(struct usb_endpoint_descriptor);
@@ -391,7 +458,6 @@ void usb_set_device_address(volatile struct usb_setup_packet *pkt) {
     // Set address is a bit of a strange case because we have to send a 0 length status packet first with
     // address 0
     dev_addr = (pkt->wValue & 0xff);
-    printf("Set address %d\r\n", dev_addr);
     // Will set address in the callback phase
     should_set_address = true;
     usb_acknowledge_out_request();
@@ -405,7 +471,6 @@ void usb_set_device_address(volatile struct usb_setup_packet *pkt) {
  */
 void usb_set_device_configuration(volatile struct usb_setup_packet *pkt) {
     // Only one configuration so just acknowledge the request
-    printf("Device Enumerated\r\n");
     usb_acknowledge_out_request();
     configured = true;
 }
@@ -429,7 +494,6 @@ void usb_handle_setup_packet(void) {
             usb_set_device_configuration(pkt);
         } else {
             usb_acknowledge_out_request();
-            printf("Other OUT request (0x%x)\r\n", pkt->bRequest);
         }
     } else if (req_direction == USB_DIR_IN) {
         if (req == USB_REQUEST_GET_DESCRIPTOR) {
@@ -438,24 +502,22 @@ void usb_handle_setup_packet(void) {
             switch (descriptor_type) {
                 case USB_DT_DEVICE:
                     usb_handle_device_descriptor(pkt);
-                    printf("GET DEVICE DESCRIPTOR\r\n");
                     break;
 
                 case USB_DT_CONFIG:
                     usb_handle_config_descriptor(pkt);
-                    printf("GET CONFIG DESCRIPTOR\r\n");
                     break;
 
                 case USB_DT_STRING:
                     usb_handle_string_descriptor(pkt);
-                    printf("GET STRING DESCRIPTOR\r\n");
                     break;
 
                 default:
-                    printf("Unhandled GET_DESCRIPTOR type 0x%x\r\n", descriptor_type);
+                    // Do nothing
+                    break;
             }
         } else {
-            printf("Other IN request (0x%x)\r\n", pkt->bRequest);
+            // Do nothing
         }
     }
 }
@@ -483,8 +545,7 @@ static void usb_handle_ep_buff_done(struct usb_endpoint_configuration *ep) {
  */
 static void usb_handle_buff_done(uint ep_num, bool in) {
     uint8_t ep_addr = ep_num | (in ? USB_DIR_IN : 0);
-    printf("EP %d (in = %d) done\n", ep_num, in);
-    for (uint i = 0; i < USB_NUM_ENDPOINTS; i++) {
+    for (uint i = 0; i < USB_NUM_ENDPOINTS_NEW; i++) {
         struct usb_endpoint_configuration *ep = &dev_config.endpoints[i];
         if (ep->descriptor && ep->handler) {
             if (ep->descriptor->bEndpointAddress == ep_addr) {
@@ -505,7 +566,7 @@ static void usb_handle_buff_status() {
     uint32_t remaining_buffers = buffers;
 
     uint bit = 1u;
-    for (uint i = 0; remaining_buffers && i < USB_NUM_ENDPOINTS * 2; i++) {
+    for (uint i = 0; remaining_buffers && i < USB_NUM_ENDPOINTS_NEW * 2; i++) {
         if (remaining_buffers & bit) {
             // clear this in advance
             usb_hw_clear->buf_status = bit;
@@ -543,7 +604,6 @@ void isr_usbctrl(void) {
 
     // Bus is reset
     if (status & USB_INTS_BUS_RESET_BITS) {
-        printf("BUS RESET\n");
         handled |= USB_INTS_BUS_RESET_BITS;
         usb_hw_clear->sie_status = USB_SIE_STATUS_BUS_RESET_BITS;
         usb_bus_reset();
@@ -579,27 +639,76 @@ void ep0_out_handler(uint8_t *buf, uint16_t len) {
 
 // Device specific functions
 void ep1_out_handler(uint8_t *buf, uint16_t len) {
-    printf("RX %d bytes from host\n", len);
-    // Send data back to host
-    struct usb_endpoint_configuration *ep = usb_get_endpoint_configuration(EP2_IN_ADDR);
-    usb_start_transfer(ep, buf, len);
+    usb_start_transfer(usb_get_endpoint_configuration(EP1_OUT_ADDR), (void *) ep0_buf, 64);
 }
 
-void ep2_in_handler(uint8_t *buf, uint16_t len) {
-    printf("Sent %d bytes to host\n", len);
-    // Get ready to rx again from host
-    usb_start_transfer(usb_get_endpoint_configuration(EP1_OUT_ADDR), NULL, 64);
+void ep2_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP2_OUT_ADDR), (void *) ep0_buf, 64);
 }
 
-void serial_usb_isr() {
-    // Do nothing
+void ep3_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP3_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep4_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP4_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep5_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP5_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep6_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP6_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep7_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP7_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep8_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP8_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep9_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP9_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep10_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP10_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep11_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP11_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep12_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP12_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep13_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP13_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep14_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP14_OUT_ADDR), (void *) ep0_buf, 64);
+}
+
+void ep15_out_handler(uint8_t *buf, uint16_t len) {
+    usb_start_transfer(usb_get_endpoint_configuration(EP15_OUT_ADDR), (void *) ep0_buf, 64);
 }
 
 // TODO: Finish
-void serial_usb_start(serial_usb_callback callback, int dma_chan) {
-    stdio_init_all();
-    printf("USB Device Low-Level hardware example\n");
+void serial_usb_isr() {
+
+}
+
+// TODO: Finish
+void serial_usb_start(serial_usb_callback callback, int dma_chan_num) {
     usb_device_init();
+
+    func = callback;
+    dma_chan = dma_chan_num;
 
     // Wait until configured
     while (!configured) {
@@ -607,26 +716,19 @@ void serial_usb_start(serial_usb_callback callback, int dma_chan) {
     }
 
     // Get ready to rx from host
-    usb_start_transfer(usb_get_endpoint_configuration(EP1_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP2_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP3_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP4_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP5_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP6_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP7_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP8_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP9_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP10_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP11_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP12_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP13_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP14_OUT_ADDR), NULL, 64);
-    usb_start_transfer(usb_get_endpoint_configuration(EP15_OUT_ADDR), NULL, 64);
-
-    // Everything is interrupt driven so just loop here
-    while (1) {
-        tight_loop_contents();
-    }
-
-    return 0;
+    usb_start_transfer(usb_get_endpoint_configuration(EP1_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP2_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP3_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP4_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP5_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP6_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP7_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP8_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP9_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP10_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP11_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP12_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP13_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP14_OUT_ADDR), (void *) ep0_buf, 64);
+    usb_start_transfer(usb_get_endpoint_configuration(EP15_OUT_ADDR), (void *) ep0_buf, 64);
 }

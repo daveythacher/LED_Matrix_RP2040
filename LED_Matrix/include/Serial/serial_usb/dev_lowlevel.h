@@ -26,6 +26,8 @@ struct usb_endpoint_configuration {
     uint8_t next_pid;
 };
 
+#define USB_NUM_ENDPOINTS_NEW   17
+
 // Struct in which we keep the device configuration
 struct usb_device_configuration {
     const struct usb_device_descriptor *device_descriptor;
@@ -34,7 +36,7 @@ struct usb_device_configuration {
     const unsigned char *lang_descriptor;
     const unsigned char **descriptor_strings;
     // USB num endpoints is 16
-    struct usb_endpoint_configuration endpoints[USB_NUM_ENDPOINTS];
+    struct usb_endpoint_configuration endpoints[USB_NUM_ENDPOINTS_NEW];
 };
 
 #define EP0_IN_ADDR  (USB_DIR_IN  | 0)
