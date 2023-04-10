@@ -11,7 +11,7 @@ Bulk endpoints are blocking and there are two blocking points within the impleme
 
 The first is within the bulk endpoints. The entire frame is divided up into up to 15 bulk endpoints.
 The number of endpoints used required depends on the number of 64 byte chunks of the frame size. The frame size should be an even multiple of 64 and the number of endpoints used. (Not currently implemented correctly.)
-All endpoints wait for a packet to arrive before DMA copies them to the RGB buffer. (Note the RGB buffer hand allocation is not done in parallel to the USB RX process.)
+All endpoints wait for a packet to arrive before DMA copies them to the RGB buffer. (Note the RGB buffer allocation is not done in parallel to the USB RX process.)
 
 
 The second blocking point is within the serial implementation which handles the RGB buffer allocation. All buffers must be requested before hand. (Note this is currently implemented as individual stream rather than a bulk operation as it should be.)
