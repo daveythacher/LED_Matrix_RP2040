@@ -25,3 +25,6 @@ The highest priority should go to the matrix algorithm. The next highest should 
 
 ## Core reservations
 This follows the same design as the one outlined in the top level documentation. A sample of implementing this Serial implementation is in LED_Matrix/src/usb.
+
+## Known issues
+Any prime number of 64 byte chunks do not use endpoints correctly. For example 17 chunks will select to use one endpoint rather than two rounds of 9 endpoints or 15 endpoints. This bug exists out of laziness. This however is not expected to be common. A 16x32 LED Matrix requires 24 chunks. A 32x32 needs 48 and a 64x128 requires 384. These are all even and all multiples of 12. Therefore the current implementation will never use all 15 endpoints.
