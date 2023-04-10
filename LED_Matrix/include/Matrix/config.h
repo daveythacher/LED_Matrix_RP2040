@@ -25,8 +25,9 @@
     
     typedef uint8_t test[2 * MULTIPLEX][COLUMNS][3];
     
-    typedef struct {
+    typedef union {
         test data;
+        uint8_t mem[((sizeof(test) / 64) + 1) * 64];
     } packet;
 
 #endif

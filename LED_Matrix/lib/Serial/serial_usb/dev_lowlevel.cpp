@@ -724,7 +724,7 @@ void ep15_out_handler(uint8_t *buf, uint16_t len) {
 }
 
 static void kickoff() {
-    for (int i = 0; i < serial_get_chan_count(); i++) {
+    for (uint32_t i = 0; i < serial_get_chan_count(); i++) {
         usb_start_transfer(usb_get_endpoint_configuration(USB_DIR_OUT + i), ep0_buf, 64);
     }
 }

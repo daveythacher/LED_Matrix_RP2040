@@ -37,12 +37,29 @@ void serial_task() {
 #endif
 }
 
-// TODO: Finish
+static constexpr uint32_t serial_chan_count = std::min(sizeof(packet) / 64, (unsigned int) 15);
+
 static void __not_in_flash_func(callback)(uint8_t **buf, uint16_t *len, uint8_t num) {
-    // TODO: Replace this to use num
-    *buf = (uint8_t *) &buffers[(buffer + 1) % 2];
-    *len = sizeof(packet);
-    buffer = (buffer + 1) % 2;
+    const uint32_t count = sizeof(packet) / (serial_chan_count * 64);
+    static uint32_t counters[serial_chan_count] = { count };
+    static uint32_t counter = count * serial_chan_count;
+    num %= serial_chan_count;
+
+    if (counters[num] == 0) 
+        while (1);
+    else
+        counter--;
+
+    *buf = (uint8_t *) &buffers[(buffer + 1) % 2].mem[(count - counters[num]) * serial_chan_count];
+    *len = 64;
+    counters[num]--;
+
+    if (counter == 0) {
+        buffer = (buffer + 1) % 2;
+        for (uint8_t i = 0; i < serial_chan_count; i++)             // Terrible Design!?
+            counters[i] = count;
+        counter = count * serial_chan_count;
+    }
 }
 
 void __not_in_flash_func(serial_dma_isr)() {
@@ -57,8 +74,6 @@ void serial_start() {
     serial_usb_start(&callback, serial_dma_chan[0], serial_dma_chan[1]); 
 }
 
-// TODO: Finish
-uint8_t serial_get_chan_count() {
-    return 3;   // Cannot exceed 15!!!
+uint32_t serial_get_chan_count() {
+    return serial_chan_count;
 }
-
