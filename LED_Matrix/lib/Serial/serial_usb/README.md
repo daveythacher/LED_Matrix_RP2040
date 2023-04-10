@@ -1,6 +1,10 @@
 # USB Documentation
-This implements a blocking transfer of frames between USB host and RP2040. The frame rate is not known however smaller displays should have better stability. The USB host is supposed to implement async logic to keep frame rate as desired. 
+This implements a blocking transfer of frames between USB host and RP2040. The frame rate is not known however smaller displays should have better stability. The USB host is supposed to implement async logic to keep frame rate as desired.
 
+## Status
+Experimental and work in progress. Not finished.
+
+## Overview
 The current logic does not use USB double buffer which could improve the latency.
 Currently Core 0 is used for USB logic however the matrix algorithms have higher priority access over the USB. DMA is used but currently has small contribution without double buffering. If double buffering was used the DMA would allow ping pong and the CPU could work in the background. However currently this is mostly a serial operation.
 
@@ -15,3 +19,9 @@ The second blocking point is within the serial implementation which handles the 
 ## USB hubs
 The RP2040 is USB full speed if using multiple RP2040s on a single USB hub it is recommended to use one which is capable of providing non-blocking USB full speed. 
 These require special modules on the down stream ports rather than up stream port.
+
+## Interrupts
+The highest priority should go to the matrix algorithm. The next highest should be the USB DMA. Finally the USB controller interrupts at the lowest priority. Again this is a blocking systems so this should not cause to many issues.
+
+## Core reservations
+This follows the same design as the one outlined in the top level documentation. A sample of implementing this Serial implementation is in LED_Matrix/src/usb.
