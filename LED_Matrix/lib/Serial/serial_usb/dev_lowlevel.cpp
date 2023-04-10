@@ -650,7 +650,7 @@ static void my_handler(uint8_t num) {
     state |= 1 << (num - 1);
 
     if (state == limit) {
-        // TODO: Make sure DMA has finished!
+        // TODO: Make sure DMA has finished! (Not sure this would ever happen...)
         //  We will be preempted by the ISR
         // TODO: Trigger DMA
 

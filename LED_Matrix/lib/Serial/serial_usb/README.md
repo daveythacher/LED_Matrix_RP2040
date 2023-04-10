@@ -26,3 +26,6 @@ This follows the same design as the one outlined in the top level documentation.
 
 ## Endpoint allocation
 The endpoint allocation attempts to use a many endpoints as possible. For example if transfering 18 chunks there will be two rounds one with 15 endpoints and one with three endpoints. The lower numbered end points are used first.
+
+## Known issue
+Currently is based on 2D transfer which in this case is kind of pointless really. So this needs to be switched to 1D transfer. This may reduce the odds of the CPU blocking ping-pong performance.
