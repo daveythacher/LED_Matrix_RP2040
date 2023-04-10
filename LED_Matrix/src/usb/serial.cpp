@@ -56,7 +56,7 @@ static void __not_in_flash_func(callback)(uint8_t **buf, uint16_t *len, uint8_t 
 
     if (counter == 0) {
         buffer = (buffer + 1) % 2;
-        for (uint8_t i = 0; i < serial_chan_count; i++)             // Terrible Design!?
+        for (uint32_t i = 0; i < serial_chan_count; i++)
             counters[i] = count;
         counter = count * serial_chan_count;
     }
