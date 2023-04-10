@@ -37,55 +37,23 @@ void serial_task() {
 #endif
 }
 
-static constexpr uint32_t gcf(uint32_t x, uint32_t y) {
-    uint32_t temp = y;
-
-    while (y != 0) {
-        temp = y;
-        y = x % y;
-        x = temp;
-    }
-
-    return x;
-}
-
-static constexpr uint32_t compute_chan_count() {
-    uint32_t result = 1;
-
-    for (uint32_t i = 15; i > 0; i--) {
-        uint32_t temp = gcf(sizeof(packet) / 64, (unsigned int) i);
-
-        if (temp > result)
-            result = temp;
-    }
-
-    return result;
-}
-
-// Use the compiler to find the answer
-static constexpr uint32_t serial_chan_count = compute_chan_count();
-
 // Not thread safe, reentrant, etc.
 static void __not_in_flash_func(callback)(uint8_t **buf, uint16_t *len, uint8_t num) {
-    const uint32_t count = sizeof(packet) / (serial_chan_count * 64);
-    static uint32_t counters[serial_chan_count] = { count };
-    static uint32_t counter = count * serial_chan_count;
-    num %= serial_chan_count;
+    static uint32_t count = serial_get_chunk_count();
+    static uint32_t line = 0;
+    num %= serial_get_chan_count();
 
-    if (counters[num] == 0) 
-        while (1);
-    else
-        counter--;
-
-    *buf = (uint8_t *) &buffers[(buffer + 1) % 2].mem[(count - counters[num]) * serial_chan_count];
+    *buf = (uint8_t *) &buffers[(buffer + 1) % 2].mem[(line * serial_get_chan_count()) + num];
     *len = 64;
-    counters[num]--;
 
-    if (counter == 0) {
+    if (num == serial_get_chan_count())     // This will always be called in order
+        ++line;
+
+    if (--count == 0) {
         buffer = (buffer + 1) % 2;
-        for (uint32_t i = 0; i < serial_chan_count; i++)
-            counters[i] = count;
-        counter = count * serial_chan_count;
+        process((void *) &buffers[(buffer + 1) % 2]);
+        count = serial_get_chunk_count();
+        line = 0;
     }
 }
 
@@ -102,5 +70,9 @@ void serial_start() {
 }
 
 uint32_t serial_get_chan_count() {
-    return serial_chan_count;
+    return std::min(sizeof(packet) / 64, (unsigned int) 15);
+}
+
+uint32_t serial_get_chunk_count() {
+    return sizeof(packet) / 64;
 }

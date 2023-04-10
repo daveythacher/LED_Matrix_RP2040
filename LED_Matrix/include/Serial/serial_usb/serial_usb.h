@@ -15,5 +15,6 @@
     void serial_usb_start(serial_usb_callback callback, int dma_chan0, int dma_chan1);
     void serial_usb_isr();
     uint32_t serial_get_chan_count();
+    uint32_t serial_get_chunk_count();
     
 #endif

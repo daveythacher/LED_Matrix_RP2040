@@ -10,11 +10,11 @@ Currently Core 0 is used for USB logic however the matrix algorithms have higher
 
 Currently the way this serial operation works is suboptimial for bulk endpoints. Bulk endpoints are used since the demo code adapted was bulk. Using proper USB hubs are believed to matter. Bulk endpoints are blocking and there are two blocking points within the implementation. 
 
-The first is within the bulk endpoints. The entire frame is divided up into up to 15 bulk endpoints.
-The number of endpoints used required depends on the number of 64 byte chunks of the frame size. The frame size should be an even multiple of 64 and the number of endpoints used. (The number of endpoints used is the greatest common factor possible of the nunmber of endpoints and number of 64 byte chunkks.) All endpoints wait for a packet to arrive before DMA copies them to the RGB buffer.
+The first is within the bulk endpoints. The entire frame is divided up into up to 15 bulk endpoints. The number of endpoints used required depends on the number of 64 byte chunks of the frame size. The frame size should be an even multiple of 64. All endpoints wait for a packet to arrive before DMA copies them to the RGB buffer.
 
+The second blocking point is within the serial implementation which handles the RGB buffer allocation. All buffer chunks must be requested before hand. Once the whole buffer has been loaded then the frame is swapped. 
 
-The second blocking point is within the serial implementation which handles the RGB buffer allocation. All buffers must be requested before hand. (Note this is currently implemented as individual stream rather than a bulk operation as it should be.) Once the whole buffer has been loaded then the frame is swapped. Currently there are lots of asnyc callbacks from the USB system for endpoints and interrupt. A single DMA interrupt is also used. (The event rate of these is fairly low however fair from ideal.)
+Currently there are lots of asnyc callbacks from the USB system for endpoints and interrupt. A single DMA interrupt is also used. (The event rate of these is fairly low however fair from ideal.)
 
 ## USB hubs
 The RP2040 is USB full speed if using multiple RP2040s on a single USB hub it is recommended to use one which is capable of providing non-blocking USB full speed. 
@@ -25,6 +25,3 @@ The highest priority should go to the matrix algorithm. The next highest should 
 
 ## Core reservations
 This follows the same design as the one outlined in the top level documentation. A sample of implementing this Serial implementation is in LED_Matrix/src/usb.
-
-## Known issues
-Any prime number of 64 byte chunks do not use endpoints correctly. For example 17 chunks will select to use one endpoint rather than two rounds of 9 endpoints or 15 endpoints. This bug exists out of laziness. This however is not expected to be common. A 16x32 LED Matrix requires 24 chunks. A 32x32 needs 48 and a 64x128 requires 384. These are all even and all multiples of 12. Therefore the current implementation will never use all 15 endpoints.

@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <algorithm>
 
 // For memcpy
 #include <string.h>
@@ -638,27 +639,26 @@ void ep0_out_handler(uint8_t *buf, uint16_t len) {
     ;
 }
 
+static uint32_t limit = 1;
 
 // We block on late packets, which is not ideal. (Low bandwidth and high latency)
 //  To get around this the host application will drop frame(s), if desired/required.
 static void my_handler(uint8_t num) {
     static uint32_t state = 0;
-    static const uint32_t limit = (1 << serial_get_chan_count()) - 1;
 
     num %= 15;
     state |= 1 << (num - 1);
 
     if (state == limit) {
         // TODO: Make sure DMA has finished!
-        // TODO: DMA
-        //  Use serial_get_chan_count
+        // TODO: Trigger DMA
 
         state = 0;
     }
 
 }
 
-// Device specific functions
+// These can arrive in any order
 void ep1_out_handler(uint8_t *buf, uint16_t len) {
     my_handler(1);
 }
@@ -720,28 +720,38 @@ void ep15_out_handler(uint8_t *buf, uint16_t len) {
 }
 
 static void kickoff() {
+    static uint32_t counter = serial_get_chunk_count();
+    uint32_t count = std::min(counter, serial_get_chan_count());
     uint8_t *ptr;
     uint16_t len;
 
     table = (table + 1) % 2;    // We do not actually use double buffer
+    limit = (1 << count) - 1;
 
-    for (uint32_t i = 0; i < serial_get_chan_count(); i++)
+    for (uint32_t i = 0; i < count; i++)
         usb_start_transfer(usb_get_endpoint_configuration(USB_DIR_OUT + i), ep0_buf, 64);   // We do not actually use ep0_buf here!
 
     // Do not wait till USB finishes to do this!
-    for (uint32_t i = 0; i < serial_get_chan_count(); i++) {    // TODO: Consider fixing this to no use loop (parallel load)
+    for (uint32_t i = 0; i < count; i++) {    // TODO: Consider fixing this to no use loop (parallel load)
         func(&ptr, &len, i);
         address_table[table][i].len = len;
         address_table[table][i].dst = ptr;
         address_table[table][i].src = &usb_dpram->epx_data[i * 64];
     }
+
+    address_table[table][count].len = 0;
+    address_table[table][count].src = 0;
+    address_table[table][count].dst = 0;
+
+    counter -= count;
+    if (counter == 0)
+        counter = serial_get_chunk_count();
 }
 
 // TODO: Finish
 void serial_usb_isr() {
      if (dma_channel_get_irq1_status(dma_chan[0])) {
         // TODO:
-        //  Use serial_get_chan_count
 
         kickoff();
      }
@@ -761,7 +771,6 @@ void serial_usb_start(serial_usb_callback callback, int dma_chan_num0, int dma_c
     }
 
     // TODO: Prepare DMA
-    //  Use serial_get_chan_count
 
     // Get ready to rx from host
     kickoff();
