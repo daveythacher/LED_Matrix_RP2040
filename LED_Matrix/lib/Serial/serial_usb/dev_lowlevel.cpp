@@ -55,7 +55,8 @@ static volatile bool configured = false;
 
 static serial_usb_callback func;
 static int dma_chan[2];
-static struct {uint32_t len; uint8_t *src; uint8_t *dst;} address_table[15 + 1]; // TODO: Fix this
+static struct {uint32_t len; uint8_t *src; uint8_t *dst;} address_table[2][15 + 1]; // TODO: Fix this
+static uint8_t table = 0;
 
 // Global data buffer for EP0
 static uint8_t ep0_buf[64];
@@ -640,17 +641,12 @@ void ep0_out_handler(uint8_t *buf, uint16_t len) {
 
 // We block on late packets, which is not ideal. (Low bandwidth and high latency)
 //  To get around this the host application will drop frame(s), if desired/required.
-static void my_handler(uint8_t *buf, uint16_t len, uint8_t num) {
+static void my_handler(uint8_t num) {
     static uint32_t state = 0;
     static const uint32_t limit = (1 << serial_get_chan_count()) - 1;
-    uint8_t *ptr;
 
     num %= 15;
     state |= 1 << (num - 1);
-    func(&ptr, &len, num);
-    address_table[num].len = len;
-    address_table[num].dst = ptr;
-    address_table[num].src = buf;
 
     if (state == limit) {
         // TODO: Make sure DMA has finished!
@@ -664,68 +660,80 @@ static void my_handler(uint8_t *buf, uint16_t len, uint8_t num) {
 
 // Device specific functions
 void ep1_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 1);
+    my_handler(1);
 }
 
 void ep2_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 2);
+    my_handler(2);
 }
 
 void ep3_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 3);
+    my_handler(3);
 }
 
 void ep4_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 4);
+    my_handler(4);
 }
 
 void ep5_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 5);
+    my_handler(5);
 }
 
 void ep6_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 6);
+    my_handler(6);
 }
 
 void ep7_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 7);
+    my_handler(7);
 }
 
 void ep8_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 8);
+    my_handler(8);
 }
 
 void ep9_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 9);
+    my_handler(9);
 }
 
 void ep10_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 10);
+    my_handler(10);
 }
 
 void ep11_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 11);
+    my_handler(11);
 }
 
 void ep12_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 12);
+    my_handler(12);
 }
 
 void ep13_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 13);
+    my_handler(13);
 }
 
 void ep14_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 14);
+    my_handler(14);
 }
 
 void ep15_out_handler(uint8_t *buf, uint16_t len) {
-    my_handler(buf, len, 15);
+    my_handler(15);
 }
 
 static void kickoff() {
-    for (uint32_t i = 0; i < serial_get_chan_count(); i++) {
-        usb_start_transfer(usb_get_endpoint_configuration(USB_DIR_OUT + i), ep0_buf, 64);
+    uint8_t *ptr;
+    uint16_t len;
+
+    table = (table + 1) % 2;    // We do not actually use double buffer
+
+    for (uint32_t i = 0; i < serial_get_chan_count(); i++)
+        usb_start_transfer(usb_get_endpoint_configuration(USB_DIR_OUT + i), ep0_buf, 64);   // We do not actually use ep0_buf here!
+
+    // Do not wait till USB finishes to do this!
+    for (uint32_t i = 0; i < serial_get_chan_count(); i++) {    // TODO: Consider fixing this to no use loop (parallel load)
+        func(&ptr, &len, i);
+        address_table[table][i].len = len;
+        address_table[table][i].dst = ptr;
+        address_table[table][i].src = &usb_dpram->epx_data[i * 64];
     }
 }
 

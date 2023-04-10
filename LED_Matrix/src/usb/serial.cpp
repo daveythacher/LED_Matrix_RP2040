@@ -37,7 +37,33 @@ void serial_task() {
 #endif
 }
 
-static constexpr uint32_t serial_chan_count = std::min(sizeof(packet) / 64, (unsigned int) 15);
+static constexpr uint32_t gcf(uint32_t x, uint32_t y) {
+    uint32_t temp = y;
+
+    while (y != 0) {
+        temp = y;
+        y = x % y;
+        x = temp;
+    }
+
+    return x;
+}
+
+static constexpr uint32_t compute_chan_count() {
+    uint32_t result = 1;
+
+    for (uint32_t i = 15; i > 0; i--) {
+        uint32_t temp = gcf(sizeof(packet) / 64, (unsigned int) i);
+
+        if (temp > result)
+            result = temp;
+    }
+
+    return result;
+}
+
+// Use the compiler to find the answer
+static constexpr uint32_t serial_chan_count = compute_chan_count();
 
 // Not thread safe, reentrant, etc.
 static void __not_in_flash_func(callback)(uint8_t **buf, uint16_t *len, uint8_t num) {
