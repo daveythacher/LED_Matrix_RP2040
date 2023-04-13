@@ -55,9 +55,9 @@ Serial protocol interrupts are the highest priority. Next is multiplexing interr
 
 ## Status
 ### lib/Matrix:
-BCM - not fully tested, working
+BCM - was working, needs testing, not finished
 
-PWM - not fully tested, working
+PWM - needs testing, not finished
 
 ON_OFF - not tested
 
@@ -66,9 +66,9 @@ TLC5946 - experimental
 TLC5958 - experimental
 
 ### lib/Multiplex:
-Decoder - working
+Decoder - needs testing
 
-Direct - working
+Direct - needs testing
 
 ### lib/Serial:
 serial_pmp - experimental
