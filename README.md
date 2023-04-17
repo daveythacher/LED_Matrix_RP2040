@@ -48,4 +48,4 @@ For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks 
 ```
 
 ## Application Information
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/Application_Infomation.md) for more details.
+See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/Application_Infomation.md) for more details about color depth, size, refresh rate, gamma, color temperature, dot correction, etc.
