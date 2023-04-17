@@ -78,21 +78,18 @@ void matrix_start() {
         } while (counter2-- > 0);
         IRQ = 1;                                    // Call CPU at end of frame
     }*/
-    
-    // PIO
+ 
+     // PIO
     const uint16_t instructions[] = {
         (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),   // PIO SM
-        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_out(pio_null, 24) | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_out(pio_null, 24) | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_mov(pio_y, pio_osr) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_out(pio_x, 8) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_out(pio_y, 8) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_out(pio_pins, 6) | pio_encode_sideset(2, 0)),    // PMP Program
-        (uint16_t) (pio_encode_jmp_y_dec(6) | pio_encode_sideset(2, 1)),
+        (uint16_t) (pio_encode_jmp_y_dec(3) | pio_encode_sideset(2, 1)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
         (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
-        (uint16_t) (pio_encode_jmp_x_dec(3) | pio_encode_sideset(2, 0)),
+        (uint16_t) (pio_encode_jmp_x_dec(2) | pio_encode_sideset(2, 0)),
         (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(2, 0))
     };
     static const struct pio_program pio_programs = {
