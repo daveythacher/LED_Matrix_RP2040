@@ -29,6 +29,8 @@ This folder for different applications. These pick a serial algorithm. CMake sti
 
 This is kind of pain, but this is a microcontroller. I did not want to lose memory or make this really painful to manage. Parallel development should be possible.
 
+Note this was updated to use CMake to manage this as logic was designed to be library module. (This may make things a little confusing but maybe not.)
+
 ## Benchmark
 May be worth correcting jitter using non-stripped RAM. However, this is not believed to be required. DMA to PIO latency would be more critical than jitter or computation latency, but I am not sure there is a significant issue. Manually mapping this will likely increase complexity and reduce available RAM.
 
