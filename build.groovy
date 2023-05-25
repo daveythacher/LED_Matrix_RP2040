@@ -38,9 +38,10 @@ def build_flavor(Map c) {
     }
 }
 
-def build_linux() {
+def build_linux(run) {
+    String script = "./LED_Matrix/build/build.sh"
     new File("./LED_Matrix/build/").mkdirs()
-    File f = new File("./LED_Matrix/build/build.sh")
+    File f = new File(script)
     f.text = ""
     f << "#!/bin/bash\n"
     f << "cd ./LED_Matrix\n"
@@ -56,14 +57,19 @@ def build_linux() {
     f << "else\n"
     f << "\texit 1\n"
     f << "fi\n"
-    "chmod +x ./LED_Matrix/build/build.sh".execute().waitFor()
-    print "Please run:\n"
-    print "./LED_Matrix/build/build.sh\n"
+    ("chmod +x " + script).execute().waitFor()
+
+    if (run)
+        println script.execute().text
+    else {
+        print "Please run:\n"
+        println script
+    }
 }
 
-def build() {
+def build(run) {
     if (SystemUtils.IS_OS_LINUX)
-        return build_linux()
+        return build_linux(run)
     else
         return "Unsupported Build Platform\n"
 }
@@ -72,11 +78,12 @@ def cli = new CliBuilder(usage: 'build.groovy [-h] -c <cfg.xml>')
 cli.with { 
     h longOpt: 'help', 'Show usage information' 
     c longOpt: 'config', args:1, argName: 'cfg.xml', required: true, 'XML build configuration file'
+    r longOpt: 'run', 'Execute the script'
 }
 def options = cli.parse(args)
 if (!options) return
 if (options.h) cli.usage()
 
 new XmlSlurper().parse(new File(options.c)).build.each { build_flavor(it.attributes()) }
-build()
+build(options.r)
 
