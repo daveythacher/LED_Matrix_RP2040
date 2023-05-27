@@ -14,5 +14,6 @@
     
     void serial_uart_start(serial_uart_callback callback, int dma_chan);
     void serial_uart_isr();
+    void serial_uart_task();
     
 #endif

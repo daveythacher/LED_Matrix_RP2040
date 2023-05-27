@@ -15,7 +15,7 @@ static packet buffers[2];
 static volatile uint8_t buffer = 0;
 static int serial_dma_chan;
 
-void serial_task() {  
+static void __not_in_flash_func(test_driver)() {
 #ifndef TEST
     for (int x = 0; x < COLUMNS; x++) {
         for (int y = 0; y < (2 * MULTIPLEX); y++) {
@@ -35,6 +35,11 @@ void serial_task() {
     buffer = (buffer + 1) % 2;   
     process((void *) &buffers[(buffer + 1) % 2]);
 #endif
+}
+
+void __not_in_flash_func(serial_task)() {  
+    test_driver();
+    serial_uart_task();
 }
 
 static void __not_in_flash_func(callback)(uint8_t **buf, uint16_t *len) {

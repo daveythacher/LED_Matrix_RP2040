@@ -9,14 +9,16 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/uart.h"
+#include "hardware/timer.h"
 #include "Serial/serial_uart/serial_uart.h"
 #include "Matrix/matrix.h"
 
 static serial_uart_callback func;
 static int dma_chan;
 static dma_channel_config c;
+static volatile bool isIdle = true;
 
-static void serial_uart_reload();
+static void serial_uart_reload(bool reload_dma, bool process_msg);
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     #define ntohs(x) __bswap16(x)
@@ -24,8 +26,7 @@ static void serial_uart_reload();
     #define ntohs(x) ((uint16_t)(x))
 #endif
 
-void serial_uart_start(serial_uart_callback callback, int dma)
-{
+void serial_uart_start(serial_uart_callback callback, int dma) {
     func = callback;
     dma_chan = dma;
 
@@ -47,33 +48,58 @@ void serial_uart_start(serial_uart_callback callback, int dma)
     channel_config_set_dreq(&c, DREQ_UART0_RX);
     dma_channel_set_irq1_enabled(dma_chan, true);
 
-    serial_uart_reload();
+    serial_uart_reload(false, true);
 }
 
-void __not_in_flash_func(serial_uart_reload)()
-{
+void __not_in_flash_func(serial_uart_task)() {
+    static uint64_t time = time_us_64(); 
+
+    if (isIdle) {
+        // Clear Errors
+        uart0_hw->icr = 0x7FF;
+
+        // Send idle token
+        if ((time + 10) < time_us_64()) {
+            uart_putc(uart0, 'i');
+            time = time_us_64();
+        }
+
+        // Look for start_token
+        if (uart_getc(uart0) == 's') {
+            serial_uart_reload(true, false);
+            isIdle = false;
+        }
+
+    }
+}
+
+void __not_in_flash_func(serial_uart_reload)(bool reload_dma, bool process_msg) {
     static uint8_t *ptr = 0;
-    static uint8_t *buf;
+    static uint8_t *buf = 0;
     static uint16_t len = 0;
     uint16_t *p = (uint16_t *)buf;
+    
+    if (reload_dma)
+        dma_channel_configure(dma_chan, &c, buf, &uart_get_hw(uart0)->dr, len, true);
+    else if (process_msg) {
+        if (p != 0) {
+            for (uint16_t i = 0; i < len; i += 2)
+                p[i / 2] = ntohs(p[i / 2]);
+        }
 
-    for (uint16_t i = 0; i < len; i += 2)
-        p[i / 2] = ntohs(p[i / 2]);
+        func(&buf, &len);
 
-    func(&buf, &len);
-    dma_channel_configure(dma_chan, &c, buf, &uart_get_hw(uart0)->dr, len, true);
-
-    if (ptr)
-        process((void *)ptr);
-        
-    ptr = buf;
+        if (ptr)
+            process((void *)ptr);
+            
+        ptr = buf;
+    }
 }
 
-void __not_in_flash_func(serial_uart_isr)()
-{
-    if (dma_channel_get_irq1_status(dma_chan))
-    {
-        serial_uart_reload();
+void __not_in_flash_func(serial_uart_isr)() {
+    if (dma_channel_get_irq1_status(dma_chan)) {
+        serial_uart_reload(false, (uart0_hw->ris & 0x380) == 0);
+        isIdle = true;
         dma_hw->ints1 = 1 << dma_chan;
     }
 }
