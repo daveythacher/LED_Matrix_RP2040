@@ -39,9 +39,3 @@ This contains the implementations for the Serial algorithms. These are divided i
 
 ### Serial UART
 This is experimental work in progress serial algorithms for using UART, RS-232, RS-485, etc. in full duplex manner. Payloads are fixed in size no real error protocol exists. Little to no control header is used, this block style stream which uses sequential transfers rather than random operations to save computational resources.
-
-### Serial UART v2
-This is experimental work in progress serial algorithms for using UART, RS-232, RS-485, etc. in full duplex manner just like Serial UART. Payloads are fixed in size also, however it adds a small error recovery protocol via a latch/chip select line like what you would see in SPI. The idea is that if the stream ever gets into a bad state this can be detected quickly via interrupt. Note the data within stream is not verified only that the position of the stream in terms of byte count is correct. This is done to know the state of the stream at all times. Little to no control header is used, this block style stream which uses sequential transfers rather than random operations to save computational resources.
-
-### Serial USB
-This is experimental work in progress serial algorithm for use the RP2040's USB with multiple bulk endpoints. Payloads are fixed in size no real error protocol exists. Little to no control header is used, this block style stream which uses sequential transfers rather than random operations to save computational resources.

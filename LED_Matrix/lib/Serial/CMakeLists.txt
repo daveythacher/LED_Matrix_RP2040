@@ -1,3 +1,1 @@
 add_subdirectory(serial_uart)
-add_subdirectory(serial_uart_v2)
-add_subdirectory(serial_usb)
