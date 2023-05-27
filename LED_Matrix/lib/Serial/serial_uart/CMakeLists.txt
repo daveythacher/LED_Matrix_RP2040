@@ -28,6 +28,7 @@ target_link_libraries(serial_uart PRIVATE
     hardware_irq
     hardware_uart
     hardware_dma        # Cannot use full API!
+    hardware_timer
     hardware_resets
     hardware_clocks
 )
