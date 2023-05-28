@@ -24,6 +24,8 @@ DEFINE_BLUE_GAIN            1.0         "Gain for Blue LED (TLC5958 only)"
 apps = ""
 flags = ""
 
+// TODO: Create functions for each algorithm
+
 def build_flavor(Map c) {     
     if (c.enable == "true") {   
         if (apps == "")
@@ -31,6 +33,7 @@ def build_flavor(Map c) {
         else
             apps += sprintf(";%s", c.name)
             
+        // TODO: Replace with switch case
         if (c.matrix_algorithm == "TLC5958")
             flags += sprintf(" -D%s_APP=%s -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s -D%s_DEFINE_FPS=%s -D%s_DEFINE_RED_GAIN=%s -D%s_DEFINE_GREEN_GAIN=%s -D%s_DEFINE_BLUE_GAIN=%s", c.name, c.serial_algorithm, c.name, c.multiplex, c.name, c.multiplex_name, c.name, c.max_rgb_led_steps, c.name, c.max_refresh, c.name, c.columns, c.name, c.serial_clock, c.name, c.blank_time, c.name, c.matrix_algorithm, c.name, c.fps, c.name, c.red_gain, c.name, c.green_gain, c.name, c.blue_gain)
         else

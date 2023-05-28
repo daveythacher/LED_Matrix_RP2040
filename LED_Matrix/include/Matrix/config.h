@@ -8,6 +8,19 @@
 #define CONFIG_H    
     
     // -- DO NOT EDIT BELOW THIS LINE --
+
+    #ifndef DEFINE_FPS
+    #define DEFINE_FPS 30
+    #endif
+    #ifndef DEFINE_RED_GAIN
+    #define DEFINE_RED_GAIN 1
+    #endif
+    #ifndef DEFINE_GREEN_GAIN
+    #define DEFINE_GREEN_GAIN 1
+    #endif
+    #ifndef DEFINE_BLUE_GAIN
+    #define DEFINE_BLUE_GAIN 1
+    #endif
     
     constexpr int MULTIPLEX = DEFINE_MULTIPLEX;
     constexpr int MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Contrast Ratio - Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
