@@ -7,7 +7,7 @@
 #ifndef MEMORY_FORMAT_H
 #define MEMORY_FORMAT_H
     
-    typedef uint16_t test2[MULTIPLEX][COLUMNS][3];
+    typedef uint16_t test2[2 * MULTIPLEX][COLUMNS][3];
 
 #endif
 

@@ -29,6 +29,8 @@ static void start_clk(uint16_t counter, uint8_t cmd);
 static void start_gclk(uint8_t bits);
 static void send_cmd(uint8_t cmd);
 
+// TODO: Add support for other half of display
+
 void matrix_start() {
     // Init Matrix hardware
     // IO

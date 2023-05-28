@@ -31,6 +31,8 @@ static volatile bool isFinished[2] = { false, false };
 static void start_clk(uint16_t counter);
 static void start_gclk();
 
+// TODO: Add support for other half of display
+
 void matrix_start() {
     // Init Matrix hardware
     // IO
