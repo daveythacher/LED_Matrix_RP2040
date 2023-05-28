@@ -23,7 +23,7 @@
     #include <math.h>
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
     
-    typedef uint8_t test[2 * MULTIPLEX][COLUMNS][3];
+    typedef uint16_t test[2 * MULTIPLEX][COLUMNS][3];
     
     typedef union {
         test data;
