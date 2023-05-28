@@ -24,11 +24,14 @@ For Linux: (Will install dependencies and download code)
 ```
 
 ## Building
-For Linux:
-
+For Linux: (Using cucumber for configuration)
 ```bash
-groovy build.groovy -c cfg.xml
-./LED_Matrix/build/build.sh
+cucumber features/PoE.feature
+```
+
+For Linux: (Use manual configuration)
+```bash
+groovy build.groovy -c cfg.xml -r
 ```
 
 For generating doxygen documentation:
@@ -70,7 +73,7 @@ For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks 
 <cfg>
     <build name="TEST1" enable="true">
         <serial algorithm="uart">
-            <uart baud="4000000"/>
+            <uart baud="4000000" RGB_type="uint8_t"/>
         </serial>
         <matrix algorithm="TLC5958" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1">
             <TLC5958 fps="30" gclk="20" red_gain="0.247" green_gain="0.0998" blue_gain="0.063"/>

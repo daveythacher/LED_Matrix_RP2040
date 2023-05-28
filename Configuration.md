@@ -18,6 +18,9 @@ This is a string for the corresponding serial algorithm. Currently this is just 
 ### baud
 This is the baud rate used for the uart.
 
+### RGB_type
+This will change the number of bits per color used in the serial algorithm. Use either uint8_t or uint16_t only.
+
 ## fps
 This is the number of FPS desired by GEN 3 panels. This is used to verify the serial clock requirements.
 

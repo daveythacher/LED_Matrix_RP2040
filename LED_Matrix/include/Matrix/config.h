@@ -21,6 +21,9 @@
     #ifndef DEFINE_BLUE_GAIN
     #define DEFINE_BLUE_GAIN 1
     #endif
+    #ifndef DEFINE_SERIAL_RGB_TYPE
+    #define DEFINE_SERIAL_RGB_TYPE uint16_t
+    #endif
     
     constexpr int MULTIPLEX = DEFINE_MULTIPLEX;
     constexpr int MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Contrast Ratio - Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
@@ -32,11 +35,12 @@
     constexpr float RED_GAIN = DEFINE_RED_GAIN;
     constexpr float GREEN_GAIN = DEFINE_GREEN_GAIN;
     constexpr float BLUE_GAIN = DEFINE_BLUE_GAIN;
+    constexpr float GCLK = (DEFINE_GCLK * 1000000.0);
     
     #include <math.h>
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
     
-    typedef uint16_t test[2 * MULTIPLEX][COLUMNS][3];
+    typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS][3];
     
     typedef union {
         test data;
