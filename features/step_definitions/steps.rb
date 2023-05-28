@@ -12,6 +12,12 @@ Given("binary named {word}") do |name|
     @refresh_rate_hz = 100
     @columns = 16
     @blank_time_us = 1
+    @baud = 4000000
+    @gclk = 17.5
+    @rgb_type = String.new("uint8_t")
+    @red_gain = 1.0
+    @green_gain = 1.0
+    @blue_gain = 1.0
 end
 
 When("using serial algorithm {word}") do |algorithm|
@@ -54,7 +60,37 @@ And("anti-ghosting blank time of {int} uS") do |num|
     @blank_time_us = num
 end
 
-# TODO: Add TLC5958 current gain settings
+And("red gain of {float}") do |num|
+    @red_gain = num
+end
+
+And("green gain of {float}") do |num|
+    @green_gain = num
+end
+
+And("blue gain of {float}") do |num|
+    @blue_gain = num
+end
+
+And("grayscale clock of {float} MHz") do |num|
+    @gclk = num
+end
+
+And("UART baud of {int}") do |num|
+    @baud = num
+end
+
+And("serial protocol uses RGB-{int}") do |num|
+    if num == 24
+        @rgb_type = String.new("uint8_t")
+    elsif num == 48
+        @rgb_type = String.new("uint8_t")
+    else
+        assert(false)
+    end
+end
+
+# TODO: Update to use new xml format
 
 Then("build it") do
     file = File.new(@app_name + ".xml", "w")
