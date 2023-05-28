@@ -48,7 +48,7 @@ doxygen Doxyfile
 
 ## Configuration
 ### Using Cucumber/Gherkin
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/Cucumber.md) for more details.
+See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/Cucumber.md) for more details. For adding or disabling flavors, see features/PoE.feature. Flavor configuration blocks looks like this:
 
 ```Gherkin
 # features/PoE.feature
@@ -73,9 +73,7 @@ Feature: PoE Binary(s)
 ```
 
 ### Manual configuration using XML
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/Configuration.md) for more details.
-
-For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
+See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/Configuration.md) for more details. For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
 ``` XML
 <cfg>
     <build name="TEST1" enable="true">
