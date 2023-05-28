@@ -59,8 +59,11 @@ def build_linux(run) {
     f << "fi\n"
     ("chmod +x " + script).execute().waitFor()
 
-    if (run)
-        println script.execute().text
+    if (run) {
+        def proc = script.execute()
+        println proc.text
+        System.exit(proc.exitValue())
+    }
     else {
         print "Please run:\n"
         println script
