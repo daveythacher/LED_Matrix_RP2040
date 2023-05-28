@@ -24,20 +24,23 @@ For Linux: (Will install dependencies and download code)
 ```
 
 ## Building
-For Linux: (Using cucumber for configuration) - build single feature
+Currently only Linux is supported. However groovy script and CMake should allow others.
+
+### Building firmware:
+#### Building with Cucumber/Gherkin
+Build single feature:
 ```bash
 cucumber features/PoE.feature
 ```
-For Linux: (Using cucumber for configuration) - build all features in features folder
+Build all features in features folder:
 ```bash
 cucumber
 ```
-
-For Linux: (Use manual configuration)
+#### Building Binary with manual configuration of groovy script
 ```bash
 groovy build.groovy -c cfg.xml -r
 ```
-
+### Building documentation:
 For generating doxygen documentation:
 ```bash
 doxygen Doxyfile
