@@ -24,9 +24,13 @@ For Linux: (Will install dependencies and download code)
 ```
 
 ## Building
-For Linux: (Using cucumber for configuration)
+For Linux: (Using cucumber for configuration) - build single feature
 ```bash
 cucumber features/PoE.feature
+```
+For Linux: (Using cucumber for configuration) - build all features in features folder
+```bash
+cucumber
 ```
 
 For Linux: (Use manual configuration)
