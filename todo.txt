@@ -1,6 +1,0 @@
-Add cucumber documentation
-Create sub xml for Matrix Algorithm
-	Switch between RGB-24 and RGB-48
-	GCLK
-Create sub xml for Serial Algorithm
-	Serial Baud Rate

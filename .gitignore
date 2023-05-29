@@ -37,3 +37,4 @@ Hardware/*.pro
 Hardware/*.s#*
 Hardware/*.b#*
 Hardware/.*.lck
+*.xml
