@@ -38,7 +38,7 @@ void serial_uart_start(serial_uart_callback callback, int dma) {
     gpio_set_function(1, GPIO_FUNC_UART);
 
     // UART
-    static_assert(SERIAL_UART_BAUD <= 7800000, "Baud rate must be less than 7.8MBaud");
+    static_assert(SERIAL_UART_BAUD > 7800000, "Baud rate must be less than 7.8MBaud");
     uart_init(uart0, SERIAL_UART_BAUD);
 
     // DMA

@@ -29,12 +29,12 @@
         </matrix>
     </build>
 
-    <build name="TEST2" enable="false"/>
+    <build name="TEST2" enable="false">
         <serial algorithm="uart">
             <uart baud="4000000" RGB_type="uint8_t"/>
         </serial>
         <matrix algorithm="TLC5946" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1">
-            <TLC5958 gclk="20"/>
+            <TLC5946 gclk="20"/>
         </matrix>
     </build>
     
