@@ -9,12 +9,11 @@
 
     #include <stdint.h>
     #include <stdio.h>
-
-    typedef void (*serial_uart_callback)(uint8_t **buf, uint16_t *len);
     
-    void serial_uart_start(serial_uart_callback callback, int dma_chan);
+    void serial_uart_start(int dma_chan);
     void serial_uart_isr();
     void serial_uart_task();
+    void serial_uart_callback(uint8_t **buf, uint16_t *len);
 
 
     // -- DO NOT EDIT BELOW THIS LINE --

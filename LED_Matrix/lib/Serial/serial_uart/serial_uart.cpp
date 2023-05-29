@@ -13,7 +13,6 @@
 #include "Serial/serial_uart/serial_uart.h"
 #include "Matrix/matrix.h"
 
-static serial_uart_callback func;
 static int dma_chan;
 static dma_channel_config c;
 static volatile bool isIdle = true;
@@ -26,8 +25,7 @@ static void serial_uart_reload(bool reload_dma, bool process_msg);
     #define ntohs(x) ((uint16_t)(x))
 #endif
 
-void serial_uart_start(serial_uart_callback callback, int dma) {
-    func = callback;
+void serial_uart_start(int dma) {
     dma_chan = dma;
 
     // IO
@@ -88,7 +86,7 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma, bool process_msg) 
                 p[i / 2] = ntohs(p[i / 2]);
         }
 
-        func(&buf, &len);
+        serial_uart_callback(&buf, &len);
 
         if (ptr)
             process((void *)ptr);
