@@ -9,18 +9,6 @@
 @Grab(group='org.apache.commons', module='commons-lang3', version='3.11' )
 import org.apache.commons.lang3.SystemUtils
 
-/*
-DEFINE_MULTIPLEX            32          "Multiplex Scan of panel"
-DEFINE_MAX_RGB_LED_STEPS    8000        "Contrast Ratio - Min LED const forward current in nA divided by min light current in nA"
-DEFINE_MAX_REFRESH          3840        "Max refresh of panel"
-DEFINE_COLUMNS              128         "Chain length"
-DEFINE_SERIAL_CLOCK         15.625      "HUB75 serial clock speed in MHz"
-DEFINE_BLANK_TIME           1           "Multiplex blanking time in uS"
-DEFINE_RED_GAIN             1.0         "Gain for Red LED (TLC5958 only)"
-DEFINE_GREEN_GAIN           1.0         "Gain for Green LED (TLC5958 only)"
-DEFINE_BLUE_GAIN            1.0         "Gain for Blue LED (TLC5958 only)"
-*/
-
 apps = ""
 flags = ""
 
