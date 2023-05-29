@@ -1,4 +1,23 @@
 # Configuration
+Below is an example feature for building a custom firmware.
+``` XML
+<cfg>
+    <build name="TEST1" enable="true">
+        <serial algorithm="uart">
+            <uart baud="4000000" RGB_type="uint8_t"/>
+        </serial>
+        <matrix algorithm="TLC5958" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1">
+            <TLC5958 fps="30" gclk="20" red_gain="0.247" green_gain="0.0998" blue_gain="0.063"/>
+        </matrix>
+    </build>
+    <!-- ... -->
+</cfg>
+```
+
+The build process used here is a little messy however to simplify panel configuration, Groovy is used to hide certain things. The Groovy build script creates a custom system script for calling CMake. This system script and CMake will pass the configuration parameters in the C/C++ source code for compilation. This process is used to enable multiple build flavors.
+
+Currently the C/C++ logic requires all possible configuration parameters to be defined. CMake simply passes these through from the system script. The Groovy build script will hide parameters which are not required.
+
 ## build section
 This section defines a new binary.
 
