@@ -6,6 +6,9 @@
  * License: GPL 3.0
  */
 
+ // The job of this script is hide the preprocessor macros and only require the ones that are actually required.
+ //     The other job of this script is to allow multiple build flavors to be feed into CMake and enable/disable these flavors quickly.
+
 @Grab(group='org.apache.commons', module='commons-lang3', version='3.11' )
 import org.apache.commons.lang3.SystemUtils
 
