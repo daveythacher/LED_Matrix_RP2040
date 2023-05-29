@@ -30,7 +30,7 @@ def handle_serial_algorithm(cfg, index) {
     
     if (c.algorithm == "uart") {
         s = cfg.build[index].serial[0].uart[0].attributes()
-        flags += sprintf(" -D%s_APP=uart -D%s_DEFINE_SERIAL_UART_BAUD=%s -D%s_DEFINE_SERIAL_RGB_type=%s", name, name, s.baud, name, s.RGB_type)
+        flags += sprintf(" -D%s_APP=uart -D%s_DEFINE_SERIAL_UART_BAUD=%s -D%s_DEFINE_SERIAL_RGB_TYPE=%s", name, name, s.baud, name, s.RGB_type)
     }
     else {
         println "Unknown serial algorithm " + c.algorithm
@@ -42,17 +42,20 @@ def handle_matrix_algorithm(cfg, index) {
     name = cfg.build[index].attributes().name
     c = cfg.build[index].matrix[0].attributes()
 
-    if (c.algorithm == "BCM" || c.algorithm == "PWM" || c.algorithm == "ON_OFF")
-        flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.serial_algorithm, name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.matrix_algorithm, name)
+    if (c.algorithm == "BCM" || c.algorithm == "PWM" || c.algorithm == "ON_OFF") {
+        flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.algorithm, name)
+        flags += sprintf(" -D%s_DEFINE_FPS=30 -D%s_DEFINE_GCLK=1 -D%s_DEFINE_RED_GAIN=1 -D%s_DEFINE_GREEN_GAIN=1 -D%s_DEFINE_BLUE_GAIN=1", name, name, name, name, name)
+    }
     else if (c.algorithm == "TLC5958") {
         m = cfg.build[index].matrix[0].TLC5958[0].attributes()
-        flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.serial_algorithm, name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.matrix_algorithm, name)
+        flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.algorithm, name)
         flags += sprintf(" -D%s_DEFINE_FPS=%s -D%s_DEFINE_GCLK=%s -D%s_DEFINE_RED_GAIN=%s -D%s_DEFINE_GREEN_GAIN=%s -D%s_DEFINE_BLUE_GAIN=%s", name, m.fps, name, m.gclk, name, m.red_gain, name, m.green_gain, name, m.blue_gain)
     }
     else if (c.algorithm == "TLC5946") {
         m = cfg.build[index].matrix[0].TLC5946[0].attributes()
-        flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.serial_algorithm, name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.matrix_algorithm, name)
+        flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.algorithm, name)
         flags += sprintf(" -D%s_DEFINE_GCLK=%s", name, m.gclk)
+        flags += sprintf(" -D%s_DEFINE_FPS=%30 -D%s_DEFINE_RED_GAIN=1 -D%s_DEFINE_GREEN_GAIN=1 -D%s_DEFINE_BLUE_GAIN=1", name, name, name,  name)
     }
     else {
         println "Unknown matrix algorithm " + c.algorithm
