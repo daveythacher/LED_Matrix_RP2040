@@ -95,9 +95,9 @@ Then("build it") do
     if file
         file.syswrite("<cfg>\n")
         file.syswrite("\t<build name=\"" + @app_name + "\" enable=\"true\">\n")
-        file.syswrite("\t\t<serial algorithm=\"" + @serial_algorithm + "\">\n")
+        file.syswrite("\t\t<serial algorithm=\"" + @serial_algorithm + "\" RGB_type=\"" + @rgb_type + "\">\n")
         if (@serial_algorithm == "uart")
-            file.syswrite("\t\t\t<uart baud=\"" + @baud.to_s + "\" RGB_type=\"" + @rgb_type + "\"/>\n")
+            file.syswrite("\t\t\t<uart baud=\"" + @baud.to_s + "\"/>\n")
         end
         file.syswrite("\t\t</serial>\n")
         file.syswrite("\t\t<matrix algorithm=\"" + @matrix_algorithm + "\" multiplex=\"" + @multiplex_scan.to_s + "\" multiplex_name=\"" + @multiplexer + "\" max_rgb_led_steps=\"" + @contrast_ratio.to_s + "\" ")

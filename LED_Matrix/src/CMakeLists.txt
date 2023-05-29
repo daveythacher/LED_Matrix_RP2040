@@ -1,8 +1,6 @@
 function(build_flavor TARGET APP)
     add_executable(led_${TARGET} 
         ./main.cpp
-        ../lib/Serial/serial_${APP}/isr.cpp
-        ../lib/Serial/serial_${APP}/serial.cpp
     )
 
     target_include_directories(led_${TARGET} PRIVATE

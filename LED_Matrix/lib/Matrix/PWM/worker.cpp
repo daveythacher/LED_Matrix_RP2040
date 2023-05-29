@@ -8,7 +8,7 @@
 #include <string.h>
 #include <math.h>
 #include "pico/multicore.h"
-#include "Matrix/config.h"
+#include "Serial/config.h"
 #include "Matrix/matrix.h"
 #include "Matrix/PWM/memory_format.h"
 

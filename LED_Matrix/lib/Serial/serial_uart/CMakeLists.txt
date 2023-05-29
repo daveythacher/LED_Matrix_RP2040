@@ -2,10 +2,8 @@ add_library(serial_uart INTERFACE)
 
 target_sources(serial_uart INTERFACE
     serial_uart.cpp
-)
-
-target_include_directories(serial_uart INTERFACE
-    ../../../include
+    serial.cpp
+    isr.cpp
 )
 
 # Use caution here!

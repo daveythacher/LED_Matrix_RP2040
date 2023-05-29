@@ -1,28 +1,28 @@
 <cfg>
     <build name="P6" enable="false">
-        <serial algorithm="uart">
-            <uart baud="4000000" RGB_type="uint8_t"/>
+        <serial algorithm="uart" RGB_type="uint8_t">
+            <uart baud="4000000"/>
         </serial>
         <matrix algorithm="BCM" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="500" max_refresh="200" columns="128" serial_clock="15.625" blank_time="1"/>
     </build>
 
     <build name="Cube" enable="false">
-        <serial algorithm="uart">
-            <uart baud="4000000" RGB_type="uint8_t"/>
+        <serial algorithm="uart" RGB_type="uint8_t">
+            <uart baud="4000000"/>
         </serial>
         <matrix algorithm="BCM" multiplex="4" multiplex_name="Direct" max_rgb_led_steps="2000" max_refresh="250" columns="16" serial_clock="15.625" blank_time="1"/>
     </build>
 
     <build name="POE" enable="true">
-        <serial algorithm="uart">
-            <uart baud="4000000" RGB_type="uint8_t"/>
+        <serial algorithm="uart" RGB_type="uint8_t">
+            <uart baud="4000000"/>
         </serial>
         <matrix algorithm="PWM" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="125" max_refresh="3000" columns="32" serial_clock="17.0" blank_time="10"/>
     </build>
 
     <build name="TEST1" enable="false">
-        <serial algorithm="uart">
-            <uart baud="4000000" RGB_type="uint8_t"/>
+        <serial algorithm="uart" RGB_type="uint8_t">
+            <uart baud="4000000"/>
         </serial>
         <matrix algorithm="TLC5958" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1">
             <TLC5958 fps="30" gclk="20" red_gain="0.247" green_gain="0.0998" blue_gain="0.063"/>
@@ -30,8 +30,8 @@
     </build>
 
     <build name="TEST2" enable="false">
-        <serial algorithm="uart">
-            <uart baud="4000000" RGB_type="uint8_t"/>
+        <serial algorithm="uart" RGB_type="uint8_t">
+            <uart baud="4000000"/>
         </serial>
         <matrix algorithm="TLC5946" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1">
             <TLC5946 gclk="20"/>
@@ -39,8 +39,8 @@
     </build>
     
     <build name="TEST3" enable="false">
-        <serial algorithm="uart">
-            <uart baud="4000000" RGB_type="uint8_t"/>
+        <serial algorithm="uart" RGB_type="uint8_t">
+            <uart baud="4000000"/>
         </serial>
         <matrix algorithm="ON_OFF" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="125" max_refresh="3000" columns="32" serial_clock="17.0" blank_time="10"/>
     </build>

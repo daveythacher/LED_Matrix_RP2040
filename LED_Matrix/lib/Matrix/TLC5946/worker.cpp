@@ -8,7 +8,7 @@
 #include <string.h>
 #include <math.h>
 #include "pico/platform.h"
-#include "Matrix/config.h"
+#include "Serial/config.h"
 #include "Matrix/matrix.h"
 #include "Matrix/TLC5946/memory_format.h"
 

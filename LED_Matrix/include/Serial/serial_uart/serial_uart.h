@@ -10,12 +10,17 @@
     #include <stdint.h>
     #include <stdio.h>
 
-    constexpr unsigned int SERIAL_UART_BAUD = DEFINE_SERIAL_UART_BAUD;
-
     typedef void (*serial_uart_callback)(uint8_t **buf, uint16_t *len);
     
     void serial_uart_start(serial_uart_callback callback, int dma_chan);
     void serial_uart_isr();
     void serial_uart_task();
+
+
+    // -- DO NOT EDIT BELOW THIS LINE --
+
+    #include "../config.h"
+
+    constexpr unsigned int SERIAL_UART_BAUD = DEFINE_SERIAL_UART_BAUD;
     
 #endif

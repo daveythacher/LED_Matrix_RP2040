@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
  
-#ifndef CONFIG_H
-#define CONFIG_H    
+#ifndef MATRIX_CONFIG_H
+#define MATRIX_CONFIG_H    
     
     // -- DO NOT EDIT BELOW THIS LINE --
     
@@ -23,13 +23,6 @@
     
     #include <math.h>
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
-    
-    typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS][3];
-    
-    typedef union {
-        test data;
-        uint8_t mem[((sizeof(test) / 64) + 1) * 64];
-    } packet;
 
 #endif
 
