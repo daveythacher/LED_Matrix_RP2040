@@ -24,28 +24,69 @@ For Linux: (Will install dependencies and download code)
 ```
 
 ## Building
-For Linux:
+Currently only Linux is supported. However groovy script and CMake should allow others.
 
+### Building firmware:
+#### Building with Cucumber/Gherkin
+Build single feature:
 ```bash
-groovy build.groovy -c cfg.xml
-./LED_Matrix/build/build.sh
+cucumber features/PoE.feature
 ```
-
+Build all features in features folder:
+```bash
+cucumber
+```
+#### Building Binary with manual configuration of groovy script
+```bash
+groovy build.groovy -c cfg.xml -r
+```
+### Building documentation:
 For generating doxygen documentation:
 ```bash
 doxygen Doxyfile
 ```
 
 ## Configuration
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/Configuration.md) for more details.
+### Using Cucumber/Gherkin
+See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Cucumber.md) for more details. For adding or disabling flavors, see features/PoE.feature. Flavor configuration blocks looks like this:
 
-For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
+```Gherkin
+# features/PoE.feature
+
+Feature: PoE Binary(s)
+
+  Rule: Build PoE Binary(s)
+
+    Example: PoE Binary
+        Given binary named POE
+        When using serial algorithm uart
+        When using multiplexer algorithm Decoder
+        When using matrix algorithm BCM
+        And multiplex ratio of 1 : 8
+        And serial clock 15 MHz
+        And frame rate of 30
+        And LED contrast ratio of 1 : 500
+        And panel refresh rate of 100 Hz
+        And panel with 128 columns
+        And anti-ghosting blank time of 10 uS
+        Then build it
+```
+
+### Manual configuration using XML
+See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Configuration.md) for more details. For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
 ``` XML
 <cfg>
-    <build name="P4-BCM" enable="true" app="uart" alogrithm="BCM" fps="30" multiplex="16" multiplex_name="Direct" max_rgb_led_steps="1000" max_refresh="190" columns="128" serial_clock="25.0" blank_time="1"/>
+    <build name="TEST1" enable="true">
+        <serial algorithm="uart">
+            <uart baud="4000000" RGB_type="uint8_t"/>
+        </serial>
+        <matrix algorithm="TLC5958" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1">
+            <TLC5958 fps="30" gclk="20" red_gain="0.247" green_gain="0.0998" blue_gain="0.063"/>
+        </matrix>
+    </build>
     <!-- ... -->
 </cfg>
 ```
 
 ## Application Information
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/Application_Infomation.md) for more details about color depth, size, refresh rate, gamma, color temperature, dot correction, etc.
+See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Application_Infomation.md) for more details about color depth, size, refresh rate, gamma, color temperature, dot correction, etc.

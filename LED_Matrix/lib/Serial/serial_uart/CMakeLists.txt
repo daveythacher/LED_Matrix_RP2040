@@ -1,29 +1,15 @@
-add_library(serial_uart)
+add_library(serial_uart INTERFACE)
 
-target_sources(serial_uart PRIVATE
+target_sources(serial_uart INTERFACE
     serial_uart.cpp
 )
 
-target_include_directories(serial_uart PRIVATE
+target_include_directories(serial_uart INTERFACE
     ../../../include
 )
 
-target_compile_options(serial_uart PRIVATE 
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
-    -fno-exceptions 
-    -fno-check-new 
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-enforce-eh-specs>
-    -g 
-    -ffunction-sections 
-    -fdata-sections 
-    -O3
-    -funroll-loops 
-    -Werror 
-    -Wall
-)
-
 # Use caution here!
-target_link_libraries(serial_uart PRIVATE 
+target_link_libraries(serial_uart INTERFACE 
     hardware_gpio
     hardware_irq
     hardware_uart

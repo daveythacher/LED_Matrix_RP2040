@@ -19,11 +19,12 @@
     constexpr float RED_GAIN = DEFINE_RED_GAIN;
     constexpr float GREEN_GAIN = DEFINE_GREEN_GAIN;
     constexpr float BLUE_GAIN = DEFINE_BLUE_GAIN;
+    constexpr float GCLK = (DEFINE_GCLK * 1000000.0);
     
     #include <math.h>
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
     
-    typedef uint16_t test[2 * MULTIPLEX][COLUMNS][3];
+    typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS][3];
     
     typedef union {
         test data;
