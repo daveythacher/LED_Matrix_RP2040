@@ -73,8 +73,12 @@ If not used this will default to 8.
 #### Serial Clock
 TODO
 
+If not used this will default to 15.0.
+
 #### Frame Rate
 TODO
+
+If not used this will default to 30.
 
 #### LED Contrast Ratio
 It must be of the format: "And LED contrast ratio of 1 : {num}", where {num} is a whole integer. This is the number of intensities which is supported by the individual LEDs. Note this is reduced by the multiplex ratio. This number is used to determine the number of PWM bits required, if supported by matrix algorithm. Many LEDs are capable of 4000 to 8000, however you may use less if desired. 
@@ -101,12 +105,12 @@ If not used this will default to 1.
 #### Red Current Gain
 It must be of the format: "And red gain of {float}", where {float} is an integer which may include a decimal. This number is used to control the red led's intensity in software, however this is not support on all panels. It is also not supported by all matrix algorithms.
 
-If not used this will default to 0.5.
+If not used this will default to 1.0.
 
 #### Green Current Gain
 It must be of the format: "And green gain of {float}", where {float} is an integer which may include a decimal. This number is used to control the green led's intensity in software, however this is not support on all panels. It is also not supported by all matrix algorithms.
 
-If not used this will default to 0.75.
+If not used this will default to 1.0.
 
 
 #### Blue Current Gain
@@ -117,11 +121,19 @@ If not used this will default to 1.0.
 #### Grayscale Clock
 TODO
 
+If not given this will default to 17.0.
+
 #### UART Baud
 TODO
 
+If not given this will default to 4000000.
+
 #### Serial Algorithm Data format
 TODO
+
+This is useful for enabling more pixels on some panels.
+
+If not used this will will default to 24.
 
 ### Then
 Currently there is only one of these supported. These are verification premises and are always required.
