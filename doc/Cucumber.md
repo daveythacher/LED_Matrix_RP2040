@@ -29,7 +29,7 @@ Feature: PoE Binary(s)
 ```
 
 ## Overview
-The build process used here is a little messy however to simple panel configuration Cucumber is used to hide. What this does behind the scenes is build a custom xml configuration file for every Gherkin example. It will then call the Groovy build script which will then create a custom system script for calling CMake. This system script and CMake will pass the configuration parameters in the C/C++ source code for compilation. This process is used to enable multiple build flavors.
+The build process used here is a little messy however to simplify panel configuration, Cucumber is used to hide certain things. What this does behind the scenes is build a custom xml configuration file for every Gherkin example. It will then call the Groovy build script which will then create a custom system script for calling CMake. This system script and CMake will pass the configuration parameters in the C/C++ source code for compilation. This process is used to enable multiple build flavors.
 
 Currently the C/C++ logic requires all possible configuration parameters to be defined. CMake simply passes these through from the system script. The Groovy build script will hide parameters which are not required. Cucumber however has default settings for all required parameters which may be desired in some cases.
 
