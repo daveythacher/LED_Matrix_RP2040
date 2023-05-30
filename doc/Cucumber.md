@@ -71,12 +71,12 @@ It must be of the format: "And multiplex ratio of 1 : {num}", where {num} is a w
 If not used this will default to 8.
 
 #### Serial Clock
-TODO
+It must be of the format: "And serial clock of {float} MHz", where {float} is a integer which may include a decimal. This is the clock used to send data to the LED drivers. Note this clock rate is generally limited to around 25MHz. However it should also be noted that long chains of panels and LED drivers may need lower clocks to stay within specifications. Serial clock is used by the compiler to verify settings. If the clock rate is not high enough you may need to reduce the refresh rate and/or LED contrast ratio.
 
 If not used this will default to 15.0.
 
 #### Frame Rate
-TODO
+It must be of the format: "And frame rate of {float}", where {float} is an integer which may include a decimal. This sets the target frame rate for the LED panels with LED drivers which have SRAM. Frame rate is used by the compiler to verify settings. This is not supported by all matrix algorithms.
 
 If not used this will default to 30.
 
@@ -119,19 +119,17 @@ It must be of the format: "And blue gain of {float}", where {float} is an intege
 If not used this will default to 1.0.
 
 #### Grayscale Clock
-TODO
+It must be of the format: "And grayscale clock of {float} MHz", where {float} is a integer which may include a decimal. This is the clock used to clock the PWM output of the LED drivers with PWM hardware. Note this clock rate is generally limited to around 25-33MHz. However it should also be noted that long chains of panels and LED drivers may need lower clocks to stay within specifications. Grayscale clock is used by the compiler to verify settings. If the clock rate is not high enough you may need to reduce the refresh rate and/or LED contrast ratio. This is not supported by all matrix algorithms.
 
 If not given this will default to 17.0.
 
 #### UART Baud
-TODO
+It must be of the format: "And UART baud of {num}", where {num} is a whole integer. This is the baud rate used the serial_uart Serial algorithm. It is not supported by all serial algorithms.
 
 If not given this will default to 4000000.
 
 #### Serial Algorithm Data format
-TODO
-
-This is useful for enabling more pixels on some panels.
+It must be of the format: "And serial protocol uses RGB-{num}", where {num} is either 24 or 48. This is the RGB standard used by the host application over the Serial algorithm. This is useful for enabling more pixels on some panels, however limits the max LED contrast ratio. Using RGB-24 is recommended for LEDs with low contrast or panels with high multiplex ratios.
 
 If not used this will will default to 24.
 

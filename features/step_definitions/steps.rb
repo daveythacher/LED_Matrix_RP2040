@@ -40,7 +40,7 @@ And("serial clock {float} MHz") do |clock|
     @serial_clock_mhz = clock
 end
 
-And("frame rate of {int}") do |rate|
+And("frame rate of {float}") do |rate|
     @frame_rate_hz = rate
 end
 
