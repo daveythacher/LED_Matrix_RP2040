@@ -18,7 +18,7 @@ static dma_channel_config c;
 static volatile bool isIdle = true;
 static volatile uint32_t checksum;
 
-static void serial_uart_reload(bool reload_dma, bool process_msg);
+static void serial_uart_reload(bool reload_dma);
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     #define ntohs(x) __bswap16(x)
@@ -50,7 +50,7 @@ void serial_uart_start(int dma) {
     channel_config_set_dreq(&c, DREQ_UART0_RX);
     dma_channel_set_irq1_enabled(dma_chan, true);
 
-    serial_uart_reload(false, true);
+    serial_uart_reload(false);
 }
 
 void __not_in_flash_func(serial_uart_task)() {
@@ -88,12 +88,12 @@ void __not_in_flash_func(serial_uart_task)() {
         if (counter >= 4) {
             needsChecksum = false;
             checksum = ntohl(checksum);
-            serial_uart_reload(true, false);
+            serial_uart_reload(true);
         }
     }
 }
 
-void __not_in_flash_func(serial_uart_reload)(bool reload_dma, bool process_msg) {
+void __not_in_flash_func(serial_uart_reload)(bool reload_dma) {
     static uint8_t *ptr = 0;
     static uint8_t *buf = 0;
     static uint16_t len = 0;
@@ -104,7 +104,7 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma, bool process_msg) 
         dma_sniffer_enable(dma_chan, 0, true);
         dma_channel_configure(dma_chan, &c, buf, &uart_get_hw(uart0)->dr, len, true);
     }
-    else if (process_msg) {
+    else {
         if ((p != 0) && (sizeof(DEFINE_SERIAL_RGB_TYPE) == sizeof(uint16_t))) {
             for (uint16_t i = 0; i < len; i += 2)
                 p[i / 2] = ntohs(p[i / 2]);
@@ -121,8 +121,8 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma, bool process_msg) 
 
 void __not_in_flash_func(serial_uart_isr)() {
     if (dma_channel_get_irq1_status(dma_chan)) {
-        if (dma_sniffer_get_data_accumulator() == checksum)
-            serial_uart_reload(false, (uart0_hw->ris & 0x380) == 0);
+        if ((dma_sniffer_get_data_accumulator() == checksum) && ((uart0_hw->ris & 0x380) == 0))
+            serial_uart_reload(false);
         dma_sniffer_disable();
         isIdle = true;
         dma_hw->ints1 = 1 << dma_chan;
