@@ -16,13 +16,16 @@
 static int dma_chan;
 static dma_channel_config c;
 static volatile bool isIdle = true;
+static volatile uint32_t checksum;
 
 static void serial_uart_reload(bool reload_dma, bool process_msg);
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     #define ntohs(x) __bswap16(x)
+    #define ntohl(x) __bswap32(x)
 #else
     #define ntohs(x) ((uint16_t)(x))
+    #define ntoh1(x) ((uint32_t)(x))
 #endif
 
 void serial_uart_start(int dma) {
@@ -52,6 +55,8 @@ void serial_uart_start(int dma) {
 
 void __not_in_flash_func(serial_uart_task)() {
     static uint64_t time = time_us_64(); 
+    static bool needsChecksum = false;
+    static uint8_t counter = 0;
 
     if (isIdle) {
         // Clear Errors
@@ -65,10 +70,26 @@ void __not_in_flash_func(serial_uart_task)() {
 
         // Look for start_token
         if (uart_getc(uart0) == 's') {
-            serial_uart_reload(true, false);
+            checksum = 0;
+            counter = 0;
+            needsChecksum = true;
             isIdle = false;
         }
+    }
 
+    // Wait for the checksum
+    if (needsChecksum) {
+        while (counter < 4 && uart_is_readable(uart0)) {
+            checksum |= uart_getc(uart0) << (counter * 8);
+            ++counter;
+        }
+
+        // Got it now start the transfer
+        if (counter >= 4) {
+            needsChecksum = false;
+            checksum = ntohl(checksum);
+            serial_uart_reload(true, false);
+        }
     }
 }
 
@@ -78,10 +99,13 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma, bool process_msg) 
     static uint16_t len = 0;
     uint16_t *p = (uint16_t *)buf;
     
-    if (reload_dma)
+    if (reload_dma) {
+        dma_sniffer_set_data_accumulator(0xFFFFFFFF);
+        dma_sniffer_enable(dma_chan, 0, true);
         dma_channel_configure(dma_chan, &c, buf, &uart_get_hw(uart0)->dr, len, true);
+    }
     else if (process_msg) {
-        if (p != 0) {
+        if (p != 0 && sizeof(DEFINE_SERIAL_RGB_TYPE) == sizeof(uint16_t)) {
             for (uint16_t i = 0; i < len; i += 2)
                 p[i / 2] = ntohs(p[i / 2]);
         }
@@ -97,7 +121,9 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma, bool process_msg) 
 
 void __not_in_flash_func(serial_uart_isr)() {
     if (dma_channel_get_irq1_status(dma_chan)) {
-        serial_uart_reload(false, (uart0_hw->ris & 0x380) == 0);
+        if (dma_sniffer_get_data_accumulator() == checksum)
+            serial_uart_reload(false, (uart0_hw->ris & 0x380) == 0);
+        dma_sniffer_disable();
         isIdle = true;
         dma_hw->ints1 = 1 << dma_chan;
     }
