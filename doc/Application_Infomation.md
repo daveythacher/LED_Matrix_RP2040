@@ -13,9 +13,25 @@ Ideal sizes for message boards are P6 1:8 and P5 1:16. These have support bracke
 
 High refresh displays need special control circuits in multiplexing and LED drivers. This is hard to find in P6, but can be found in P5, P4, P3, P2.5, etc. Most panels are capable of 100-240Hz which should not show flicker to many people. However some people will want higher refreshes for things like movement, cameras, headaches, flicker, etc. According to lighting studies LED Matrixes should target 1.25kHz to avoid most flicker issues. 3kHz is assumed to be flicker free and has no observable adverse consequences.
 
-Generally high refresh rate is generally accomplished using hardware PWM. This is more efficient in terms of bus cycles. Traditional PWM is used in many cases however this is being replaced somewhat by S-PWM. S-PWM allows you to lower the color depth aka PWM bits in response to multiplex or scan rate. The LEDs are only capable of so much contrast, so there is no point to using more PWM bits than required. These cycles can be converted to refresh rate instead. S-PWM enables this and smoother frame changes. S-PWM makes more sense for hardware than it does for software. Mostly used for anti-ghosting for certain hardware configurations.
+Generally high refresh rate is generally accomplished using hardware PWM. This is more efficient in terms of bus cycles. Traditional PWM is used in many cases however this is being replaced somewhat by S-PWM. The LEDs are only capable of so much contrast, so there is no point to using more PWM bits than required. These cycles can be converted to refresh rate instead. S-PWM enables automated configuration and smoother frame changes. S-PWM makes more sense for hardware than it does for software. Mostly used for anti-ghosting for certain hardware configurations. 
 
 BCM is used for software traditional PWM to emulate hardware traditional PWM. BCM is computationally better than PWM. S-PWM is not used as configuration can scale the refresh and PWM bits manually. BCM may have issues with duty cycle or brightness at high refresh rates.
+
+#### S-PWM
+Traditional PWM generally works off the idea there is only so much color depth possible. Multiplexing eats into this. Therefore the PWM period is fixed. We must divided this period by the multiplex to yield the real color depth. The grayscale clock is the max PWM period times refresh rate.
+
+S-PWM allows you to avoid knowing the exact PWM period size. It allows you to hold the refresh rate by multiplexing more often. If the grayscale clock is only so fast, you can still protect the refresh rate. S-PWM also attempts to avoid flickering, however it does not do this in all cases. What it does is use the most significant bits which are brighter more than the least significant bits which are dimmfer. The dimmer bits are less noticeable in flicker. Traditional PWM weights these bits as equal.
+
+S-PWM creates a variable PWM period by automating control signals into serial commands. It will proceed towards the max PWM period but will reset if the frame is swapped. If you have 12 bit PWM period on a 6.25MHz GCLK you would have a max PWM period of 11-bits at 3kHz regardless of frame rate. S-PWM is implemented as sub PWM periods where the larger PWM period is evenly divided across. This allows for the most significant bits to always be present in the sub PWM periods. 
+
+No matter how many sub PWM periods are used the result should be mostly free of flicker. However the finer detail is lost in the process potentially. Assuming you have 12 bit PWM period with 6.25MHz GCLK at 30 FPS then you would have 6-bits at 3kHz. Note this requires the sub PWM periods to be smaller or equal to 6-bits. There may be total of 16-bits possible, however only 6-bits will be used. This configuration would be 6+10. Which means there 1024 6-bit PWM periods.
+
+If the frame rate drops then you will increase the number of effective PWM bits per frame at the given refresh rate. This is because more sub PWM periods are allows to execute. It should also be noted that S-PWM uses a very high multiplexing rate, which has an impact on ghosting. It is preferred to match the desired sub PWM period size to the worst case effective PWM bits per frame. Otherwise the multiplexing rate will be too high. This will have an effect on ghosting. It may also not be possible in all cases.
+
+S-PWM is better on GEN 2 panels, hardware PWM panels without SRAM. GEN 3 panels, hardware PWM panels with SRAM, are subject to issues with frame rate. GEN 2 does not have this issue.
+
+#### Ghosting
+Refresh rate or multilexing rate is limited by certain things. 
 
 ## Power consumption
 
