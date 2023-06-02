@@ -18,7 +18,7 @@ Generally high refresh rate is generally accomplished using hardware PWM. This i
 BCM is used for software traditional PWM to emulate hardware traditional PWM. BCM is computationally better than PWM. S-PWM is not used as configuration can scale the refresh and PWM bits manually. BCM may have issues with duty cycle or brightness at high refresh rates.
 
 #### S-PWM
-Traditional PWM generally works off the idea there is only so much color depth possible. Multiplexing eats into this. Therefore the PWM period is fixed. We must divided this period by the multiplex to yield the real color depth. The grayscale clock is the max PWM period times refresh rate.
+Traditional PWM generally works off the idea there is only so much color depth possible. Multiplexing eats into this. Therefore the PWM period is fixed. We must divided this period by the multiplex to yield the real color depth. The grayscale clock is the max PWM period times refresh rate. (In non-hardware PWM panels this is the serial clock divided by the shift length.)
 
 S-PWM allows you to avoid knowing the exact PWM period size. It allows you to hold the refresh rate by multiplexing more often. If the grayscale clock is only so fast, you can still protect the refresh rate. S-PWM also attempts to avoid flickering, however it does not do this in all cases. What it does is use the most significant bits which are brighter more than the least significant bits which are dimmfer. The dimmer bits are less noticeable in flicker. Traditional PWM weights these bits as equal.
 
@@ -31,7 +31,13 @@ If the frame rate drops then you will increase the number of effective PWM bits 
 S-PWM is better on GEN 2 panels, hardware PWM panels without SRAM. GEN 3 panels, hardware PWM panels with SRAM, are subject to issues with frame rate. GEN 2 does not have this issue.
 
 #### Ghosting
-Refresh rate or multilexing rate is limited by certain things. 
+Refresh rate or multilexing rate is limited by certain things. The panel itself is only capable of moving so fast before small capacitors inside the panel start to slow and corrupt things. To get around this you need to use pull-ups on the low side or near the LED drivers and pull-downs on the high side or near the row drivers. If you do this the LEDs will be reverse biased when they are supposed to be off and forward biased when they are supposed to be on.
+
+Only certain LED panel components offer these features, however board designers can usually add them on. The larger these capacitors the longer the time required to charge them or the stronger the pull-ups/downs need to be. A careful balance between the two is required. Power consumption can become an issue if pull-ups/downs are too strong and lower refreshes are possible if the charge time is too high. This code base provides some support in GEN 1 panels for charge time using OE signal, blanking time and disabling outputs using serial data.
+
+Another issues than can occur is the response time of LEDs themselves. If the LEDs have large capacitors on the low side there may be intensity corruption if you attempt to send a single into it too fast. This will play a larger role on least significant PWM bits as these may be attenuated completely. Therefore large PWM periods may be recommended to combat this. BCM in this case is not recommended as it simulates a small sub PWM periods like what is used in S-PWM.
+
+Overall LED intensity corruption is not expected to be a huge deal using ON/OFF, low refresh BCM or low color depth PWM on GEN 1 panel. GEN 2 panels are also less likely to be an issue. GEN 3 requires carefuly consideration as mentioned in S-PWM section.
 
 ## Power consumption
 
