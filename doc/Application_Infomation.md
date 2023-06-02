@@ -43,6 +43,7 @@ Overall LED intensity corruption is not expected to be a huge deal using ON/OFF,
 To compensate for blanking time increase serial clock or grayscale clock by at least 30 percent. (Rough guideline which is not correct in all cases.)
 
 ## Mappers
+All of this is handled by application logic.
 
 ### Color Temperature (Gamma)
 
@@ -62,7 +63,7 @@ Note it would not be recommended to use less than 5-bits of dot correction. It s
 Pixel locations within panels is handled by application logic.
 
 ### Pixel
-Panels mappings and orrientation of panels is handled by application logic.
+Panels mappings and orrientation of panels is handled by application logic. These are likely difficult to support so these should be an independent module of the application logic.
 
 ### RGB locations
 Color locations within pixels is handled by application logic.
