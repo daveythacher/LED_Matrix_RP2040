@@ -38,7 +38,9 @@ Only certain LED panel components offer these features, however board designers 
 
 Another issue than can occur is the response time of LEDs themselves. If the LEDs have large capacitors on the low side there may be intensity corruption if you attempt to send a signal into it too fast. This will play a larger role on least significant PWM bits as these may be attenuated completely. Therefore large PWM periods may be recommended to combat this. BCM in this case is not recommended as it simulates a small sub PWM periods like what is used in S-PWM. These are attentuated independently, as the state change is what created the issue. PWM uses a single duty cycle, while the others use multiple.
 
-Overall LED intensity corruption is not expected to be a huge deal using ON/OFF, low refresh BCM or low color depth PWM on GEN 1 panel. GEN 2 panels are also less likely to be an issue. GEN 3 requires carefuly consideration as mentioned in S-PWM section.
+Overall LED intensity corruption is not expected to be a huge deal using ON/OFF, low refresh BCM or low color depth PWM on GEN 1 panel. GEN 2 panels are also less likely to be an issue. GEN 3 requires carefuly consideration as mentioned in S-PWM section. 
+
+To compensate for blanking time increase serial clock or grayscale clock by at least 30 percent. (Rough guideline which is not correct in all cases.)
 
 ## Power consumption
 
