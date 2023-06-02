@@ -17,7 +17,7 @@ Generally high refresh rate is generally accomplished using hardware PWM. This i
 
 BCM is used for software traditional PWM to emulate hardware traditional PWM. BCM is computationally better than PWM. S-PWM is not used as configuration can scale the refresh and PWM bits manually. BCM may have issues with duty cycle or brightness at high refresh rates.
 
-#### S-PWM
+### S-PWM
 Traditional PWM generally works off the idea there is only so much color depth possible. Multiplexing eats into this. Therefore the PWM period is fixed. We must divided this period by the multiplex to yield the real color depth. The grayscale clock is the max PWM period times refresh rate. (In non-hardware PWM panels this is the serial clock divided by the shift length.)
 
 S-PWM allows you to avoid knowing the exact PWM period size. It allows you to hold the refresh rate by multiplexing more often. If the grayscale clock is only so fast, you can still protect the refresh rate. S-PWM also attempts to avoid flickering, however it does not do this in all cases. What it does is use the most significant bits which are brighter more than the least significant bits which are dimmfer. The dimmer bits are less noticeable in flicker. Traditional PWM weights these bits as equal.
@@ -30,7 +30,7 @@ If the frame rate drops then you will increase the number of effective PWM bits 
 
 S-PWM works on GEN 2 panels, hardware PWM panels without SRAM. GEN 3 panels, hardware PWM panels with SRAM, are subject to issues with frame rate while GEN 2 generally force this to be constant.
 
-#### Ghosting
+### Ghosting
 
 Refresh rate or multilexing rate is limited by certain things. The panel itself is only capable of moving so fast before small capacitors inside the panel start to slow and corrupt things. To get around this you need to use pull-ups on the low side or near the LED drivers and pull-downs on the high side or near the row drivers. If you do this the LEDs will be reverse biased when they are supposed to be off and forward biased when they are supposed to be on.
 
