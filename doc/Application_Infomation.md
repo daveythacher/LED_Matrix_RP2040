@@ -32,7 +32,7 @@ S-PWM works on GEN 2 panels, hardware PWM panels without SRAM. GEN 3 panels, har
 
 ### Ghosting
 
-Refresh rate or multilexing rate is limited by certain things. The panel itself is only capable of moving so fast before small capacitors inside the panel start to slow and corrupt things. To get around this you need to use pull-ups on the low side or near the LED drivers and pull-downs on the high side or near the row drivers. If you do this the LEDs will be reverse biased when they are supposed to be off and forward biased when they are supposed to be on.
+Refresh rate or multilexing rate is limited by certain things. The panel itself is only capable of moving so fast before small capacitors inside the panel start to slow and corrupt things. To get around this you need to use pull-ups on the low side or near the LED drivers and pull-downs on the high side or near the row drivers. If you do this the LEDs will be reverse biased when they are supposed to be off and forward biased when they are supposed to be on. (The other option is push-pull drivers.)
 
 Only certain LED panel components offer these features, however board designers can usually add them on. The larger these capacitors the longer the time required to charge them or the stronger the pull-ups/downs need to be. A careful balance between the two is required. Power consumption can become an issue if pull-ups/downs are too strong and lower refreshes are possible if the charge time is too high. This code base provides some support in GEN 1 panels for charge time using OE signal, blanking time and disabling outputs using serial data.
 
@@ -41,6 +41,85 @@ Another issue than can occur is the response time of LEDs themselves. If the LED
 Overall LED intensity corruption is not expected to be a huge deal using ON/OFF, low refresh BCM or low color depth PWM on GEN 1 panel. GEN 2 panels are also less likely to be an issue. GEN 3 requires carefuly consideration as mentioned in S-PWM section. 
 
 To compensate for blanking time increase serial clock or grayscale clock by at least 30 percent. (Rough guideline which is not correct in all cases.)
+
+#### Low side only algorithm
+Overview is to use small pull up resistors on the columns to allow a small amount of current to trickle to the low side. This is required to prevent a LED from becoming forward biased. No current is required to flow through the LEDs to become reverse biased. This appproach can be faster but can be more expensive. Small bleeding is still possible with this approach. This happens due to the previous row's high side capacitor discharging through the columns. Specialized low side drivers exist which may reduce cost.
+
+Start by disabling the rows and the columns. (Columns can go high impedance when disabling with output enable.)
+
+Enable the pull ups on the columns to start trickle charging the low side capacitors. 
+
+Shift a value which will turn off columns in shift register.
+
+Select the correct row.
+
+Wait for the trickle charge to complete. 
+
+Disconnect the pull ups. 
+
+Enable the rows and columns.
+
+Shift in the next bit plane in columns via shift register.
+
+This is the algorithm currently used by all matrix algorithms. For GEN 1 panels turning off the columns is handle before hand. This does not anything productive without the required hardware.
+
+#### High side only algorithm
+Overview is to use small pull up resistors on the rows to allow a small amount of current to trickle to the low side. This is required since the current will flow through LED while forward biased. This approach is slower but can be cheaper. This requires a decent amount of time to multiplex. Specialized high side drivers exist which may reduce cost.
+
+Start by disabling the rows and the columns. (Columns can go high impedance when disabling with output enable.)
+
+Be sure to drain the PMOS gate to turn the MOSFET off. (Use push-pull decoder IC for rows, do not use high impedance when disabling with output enable.)
+
+Enable the pull ups on the rows to start trickle charging the high and low side capacitors. 
+
+Shift a value which will turn off columns in shift register.
+
+Wait for the trickle charge to complete. 
+
+Disconnect the pull ups. 
+
+Enable the pull downs on the rows to drain the high side capacitors. (This will put the LEDs into reverse bias.) 
+
+Wait for the draining to complete. 
+
+Disable the pull downs. 
+
+Select the correct row.
+
+Release PMOS gate from drain.
+
+Enable the rows and columns.
+
+Shift in the next bit plane in columns via shift register.
+
+#### High and low side algorithm
+Overview this works like the high side only algorithm, but is faster. Drain the high side while charging the low side. This is approach is probably the fastest and can be the most expensive. Specialized high side and low side drivers exist which may reduce cost.
+
+Start by disabling the rows and the columns. (Columns can go high impedance when disabling with output enable.)
+
+Be sure to drain the PMOS gate to turn the MOSFET off. (Use push-pull decoder IC for rows, do not use high impedance when disabling with output enable.)
+
+Enable the pull ups on the rows to start trickle charging the low side capacitors. 
+
+Enable the pull downs on the rows to drain the high side capacitors. (This will put the LEDs into reverse bias.) 
+
+Shift a value which will turn off columns in shift register.
+
+Wait for the trickle charge to complete. 
+
+Wait for the draining to complete. 
+
+Disconnect the pull ups. 
+
+Disable the pull downs. 
+
+Select the correct row.
+
+Release PMOS gate from drain.
+
+Enable the rows and columns.
+
+Shift in the next bit plane in columns via shift register.
 
 ## Mappers
 All of this is handled by application logic.
