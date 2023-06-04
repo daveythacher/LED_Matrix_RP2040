@@ -154,13 +154,14 @@ void __not_in_flash_func(matrix_dma_isr)() {
     static uint32_t rows = 0;
     extern volatile bool vsync;
     
-    if (dma_channel_get_irq0_status(dma_chan[0])) {
+    if (dma_channel_get_irq0_status(dma_chan[0])) {                             // Note: This clears the interrupt
         uint64_t time;
         
         // Make sure the FIFO is empty (Warning this will block for a long time if SERIAL_CLOCK is low!)
         //  Warning bug exists with LAT automation when SERIAL_CLOCK is low. (Use assembly delay based on SERIAL_CLOCK? Not needed for this, most of the time.)
         //  ISR already has undefined behavior from ISR blocking (BLANK_TIME), which is very bad! (Expected to small and likely okay for this.)
         while(!pio_sm_is_tx_fifo_empty(pio0, 0));                               
+        gpio_set_mask(1 << 22);                                                 // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
         time = time_us_64();                                                    // Start a timer with 1uS delay
         
         if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH
@@ -175,6 +176,7 @@ void __not_in_flash_func(matrix_dma_isr)() {
                                                                                 //  This is why no ISR for long delays has been implemented. (It is not believed to be required.)
 
         while((time_us_64() - time) < BLANK_TIME);                              // Check if timer has expired (TODO: Implement ISR for long delays, if needed.)
+        gpio_clr_mask(1 << 22);                                                 // Turn on the panel (Note software controls PWM/BCM)
         send_line();                                                            // Kick off hardware
     }
 }

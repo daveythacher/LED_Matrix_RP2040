@@ -11,7 +11,7 @@ Feature: PoE Binary(s)
         When using matrix algorithm PWM
         And multiplex ratio of 1 : 8
         And serial clock 17.5 MHz
-        And LED contrast ratio of 1 : 500
+        And LED contrast ratio of 1 : 20
         And panel refresh rate of 3000 Hz
         And panel with 32 columns
         And anti-ghosting blank time of 10 uS
