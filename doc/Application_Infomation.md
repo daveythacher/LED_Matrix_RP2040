@@ -43,7 +43,7 @@ Overall LED intensity corruption is not expected to be a huge deal using ON/OFF,
 To compensate for blanking time increase serial clock or grayscale clock by at least 30 percent. (Rough guideline which is not correct in all cases.)
 
 #### Low side only algorithm
-Overview is to use small pull up resistors on the columns to allow a small amount of current to trickle to the low side. This is required to prevent a LED from becoming forward biased. No current is required to flow through the LEDs to become reverse biased. This appproach can be faster but can be more expensive. Small bleeding is still possible with this approach. This happens due to the previous row's high side capacitor discharging through the columns. Specialized low side drivers exist which may reduce cost.
+Overview is to use small pull up resistors on the columns to allow a small amount of current to trickle to the low side. This is required to prevent a LED from becoming forward biased. No current is required to flow through the LEDs to become reverse biased. This appproach can be faster but can be more expensive. Small bleeding is still possible with this approach. This happens due to the previous row's high side capacitor discharging through the columns. (A modified version of this is possible which manages this. Assuming you can drain the high side with the low side, which is forbidden by most decoders.) Specialized low side drivers exist which may reduce cost.
 
 Start by disabling the rows and the columns. (Columns can go high impedance when disabling with output enable.)
 
