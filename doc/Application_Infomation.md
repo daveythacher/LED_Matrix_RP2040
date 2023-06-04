@@ -67,7 +67,7 @@ This is the algorithm currently used by all matrix algorithms. For GEN 1 panels 
 Overview to prevent bleeding we can make the decoder go into high impedance. Using pull downs the PMOS gate to disable the MOSFET. While in this state we choose a bit plane which enabled one or more columns. This will allow the columns for that row to drain the high side capacitor, which would prevent the bleeding in the next row. The problem is this is forbidden by many panels as the OE is not connected to the decoder.
 
 ##### Low side only algorithm (Modified version 2)
-Overview use a pull down on the high side. Blank the panel as normal with the low side only algorithm. However hold the panel on the next row for a long period of time. This will allow the low side to charge and the high side to discharge.
+Overview use a pull down on the high side. Blank the panel as normal with the low side only algorithm. However hold the panel on the next row for a long period of time. This will allow the low side to charge and the high side to discharge. This is explained [here](https://forums.adafruit.com/viewtopic.php?t=47243). Many panels come with 1206/0805/0603 SMT resistor footprints which allow you to make these changes. However this requires specific changes to the software, see [issue](https://github.com/daveythacher/LED_Matrix_RP2040/issues/30).
 
 #### High side only algorithm
 Overview is to use small pull up resistors on the rows to allow a small amount of current to trickle to the low side. This is required since the current will flow through LED while forward biased. This approach is slower but can be cheaper. This requires a decent amount of time to multiplex. Specialized high side drivers exist which may reduce cost.
