@@ -1,1 +1,2 @@
 add_subdirectory(serial_uart)
+add_subdirectory(serial_test)
