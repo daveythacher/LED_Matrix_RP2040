@@ -33,6 +33,8 @@ The build process used here is a little messy however to simplify panel configur
 
 Currently the C/C++ logic requires all possible configuration parameters to be defined. CMake simply passes these through from the system script. The Groovy build script will hide parameters which are not required. Cucumber however has default settings for all required parameters which may be desired in some cases.
 
+Does not support test algorithms!
+
 ### Features, Rules and Examples/Scenarios
 In the folder features one can add one or more features which define different build configurations. Cucumber uses Gherkin which is a BDD test framework which allows for a number of different types of input formats. It can report the results in a number of different formats and is supported by a number of different frameworks like Jenkins. You can run one feature at a time or all of them. Multiple examples/scenarios and/or rules can exist within a feature. These will always run when the feature is run.
 
