@@ -11,6 +11,10 @@
 
     #include <stdint.h>
     #include "../Matrix/config.h"
+
+    #ifndef DEFINE_SERIAL_RGB_TYPE
+        #define DEFINE_SERIAL_RGB_TYPE uint8_t
+    #endif
     
     typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS][3];
     
