@@ -6,6 +6,8 @@
  
 #include <stdint.h>
 #include "pico/multicore.h"
+#include "hardware/uart.h"
+#include "hardware/gpio.h"
 #include "Serial/config.h"
 #include "Matrix/matrix.h"
 
@@ -37,12 +39,20 @@ static inline void __not_in_flash_func(multicore_fifo_push_blocking_inline)(uint
 }
 
 void __not_in_flash_func(work)() {
-    // TODO: Initialize UART 1
+    const int TX = 20;
+    const int RX = 21;
+
+    gpio_init(TX);
+    gpio_init(RX);
+    gpio_set_dir(TX, GPIO_OUT);
+    gpio_set_function(TX, GPIO_FUNC_UART);
+    gpio_set_function(RX, GPIO_FUNC_UART);
+    uart_init(uart1, 115200);
     
     while(1) {
-        //packet *p = (packet *) multicore_fifo_pop_blocking_inline();
-        
-        // TODO: Write packet to UART 1
+        packet *p = (packet *) multicore_fifo_pop_blocking_inline();
+
+        uart_write_blocking(uart1, (uint8_t *) p, sizeof(packet));
     }
 }
 
