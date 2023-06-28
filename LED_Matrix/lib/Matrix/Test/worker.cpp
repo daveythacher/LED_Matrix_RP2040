@@ -39,8 +39,8 @@ static inline void __not_in_flash_func(multicore_fifo_push_blocking_inline)(uint
 }
 
 void __not_in_flash_func(work)() {
-    const int TX = 20;
-    const int RX = 21;
+    const int TX = 8;
+    const int RX = 9;
 
     gpio_init(TX);
     gpio_init(RX);
