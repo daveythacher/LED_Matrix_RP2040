@@ -13,3 +13,5 @@ Board has additional features like a reset button which help with reprogramming 
 In Interface.brd the differential signals are not routed correctly.
 
 The HUB75 connector is assumed to work with LED Panels modified to work with a power rail at 3.3 volts. It is not recommended to use with 5 volt panels unless known to be supported. 
+
+There is no reverse polarity protection. If wired incorrectly damage to components can occur.
