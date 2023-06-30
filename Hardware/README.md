@@ -16,4 +16,4 @@ The HUB75 connector is assumed to work with LED Panels modified to work with a p
 
 There is no reverse polarity protection. If wired incorrectly damage to components can occur.
 
-Do not plug into Ethernet switches. It is not known/believed to cause issues, but this is not supported or recommended.
+Do not plug into Ethernet switches or other Ethernet hardware, this is not supported or allowed. RS-485 plus power is passed over Ethernet.
