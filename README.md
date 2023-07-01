@@ -20,7 +20,7 @@ Some weird conventions are used. These should be documented in LED_Matrix/README
 ## Setup
 For Linux: (Will install dependencies and download code)
 ```bash
-./setup.sh
+./scripts/setup.sh
 ```
 
 ## Building
