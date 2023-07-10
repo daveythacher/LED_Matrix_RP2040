@@ -9,6 +9,8 @@ Good luck with this as most vendors provide little information with this. Asking
 
 Ideal sizes for message boards are P6 1:8 and P5 1:16. These have support brackets which prevent LEDs from being damaged.
 
+Long chains will create issues and are limited by memory. Serial bandwidth does not scale well against pixel count due to fan out of clock lines of many panels. Some LED drivers are more capable than others a managing the serial bandwidth. However this does not matter if the panels do no manage fan out correctly.
+
 ### Refresh
 
 High refresh displays need special control circuits in multiplexing and LED drivers. This is hard to find in P6, but can be found in P5, P4, P3, P2.5, etc. Most panels are capable of 100-240Hz which should not show flicker to many people. However some people will want higher refreshes for things like movement, cameras, headaches, flicker, etc. According to lighting studies LED Matrixes should target 1.25kHz to avoid most flicker issues. 3kHz is assumed to be flicker free and has no observable adverse consequences.
