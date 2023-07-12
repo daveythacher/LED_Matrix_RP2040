@@ -9,7 +9,12 @@ Good luck with this as most vendors provide little information with this. Asking
 
 Ideal sizes for message boards are P6 1:8 and P5 1:16. These have support brackets which prevent LEDs from being damaged.
 
+#### Fan out
 Long chains will create issues and are limited by memory. Serial bandwidth does not scale well against pixel count due to fan out of clock lines of many panels. Some LED drivers are more capable than others a managing the serial bandwidth. However this does not matter if the panels do no manage fan out correctly.
+
+When you double the number of pixels you double the serial bandwidth requirement and double the fan out. This increases the serial bandwidth requirement as you would expect, moving closer to 25MHz. However the fan out will eventually force a low pass filter. At some point this cut off frequency will be below 25MHz, which means you will not have the full serial bandwidth to work with.
+
+Without fan out management, this results in a quadrupling not doubling. Many HUB75 panels have a high fan out and this is worse in low scan (outdoor/high contrast) panels. Some panels may not even be capable of 25MHz, therefore panel chains will result in performance tradeoffs. Many panels are not fully spec'd. Daisy chaining panels is not recommended, however down clocking chains may still work. Long chains will eventually experience noise/corruption on data lines which will likely violate LED driver sepcifications.
 
 ### Refresh
 
