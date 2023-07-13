@@ -99,10 +99,11 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma) {
     static uint16_t len = 0;
     uint16_t *p = (uint16_t *)buf;
     
+    // Note: Uses CRC-32/MPEG-2
     if (reload_dma) {
         dma_sniffer_set_data_accumulator(0xFFFFFFFF);
-        dma_sniffer_enable(dma_chan, 0, true);
         dma_channel_configure(dma_chan, &c, buf, &uart_get_hw(uart0)->dr, len, true);
+        dma_sniffer_enable(dma_chan, 0, true);
     }
     else {
         if ((p != 0) && (sizeof(DEFINE_SERIAL_RGB_TYPE) == sizeof(uint16_t))) {
@@ -113,7 +114,7 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma) {
         serial_uart_callback(&buf, &len);
 
         if (ptr)
-            process((void *)ptr);
+            process((void *) ptr);
             
         ptr = buf;
     }
