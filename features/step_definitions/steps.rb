@@ -113,7 +113,7 @@ Then("build it") do
         file.close
     end
 
-    cmd = "groovy build.groovy -c " + @app_name + ".xml -r -s 2>&1"
+    cmd = "groovy build.groovy -c " + @app_name + ".xml -r 2>&1"
     puts `#{cmd}`
     result = $?.exitstatus
     expect(result.to_s).to eq("0")
