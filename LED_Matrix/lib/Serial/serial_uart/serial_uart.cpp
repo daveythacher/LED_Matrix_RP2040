@@ -69,7 +69,7 @@ void __not_in_flash_func(serial_uart_task)() {
         }
 
         // Look for start_token
-        if (uart_getc(uart0) == 's') {
+        if (uart_is_readable(uart0) && uart_getc(uart0) == 's') {
             checksum = 0;
             counter = 0;
             needsChecksum = true;
