@@ -84,7 +84,7 @@ And("serial protocol uses RGB-{int}") do |num|
     if num == 24
         @rgb_type = String.new("uint8_t")
     elsif num == 48
-        @rgb_type = String.new("uint8_t")
+        @rgb_type = String.new("uint16_t")
     else
         assert(false)
     end
