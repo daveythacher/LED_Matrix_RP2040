@@ -97,7 +97,7 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma) {
     static uint8_t *ptr = 0;
     static uint8_t *buf = 0;
     static uint16_t len = 0;
-    uint16_t *p = (uint16_t *)buf;
+    uint16_t *p = (uint16_t *) buf;
     
     // Note: Uses CRC-32/MPEG-2
     if (reload_dma) {
@@ -115,8 +115,6 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma) {
 
         if (ptr)
             process((void *) ptr);
-            
-        ptr = buf;
     }
 }
 
