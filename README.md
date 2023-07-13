@@ -40,6 +40,10 @@ cucumber
 ```bash
 groovy build.groovy -c cfg.xml -r
 ```
+#### Building Binary with manual configuration of groovy script from scratch
+```bash
+groovy build.groovy -c cfg.xml -r -s
+```
 ### Building documentation:
 For generating doxygen documentation:
 ```bash
