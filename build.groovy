@@ -10,7 +10,9 @@
  //     The other job of this script is to allow multiple build flavors to be feed into CMake and enable/disable these flavors quickly.
 
 @Grab(group='org.apache.commons', module='commons-lang3', version='3.11' )
+@Grab(group='commons-io', module='commons-io', version='2.11.0')
 import org.apache.commons.lang3.SystemUtils
+import org.apache.commons.io.FileUtils
 
 apps = ""
 flags = ""
@@ -72,9 +74,14 @@ def build_flavor(cfg, index) {
     }
 }
 
-def build_linux(run) {
+def build_linux(run, clean) {
     String script = "./LED_Matrix/build/build.sh"
-    new File("./LED_Matrix/build/").mkdirs()
+    File dir = new File("./LED_Matrix/build/")
+
+    if (clean)
+        FileUtils.deleteDirectory(dir)
+    dir.mkdirs()
+
     File f = new File(script)
     f.text = ""
     f << "#!/bin/bash\n"
@@ -104,9 +111,9 @@ def build_linux(run) {
     }
 }
 
-def build(run) {
+def build(run, clean) {
     if (SystemUtils.IS_OS_LINUX)
-        return build_linux(run)
+        return build_linux(run, clean)
     else
         return "Unsupported Build Platform\n"
 }
@@ -116,6 +123,7 @@ cli.with {
     h longOpt: 'help', 'Show usage information' 
     c longOpt: 'config', args:1, argName: 'cfg.xml', required: true, 'XML build configuration file'
     r longOpt: 'run', 'Execute the script'
+    s longOpt: 'scratch', 'Use clean build directory'
 }
 def options = cli.parse(args)
 if (!options) return
@@ -123,5 +131,5 @@ if (options.h) cli.usage()
 
 def cfg = new XmlSlurper().parse(new File(options.c))
 cfg.build.eachWithIndex { it, index -> build_flavor(cfg, index) }
-build(options.r)
+build(options.r, options.s)
 
