@@ -11,16 +11,6 @@
 
     #include <stdint.h>
     #include "../Matrix/config.h"
-
-    #define XSTR(x) STR(x)
-    #define STR(x) #x
-    #define DO_EXPAND(VAL)  VAL ## 1
-    #define EXPAND(VAL)     DO_EXPAND(VAL)
-
-    #if !defined(DEFINE_SERIAL_RGB_TYPE) || (EXPAND(DEFINE_SERIAL_RGB_TYPE) == 1)
-        #undef DEFINE_SERIAL_RGB_TYPE
-        #define DEFINE_SERIAL_RGB_TYPE uint8_t
-    #endif
     
     typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS][3];
     
