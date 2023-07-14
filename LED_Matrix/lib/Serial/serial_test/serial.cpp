@@ -29,7 +29,7 @@ static void __not_in_flash_func(test_driver)() {
     }
     
     buffer = (buffer + 1) % 2;   
-    process((void *) &buffers[(buffer + 1) % 2]);
+    process((void *) &buffers[(buffer + 1) % 2], true);
 }
 
 void __not_in_flash_func(serial_task)() {

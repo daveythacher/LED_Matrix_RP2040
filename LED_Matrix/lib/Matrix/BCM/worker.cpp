@@ -83,7 +83,12 @@ void __not_in_flash_func(work)() {
     }
 }
 
-void __not_in_flash_func(process)(void *arg) {
-    multicore_fifo_push_blocking_inline((uint32_t) arg);
+bool __not_in_flash_func(process)(void *arg, bool block) {
+    if (multicore_fifo_wready() || block) {
+        multicore_fifo_push_blocking_inline((uint32_t) arg);
+        return true;
+    }
+
+    return false;
 }
 

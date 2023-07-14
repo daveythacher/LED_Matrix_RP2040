@@ -114,7 +114,7 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma) {
         serial_uart_callback(&buf, &len);
 
         if (ptr)
-            process((void *) ptr);
+            process((void *) ptr, false);
     }
 }
 

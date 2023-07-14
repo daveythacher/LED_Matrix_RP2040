@@ -30,8 +30,9 @@
     /**
      *  @brief Function used to pass data to worker
      *  @details Implemented in Matrix/<implementation>/worker.cpp
+     *  @return Return true if processing was not discarded
      */
-    void process(void *arg);
+    bool process(void *arg, bool block);
 
 #endif
 
