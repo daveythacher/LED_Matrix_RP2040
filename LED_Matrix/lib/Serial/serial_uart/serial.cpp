@@ -25,14 +25,9 @@ void __not_in_flash_func(serial_uart_callback)(uint8_t **buf, uint16_t *len) {
     buffer = (buffer + 1) % 2;
 }
 
-void __not_in_flash_func(serial_dma_isr)() {
-    serial_uart_isr();
-}
-
 void serial_start() {
     multicore_launch_core1(work);
     
     serial_dma_chan = dma_claim_unused_channel(true);
     serial_uart_start(serial_dma_chan); 
 }
-

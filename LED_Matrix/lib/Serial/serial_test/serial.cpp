@@ -36,10 +36,6 @@ void __not_in_flash_func(serial_task)() {
     test_driver();
 }
 
-void __not_in_flash_func(serial_dma_isr)() {
-    // Do nothing
-}
-
 void serial_start() {
     multicore_launch_core1(work);
 }

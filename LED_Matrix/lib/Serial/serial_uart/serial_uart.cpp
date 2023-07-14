@@ -48,7 +48,7 @@ void serial_uart_start(int dma) {
     channel_config_set_write_increment(&c, true);
     channel_config_set_read_increment(&c, false);
     channel_config_set_dreq(&c, DREQ_UART0_RX);
-    dma_channel_set_irq1_enabled(dma_chan, true);
+    dma_channel_set_irq1_enabled(dma_chan, false);
 
     serial_uart_reload(false);
 }
@@ -77,6 +77,7 @@ void __not_in_flash_func(serial_uart_task)() {
         }
     }
 
+    // TODO: Convert this to state machine which yields
     // Wait for the checksum
     if (needsChecksum) {
         while (counter < 4 && uart_is_readable(uart0)) {
@@ -90,6 +91,15 @@ void __not_in_flash_func(serial_uart_task)() {
             checksum = ntohl(checksum);
             serial_uart_reload(true);
         }
+    }
+
+    // Note this is allowed to trip the error recovery protocol, which should not cause an issue.
+    if (dma_channel_get_irq1_status(dma_chan)) {
+        if ((dma_sniffer_get_data_accumulator() == checksum) && ((uart0_hw->ris & 0x380) == 0))
+            serial_uart_reload(false);
+        dma_sniffer_disable();
+        isIdle = true;
+        dma_hw->ints1 = 1 << dma_chan;
     }
 }
 
@@ -115,19 +125,5 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma) {
 
         if (ptr)
             process((void *) ptr, false);
-    }
-}
-
-// TODO: Look into moving this super loop, because of serial protocol this is not longer critical.
-//  Should the serial protocol ever be allowed to be critical? I am thinking this should be low priority.
-//  This is not really required and it is blocking the multiplexing.
-// Note this is allowed to trip the error recovery protocol, which should not cause an issue.
-void __not_in_flash_func(serial_uart_isr)() {
-    if (dma_channel_get_irq1_status(dma_chan)) {
-        if ((dma_sniffer_get_data_accumulator() == checksum) && ((uart0_hw->ris & 0x380) == 0))
-            serial_uart_reload(false);
-        dma_sniffer_disable();
-        isIdle = true;
-        dma_hw->ints1 = 1 << dma_chan;
     }
 }
