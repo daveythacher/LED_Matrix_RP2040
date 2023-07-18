@@ -51,9 +51,9 @@ Increased computation latency from 1.09mS to 1.11mS, when using copy_to_ram. The
 Note these results are old.
 
 ## Interrupts
-Core 0 should run all interrupts. Core 1 should run all processing for GEN 1 and all GCLK interrupts for GEN 2 and GEN 3. Note GEN 2 and GEN 3 process in the ISR, however the DMA is activated before. Processing in GEN 2 and GEN 3 should be very fast. There is no processing on Core 0 outside of interrupts.
+Core 0 should run all front end serial logic. Core 1 should run all processing in loop for GEN 1 and all GCLK/multiplexing in loop for GEN 2 and GEN 3. Note GEN 2 and GEN 3 may process in the ISR on core 0, however the DMA is to be activated before if used. Processing in GEN 2 and GEN 3 should be very fast. There is no processing on core 0 outside of GEN 1 multiplexing interrupts or front end serial protocols.
 
-Serial protocol interrupts are the highest priority. Next is multiplexing interrupts, if any. Matrix algorithms are free to configure interrupts on Core 1 if they desire. Matrix algorithms own Core 1.
+Serial protocol interrupts are the highest priority, but this is discouraged. (It is recommended to use core 0's loop.) Next is multiplexing interrupts, if any. (GEN 1 works this way.) Matrix algorithms are free to configure interrupts on Core 1 if they desire. Matrix algorithms own core 1. Note performance can slip if core 1 is mismanaged. Responsiveness is the most important thing and the multiplexing is to never be compromised under any case.
 
 ## Status
 ### lib/Matrix:
