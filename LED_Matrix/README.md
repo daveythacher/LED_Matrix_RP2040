@@ -16,18 +16,18 @@ Currently they all use the same symbol, matrix_start to get going. They are comp
 
 To add more you just create folder, define matrix_start, have CMake build a library with led_ prefix, define matrix_dma_isr if needed, define set_pixel, etc. CMake should link against all dependencies used by the lib. Each matrix algorithm is its own library.
 
+Parallel development should be possible.
+
 ### Multiplex Alogirthms
-CMake configuration selects these as configured for the specific build.
+CMake configuration selects these as configured for the specific build. Parallel development should be possible.
 
 ### Serial Algorithms
-These are used by the src folder to implement different applications/front end protocols. Configuration for specific build picks the src folder implementation.
+These are used by the src folder to implement different applications/front end protocols. Configuration for specific build picks the src folder implementation. Parallel development should be possible.
+
+Note these have control over ISRs. These are also responsible for booting core 1 which is owned by matrix algorithm.
 
 ## src folder
-This folder for different applications. These pick a serial algorithm. CMake still configures preprocessor for size, multiplex algorithm, matrix algorithm, etc. The idea here is build flavors. Some matrix algorithms require a completely different implementation or cannot work in all cases.
-
-This is kind of pain, but this is a microcontroller. I did not want to lose memory or make this really painful to manage. Parallel development should be possible.
-
-Note this was updated to use CMake to manage this as logic was designed to be library module. (This may make things a little confusing but maybe not.)
+This is boiler plate application which pulls the matrix and serial algorithms together. CMake configures preprocessor for size, multiplex algorithm, matrix algorithm, serial algorithm, etc. The idea here is build flavors.
 
 ## Benchmark
 May be worth correcting jitter using non-stripped RAM. However, this is not believed to be required. DMA to PIO latency would be more critical than jitter or computation latency, but I am not sure there is a significant issue. Manually mapping this will likely increase complexity and reduce available RAM.
