@@ -17,3 +17,7 @@ The HUB75 connector is assumed to work with LED Panels modified to work with a p
 There is no reverse polarity protection. If wired incorrectly damage to components can occur.
 
 Do not plug into Ethernet switches or other Ethernet hardware, this is not supported or allowed. RS-485 plus power is passed over Ethernet.
+
+There is no termination for transmission lines or long ribbon cables. This is intended to connect directly to the panel without ribbon cable.
+
+Fan out performance determines the clock speed of many panels which can be less than 25MHz. This is from the panel itself. There is no buffers used as most panels have buffers near inputs. Long chains will have issues with ribbon cable jumper and fan out. (This can be corrected in some cases via special jumper cables, which is outside the scope of this project.)
