@@ -13,6 +13,8 @@
 @Grab(group='commons-io', module='commons-io', version='2.11.0')
 import org.apache.commons.lang3.SystemUtils
 import org.apache.commons.io.FileUtils
+import groovy.xml.*
+import groovy.cli.commons.CliBuilder
 
 apps = ""
 flags = ""
@@ -111,11 +113,44 @@ def build_linux(run, clean) {
     }
 }
 
+def build_windows(run, clean) {
+    String script = ".\\LED_Matrix\\build\\build.bat"
+    File dir = new File("./LED_Matrix/build/")
+
+    if (clean)
+        FileUtils.deleteDirectory(dir)
+    dir.mkdirs()
+
+    File f = new File(script)
+    f.text = ""
+    f << "@echo off\n"
+    f << "cd ./LED_Matrix\n"
+    f << "SET DIR=%cd%\n"
+    f << "SET PICO_SDK_PATH=%DIR%\\lib\\pico-sdk\n"
+    f << "copy %DIR%\\lib\\pico-sdk\\external\\pico_sdk_import.cmake .\n"
+    f << "cd build\n"
+    f << sprintf("cmake -G \"NMake Makefiles\" .. -DAPPS=\"%s\" %s  2>&1\n", apps, flags)
+    f << "make -j %NUMBER_OF_PROCESSORS% 2>&1\n"
+    f << "cd ..\\..\n"
+
+    if (run) {
+        def proc = script.execute()
+        println proc.text
+        System.exit(proc.exitValue())
+    }
+    else {
+        print "Please run:\n"
+        println script
+    }
+}
+
 def build(run, clean) {
     if (SystemUtils.IS_OS_LINUX)
-        return build_linux(run, clean)
+        build_linux(run, clean)
+    else if (SystemUtils.IS_OS_WINDOWS)
+        build_windows(run, clean)
     else
-        return "Unsupported Build Platform\n"
+        println "Unsupported Build Platform"
 }
 
 def cli = new CliBuilder(usage: 'build.groovy [-h] -c <cfg.xml>')
@@ -132,4 +167,3 @@ if (options.h) cli.usage()
 def cfg = new XmlSlurper().parse(new File(options.c))
 cfg.build.eachWithIndex { it, index -> build_flavor(cfg, index) }
 build(options.r, options.s)
-
