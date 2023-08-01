@@ -126,11 +126,12 @@ def build_windows(run, clean) {
     f << "@echo off\n"
     f << "cd ./LED_Matrix\n"
     f << "SET DIR=%cd%\n"
+    f << "set CMAKE_GENERATOR=Ninja\n"
     f << "SET PICO_SDK_PATH=%DIR%\\lib\\pico-sdk\n"
     f << "copy %DIR%\\lib\\pico-sdk\\external\\pico_sdk_import.cmake .\n"
     f << "cd build\n"
-    f << sprintf("cmake -G \"NMake Makefiles\" .. -DAPPS=\"%s\" %s  2>&1\n", apps, flags)
-    f << "make -j %NUMBER_OF_PROCESSORS% 2>&1\n"
+    f << sprintf("cmake .. -DAPPS=\"%s\" %s  2>&1\n", apps, flags)
+    f << "ninja -j %NUMBER_OF_PROCESSORS% 2>&1\n"
     f << "cd ..\\..\n"
 
     if (run) {
