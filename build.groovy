@@ -14,7 +14,7 @@
 import org.apache.commons.lang3.SystemUtils
 import org.apache.commons.io.FileUtils
 import groovy.xml.*
-import groovy.cli.commons.CliBuilder
+import groovy.cli.commons.*
 
 apps = ""
 flags = ""
