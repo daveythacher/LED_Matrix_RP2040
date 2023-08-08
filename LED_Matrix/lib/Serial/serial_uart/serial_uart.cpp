@@ -53,6 +53,14 @@ void serial_uart_start(int dma) {
     serial_uart_reload(false);
 }
 
+
+// TODO: Fix response time of seeing start token
+//  The sender should wait for the bus to go idle before sending checksum and data.
+//  However the sender can get a false positive if this task is starved.
+// TODO: Fix the response time of capturing the checksum
+//  The sender is not required to wait before sending the data after checksum has been sent
+// NOTE: Current implementation works but has issues with certain configuration settings
+//  Cannot use high baud rates, high color density, high refresh rates and/or large blank times
 void __not_in_flash_func(serial_uart_task)() {
     static uint64_t time = time_us_64(); 
     static bool needsChecksum = false;
