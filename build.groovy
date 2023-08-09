@@ -92,7 +92,7 @@ def build_linux(run, clean) {
     f << "export PICO_SDK_PATH=\$DIR/lib/pico-sdk\n"
     f << "cp \$DIR/lib/pico-sdk/external/pico_sdk_import.cmake .\n"
     f << "cd build\n"
-    f << sprintf("cmake .. -DAPPS=\"%s\" %s  2>&1\n", apps, flags)
+    f << sprintf("cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DAPPS=\"%s\" %s  2>&1\n", apps, flags)
     f << "make -j \$((\$(nproc) * 2)) 2>&1 #VERBOSE=1\n"
     f << "if [ \$? -eq 0 ]; then\n"
     f << "\techo \"Binary output:\"\n"
@@ -130,7 +130,7 @@ def build_windows(run, clean) {
     f << "SET PICO_SDK_PATH=%DIR%\\lib\\pico-sdk\n"
     f << "copy %DIR%\\lib\\pico-sdk\\external\\pico_sdk_import.cmake .\n"
     f << "cd build\n"
-    f << sprintf("cmake .. -DAPPS=\"%s\" %s  2>&1\n", apps, flags)
+    f << sprintf("cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DAPPS=\"%s\" %s  2>&1\n", apps, flags)
     f << "ninja -j %NUMBER_OF_PROCESSORS% 2>&1\n"
     f << "cd ..\\..\n"
 
