@@ -13,7 +13,6 @@
 
 static packet buffers[2];
 static volatile uint8_t buffer = 0;
-static int serial_dma_chan;
 
 void __not_in_flash_func(serial_task)() {  
     serial_uart_task();
@@ -28,6 +27,7 @@ void __not_in_flash_func(serial_uart_callback)(uint8_t **buf, uint16_t *len) {
 void serial_start() {
     multicore_launch_core1(work);
     
-    serial_dma_chan = dma_claim_unused_channel(true);
-    serial_uart_start(serial_dma_chan); 
+    int serial_dma_chan0 = dma_claim_unused_channel(true);
+    int serial_dma_chan1 = dma_claim_unused_channel(true);
+    serial_uart_start(serial_dma_chan0, serial_dma_chan1); 
 }

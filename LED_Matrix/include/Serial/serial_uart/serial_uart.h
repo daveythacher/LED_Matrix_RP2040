@@ -10,7 +10,7 @@
     #include <stdint.h>
     #include <stdio.h>
     
-    void serial_uart_start(int dma_chan);
+    void serial_uart_start(int dma_chan0, int dma_chan1);
     void serial_uart_task();
     void serial_uart_callback(uint8_t **buf, uint16_t *len);
 
