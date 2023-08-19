@@ -63,8 +63,9 @@ void serial_uart_start(int dma0, int dma1) {
 
 
 // Note: Response time of seeing start token
-//  The sender should wait for the bus to go idle before sending checksum and data.
-//  However the sender can get a false positive if this task is starved.
+//  The sender should wait for the bus to go active before sending checksum and data.
+//  However the sender can get a false positive if this task is starved. (ISR can starve.)
+//    Sender must wait long enough to ensure this cannot happen!
 // NOTE: Current implementation works but may have issues with certain configuration settings
 //  Cannot use high baud rates, high color density, high refresh rates and/or large blank times
 void __not_in_flash_func(serial_uart_task)() {
