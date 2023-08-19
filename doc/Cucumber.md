@@ -131,7 +131,7 @@ It must be of the format: "And UART baud of {num}", where {num} is a whole integ
 If not given this will default to 4000000.
 
 #### Serial Algorithm Data format
-It must be of the format: "And serial protocol uses RGB-{num}", where {num} is either 24 or 48. This is the RGB standard used by the host application over the Serial algorithm. This is useful for enabling more pixels on some panels, however limits the max LED contrast ratio. Using RGB-24 is recommended for LEDs with low contrast or panels with high multiplex ratios.
+It must be of the format: "And serial protocol uses RGB-{num}", where {num} is either 24, 48, 555, 232. This is the RGB standard used by the host application over the Serial algorithm. This is useful for enabling more pixels on some panels, however limits the max LED contrast ratio. Using RGB-24 is recommended for LEDs with low contrast or panels with high multiplex ratios.
 
 If not used this will will default to 24.
 

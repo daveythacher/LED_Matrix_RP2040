@@ -79,7 +79,7 @@ void __not_in_flash_func(work)() {
         packet *p = (packet *) multicore_fifo_pop_blocking_inline();
         for (int y = 0; y < MULTIPLEX; y++)
             for (int x = 0; x < COLUMNS; x++)
-                set_pixel(x, y, p->data[y][x][0], p->data[y][x][1], p->data[y][x][2], p->data[y + MULTIPLEX][x][0], p->data[y + MULTIPLEX][x][1], p->data[y + MULTIPLEX][x][2]);
+                set_pixel(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
         bank = (bank + 1) % 3;
         vsync = true;
     }

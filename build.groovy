@@ -28,7 +28,7 @@ def handle_serial_algorithm(cfg, index) {
         flags += sprintf(" -D%s_APP=uart -D%s_DEFINE_SERIAL_UART_BAUD=%s -D%s_DEFINE_SERIAL_RGB_TYPE=%s", name, name, s.baud, name, c.RGB_type)
     }
     else if (c.algorithm == "test") {
-        flags += sprintf(" -D%s_APP=test -D%s_DEFINE_SERIAL_RGB_TYPE=uint8_t", name, name)
+        flags += sprintf(" -D%s_APP=test -D%s_DEFINE_SERIAL_RGB_TYPE=RGB24", name, name)
     }
     else {
         println "Unknown serial algorithm " + c.algorithm

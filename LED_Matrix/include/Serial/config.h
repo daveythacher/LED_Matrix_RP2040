@@ -11,8 +11,9 @@
 
     #include <stdint.h>
     #include "../Matrix/config.h"
+    #include "Serial/types.h"
     
-    typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS][3];
+    typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS];
     
     typedef union {
         test data;
