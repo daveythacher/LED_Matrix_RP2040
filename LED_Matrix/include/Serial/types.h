@@ -23,9 +23,9 @@
 
     typedef struct {
         uint8_t red : 2;
-        uint8_t green : 3;
+        uint8_t green : 2;
         uint8_t blue : 2;
-    } RGB_232;
+    } RGB_222;
 
     typedef struct {
         uint16_t red : 5;

@@ -38,7 +38,7 @@ This is a string for the corresponding serial algorithm. Currently this is just 
 This is the baud rate used for the uart.
 
 ### RGB_type
-This will change the number of bits per color used in the serial algorithm. Use either RGB24, RGB48, RGB_232 or RGB_555 only. Technically optional will default to RGB24.
+This will change the number of bits per color used in the serial algorithm. Use either RGB24, RGB48, RGB_222 or RGB_555 only. Technically optional will default to RGB24.
 
 ## matrix section
 ### algorithm
