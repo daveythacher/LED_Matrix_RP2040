@@ -20,5 +20,10 @@
         uint8_t mem[((sizeof(test) / 64) + 1) * 64];
     } packet;
 
+    // Bad practice
+    #define STR(s) s##_range_high
+    #define GET_RANGE_HIGH(TYPE) STR(TYPE)
+
+    const uint32_t range_high = GET_RANGE_HIGH(DEFINE_SERIAL_RGB_TYPE);
 #endif
 

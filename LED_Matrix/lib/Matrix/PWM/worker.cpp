@@ -4,6 +4,7 @@
  * License: GPL 3.0
  */
  
+#include <algorithm>
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
@@ -11,6 +12,7 @@
 #include "Serial/config.h"
 #include "Matrix/matrix.h"
 #include "Matrix/PWM/memory_format.h"
+using std::max;
 
 static uint8_t bank = 1;
 volatile bool vsync = false;
@@ -44,7 +46,11 @@ static inline void __not_in_flash_func(multicore_fifo_push_blocking_inline)(uint
 }
 
 static uint8_t *__not_in_flash_func(get_table)(uint16_t v, uint8_t i) {
-    v %= (1 << PWM_bits);
+    constexpr uint32_t div = max((uint32_t) range_high / 1 << PWM_bits, (uint32_t) 1);
+    constexpr uint32_t mul = max((uint32_t) 1 << PWM_bits / range_high, (uint32_t) 1);
+    
+    v = v * mul / div;
+    //v %= (1 << PWM_bits);
     return index_table[v][i];
 }
 
