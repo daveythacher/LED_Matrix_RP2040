@@ -54,12 +54,12 @@ static uint8_t *__not_in_flash_func(get_table)(uint16_t v, uint8_t i) {
     return index_table[v][i];
 }
 
-static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
+template <typename T> static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
     extern test2 buf[];
-    uint8_t *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
+    T *c[6] = { (T *) get_table(r0, 0), (T *) get_table(g0, 1), (T *) get_table(b0, 2), (T *) get_table(r1, 3), (T *) get_table(g1, 4), (T *) get_table(b1, 5) };
    
-    for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-        uint8_t *p = &buf[bank][y][i][x + 1];
+    for (uint32_t i = 0; i < ((1 << PWM_bits) / sizeof(T)); i += sizeof(T)) {
+        T *p = (T  *) &buf[bank][y][i][x + 1];
         *p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
         for (uint32_t j = 0; j < 6; j++)
             ++c[j];
@@ -83,9 +83,21 @@ void __not_in_flash_func(work)() {
     
     while(1) {
         packet *p = (packet *) multicore_fifo_pop_blocking_inline();
-        for (int y = 0; y < MULTIPLEX; y++)
-            for (int x = 0; x < COLUMNS; x++)
-                set_pixel(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
+        for (int y = 0; y < MULTIPLEX; y++) {
+            for (int x = 0; x < COLUMNS; x++) {
+                switch ((1 << PWM_bits) % 4) {
+                    case 0:
+                        set_pixel<uint32_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
+                        break;
+                    case 2:
+                        set_pixel<uint16_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
+                        break;
+                    default:
+                        set_pixel<uint8_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
+                        break;
+                }
+            }
+        }
         bank = (bank + 1) % 3;
         vsync = true;
     }
