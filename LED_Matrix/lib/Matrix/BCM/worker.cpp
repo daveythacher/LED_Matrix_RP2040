@@ -52,6 +52,7 @@ static uint8_t *__not_in_flash_func(get_table)(uint16_t v, uint8_t i) {
     return index_table[v][i];
 }
 
+// Forgive the shameless and reckless casting.
 template <typename T> static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
     extern test2 buf[];
     T *c[6] = { (T *) get_table(r0, 0), (T *) get_table(g0, 1), (T *) get_table(b0, 2), (T *) get_table(r1, 3), (T *) get_table(g1, 4), (T *) get_table(b1, 5) };
