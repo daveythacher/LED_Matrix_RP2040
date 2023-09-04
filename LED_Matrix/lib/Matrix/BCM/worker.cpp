@@ -82,6 +82,8 @@ void __not_in_flash_func(work)() {
         packet *p = (packet *) multicore_fifo_pop_blocking_inline();
         for (int y = 0; y < MULTIPLEX; y++) {
             for (int x = 0; x < COLUMNS; x++) {
+
+                // Compiler should remove all but one of these.
                 switch (PWM_bits % 4) {
                     case 0:
                         set_pixel<uint32_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
