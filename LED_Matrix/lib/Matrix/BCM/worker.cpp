@@ -57,7 +57,7 @@ template <typename T> static void __not_in_flash_func(set_pixel)(uint8_t x, uint
     extern test2 buf[];
     T *c[6] = { (T *) get_table(r0, 0), (T *) get_table(g0, 1), (T *) get_table(b0, 2), (T *) get_table(r1, 3), (T *) get_table(g1, 4), (T *) get_table(b1, 5) };
    
-    for (uint32_t i = 0; i < (PWM_bits / sizeof(T)); i += sizeof(T)) {
+    for (uint32_t i = 0; i < (PWM_bits / sizeof(T)); i++) {
         T *p = (T *) &buf[bank][y][i][x + 1];
         *p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
         for (uint32_t j = 0; j < 6; j++)
