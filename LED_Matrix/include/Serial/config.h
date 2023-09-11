@@ -17,7 +17,7 @@
     
     union packet {
         test data;
-        uint8_t mem[((sizeof(test) / 64) + 1) * 64];
+        uint32_t mem[((sizeof(test) / (64 / sizeof(uint32_t))) + 1) * (64 / sizeof(uint32_t))];
     };
 
     const uint32_t range_high = DEFINE_SERIAL_RGB_TYPE::range_high;
