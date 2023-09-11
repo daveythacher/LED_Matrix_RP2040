@@ -11,6 +11,7 @@
 #include "Serial/config.h"
 #include "Matrix/matrix.h"
 #include "Matrix/BCM/memory_format.h"
+#include "Matrix/helper.h"
 
 static uint8_t bank = 1;
 volatile bool vsync = false;
@@ -21,33 +22,6 @@ union index_table_t {
 };
 
 static index_table_t index_table;
-
-// Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
-//  Allows inlining to RAM func. (Currently linker is copy-to-RAM)
-//  May be better to use -ffunction-sections and -fdata-sections with custom linker script
-//   I do not want to worry with custom linker script, if possible.
-//      .ram_text : {
-//          *(.text.multicore_fifo_pop_blocking)
-//          . = ALIGN(4);
-//      } > RAM AT> FLASH
-//      .text : {
-static inline uint32_t __not_in_flash_func(multicore_fifo_pop_blocking_inline)(void) {
-    while (!multicore_fifo_rvalid())
-        __wfe();
-    return sio_hw->fifo_rd;
-}
-
-// Copied from pico-sdk/src/rp2_common/pico_multicore/multicore.c
-static inline void __not_in_flash_func(multicore_fifo_push_blocking_inline)(uint32_t data) {
-    // We wait for the fifo to have some space
-    while (!multicore_fifo_wready())
-        tight_loop_contents();
-
-    sio_hw->fifo_wr = data;
-
-    // Fire off an event to the other core
-    __sev();
-}
 
 static uint8_t *__not_in_flash_func(get_table)(uint16_t v, uint8_t i) {
     constexpr uint32_t div = max((uint32_t) range_high / 1 << PWM_bits, (uint32_t) 1);
