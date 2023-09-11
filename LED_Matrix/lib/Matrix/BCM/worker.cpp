@@ -67,7 +67,7 @@ template <typename T> static void __not_in_flash_func(set_pixel)(uint8_t x, uint
         T p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
 
         for (uint32_t j = 0; (j < sizeof(T)) && ((i + j) < PWM_bits); j++)
-            buf[bank][y][i + j][x + 1] = (p >> (j *8)) & 0xFF;
+            buf[bank][y][i + j][x + 1] = (p >> (j * 8)) & 0xFF;
 
         for (uint32_t j = 0; j < 6; j++)
             ++c[j];
