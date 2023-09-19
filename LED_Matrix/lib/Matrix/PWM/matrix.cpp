@@ -179,7 +179,7 @@ void __not_in_flash_func(matrix_timer_isr)() {
                 timer_hw->alarm[timer] = time_us_32() + BLANK_TIME + 1;                 // Load timer
                 timer_hw->armed = 1 << timer;                                           // Kick off timer
                 
-                if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH
+                if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                     rows = 0;
                     if (vsync) {
                         bank = (bank + 1) % 3;
