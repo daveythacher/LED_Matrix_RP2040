@@ -160,7 +160,7 @@ void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
 void __not_in_flash_func(matrix_dma_isr)() {
     if (dma_channel_get_irq0_status(dma_chan[0])) {                             // Note: This clears the interrupt        
         // Make sure the FIFO is empty 
-        constexpr uint32_t FIFO_delay = (uint32_t) 125000000U / ((uint32_t) round(SERIAL_CLOCK) / 4 * 1000);
+        constexpr uint32_t FIFO_delay = (uint32_t) 125000000U / ((uint32_t) round(SERIAL_CLOCK) / 5 * 1000);
         timer_hw->alarm[timer] = time_us_32() + FIFO_delay + 1;                 // Load timer
         timer_hw->armed = 1 << timer;                                           // Kick off timer
         state = 0;
@@ -185,7 +185,7 @@ void __not_in_flash_func(matrix_timer_isr)() {
                         vsync = false;
                     }
                 }
-                
+
                 SetRow(rows);
                 load_line(rows, bank);                                                  // Note this is a fairly expensive operation. This is done in parallel with blank time.
                 state++;
