@@ -27,6 +27,7 @@ test2 buf[3];
 static volatile uint8_t bank = 0;
 static int dma_chan[3];
 static volatile bool isFinished[2] = { false, false };
+volatile int timer;
 
 static void start_clk(uint16_t counter);
 static void start_gclk();
@@ -166,6 +167,8 @@ void matrix_start() {
     channel_config_set_read_increment(&c, true);
     channel_config_set_dreq(&c, DREQ_PIO0_TX2);
     dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[2], NULL, COLUMNS, false);
+
+    timer = hardware_alarm_claim_unused(true);
     
     // TODO: Boot procedure
     gpio_set_mask(1 << 20);                                                     // Disable display and reset GCLK counter
@@ -232,5 +235,9 @@ void __not_in_flash_func(start_clk)(uint16_t counter) {
 
 void __not_in_flash_func(start_gclk)() {
     pio_sm_put_blocking(pio1, 0, 1 << PWM_bits);
+}
+
+void __not_in_flash_func(matrix_timer_isr)() {
+    // TODO
 }
 

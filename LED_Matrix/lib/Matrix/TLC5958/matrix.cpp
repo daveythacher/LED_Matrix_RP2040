@@ -24,6 +24,7 @@ static int dma_chan;
 static bool isFinished = false;
 static const uint8_t lat_cmd = 1;
 static const uint8_t seg_bits = 8;
+volatile int timer;
 
 static void start_clk(uint16_t counter, uint8_t cmd);
 static void start_gclk(uint8_t bits);
@@ -157,6 +158,8 @@ void matrix_start() {
     pio_sm_put_blocking(pio0, 1, 5);
     
     dma_channel_set_irq0_enabled(dma_chan, true); 
+
+    timer = hardware_alarm_claim_unused(true);
     
     start_gclk(seg_bits);                                                       // Kick off hardware (GCLK)
 }
@@ -220,3 +223,6 @@ void __not_in_flash_func(send_cmd)(uint8_t cmd) {
     while (pio0->sm[1].instr != 3); 
 }
 
+void __not_in_flash_func(matrix_timer_isr)() {
+    // TODO:
+}

@@ -22,6 +22,7 @@ static uint8_t bank = 0;
 static int dma_chan[2];
 static struct {uint32_t len; uint8_t *data;} address_table[3];
 static uint8_t null_table[COLUMNS + 1];
+volatile int timer;
 
 static void send_line();
 static void load_line(uint32_t rows, uint8_t buffer);
@@ -132,6 +133,9 @@ void matrix_start() {
     channel_config_set_write_increment(&c, true);
     channel_config_set_ring(&c, true, 3);                                       // 1 << 3 byte boundary on write ptr
     dma_channel_configure(dma_chan[1], &c, &dma_hw->ch[dma_chan[0]].al3_transfer_count, &address_table[0], 2, false);
+
+    timer = hardware_alarm_claim_unused(true);
+    timer_hw->inte |= 1 << timer;
     
     load_line(0, 1);
     send_line();
@@ -154,15 +158,14 @@ void __not_in_flash_func(matrix_dma_isr)() {
     static uint32_t rows = 0;
     extern volatile bool vsync;
     
-    if (dma_channel_get_irq0_status(dma_chan[0])) {                             // Note: This clears the interrupt
-        uint64_t time;
-        
+    if (dma_channel_get_irq0_status(dma_chan[0])) {                             // Note: This clears the interrupt        
         // Make sure the FIFO is empty (Warning this will block for a long time if SERIAL_CLOCK is low!)
         //  Warning bug exists with LAT automation when SERIAL_CLOCK is low. (Use assembly delay based on SERIAL_CLOCK? Not needed for this, most of the time.)
         //  ISR already has undefined behavior from ISR blocking (BLANK_TIME), which is very bad! (Expected to small and likely okay for this.)
         while(!pio_sm_is_tx_fifo_empty(pio0, 0));                               
         gpio_set_mask(1 << 22);                                                 // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
-        time = time_us_64();                                                    // Start a timer with 1uS delay
+        timer_hw->alarm[timer] = time_us_32() + BLANK_TIME + 1;                 // Load timer
+        timer_hw->armed = 1 << timer;                                           // Kick off timer
         
         if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH
             rows = 0;
@@ -173,11 +176,14 @@ void __not_in_flash_func(matrix_dma_isr)() {
         }
         SetRow(rows);
         load_line(rows, bank);                                                  // Note this is a fairly expensive operation. This is done in parallel with blank time.
-                                                                                //  This is why no ISR for long delays has been implemented. (It is not believed to be required.)
+    }
+}
 
-        while((time_us_64() - time) < BLANK_TIME);                              // Check if timer has expired (TODO: Implement ISR for long delays, if needed.)
+void __not_in_flash_func(matrix_timer_isr)() {
+    if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
         gpio_clr_mask(1 << 22);                                                 // Turn on the panel (Note software controls PWM/BCM)
         send_line();                                                            // Kick off hardware
+        timer_hw->intr = 1 << timer;                                            // Clear the interrupt
     }
 }
 
