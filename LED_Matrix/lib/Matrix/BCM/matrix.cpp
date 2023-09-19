@@ -19,6 +19,7 @@
 
 test2 buf[3];
 static uint8_t bank = 0;
+static volatile uint8_t state = 0;
 static int dma_chan[2];
 static struct {uint32_t len; uint8_t *data;} address_table[(1 << PWM_bits) + 1];
 static uint8_t null_table[COLUMNS + 1];
@@ -159,35 +160,47 @@ void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
 }
 
 void __not_in_flash_func(matrix_dma_isr)() {
-    static uint32_t rows = 0;
-    extern volatile bool vsync;
-    
     if (dma_channel_get_irq0_status(dma_chan[0])) {                             // Note: This clears the interrupt        
-        // Make sure the FIFO is empty (Warning this will block for a long time if SERIAL_CLOCK is low!)
-        //  Warning bug exists with LAT automation when SERIAL_CLOCK is low. (Use assembly delay based on SERIAL_CLOCK? Not needed for this, most of the time.)
-        //  ISR already has undefined behavior from ISR blocking (BLANK_TIME), which is very bad! (Expected to small and likely okay for this.)
-        while(!pio_sm_is_tx_fifo_empty(pio0, 0));
-        gpio_set_mask(1 << 22);                                                 // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
-        timer_hw->alarm[timer] = time_us_32() + BLANK_TIME + 1;                 // Load timer
+        // Make sure the FIFO is empty 
+        constexpr uint32_t FIFO_delay = (uint32_t) 125000000U / ((uint32_t) round(SERIAL_CLOCK) / 4 * 1000);
+        timer_hw->alarm[timer] = time_us_32() + FIFO_delay + 1;                 // Load timer
         timer_hw->armed = 1 << timer;                                           // Kick off timer
-        
-        if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH
-            rows = 0;
-            if (vsync) {
-                bank = (bank + 1) % 3;
-                vsync = false;
-            }
-        }
-
-        SetRow(rows);
-        load_line(rows, bank);                                                  // Note this is a fairly expensive operation. This is done in parallel with blank time.
+        state = 0;
     }
 }
 
 void __not_in_flash_func(matrix_timer_isr)() {
+    static uint32_t rows = 0;
+    extern volatile bool vsync;
+
     if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
-        gpio_clr_mask(1 << 22);                                                 // Turn on the panel (Note software controls PWM/BCM)
-        send_line();                                                            // Kick off hardware
+        switch(state) {
+            case 0:
+                gpio_set_mask(1 << 22);                                                 // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
+                timer_hw->alarm[timer] = time_us_32() + BLANK_TIME + 1;                 // Load timer
+                timer_hw->armed = 1 << timer;                                           // Kick off timer
+                
+                if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH
+                    rows = 0;
+                    if (vsync) {
+                        bank = (bank + 1) % 3;
+                        vsync = false;
+                    }
+                }
+                
+                SetRow(rows);
+                load_line(rows, bank);                                                  // Note this is a fairly expensive operation. This is done in parallel with blank time.
+                state++;
+                break;
+            case 1:
+                gpio_clr_mask(1 << 22);                                         // Turn on the panel (Note software controls PWM/BCM)
+                send_line();                                                    // Kick off hardware
+                state++;
+                break;
+            default:
+                break;
+        }
+        
         timer_hw->intr = 1 << timer;                                            // Clear the interrupt
     }
 }
