@@ -107,6 +107,7 @@ void matrix_start() {
     static_assert(x2 >= 1.0, "SERIAL_CLOCK too low");
     constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
+    static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
 
     // PMP / SM
     pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);

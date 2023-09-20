@@ -108,6 +108,7 @@ void matrix_start() {
     constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
     static_assert(MAX_REFRESH <= 300, "BCM is not recommended for refresh rates higher than 240Hz");
+    static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
 
     // PMP / SM
     pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
