@@ -38,19 +38,12 @@
         </matrix>
     </build>
     
-    <build name="TEST3" enable="false">
-        <serial algorithm="uart" RGB_type="RGB24">
-            <uart baud="4000000"/>
-        </serial>
-        <matrix algorithm="ON_OFF" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="125" max_refresh="3000" columns="32" serial_clock="17.0" blank_time="10"/>
-    </build>
-    
-    <build name="TEST4" enable="true">
+    <build name="TEST3" enable="true">
         <serial algorithm="test"/>
         <matrix algorithm="PWM" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="125" max_refresh="3000" columns="32" serial_clock="17.0" blank_time="10"/>
     </build>
     
-    <build name="TEST5" enable="true">
+    <build name="TEST4" enable="true">
         <serial algorithm="uart" RGB_type="RGB24">
             <uart baud="4000000"/>
         </serial>
