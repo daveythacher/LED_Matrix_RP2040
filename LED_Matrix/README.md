@@ -64,8 +64,6 @@ BCM - working
 
 PWM - working
 
-ON_OFF - not tested
-
 TLC5946 - experimental
 
 TLC5958 - experimental
