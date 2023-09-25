@@ -2,23 +2,23 @@
 #include <stdint.h>
 #include <algorithm>
 
-const uint8_t header_checksum[1][4] = { {0} };
+const int8_t header_checksum[1][4] = { {0} };
 
 // Preamble must be half of packet
 struct Packet {
-    uint8_t preamble[32];
-    uint8_t inverse[12];
-    uint8_t length[4];
-    uint8_t command[4];
-    uint8_t marker[4];
-    uint8_t header_checksum[4];
-    uint8_t payload_checksum[4];
+    int8_t preamble[32];
+    int8_t inverse[12];
+    int8_t length[4];
+    int8_t command[4];
+    int8_t marker[4];
+    int8_t header_checksum[4];
+    int8_t payload_checksum[4];
 };
 
 static uint16_t index = 0;
 constexpr uint8_t command_count = 1;
-const uint8_t marker[4] = { 0x11, 0x19, 0x19, 0x90 };
-extern const uint8_t header_checksum[command_count][4];
+const int8_t marker[4] = { 0x11, 0x19, 0x19, -112 /*0x90*/ };
+extern const int8_t header_checksum[command_count][4];
 
 //uint8_t iterator(Packet *p1, Packet *p2, uint16_t i);
 
@@ -30,39 +30,43 @@ constexpr uint8_t columns = 16;
 volatile bool isReady = false;
 
 // Test misalignment (simulates errors in stream as seen by receiver)
-typedef Packet my_name[columns][rows];
+typedef volatile Packet my_name[columns][rows];
 #define MISALIGN
 #ifdef MISALIGN
-Packet array2[columns*2][rows];
+volatile Packet array2[columns*2][rows];
 uint8_t *vector = (uint8_t *) &array2[0][0].preamble[0];
 my_name *array;
 #else
 my_name array2;
-my_name *array;// = &array2;
+my_name *array;
 #endif
 
 int main(int argc, char **argv) {
     int LED_PIN = 0;
 
 #ifdef MISALIGN
-    array = (my_name *) &vector[15];
+    array = (my_name *) &vector[1];
 #else
     array = &array2;
 #endif
 
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
+    gpio_init(LED_PIN + 1);
+    gpio_set_dir(LED_PIN + 1, GPIO_OUT);
 
     while (1) {
         gpio_put(LED_PIN, 1);
+        gpio_put(LED_PIN + 1, 1);
         task();
         gpio_put(LED_PIN, 0);
+        gpio_put(LED_PIN + 1, 0);
         other_task();
     }
 }
 
 
-constexpr uint8_t iterator(Packet *p1, Packet *p2, uint16_t i) {
+constexpr int8_t iterator(volatile Packet *p1, volatile Packet *p2, uint16_t i) {
     if (i < sizeof(Packet)) {
         uint8_t *ptr = (uint8_t *) p1;
 
@@ -76,57 +80,63 @@ constexpr uint8_t iterator(Packet *p1, Packet *p2, uint16_t i) {
     }
 }
 
-bool search(Packet *p1, Packet *p2) {
-    int i, j, k;
+bool search(volatile Packet *p1, volatile Packet *p2) {
+    unsigned int j;
+    unsigned int k;
     uint32_t c;
-
-    // Look for start of preamble
-    for (i = std::max(index - 4, 0); i < std::min(index, (uint16_t) 4); i++) {
-        if (iterator(p1, p2, i) == 0x19)
-            break;
-    }
+    gpio_put(1, 1);
 
     // Verify Preamble
-    for (j = index; j < (int) (index + sizeof(Packet::preamble) - i); j++) {
-        if (iterator(p1, p2, j) != 0x19)
+    for (j = index; j < (index + sizeof(Packet::preamble)); j++) {
+        if (iterator(p1, p2, j) != 0x19) {
+            gpio_put(1, 0);
             return false;
+        }
     }
+    gpio_put(1, 1);
 
     // Verify Inverse
-    for (k = j; k < (int) (j + sizeof(Packet::inverse)); k++) {
-        if (iterator(p1, p2, k) != ~0x19)
+    for (k = j; k < (j + sizeof(Packet::inverse)); k++) {
+        if (iterator(p1, p2, k) != ~0x19) {
+            gpio_put(1, 0);
             return false;
+        }
     }
     j = k;
+    gpio_put(1, 1);
 
     // TODO: Extract command and length
+    c = 0;
     c %= command_count;
     j += 8;
 
     // Verify Marker
-    for (k = j; k < (int) (j + sizeof(Packet::marker)); k++) {
-        if (iterator(p1, p2, k) != marker[k - j])
+    for (k = j; k < (j + sizeof(Packet::marker)); k++) {
+        if (iterator(p1, p2, k) != marker[k - j]) {
+            gpio_put(1, 0);
             return false;
+        }
     }
     j = k;
+    gpio_put(1, 1);
 
     // Verify header checksum (hard coded by compiler for each command)
     //  Length is a hard coded by compiler (this is factored into the checksum)
-    for (k = j; k < (int) (j + sizeof(Packet::header_checksum)); k++) {
-        if (iterator(p1, p2, k) != header_checksum[c][k - j])
+    for (k = j; k < (j + sizeof(Packet::header_checksum)); k++) {
+        if (iterator(p1, p2, k) != header_checksum[c][k - j]) {
+            gpio_put(1, 0);
             return false;
+        }
     }
     j = k;
+    gpio_put(1, 1);
 
     // TODO: Extract payload checksum
-
-    // Stay in phase or realign phase
-    index = i;
 
     return true;
 }
 
-bool isNewFrame(Packet *p1, Packet *p2) {
+bool isNewFrame(volatile Packet *p1, volatile Packet *p2) {
     uint8_t *ptr = (uint8_t *) p1;
     
     while (true) {
@@ -149,7 +159,7 @@ void reset_state_machine() {
     // TODO    
 }
 
-void state_machine(Packet *p) {
+void state_machine(volatile Packet *p) {
     // TODO
 }
 
@@ -211,6 +221,6 @@ void other_task() {
         }
     }
 
-    num = (num + 1) % rows;
+    num = (num + 2) % rows;
     isReady = true;
 }
