@@ -146,8 +146,8 @@ bool isNewFrame(volatile Packet *p1, volatile Packet *p2) {
             break;
         }
 
-        if (*(ptr + index) == 0x19)
-            return search(p1, p2);
+        if (*(ptr + index) == 0x19 && search(p1, p2))
+            return true;
         else
             index++;
     }
