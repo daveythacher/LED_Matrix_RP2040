@@ -136,6 +136,18 @@ bool search(volatile Packet *p1, volatile Packet *p2) {
     return true;
 }
 
+uint32_t load_word(void *address) {
+	uint64_t *new_address = (uint64_t *) (((uint64_t) address) & (uint64_t) ~0x7);
+	uint64_t result = *new_address >> ((((uint64_t) address) & (uint64_t) 0x7) * 8);
+	return result & (((uint64_t) 1 << (sizeof(uint32_t) * 8)) - 1);
+}
+
+uint64_t load_long(void *address) {
+	uint64_t result = load_word(address);
+	result |= (uint64_t) load_word((void *) ((uint64_t) address + 4)) << 32;
+	return result;
+}
+
 bool isNewFrame(volatile Packet *p1, volatile Packet *p2) {
     uint8_t *ptr = (uint8_t *) p1;
     
@@ -146,7 +158,9 @@ bool isNewFrame(volatile Packet *p1, volatile Packet *p2) {
             break;
         }
 
-        if (*(ptr + index) == 0x19 && search(p1, p2))
+        const uint64_t value = 0x1919191919191919;
+
+        if (load_long(ptr + index) == value && search(p1, p2))
             return true;
         else
             index++;
@@ -195,32 +209,88 @@ void task() {
 void other_task() {
     static uint8_t num = 0;
 
-    for (int i = 0; i < columns; i++) {
-        for (int j = 0; j < (int) sizeof(Packet::command); j++) {
-            array[i][num]->command[j] = 0;
-        }
+    if (num == 0) {
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < (int) sizeof(Packet::command); j++) {
+                array[i][num]->command[j] = 0;
+            }
 
-        for (int j = 0; j < (int) sizeof(Packet::length); j++) {
-            array[i][num]->length[j] = (4096 >> (j * 8)) & 0xFF;
-        }
+            for (int j = 0; j < (int) sizeof(Packet::length); j++) {
+                array[i][num]->length[j] = (4096 >> (j * 8)) & 0xFF;
+            }
 
-        for (int j = 0; j < (int) sizeof(Packet::preamble); j++) {
-            array[i][num]->preamble[j] = 0x19;
-        }
+            for (int j = 0; j < (int) sizeof(Packet::preamble); j++) {
+                array[i][num]->preamble[j] = 0x19;
+            }
 
-        for (int j = 0; j < (int) sizeof(Packet::inverse); j++) {
-            array[i][num]->inverse[j] = ~0x19;
-        }
+            for (int j = 0; j < (int) sizeof(Packet::inverse); j++) {
+                array[i][num]->inverse[j] = ~0x19;
+            }
 
-        for (int j = 0; j < (int) sizeof(Packet::header_checksum); j++) {
-            array[i][num]->header_checksum[j] = header_checksum[0][j];
-        }
+            for (int j = 0; j < (int) sizeof(Packet::header_checksum); j++) {
+                array[i][num]->header_checksum[j] = header_checksum[0][j];
+            }
 
-        for (int j = 0; j < (int) sizeof(Packet::marker); j++) {
-            array[i][num]->marker[j] = marker[j];
+            for (int j = 0; j < (int) sizeof(Packet::marker); j++) {
+                array[i][num]->marker[j] = marker[j];
+            }
+        }
+    }
+    else if (num == 1) {
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < (int) sizeof(Packet::command); j++) {
+                array[i][num]->command[j] = 0;
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::length); j++) {
+                array[i][num]->length[j] = (4096 >> (j * 8)) & 0xFF;
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::preamble); j++) {
+                array[i][num]->preamble[j] = 0x19;
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::inverse); j++) {
+                array[i][num]->inverse[j] = ~0x19;
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::header_checksum); j++) {
+                array[i][num]->header_checksum[j] = header_checksum[0][j];
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::marker); j++) {
+                array[i][num]->marker[j] = marker[j] & 0x11;
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < (int) sizeof(Packet::command); j++) {
+                array[i][num]->command[j] = 0;
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::length); j++) {
+                array[i][num]->length[j] = (4096 >> (j * 8)) & 0xFF;
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::preamble); j++) {
+                array[i][num]->preamble[j] = 0x18;
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::inverse); j++) {
+                array[i][num]->inverse[j] = ~0x19;
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::header_checksum); j++) {
+                array[i][num]->header_checksum[j] = header_checksum[0][j];
+            }
+
+            for (int j = 0; j < (int) sizeof(Packet::marker); j++) {
+                array[i][num]->marker[j] = marker[j] & 0x11;
+            }
         }
     }
 
-    num = (num + 2) % rows;
+    num = (num + 1) % rows;
     isReady = true;
 }
