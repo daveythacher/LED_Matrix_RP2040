@@ -136,21 +136,7 @@ bool search(volatile Packet *p1, volatile Packet *p2) {
     return true;
 }
 
-uint32_t load_word(void *address) {
-	uint64_t *new_address = (uint64_t *) (((uint64_t) address) & (uint64_t) ~0x7);
-	uint64_t result = *new_address >> ((((uint64_t) address) & (uint64_t) 0x7) * 8);
-	return result & (((uint64_t) 1 << (sizeof(uint32_t) * 8)) - 1);
-}
-
-uint64_t load_long(void *address) {
-	uint64_t result = load_word(address);
-	result |= (uint64_t) load_word((void *) ((uint64_t) address + 4)) << 32;
-	return result;
-}
-
-bool isNewFrame(volatile Packet *p1, volatile Packet *p2) {
-    uint8_t *ptr = (uint8_t *) p1;
-    
+bool isNewFrame(volatile Packet *p1, volatile Packet *p2) {    
     while (true) {
         // Jump out if preamble not found in Packet
         if (index >= sizeof(Packet)) {
@@ -158,9 +144,7 @@ bool isNewFrame(volatile Packet *p1, volatile Packet *p2) {
             break;
         }
 
-        const uint64_t value = 0x1919191919191919;
-
-        if (load_long(ptr + index) == value && search(p1, p2))
+        if ((iterator(p1, p2, index) == 0x19) && search(p1, p2))
             return true;
         else
             index++;
