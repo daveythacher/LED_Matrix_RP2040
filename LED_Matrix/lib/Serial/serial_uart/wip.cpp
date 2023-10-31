@@ -138,16 +138,28 @@ bool search(volatile Packet *p1, volatile Packet *p2) {
 
 bool isNewFrame(volatile Packet *p1, volatile Packet *p2) {    
     while (true) {
+        uint16_t counter = 0;
+
+        for (uint16_t i = index; i <= sizeof(Packet); i++) {
+            if (iterator(p1, p2, i) == 0x19) {
+                ++counter;
+            }
+            else {
+                counter = 0;
+                index = i;
+            }
+        }
+
+        if ((counter != 0) && search(p1, p2))
+            return true;
+        else
+            index += counter;
+
         // Jump out if preamble not found in Packet
         if (index >= sizeof(Packet)) {
             index -= sizeof(Packet);
             break;
         }
-
-        if ((iterator(p1, p2, index) == 0x19) && search(p1, p2))
-            return true;
-        else
-            index++;
     }
 
     return false;
