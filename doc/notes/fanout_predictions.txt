@@ -1,11 +1,25 @@
-			95.3		95.3		3000
-Max columns for GEN 3: 	512 (1S)	128 (32S)	128 (32S)
-Max columns for GEN 2: 	512 (1S) 	64 (32S) 	32 (8S)
-Max columns for GEN 1: 	32 (1S) 	32 (32S)	1 (32S)
+12 bits per color:
+			95.3		3000	
+Max columns for GEN 3: 	512 (1S)	512 (1S)
+Max columns for GEN 2: 	512 (1S) 	64 (1S)	
+Max columns for GEN 1: 	32 (1S)		1 (1S)
 
-GEN 3 is 16 times better than GEN 2 in pixel density
-GEN 3 is really on 4 times better than GEN 2 in pixel density.
+GEN 3 is 4 times better than GEN 2 in pixel density with max grayscale when using max refresh.
+GEN 2 significantly out performs GEN 1 in pixel density.
+Fan out limits GEN 3 and GEN 2 below max refresh.
+Fan out limits GEN 3 at max refresh.
 
+Max pixel density:
+			95.3		3000
+Max columns for GEN 3: 	128 (32S)	128 (32S)
+Max columns for GEN 2: 	64 (32S)	32 (8S)
+Max columns for GEN 1: 	32 (32S)	1 (32S)
+
+GEN 3 significantly out performs GEN 2 in pixel density when using max refresh.
+GEN 2 significantly out performs GEN 1 in pixel density when using max refresh.
+Fan out only limits GEN 3.
+
+1 bit per color:
 			95.3		3000
 Max columns for GEN 1: 	1024 (1S) 	64 (16S)
 
