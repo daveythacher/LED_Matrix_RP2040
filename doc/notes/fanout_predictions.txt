@@ -1,0 +1,20 @@
+			95.3		95.3		3000
+Max columns for GEN 3: 	512 (1S)	128 (32S)	128 (32S)
+Max columns for GEN 2: 	512 (1S) 	64 (32S) 	32 (8S)
+Max columns for GEN 1: 	32 (1S) 	32 (32S)	1 (32S)
+
+GEN 3 is 16 times better than GEN 2 in pixel density
+GEN 3 is really on 4 times better than GEN 2 in pixel density.
+
+			95.3		3000
+Max columns for GEN 1: 	1024 (1S) 	64 (16S)
+
+Max number of pixels for HUB75 on GEN 1 is 2048 per chain with 1 bit per color.
+
+
+
+Assumptions: (This should be conservative.)
+Impedance: 50 ohms
+Cap per pin: 15 pF
+Time constants: 5
+Parallel loads: 6
