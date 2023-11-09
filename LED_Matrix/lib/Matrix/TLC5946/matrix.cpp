@@ -17,6 +17,7 @@
 #include "Matrix/matrix.h"
 #include "Matrix/TLC5946/memory_format.h"
 #include "Multiplex/Multiplex.h"
+#include "Serial/config.h"
 
 // NOTE: This uses custom hardware board!
 //  It is not compatible with the Interface boards!
@@ -92,6 +93,11 @@ void matrix_start() {
     static_assert(x >= 1.0, "SERIAL_CLOCK too low");
     constexpr float CLK = x * 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(CLK >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
+    static_assert(COLUMNS <= 1024, "COLUMNS more than 1024 is not recommended");
+    static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
+    static_assert((2 * MULTIPLEX * COLUMNS * sizeof(DEFINE_SERIAL_RGB_TYPE)) <= (24 * 1024), "The current frame size is not supported");
+    static_assert((MULTIPLEX * COLUMNS * 6) <= (48 * 1024), "The current buffer size is not supported");
+    static_assert((MULTIPLEX * (1 << PWM_bits)) <= (4 * 1024), "The current LED grayscale is not supported");
     
     constexpr float x2 = GCLK / (MULTIPLEX * MAX_REFRESH * (1 << PWM_bits));
     static_assert(x2 >= 1.0, "GCLK too low");
