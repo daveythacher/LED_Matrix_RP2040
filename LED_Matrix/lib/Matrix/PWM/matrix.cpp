@@ -104,16 +104,33 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio0, 0, 8, 8, true);
     
     // Verify Serial Clock
-    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * (1 << PWM_bits));
+    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * 1.3 * (1 << PWM_bits));
     static_assert(x2 >= 1.0, "SERIAL_CLOCK too low");
     constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
+
+    // This could be 8 or 16 depending on panel. (Kind of random.)
     static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
+
+    // This is depends on panel implementation however the fanout and par cap in matrix limit the max size.
+    //  Technically capable of more pixels with multiplexing, if we reduce refresh and contrast.
+    //  Picked numbers to simplify support and define limits.
     static_assert(COLUMNS <= 1024, "COLUMNS more than 1024 is not recommended");
     static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
+
+    // This is the limit observed in testing and from most panel specifications.
+    static_assert((MULTIPLEX * (1 << PWM_bits)) <= (4 * 1024), "The current LED grayscale is not supported");
+
+    // There is a trade off here: (Is most extreme for this matrix algorithm.)
+    //  1. Increase the frame size and do remote computation. (This works up to 96KB, which requires at least 25Mbps in serial algorithm.)
+    //      Currently this is not used and set to 24KB, which requires at least 7.8Mbps in serial algorithm.
+    //  2. Use local computation which constrains the buffer size. (This works up to 48KB, which requires all of core 1.)
+    //      Currently this is used and is constrained to 48KB, which requires all of core 1.
+    //
+    //  The sum off all memory usage for serial frames and LED buffers must not exceed 192KB.
+    //      64KB is reserved for code and 8KB is reserved for stack/heap for both cores.
     static_assert((2 * MULTIPLEX * COLUMNS * sizeof(DEFINE_SERIAL_RGB_TYPE)) <= (24 * 1024), "The current frame size is not supported");
     static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= (48 * 1024), "The current buffer size is not supported");
-    static_assert((MULTIPLEX * (1 << PWM_bits)) <= (4 * 1024), "The current LED grayscale is not supported");
 
     // PMP / SM
     pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
