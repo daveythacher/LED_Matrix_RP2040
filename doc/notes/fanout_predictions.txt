@@ -1,7 +1,7 @@
 12 bits per color:
 			95.3		3000	
-Max columns for GEN 3: 	1024 (1S)	1024 (1S)
-Max columns for GEN 2: 	512 (1S) 	64 (1S)	
+Max columns for GEN 3: 	256 (1S)	256 (1S)
+Max columns for GEN 2: 	256 (1S) 	64 (1S)	
 Max columns for GEN 1: 	32 (1S)		1 (1S)
 
 RP2040 can only support a column of 8 or 16 for GEN 1.
@@ -37,4 +37,5 @@ Assumptions: (This should be conservative.)
 Impedance: 50 ohms
 Cap per pin: 15 pF
 Time constants: 5
-Parallel loads: 6
+Parallel loads (CLK): 6
+Parallel loads (GCLK): 1
