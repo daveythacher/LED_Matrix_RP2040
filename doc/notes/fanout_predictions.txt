@@ -1,6 +1,6 @@
 12 bits per color:
 			95.3		3000	
-Max columns for GEN 3: 	512 (1S)	512 (1S)
+Max columns for GEN 3: 	1024 (1S)	1024 (1S)
 Max columns for GEN 2: 	512 (1S) 	64 (1S)	
 Max columns for GEN 1: 	32 (1S)		1 (1S)
 
