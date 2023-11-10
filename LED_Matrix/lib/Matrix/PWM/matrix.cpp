@@ -123,13 +123,14 @@ void matrix_start() {
 
     // There is a trade off here: (Is most extreme for this matrix algorithm.)
     //  1. Increase the frame size and do remote computation. (This works up to 96KB, which requires at least 25Mbps in serial algorithm.)
-    //      Currently this is not used and set to 24KB, which requires at least 7.8Mbps in serial algorithm.
+    //      Currently this is not used and set to 12KB, which requires at least 7.8Mbps in serial algorithm. (Local CPU is used to compute bitplanes.)
+    //          Note 7.8Mbps allows for main processor jitter and 30 frames per second. (7.8Mbps reduces termination complexity.)
     //  2. Use local computation which constrains the buffer size. (This works up to 48KB, which requires all of core 1.)
     //      Currently this is used and is constrained to 48KB, which requires all of core 1.
     //
     //  The sum off all memory usage for serial frames and LED buffers must not exceed 192KB.
     //      64KB is reserved for code and 8KB is reserved for stack/heap for both cores.
-    static_assert((2 * MULTIPLEX * COLUMNS * sizeof(DEFINE_SERIAL_RGB_TYPE)) <= (24 * 1024), "The current frame size is not supported");
+    static_assert((2 * MULTIPLEX * COLUMNS * sizeof(DEFINE_SERIAL_RGB_TYPE)) <= (12 * 1024), "The current frame size is not supported");
     static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= (48 * 1024), "The current buffer size is not supported");
 
     // PMP / SM

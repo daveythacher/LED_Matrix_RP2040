@@ -95,7 +95,7 @@ void matrix_start() {
     static_assert(CLK >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
     static_assert(COLUMNS <= 1024, "COLUMNS more than 1024 is not recommended");
     static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
-    static_assert((2 * MULTIPLEX * COLUMNS * sizeof(DEFINE_SERIAL_RGB_TYPE)) <= (24 * 1024), "The current frame size is not supported");
+    static_assert((2 * MULTIPLEX * COLUMNS * sizeof(DEFINE_SERIAL_RGB_TYPE)) <= (12 * 1024), "The current frame size is not supported");
     static_assert((MULTIPLEX * COLUMNS * 6) <= (48 * 1024), "The current buffer size is not supported");
     static_assert((MULTIPLEX * (1 << PWM_bits)) <= (4 * 1024), "The current LED grayscale is not supported");
     
