@@ -9,8 +9,8 @@ RP2040 can only support a column of 8 or 16 for GEN 1. (95.3 Hz)
 	In order to support 8, nearly the max CPU limit is used. (Remote processing is also available.)
 GEN 3 significantly out performs GEN 2 in pixel density with max grayscale when using max refresh.
 GEN 2 significantly out performs GEN 1 in pixel density.
-Fan out limits GEN 3 and GEN 2 below max refresh.
-Fan out limits GEN 3 at max refresh.
+Fan out limits GEN 3 and GEN 2 below max refresh. (GCLK)
+Fan out limits GEN 3 at max refresh. (GCLK)
 
 Max pixel density:
 			95.3 Hz		3000 Hz
@@ -23,7 +23,7 @@ RP2040 can only support a column of 8 (32S) or 16 (32S) for GEN 1. (95.3 Hz)
 	In order to support 8 (32S), nearly the max CPU limit is used. (Remote processing is also available.)
 GEN 3 significantly out performs GEN 2 in pixel density when using max refresh.
 GEN 2 significantly out performs GEN 1 in pixel density when using max refresh.
-Fan out only limits GEN 3.
+Fan out only limits GEN 3. (CLK)
 
 1 bit per color:
 			95.3 Hz		3000 Hz
