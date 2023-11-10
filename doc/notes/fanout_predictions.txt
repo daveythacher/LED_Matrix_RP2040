@@ -39,3 +39,4 @@ Cap per pin: 15 pF
 Time constants: 5
 Parallel loads (CLK): 6
 Parallel loads (GCLK): 1
+Outputs per driver: 16
