@@ -4,3 +4,6 @@
 [submodule "scripts/RP2040_Symbol_Parser"]
 	path = scripts/RP2040_Symbol_Parser
 	url = https://github.com/daveythacher/RP2040_Symbol_Parser.git
+[submodule "scripts/LED_Panel_Setting_Calculator"]
+	path = scripts/LED_Panel_Setting_Calculator
+	url = git@github.com:daveythacher/LED_Panel_Setting_Calculator.git
