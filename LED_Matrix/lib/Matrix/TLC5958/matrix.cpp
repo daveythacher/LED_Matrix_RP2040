@@ -86,11 +86,10 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio0, 2, 22, 1, true);
     
     // Verify Serial Clock
-    static_assert(SERIAL_CLOCK <= 33000000.0);
+    static_assert(SERIAL_CLOCK <= 25000000.0);
+    static_assert(GCLK <= 33000000.0);
     
-    constexpr float x = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * FPS * 16 * 3);
-    static_assert(x >= 1.0, "SERIAL_CLOCK too low");
-    constexpr float CLK = x * 125000000.0 / (SERIAL_CLOCK * 2.0 * 0.75);
+    constexpr float CLK = 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(CLK >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
     static_assert(COLUMNS <= 1024, "COLUMNS more than 1024 is not recommended");
     static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
@@ -98,10 +97,8 @@ void matrix_start() {
     static_assert((MULTIPLEX * COLUMNS * 6) <= (48 * 1024), "The current buffer size is not supported");
     static_assert((MULTIPLEX * (1 << PWM_bits)) <= (4 * 1024), "The current LED grayscale is not supported");
     
-    constexpr float x2 = GCLK / (MULTIPLEX * MAX_REFRESH * (1 << std::max(PWM_bits, (int) seg_bits)));
-    static_assert(x2 >= 1.0, "GCLK too low");
-    constexpr float GCLK = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
-    static_assert(GCLK >= 1.0, "Unabled to configure PIO for MAX_REFRESH");
+    constexpr float G_CLK = 125000000.0 / (GCLK * 2.0);
+    static_assert(G_CLK >= 1.0, "Unabled to configure PIO for MAX_REFRESH");
 
     // DAT SM
     pio0->sm[0].clkdiv = 0;
@@ -122,7 +119,7 @@ void matrix_start() {
     pio_sm_claim(pio0, 1);
 
     // GCLK SM
-    pio0->sm[2].clkdiv = ((uint32_t) floor(GCLK) << 16) | ((uint32_t) round((GCLK - floor(GCLK)) * 255.0) << 8);
+    pio0->sm[2].clkdiv = ((uint32_t) floor(G_CLK) << 16) | ((uint32_t) round((G_CLK - floor(G_CLK)) * 255.0) << 8);
     pio0->sm[2].execctrl = (18 << 12);
     pio0->sm[2].shiftctrl = 0;
     pio0->sm[2].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (22 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);

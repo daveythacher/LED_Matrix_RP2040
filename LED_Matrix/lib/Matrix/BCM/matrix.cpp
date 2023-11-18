@@ -104,10 +104,9 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio0, 0, 8, 8, true);
     
     // Verify Serial Clock
-    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * (1 << PWM_bits));
-    static_assert(x2 >= 1.0, "SERIAL_CLOCK too low");
-    constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
+    constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
+    
     static_assert(MAX_REFRESH <= 300, "BCM is not recommended for refresh rates higher than 240Hz");
     static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
     static_assert(COLUMNS <= 1024, "COLUMNS more than 1024 is not recommended");

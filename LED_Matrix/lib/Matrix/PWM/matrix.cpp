@@ -104,9 +104,7 @@ void matrix_start() {
     pio_sm_set_consecutive_pindirs(pio0, 0, 8, 8, true);
     
     // Verify Serial Clock
-    constexpr float x2 = SERIAL_CLOCK / (MULTIPLEX * COLUMNS * MAX_REFRESH * 1.3 * (1 << PWM_bits));
-    static_assert(x2 >= 1.0, "SERIAL_CLOCK too low");
-    constexpr float x = x2 * 125000000.0 / (SERIAL_CLOCK * 2.0);
+    constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
 
     // This could be 8 or 16 depending on panel. (Kind of random.)
