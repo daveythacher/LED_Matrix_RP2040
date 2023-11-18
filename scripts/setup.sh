@@ -9,3 +9,5 @@ sudo gem install rspec-expectations
 git submodule update --init
 cd LED_Matrix/lib/pico-sdk/
 git submodule update 
+
+ln -s scripts/LED_Panel_Setting_Calculator/LED_Panel_Setting_Calculator/ LED_Panel_Setting_Calculator

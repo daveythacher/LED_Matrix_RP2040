@@ -39,3 +39,4 @@ Hardware/*.b#*
 Hardware/.*.lck
 *.xml
 .vscode/*
+LED_Panel_Setting_Calculator

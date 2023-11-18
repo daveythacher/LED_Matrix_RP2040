@@ -15,6 +15,7 @@ import org.apache.commons.lang3.SystemUtils
 import org.apache.commons.io.FileUtils
 import groovy.xml.*
 import groovy.cli.commons.*
+import LED_Panel_Setting_Calculator.*
 
 apps = ""
 flags = ""
@@ -40,25 +41,69 @@ def handle_matrix_algorithm(cfg, index) {
     name = cfg.build[index].attributes().name
     c = cfg.build[index].matrix[0].attributes()
 
+    boolean result = false;
+
     if (c.algorithm == "BCM" || c.algorithm == "PWM") {
         flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.algorithm)
+        
+        def calc = new GEN_1();
+        
+        if (c.algorithm == "BCM")
+            calc.isBCM = true;
+        
+        result = calc.is_valid((short) Integer.parseInt(c.multiplex), Integer.parseInt(c.columns), Integer.parseInt(c.max_refresh), (short) Math.ceil(Math.log(Integer.parseInt(c.max_rgb_led_steps)) / Math.log(2)));
+        
+        if (result) {
+            result = Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
+        }
     }
     else if (c.algorithm == "TLC5958") {
         m = cfg.build[index].matrix[0].TLC5958[0].attributes()
         flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.algorithm)
         flags += sprintf(" -D%s_DEFINE_FPS=%s -D%s_DEFINE_GCLK=%s -D%s_DEFINE_RED_GAIN=%s -D%s_DEFINE_GREEN_GAIN=%s -D%s_DEFINE_BLUE_GAIN=%s", name, m.fps, name, m.gclk, name, m.red_gain, name, m.green_gain, name, m.blue_gain)
+        
+        def calc = new GEN_3();
+        
+        calc.frames_per_second = Integer.parseInt(m.fps);
+        calc.s_pwm_bits_per_seg = 8;
+        
+        result = calc.is_valid((short) Integer.parseInt(c.multiplex), Integer.parseInt(c.columns), Integer.parseInt(c.max_refresh), (short) Math.ceil(Math.log(Integer.parseInt(c.max_rgb_led_steps)) / Math.log(2)));
+       
+        if (result) {
+            result = Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
+            result = Double.parseDouble(m.gclk) >= calc.glk_mhz;
+        }
     }
     else if (c.algorithm == "TLC5946") {
         m = cfg.build[index].matrix[0].TLC5946[0].attributes()
         flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.algorithm)
         flags += sprintf(" -D%s_DEFINE_GCLK=%s", name, m.gclk)
+
+        def calc = new GEN_2();
+        
+        calc.frames_per_second = Integer.parseInt(m.fps);
+        calc.is12bitTi = true;
+        calc.max_grayscale_bits = 12;
+        
+        result = calc.is_valid((short) Integer.parseInt(c.multiplex), Integer.parseInt(c.columns), Integer.parseInt(c.max_refresh), (short) Math.ceil(Math.log(Integer.parseInt(c.max_rgb_led_steps)) / Math.log(2)));
+       
+        if (result) {
+            result = Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
+            result = Double.parseDouble(m.gclk) >= calc.glk_mhz;
+        }
     }
     else if (c.algorithm == "Test") {
         flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=Decoder -D%s_DEFINE_MAX_RGB_LED_STEPS=16 -D%s_DEFINE_MAX_REFRESH=0 -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=0 -D%s_DEFINE_BLANK_TIME=0 -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, name, name, name, c.columns, name, name, name, c.algorithm)
+        result = true;
     }
     else {
         println "Unknown matrix algorithm " + c.algorithm
         System.exit(1)
+    }
+
+    if (!result) {
+        println "Unsupported matrix algorithm configuration for " + name;
+        System.exit(1);
     }
 }
 

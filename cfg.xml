@@ -17,7 +17,7 @@
         <serial algorithm="uart" RGB_type="RGB24">
             <uart baud="4000000"/>
         </serial>
-        <matrix algorithm="PWM" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="125" max_refresh="3000" columns="32" serial_clock="17.0" blank_time="10"/>
+        <matrix algorithm="PWM" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="16" max_refresh="3000" columns="32" serial_clock="17.0" blank_time="10"/>
     </build>
 
     <build name="TEST1" enable="false">
@@ -40,7 +40,7 @@
     
     <build name="TEST3" enable="true">
         <serial algorithm="test"/>
-        <matrix algorithm="PWM" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="125" max_refresh="3000" columns="32" serial_clock="17.0" blank_time="10"/>
+        <matrix algorithm="PWM" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="16" max_refresh="3000" columns="32" serial_clock="17.0" blank_time="10"/>
     </build>
     
     <build name="TEST4" enable="true">
