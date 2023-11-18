@@ -54,7 +54,7 @@ def handle_matrix_algorithm(cfg, index) {
         result = calc.is_valid((short) Integer.parseInt(c.multiplex), Integer.parseInt(c.columns), Integer.parseInt(c.max_refresh), (short) Math.ceil(Math.log(Integer.parseInt(c.max_rgb_led_steps)) / Math.log(2)));
         
         if (result) {
-            result = Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
+            result &= Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
         }
     }
     else if (c.algorithm == "TLC5958") {
@@ -70,8 +70,8 @@ def handle_matrix_algorithm(cfg, index) {
         result = calc.is_valid((short) Integer.parseInt(c.multiplex), Integer.parseInt(c.columns), Integer.parseInt(c.max_refresh), (short) Math.ceil(Math.log(Integer.parseInt(c.max_rgb_led_steps)) / Math.log(2)));
        
         if (result) {
-            result = Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
-            result = Double.parseDouble(m.gclk) >= calc.glk_mhz;
+            result &= Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
+            result &= Double.parseDouble(m.gclk) >= calc.glk_mhz;
         }
     }
     else if (c.algorithm == "TLC5946") {
@@ -88,8 +88,8 @@ def handle_matrix_algorithm(cfg, index) {
         result = calc.is_valid((short) Integer.parseInt(c.multiplex), Integer.parseInt(c.columns), Integer.parseInt(c.max_refresh), (short) Math.ceil(Math.log(Integer.parseInt(c.max_rgb_led_steps)) / Math.log(2)));
        
         if (result) {
-            result = Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
-            result = Double.parseDouble(m.gclk) >= calc.glk_mhz;
+            result &= Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
+            result &= Double.parseDouble(m.gclk) >= calc.glk_mhz;
         }
     }
     else if (c.algorithm == "Test") {
