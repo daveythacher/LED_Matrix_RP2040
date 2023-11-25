@@ -68,27 +68,28 @@ def handle_matrix_algorithm(cfg, index) {
         m = cfg.build[index].matrix[0].TLC5958[0].attributes()
         flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.algorithm)
         flags += sprintf(" -D%s_DEFINE_FPS=%s -D%s_DEFINE_GCLK=%s -D%s_DEFINE_RED_GAIN=%s -D%s_DEFINE_GREEN_GAIN=%s -D%s_DEFINE_BLUE_GAIN=%s", name, m.fps, name, m.gclk, name, m.red_gain, name, m.green_gain, name, m.blue_gain)
+        flags += sprintf(" -D%s_DEFINE_IS_RAW=false", name)
         
         def calc = new GEN_3();
         
-        calc.frames_per_second = Integer.parseInt(m.fps);
+        calc.frames_per_second = Double.parseDouble(m.fps);
         calc.s_pwm_bits_per_seg = 8;
         
         result = calc.is_valid((short) Integer.parseInt(c.multiplex), Integer.parseInt(c.columns), Integer.parseInt(c.max_refresh), (short) Math.ceil(Math.log(Integer.parseInt(c.max_rgb_led_steps)) / Math.log(2)));
        
         if (result) {
             result &= Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
-            result &= Double.parseDouble(m.gclk) >= calc.glk_mhz;
+            result &= Double.parseDouble(m.gclk) >= calc.gclk_mhz;
         }
     }
     else if (c.algorithm == "TLC5946") {
         m = cfg.build[index].matrix[0].TLC5946[0].attributes()
         flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.algorithm)
         flags += sprintf(" -D%s_DEFINE_GCLK=%s", name, m.gclk)
+        flags += sprintf(" -D%s_DEFINE_IS_RAW=false", name)
 
         def calc = new GEN_2();
         
-        calc.frames_per_second = Integer.parseInt(m.fps);
         calc.is12bitTi = true;
         calc.max_grayscale_bits = 12;
         
@@ -96,7 +97,7 @@ def handle_matrix_algorithm(cfg, index) {
        
         if (result) {
             result &= Double.parseDouble(c.serial_clock) >= calc.clk_mhz;
-            result &= Double.parseDouble(m.gclk) >= calc.glk_mhz;
+            result &= Double.parseDouble(m.gclk) >= calc.gclk_mhz;
         }
     }
     else if (c.algorithm == "Test") {

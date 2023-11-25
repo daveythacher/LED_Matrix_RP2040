@@ -106,6 +106,7 @@ Then("build it") do
         file.syswrite("\t<build name=\"" + @app_name + "\" enable=\"true\">\n")
         if (@is_raw == true)
             @rgb_type = String.new("RGB24")
+        end
         file.syswrite("\t\t<serial algorithm=\"" + @serial_algorithm + "\" RGB_type=\"" + @rgb_type + "\">\n")
         if (@serial_algorithm == "uart")
             file.syswrite("\t\t\t<uart baud=\"" + @baud.to_s + "\"/>\n")
@@ -118,7 +119,7 @@ Then("build it") do
         elsif (@matrix_algorithm == "TLC5946")
             file.syswrite("\t\t\t<TLC5946 gclk=\"" + @gclk.to_s + "\"/>\n")
         elsif (@matrix_algorithm == "PWM")
-            file.syswrite("\t\t\t<PWM is_raw=\"" + @gis_raw.to_s + "\"/>\n")
+            file.syswrite("\t\t\t<PWM is_raw=\"" + @is_raw.to_s + "\"/>\n")
         elsif (@matrix_algorithm == "BCM")
             file.syswrite("\t\t\t<BCM is_raw=\"" + @is_raw.to_s + "\"/>\n")
         end
