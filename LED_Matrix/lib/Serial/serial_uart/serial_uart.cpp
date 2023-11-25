@@ -114,7 +114,7 @@ void __not_in_flash_func(serial_uart_reload)(bool reload_dma) {
         dma_sniffer_enable(dma_chan[1], 0, true);
     }
     else {
-        if ((p != 0) && (sizeof(DEFINE_SERIAL_RGB_TYPE) == sizeof(uint16_t))) {
+        if ((p != 0) && (sizeof(DEFINE_SERIAL_RGB_TYPE) >= 2)) {
             for (uint16_t i = 0; i < len; i += 2)
                 p[i / 2] = ntohs(p[i / 2]);
         }
