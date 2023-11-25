@@ -62,28 +62,43 @@ static void build_index_table() {
     }
 }
 
+static constexpr void __not_in_flash_func(process_packet_not_raw)(packet *p) {
+    for (int y = 0; y < MULTIPLEX; y++) {
+        for (int x = 0; x < COLUMNS; x++) {
+
+            // Compiler should remove all but one of these.
+            switch ((1 << PWM_bits) % 4) {
+                case 0:
+                    set_pixel<uint32_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
+                    break;
+                case 2:
+                    set_pixel<uint16_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
+                    break;
+                default:
+                    set_pixel<uint8_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
+                    break;
+            }
+        }
+    }
+}
+
+static constexpr void __not_in_flash_func(process_packet_raw)(packet *p) {
+    // TODO
+}
+
+static constexpr void __not_in_flash_func(process_packet)(packet *p) {
+    if (IS_RAW)
+        process_packet_raw(p);
+    else
+        process_packet_not_raw(p);
+}
+
 void __not_in_flash_func(work)() {
     build_index_table();
     
     while(1) {
         packet *p = (packet *) multicore_fifo_pop_blocking_inline();
-        for (int y = 0; y < MULTIPLEX; y++) {
-            for (int x = 0; x < COLUMNS; x++) {
-
-                // Compiler should remove all but one of these.
-                switch ((1 << PWM_bits) % 4) {
-                    case 0:
-                        set_pixel<uint32_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
-                        break;
-                    case 2:
-                        set_pixel<uint16_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
-                        break;
-                    default:
-                        set_pixel<uint8_t>(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
-                        break;
-                }
-            }
-        }
+        process_packet(p);
         bank = (bank + 1) % 3;
         vsync = true;
     }
