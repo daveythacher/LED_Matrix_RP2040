@@ -13,6 +13,7 @@
     constexpr int MAX_REFRESH = DEFINE_MAX_REFRESH;
     constexpr float SERIAL_CLOCK = (DEFINE_SERIAL_CLOCK * 1000000.0);
     constexpr int BLANK_TIME = DEFINE_BLANK_TIME;
+    constexpr bool IS_RAW = DEFINE_IS_RAW;
     
     #include <math.h>
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));

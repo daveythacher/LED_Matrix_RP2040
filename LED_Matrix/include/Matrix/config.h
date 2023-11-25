@@ -11,7 +11,6 @@
     
     constexpr int MULTIPLEX = DEFINE_MULTIPLEX;
     constexpr int COLUMNS = DEFINE_COLUMNS;
-    constexpr bool IS_RAW = DEFINE_IS_RAW;
 
 #endif
 
