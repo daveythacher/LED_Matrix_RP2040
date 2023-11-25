@@ -82,22 +82,25 @@ static constexpr void __not_in_flash_func(process_packet_not_raw)(packet *p) {
     }
 }
 
-static constexpr void __not_in_flash_func(process_packet_raw)(packet *p) {
+static constexpr void __not_in_flash_func(process_packet_raw)(void *p) {
     // TODO
 }
 
-static constexpr void __not_in_flash_func(process_packet)(packet *p) {
+static constexpr void __not_in_flash_func(process_packet)(void *ptr) {
     if (IS_RAW)
-        process_packet_raw(p);
-    else
+        process_packet_raw(ptr);
+    else {
+        packet *p = (packet *) ptr;
         process_packet_not_raw(p);
+    }
 }
+
 
 void __not_in_flash_func(work)() {
     build_index_table();
     
     while(1) {
-        packet *p = (packet *) multicore_fifo_pop_blocking_inline();
+        void *p = (void *) multicore_fifo_pop_blocking_inline();
         process_packet(p);
         bank = (bank + 1) % 3;
         vsync = true;
