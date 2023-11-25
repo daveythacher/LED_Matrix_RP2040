@@ -24,38 +24,14 @@ For Linux: (Will install dependencies and download code)
 ```
 
 ## Building
-Currently only Linux is supported. However groovy script and CMake should allow others.
-
-### Building firmware:
-#### Building with Cucumber/Gherkin
-Build single feature:
-```bash
-cucumber features/PoE.feature
-```
-Build all features in features folder:
-```bash
-cucumber
-```
-#### Building Binary with manual configuration of groovy script
-```bash
-groovy build.groovy -c cfg.xml -r
-```
-#### Building Binary with manual configuration of groovy script from scratch
-```bash
-groovy build.groovy -c cfg.xml -r -s
-```
-### Building documentation:
-For generating doxygen documentation:
-```bash
-doxygen Doxyfile
-```
+See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Building.md) for more details.
 
 ## Configuration
 ### Using Cucumber/Gherkin
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Cucumber.md) for more details. For adding or disabling flavors, see features/PoE.feature. Flavor configuration blocks looks like this:
+See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Cucumber.md) for more details. For adding or disabling flavors, see features/PoE.feature.
 
 ### Manual configuration using XML
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Configuration.md) for more details. For adding or disabling flavors, see cfg.xml. Flavor configuration blocks looks like this:
+See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Configuration.md) for more details. For adding or disabling flavors, see cfg.xml. 
 
 ## Application Information
 See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Application_Infomation.md) for more details about color depth, size, refresh rate, gamma, color temperature, dot correction, etc.
