@@ -39,6 +39,7 @@ function(build_flavor TARGET APP)
         DEFINE_GCLK=${${TARGET}_DEFINE_GCLK}
         DEFINE_SERIAL_UART_BAUD=${${TARGET}_DEFINE_SERIAL_UART_BAUD}
         DEFINE_SERIAL_RGB_TYPE=${${TARGET}_DEFINE_SERIAL_RGB_TYPE}
+        DEFINE_IS_RAW=${${TARGET}_DEFINE_IS_RAW}
     )
 
     pico_set_binary_type(led_${TARGET} copy_to_ram)

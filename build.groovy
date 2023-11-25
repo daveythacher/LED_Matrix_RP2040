@@ -45,6 +45,13 @@ def handle_matrix_algorithm(cfg, index) {
 
     if (c.algorithm == "BCM" || c.algorithm == "PWM") {
         flags += sprintf(" -D%s_DEFINE_MULTIPLEX=%s -D%s_DEFINE_MULTIPLEX_NAME=%s -D%s_DEFINE_MAX_RGB_LED_STEPS=%s -D%s_DEFINE_MAX_REFRESH=%s -D%s_DEFINE_COLUMNS=%s -D%s_DEFINE_SERIAL_CLOCK=%s -D%s_DEFINE_BLANK_TIME=%s -D%s_DEFINE_ALGORITHM=%s", name, c.multiplex, name, c.multiplex_name, name, c.max_rgb_led_steps, name, c.max_refresh, name, c.columns, name, c.serial_clock, name, c.blank_time, name, c.algorithm)
+
+        if (c.algorithm == "BCM") {
+            flags +=sprintf(" -D%s_DEFINE_IS_RAW=%s", name, c.BCM[0].is_raw)
+        }
+        else {
+            flags +=sprintf(" -D%s_DEFINE_IS_RAW=%s", name, c.PWM[0].is_raw)
+        }
         
         def calc = new GEN_1();
         

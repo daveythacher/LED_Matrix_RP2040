@@ -3,8 +3,8 @@ Below is an example feature for building a custom firmware.
 ``` XML
 <cfg>
     <build name="TEST1" enable="true">
-        <serial algorithm="uart">
-            <uart baud="4000000" RGB_type="RGB24"/>
+        <serial algorithm="uart" RGB_type="RGB24">
+            <uart baud="4000000"/>
         </serial>
         <matrix algorithm="TLC5958" multiplex="8" multiplex_name="Decoder" max_rgb_led_steps="4096" max_refresh="1000" columns="16" serial_clock="17.0" blank_time="1">
             <TLC5958 fps="30" gclk="20" red_gain="0.247" green_gain="0.0998" blue_gain="0.063"/>
@@ -33,12 +33,12 @@ This must be true or false. If false this build will not be included in the buil
 ### algorithm
 This is a string for the corresponding serial algorithm. Currently this is just uart.
 
+### RGB_type
+This will change the number of bits per color used in the serial algorithm. Use either RGB24, RGB48, RGB_222 or RGB_555 only. Technically optional will default to RGB24.
+
 ## uart section (under serial section)
 ### baud
 This is the baud rate used for the uart.
-
-### RGB_type
-This will change the number of bits per color used in the serial algorithm. Use either RGB24, RGB48, RGB_222 or RGB_555 only. Technically optional will default to RGB24.
 
 ## matrix section
 ### algorithm
@@ -90,6 +90,14 @@ Constant current gain value for Green LED. This value is constant multiple of th
 
 ## blue_gain
 Constant current gain value for Blue LED. This value is constant multiple of the default gain. 1.0 configures the gain to be the default gain. Note this number can have decimals. (Only used/needed by TLC5958.)
+
+## PWM (under matrix section)
+### is_raw
+Boolean flag for qualifying the type of data passed over the serial algorithm. Note serial algorithm must use RGB-24.
+
+## BCM (under matrix section)
+### is_raw
+Boolean flag for qualifying the type of data passed over the serial algorithm. Note serial algorithm must use RGB-24.
 
 ## TLC5946 (under matrix section)
 ### gclk

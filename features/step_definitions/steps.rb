@@ -18,6 +18,7 @@ Given("binary named {word}") do |name|
     @red_gain = 1.0
     @green_gain = 1.0
     @blue_gain = 1.0
+    @is_raw = false
 end
 
 When("using serial algorithm {word}") do |algorithm|
@@ -76,6 +77,10 @@ And("grayscale clock of {float} MHz") do |num|
     @gclk = num
 end
 
+And("serial protocol data is raw") do
+    @is_raw = true
+end
+
 And("UART baud of {int}") do |num|
     @baud = num
 end
@@ -99,6 +104,8 @@ Then("build it") do
     if file
         file.syswrite("<cfg>\n")
         file.syswrite("\t<build name=\"" + @app_name + "\" enable=\"true\">\n")
+        if (@is_raw == true)
+            @rgb_type = String.new("RGB24")
         file.syswrite("\t\t<serial algorithm=\"" + @serial_algorithm + "\" RGB_type=\"" + @rgb_type + "\">\n")
         if (@serial_algorithm == "uart")
             file.syswrite("\t\t\t<uart baud=\"" + @baud.to_s + "\"/>\n")
@@ -110,6 +117,10 @@ Then("build it") do
             file.syswrite("\t\t\t<TLC5958 fps=\"" + @frame_rate_hz.to_s + "\" gclk=\"" + @gclk.to_s + "\" red_gain=\"" + @red_gain.to_s + "\" green_gain=\"" + @green_gain.to_s + "\" blue_gain=\"" + @blue_gain.to_s + "\"/>\n")
         elsif (@matrix_algorithm == "TLC5946")
             file.syswrite("\t\t\t<TLC5946 gclk=\"" + @gclk.to_s + "\"/>\n")
+        elsif (@matrix_algorithm == "PWM")
+            file.syswrite("\t\t\t<PWM is_raw=\"" + @gis_raw.to_s + "\"/>\n")
+        elsif (@matrix_algorithm == "BCM")
+            file.syswrite("\t\t\t<BCM is_raw=\"" + @is_raw.to_s + "\"/>\n")
         end
         file.syswrite("\t\t</matrix>\n")
         file.syswrite("\t</build>\n")
