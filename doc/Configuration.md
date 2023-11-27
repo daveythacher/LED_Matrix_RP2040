@@ -93,7 +93,7 @@ Constant current gain value for Blue LED. This value is constant multiple of the
 
 ## PWM (under matrix section)
 ### is_raw
-Boolean flag for qualifying the type of data passed over the serial algorithm. Note serial algorithm must use RGB-24.
+Boolean flag for qualifying the type of data passed over the serial algorithm. Note serial algorithm must use RGB-24. Note undefined results can occur if there is no reliable communication in serial algorithm implementation.
 
 ## BCM (under matrix section)
 ### is_raw

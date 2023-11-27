@@ -20,6 +20,10 @@
         uint32_t mem[((sizeof(test) / (64 / sizeof(uint32_t))) + 1) * (64 / sizeof(uint32_t))];
     };
 
+    struct raw_packet {
+        uint8_t data[384];
+    };
+
     const uint32_t range_high = DEFINE_SERIAL_RGB_TYPE::range_high;
 #endif
 

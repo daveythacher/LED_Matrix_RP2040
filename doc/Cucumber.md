@@ -126,7 +126,7 @@ It must be of the format: "And grayscale clock of {float} MHz", where {float} is
 If not given this will default to 17.0.
 
 #### Is RAW
-It must be of the format: "And serial protocol data is raw" This is used by PWM and BCM Matrix algorithms to specify if the serial protocol data is raw. Must use RGB-24 when enabled.
+It must be of the format: "And serial protocol data is raw" This is used by PWM and BCM Matrix algorithms to specify if the serial protocol data is raw. Must use RGB-24 when enabled. Note undefined results can occur if there is no reliable communication in serial algorithm implementation.
 
 If not given this will default to false.
 
