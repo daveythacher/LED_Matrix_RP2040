@@ -91,26 +91,28 @@ static void __not_in_flash_func(process_packet_raw)(raw_packet *p) {
     static uint32_t PWM_bits_counter = 0;
     int i = sizeof(raw_packet);
 
-    while (multiplex_counter < MULTIPLEX) {
-        while (PWM_bits_counter < (1 << PWM_bits)) {
-            while (columns_counter < COLUMNS) {
-                if (i) {
-                    buf[bank][multiplex_counter][PWM_bits_counter][columns_counter] = p->data[sizeof(raw_packet) - i];
-                    --i;
-                    ++columns_counter;
+    while (true) {
+        while (multiplex_counter < MULTIPLEX) {
+            while (PWM_bits_counter < (1 << PWM_bits)) {
+                while (columns_counter < COLUMNS) {
+                    if (i) {
+                        buf[bank][multiplex_counter][PWM_bits_counter][columns_counter] = p->data[sizeof(raw_packet) - i];
+                        --i;
+                        ++columns_counter;
+                    }
+                    else
+                        return;
                 }
-                else
-                    return;
+                columns_counter = 0;
+                ++PWM_bits_counter;
             }
-            columns_counter = 0;
-            ++PWM_bits_counter;
+            PWM_bits_counter = 0;
+            ++multiplex_counter;
         }
-        PWM_bits_counter = 0;
-        ++multiplex_counter;
+        multiplex_counter = 0;
+        bank = (bank + 1) % 3;
+        vsync = true;
     }
-    multiplex_counter = 0;
-    bank = (bank + 1) % 3;
-    vsync = true;
 }
 
 static void __not_in_flash_func(process_packet)(void *ptr) {
