@@ -32,7 +32,7 @@ Feature: PoE Binary(s)
         And anti-ghosting blank time of 10 uS
         And UART baud of 4000000
         And serial protocol data is raw
-        Then build it
+        #Then build it
 
     Example: PoE Binary with TLC5958
         Given binary named POEv2
@@ -52,4 +52,4 @@ Feature: PoE Binary(s)
         And grayscale clock of 17.5 MHz
         And UART baud of 7800000
         And serial protocol uses RGB-24
-        Then build it
+        #Then build it

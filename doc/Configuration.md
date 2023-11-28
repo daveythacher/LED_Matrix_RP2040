@@ -14,7 +14,7 @@ Below is an example feature for building a custom firmware.
 </cfg>
 ```
 
-The build process used here is a little messy however to simplify panel configuration, Groovy is used to hide certain things. The Groovy build script creates a custom system script for calling CMake. This system script and CMake will pass the configuration parameters in the C/C++ source code for compilation. This process is used to enable multiple build flavors.
+The build process used here is a little messy however to simplify panel configuration, Groovy is used to hide certain things. The Groovy build script creates a custom system script for calling CMake. This system script and CMake will pass the configuration parameters in the C/C++ source code for compilation. This process is used to enable multiple build flavors. (Only one can be enabled at a time. A modified script can fix this.)
 
 Currently the C/C++ logic requires all possible configuration parameters to be defined. CMake simply passes these through from the system script. The Groovy build script will hide parameters which are not required.
 
