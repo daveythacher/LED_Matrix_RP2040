@@ -8,6 +8,9 @@
 #define MATRIX_CONFIG_H    
     
     // -- DO NOT EDIT BELOW THIS LINE --
+
+    #cmakedefine DEFINE_MULTIPLEX @DEFINE_MULTIPLEX@
+    #cmakedefine DEFINE_COLUMNS @DEFINE_COLUMNS@
     
     constexpr int MULTIPLEX = DEFINE_MULTIPLEX;
     constexpr int COLUMNS = DEFINE_COLUMNS;

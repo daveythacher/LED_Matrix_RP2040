@@ -1,0 +1,1 @@
+configure_file(serial_uart.h.in serial_uart.h @ONLY)

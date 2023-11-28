@@ -19,6 +19,8 @@
 
     #include "../config.h"
 
+    #cmakedefine DEFINE_SERIAL_UART_BAUD    @DEFINE_SERIAL_UART_BAUD@
+
     constexpr unsigned int SERIAL_UART_BAUD = DEFINE_SERIAL_UART_BAUD;
     
 #endif

@@ -12,6 +12,8 @@
     #include <stdint.h>
     #include "../Matrix/config.h"
     #include "Serial/types.h"
+
+    #cmakedefine DEFINE_SERIAL_RGB_TYPE     @DEFINE_SERIAL_RGB_TYPE@
     
     typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS];
     
