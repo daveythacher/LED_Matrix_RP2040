@@ -14,7 +14,13 @@
     #include "Serial/types.h"
 
     #cmakedefine DEFINE_SERIAL_RGB_TYPE     @DEFINE_SERIAL_RGB_TYPE@
+    #cmakedefine DEFINE_IS_RAW              @DEFINE_IS_RAW@
+
+    #ifndef DEFINE_IS_RAW
+        #define DEFINE_IS_RAW               false
+    #endif
     
+    constexpr bool IS_RAW = DEFINE_IS_RAW;
     typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS];
     
     union packet {
