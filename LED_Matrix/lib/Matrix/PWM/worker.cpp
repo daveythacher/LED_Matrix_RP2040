@@ -62,7 +62,7 @@ static void build_index_table() {
     }
 }
 
-static void __not_in_flash_func(process_packet_not_raw)(packet *p) {
+static void __not_in_flash_func(process_packet)(packet *p) {
     for (int y = 0; y < MULTIPLEX; y++) {
         for (int x = 0; x < COLUMNS; x++) {
 
@@ -84,55 +84,11 @@ static void __not_in_flash_func(process_packet_not_raw)(packet *p) {
     vsync = true;
 }
 
-static void __not_in_flash_func(process_packet_raw)(raw_packet *p) {
-    extern test2 buf[];
-    static uint32_t multiplex_counter = 0;
-    static uint32_t columns_counter = 0;
-    static uint32_t PWM_bits_counter = 0;
-    int i = sizeof(raw_packet);
-
-    while (true) {
-        while (multiplex_counter < MULTIPLEX) {
-            while (PWM_bits_counter < (1 << PWM_bits)) {
-                while (columns_counter < COLUMNS) {
-                    if (i) {
-                        buf[bank][multiplex_counter][PWM_bits_counter][columns_counter] = p->data[sizeof(raw_packet) - i];
-                        --i;
-                        ++columns_counter;
-                    }
-                    else
-                        return;
-                }
-                columns_counter = 0;
-                ++PWM_bits_counter;
-            }
-            PWM_bits_counter = 0;
-            ++multiplex_counter;
-        }
-        multiplex_counter = 0;
-        bank = (bank + 1) % 3;
-        vsync = true;
-    }
-}
-
-static void __not_in_flash_func(process_packet)(void *ptr) {
-    if (IS_RAW) {
-        // Your hashtag crazy!
-        raw_packet *p = (raw_packet *) ptr;
-        process_packet_raw(p);
-    }
-    else {
-        packet *p = (packet *) ptr;
-        process_packet_not_raw(p);
-    }
-}
-
-
 void __not_in_flash_func(work)() {
     build_index_table();
     
     while(1) {
-        void *p = (void *) multicore_fifo_pop_blocking_inline();
+        packet *p = (packet *) multicore_fifo_pop_blocking_inline();
         process_packet(p);
     }
 }

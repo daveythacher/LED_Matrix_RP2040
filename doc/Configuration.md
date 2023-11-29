@@ -55,9 +55,6 @@ Constant current gain value for Green LED. This value is constant multiple of th
 ## DEFINE_BLUE_GAIN
 Constant current gain value for Blue LED. This value is constant multiple of the default gain. 1.0 configures the gain to be the default gain. Note this number can have decimals. (Only used/needed by TLC5958.)
 
-## DEFINE_IS_RAW
-Boolean flag for qualifying the type of data passed over the serial algorithm. Note serial algorithm must use RGB-24. Note undefined results can occur if there is no reliable communication in serial algorithm implementation.
-
 ## DEFINE_GCLK
 This is the target grayscale clock in MHz. This is used by the compiler to verify the timing. This should not exceed 33MHz for most panels. Note you may wish to lower this is in some cases to meet timing and/or promote signal stability. (Measure rise/fall time, hold time, etc.) Note this number can have decimals.
 
