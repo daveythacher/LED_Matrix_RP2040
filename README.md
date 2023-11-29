@@ -15,21 +15,8 @@ If in doubt use the discussion feature. I am okay with meaningful discussion in 
 
 Some weird conventions are used. These should be documented in LED_Matrix/README.md. This is the place for documenting technical interworkings and troubleshooting. (Outside of comments.)
 
-## Setup
-For Linux: (Will install dependencies and download code)
-```bash
-./scripts/setup.sh
-```
-
 ## Building
 See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Building.md) for more details.
-
-## Configuration
-### Using Cucumber/Gherkin
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Cucumber.md) for more details. For adding or disabling flavors, see features/PoE.feature.
-
-### Manual configuration using XML
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Configuration.md) for more details. For adding or disabling flavors, see cfg.xml. 
 
 ## Application Information
 See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Application_Infomation.md) for more details about color depth, size, refresh rate, gamma, color temperature, dot correction, etc.
