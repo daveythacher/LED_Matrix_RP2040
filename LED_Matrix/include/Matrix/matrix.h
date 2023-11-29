@@ -43,7 +43,7 @@
 
     /**
      *  @brief Variable used to capture timer/alarm index
-     *  @details Implemented in Matrix/<implementation>/worker.cpp
+     *  @details Implemented in Matrix/<implementation>/matrix.cpp
      */
     extern volatile int timer;
 
