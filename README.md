@@ -15,12 +15,6 @@ If in doubt use the discussion feature. I am okay with meaningful discussion in 
 
 Some weird conventions are used. These should be documented in LED_Matrix/README.md. This is the place for documenting technical interworkings and troubleshooting. (Outside of comments.)
 
-## Setup
-For Linux: (Will install dependencies and download code)
-```bash
-./scripts/setup.sh
-```
-
 ## Building
 See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Building.md) for more details.
 
