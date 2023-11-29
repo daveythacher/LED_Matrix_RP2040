@@ -3,6 +3,9 @@
 ### Building with CMake
 TODO
 
+### Configuring with CMake
+TODO
+
 ## Building documentation:
 For generating doxygen documentation:
 ```bash
