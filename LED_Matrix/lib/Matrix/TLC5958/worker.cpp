@@ -39,7 +39,9 @@ void __not_in_flash_func(process)(void *arg) {
     for (int y = 0; y < MULTIPLEX; y++)
         for (int x = 0; x < COLUMNS; x++)
             set_pixel(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue);
-    bank = (bank + 1) % 3;
-    vsync = true;
-}
+            
+    if (!vsync) {
+        bank = (bank + 1) % 3;
+        vsync = true;
+    }
 

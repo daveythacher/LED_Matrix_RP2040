@@ -80,8 +80,11 @@ static void __not_in_flash_func(process_packet)(packet *p) {
             }
         }
     }
-    bank = (bank + 1) % 3;
-    vsync = true;
+    
+    if (!vsync) {
+        bank = (bank + 1) % 3;
+        vsync = true;
+    }
 }
 
 void __not_in_flash_func(work)() {
