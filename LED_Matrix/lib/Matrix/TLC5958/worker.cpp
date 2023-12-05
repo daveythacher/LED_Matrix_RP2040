@@ -44,4 +44,4 @@ void __not_in_flash_func(process)(void *arg) {
         bank = (bank + 1) % 3;
         vsync = true;
     }
-
+}
