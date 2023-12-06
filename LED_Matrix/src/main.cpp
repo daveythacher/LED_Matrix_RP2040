@@ -10,6 +10,9 @@
 #include "Serial/serial.h"
 #include "ISR/isr.h"
 
+// TODO: Add watchdog
+//  We only need to guard Core 0's main loop as we are only doing this for picotool
+
 void __not_in_flash_func(loop)() {
     while (1) {
         serial_task();

@@ -188,6 +188,7 @@ void __not_in_flash_func(matrix_dma_isr)() {
         timer_hw->alarm[timer] = time_us_32() + FIFO_delay + 1;                 // Load timer
         timer_hw->armed = 1 << timer;                                           // Kick off timer
         state = 0;
+        dma_hw->intr = 1 << dma_chan[0];
     }
 }
 
