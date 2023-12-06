@@ -20,7 +20,7 @@ static void __not_in_flash_func(loop)() {
 }
 
 int main() {
-    stdio_usb_init();
+    stdio_usb_init();               // Enable picotool to call bootsel mode
     busy_wait_ms(1000);             // Make time (1 second) for picotool before system loads
     watchdog_enable(100, false);    // Make sure picotool can never be disconnected
     matrix_start();
