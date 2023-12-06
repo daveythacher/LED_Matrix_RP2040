@@ -31,10 +31,11 @@ target_compile_definitions(led PRIVATE
 pico_set_binary_type(led copy_to_ram)
 
 # enable usb output, disable uart output
-pico_enable_stdio_usb(led 0)
-pico_enable_stdio_uart(led 1)
+pico_enable_stdio_usb(led 1)
+pico_enable_stdio_uart(led 0)
     
 target_link_libraries(led 
+    pico_stdio_usb
     pico_runtime
     pico_multicore
     led_${DEFINE_ALGORITHM}
