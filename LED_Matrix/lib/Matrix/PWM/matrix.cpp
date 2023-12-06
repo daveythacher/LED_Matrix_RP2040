@@ -181,14 +181,14 @@ void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
 }
 
 void __not_in_flash_func(matrix_dma_isr)() {
-    if (dma_channel_get_irq0_status(dma_chan[0])) {                             // Note: This clears the interrupt        
+    if (dma_channel_get_irq0_status(dma_chan[0])) {      
         // Make sure the FIFO is empty 
         //  There was a bug with LAT when SERIAL_CLOCK is small, but I forgot what it was. (Just counted out additional time as hack.)
         constexpr uint32_t FIFO_delay = (uint32_t) 125000000U / ((uint32_t) round(SERIAL_CLOCK) / 5 * 1000);
         timer_hw->alarm[timer] = time_us_32() + FIFO_delay + 1;                 // Load timer
         timer_hw->armed = 1 << timer;                                           // Kick off timer
         state = 0;
-        dma_hw->intr = 1 << dma_chan[0];
+        dma_hw->intr = 1 << dma_chan[0];                                        // Clear the interrupt
     }
 }
 
