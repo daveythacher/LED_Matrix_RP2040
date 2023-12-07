@@ -28,6 +28,7 @@ static constexpr void is_clk_valid() {
     constexpr uint64_t temp = (COLUMNS / columns_per_driver) * (max_impedance * fanout_per_clk * min_harmonics * max_par_cap_pf);
     constexpr float hz_limit = std::min(max_clk_mhz, (float) (1000000.0 / (temp * 1.0))) * 1000000.0;
     constexpr float clk_hz = hz_limit / (MAX_REFRESH * get_refresh_overhead() * COLUMNS * MULTIPLEX * (1 << PWM_bits));
+
     static_assert(SERIAL_CLOCK <= hz_limit, "Serial clock is too high");
     static_assert(clk_hz >= 1.0, "Configuration is not possible");
 }
@@ -43,5 +44,6 @@ static constexpr void is_brightness_valid() {
 void verify_configuration() {
     is_brightness_valid();
     is_clk_valid();
+    
     static_assert(MAX_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
 }

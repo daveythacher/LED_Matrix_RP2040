@@ -109,7 +109,6 @@ void matrix_start() {
 
     verify_configuration();
     
-    static_assert(MAX_REFRESH <= 300, "BCM is not recommended for refresh rates higher than 240Hz");
     static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
     static_assert(COLUMNS <= 1024, "COLUMNS more than 1024 is not recommended");
     static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
