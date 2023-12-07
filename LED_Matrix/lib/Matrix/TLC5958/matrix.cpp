@@ -178,7 +178,7 @@ void __not_in_flash_func(matrix_dma_isr)() {
         }
         else
             start_clk(counter, lat_cmd);
-        dma_hw->ints0 = 1 << dma_chan;
+        dma_hw->intr = 1 << dma_chan;                                           // Clear the interrupt
     }
 }
 

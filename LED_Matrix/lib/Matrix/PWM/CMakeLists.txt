@@ -6,6 +6,7 @@ add_library(led_PWM INTERFACE)
 target_sources(led_PWM INTERFACE
     matrix.cpp
     worker.cpp
+    calculator.cpp
 )
 
 target_link_libraries(led_PWM INTERFACE

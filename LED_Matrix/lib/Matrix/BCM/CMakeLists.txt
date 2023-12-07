@@ -6,6 +6,7 @@ add_library(led_BCM INTERFACE)
 target_sources(led_BCM INTERFACE
     matrix.cpp
     worker.cpp
+    calculator.cpp
 )
 
 target_link_libraries(led_BCM INTERFACE

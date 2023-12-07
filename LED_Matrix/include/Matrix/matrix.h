@@ -42,6 +42,12 @@
     bool process(void *arg, bool block);
 
     /**
+     * @brief Function used to verify configuration
+     * @details Implemented in Matrix/<implementation>/matrix.cpp
+    */
+   void verify_configuration();
+
+    /**
      *  @brief Variable used to capture timer/alarm index
      *  @details Implemented in Matrix/<implementation>/matrix.cpp
      */

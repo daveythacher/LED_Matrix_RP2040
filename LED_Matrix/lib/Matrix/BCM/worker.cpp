@@ -7,11 +7,13 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
 #include "pico/multicore.h"
 #include "Serial/config.h"
 #include "Matrix/matrix.h"
 #include "Matrix/BCM/memory_format.h"
 #include "Matrix/helper.h"
+using std::max;
 
 static uint8_t bank = 1;
 volatile bool vsync = false;

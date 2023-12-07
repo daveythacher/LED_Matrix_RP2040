@@ -200,6 +200,7 @@ void __not_in_flash_func(matrix_dma_isr)() {
         start_clk(counter);
         dma_hw->ints0 = 1 << dma_chan[2];
         start_gclk();                                                           // Kick off hardware (GCLK)
+        dma_hw->intr = 1 << dma_chan[2];                                        // Clear the interrupt
     }
 }
 

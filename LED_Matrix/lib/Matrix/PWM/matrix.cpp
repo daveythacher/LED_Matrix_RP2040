@@ -107,6 +107,8 @@ void matrix_start() {
     constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);
     static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
 
+    verify_configuration();
+
     // This could be 8 or 16 depending on panel. (Kind of random.)
     static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
 

@@ -28,4 +28,3 @@ int main() {
     isr_start();
     loop();
 }
-

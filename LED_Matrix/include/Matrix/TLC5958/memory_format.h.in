@@ -30,6 +30,7 @@
     constexpr float GCLK = (DEFINE_GCLK * 1000000.0);
     
     #include <math.h>
+    #include "Matrix/config.h"
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
     
     typedef uint16_t test2[2 * MULTIPLEX][16][COLUMNS / 16][3];
