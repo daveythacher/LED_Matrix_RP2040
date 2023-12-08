@@ -1,1 +1,0 @@
-configure_file(memory_format.h.in memory_format.h @ONLY)
