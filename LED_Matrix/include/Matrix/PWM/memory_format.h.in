@@ -14,12 +14,18 @@
     #cmakedefine DEFINE_SERIAL_CLOCK        @DEFINE_SERIAL_CLOCK@
     #cmakedefine DEFINE_BLANK_TIME          @DEFINE_BLANK_TIME@
     #cmakedefine DEFINE_FPS                 @DEFINE_FPS@
+    #cmakedefine DEFINE_BYPASS_FANOUT       @DEFINE_BYPASS_FANOUT@
+
+    #ifndef DEFINE_BYPASS_FANOUT
+    #define DEFINE_BYPASS_FANOUT            false
+    #endif
     
     constexpr int MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Contrast Ratio - Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
     constexpr int MAX_REFRESH = DEFINE_MAX_REFRESH;
     constexpr float SERIAL_CLOCK = (DEFINE_SERIAL_CLOCK * 1000000.0);
     constexpr int BLANK_TIME = DEFINE_BLANK_TIME;
     constexpr int FPS = DEFINE_FPS;
+    constexpr bool BYPASS_FANOUT = DEFINE_BYPASS_FANOUT;
     
     #include <math.h>
     #include "Matrix/config.h"
