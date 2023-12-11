@@ -32,7 +32,7 @@ set(DEFINE_FPS "30" CACHE STRING "Frames per second")
 set(DEFINE_BLANK_TIME "10" CACHE STRING "Blank time in microseconds")
 set(DEFINE_MAX_REFRESH "3000" CACHE STRING "Refresh rate")
 set(DEFINE_MAX_RGB_LED_STEPS "130" CACHE STRING "Min constrast of LED without multiplexing")
-set(DEFINE_BYPASS_FANOUT "true" CACHE STRING "Disable verification of max Matrix algorithm Serial clock fanout speed limit")
+set(DEFINE_BYPASS_FANOUT "false" CACHE STRING "Disable verification of max Matrix algorithm Serial clock fanout speed limit")
 
 add_subdirectory(include)
 add_subdirectory(lib)
