@@ -9,7 +9,7 @@
 #include "Serial/config.h"
 #include "Matrix/matrix.h"
 
-static packet buffers[2];
+static volatile packet buffers[2];
 static volatile uint8_t buffer = 0;
 
 static void __not_in_flash_func(test_driver)() {

@@ -22,8 +22,8 @@ test2 buf[3];
 static uint8_t bank = 0;
 static volatile uint8_t state = 0;
 static int dma_chan[2];
-static struct {uint32_t len; uint8_t *data;} address_table[(1 << PWM_bits) + 1];
-static uint8_t null_table[COLUMNS + 1];
+static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << PWM_bits) + 1];
+static volatile uint8_t null_table[COLUMNS + 1];
 volatile int timer;
 
 static void send_line();
@@ -49,8 +49,8 @@ void matrix_start() {
     gpio_set_dir(22, GPIO_OUT);
     gpio_clr_mask(0x5FFF00);
     
-    memset(buf, COLUMNS - 1, sizeof(buf));
-    memset(null_table, 0, COLUMNS + 1);
+    memset((void *) buf, COLUMNS - 1, sizeof(buf));
+    memset((void *) null_table, 0, COLUMNS + 1);
     null_table[0] = COLUMNS - 1;
 
     for (uint32_t i = 0; i < (1 << PWM_bits) - 1; i++)

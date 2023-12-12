@@ -15,11 +15,11 @@
 
     #cmakedefine DEFINE_SERIAL_RGB_TYPE     @DEFINE_SERIAL_RGB_TYPE@
 
-    typedef DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS];
+    typedef volatile DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS];
     
     union packet {
         test data;
-        uint32_t mem[((sizeof(test) / (64 / sizeof(uint32_t))) + 1) * (64 / sizeof(uint32_t))];
+        volatile uint32_t mem[((sizeof(test) / (64 / sizeof(uint32_t))) + 1) * (64 / sizeof(uint32_t))];
     };
 
     const uint32_t range_high = DEFINE_SERIAL_RGB_TYPE::range_high;

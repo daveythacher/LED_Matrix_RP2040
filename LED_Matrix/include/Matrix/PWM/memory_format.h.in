@@ -31,7 +31,7 @@
     #include "Matrix/config.h"
     constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
     
-    typedef uint8_t test2[MULTIPLEX][1 << PWM_bits][COLUMNS + 1];
+    typedef volatile uint8_t test2[MULTIPLEX][1 << PWM_bits][COLUMNS + 1];
 
 #endif
 
