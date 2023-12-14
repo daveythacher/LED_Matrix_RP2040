@@ -123,7 +123,7 @@ namespace Serial {
             uart_callback(&buf, &len);
 
             if (ptr)
-                Matrix::process((void *) ptr, false);
+                Matrix::Worker::process((void *) ptr, false);
         }
     }
 }

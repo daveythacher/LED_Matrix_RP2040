@@ -26,7 +26,7 @@ namespace Serial {
     }
 
     void start() {
-        multicore_launch_core1(Matrix::work);
+        multicore_launch_core1(Matrix::Worker::work);
         
         int serial_dma_chan0 = dma_claim_unused_channel(true);
         int serial_dma_chan1 = dma_claim_unused_channel(true);

@@ -110,7 +110,7 @@ namespace Matrix {
         constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);
         static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
 
-        verify_configuration();
+        Calculator::verify_configuration();
         
         static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
         static_assert(COLUMNS <= 1024, "COLUMNS more than 1024 is not recommended");
@@ -181,9 +181,12 @@ namespace Matrix {
         }
     }
 
+    namespace Worker {
+        extern volatile bool vsync;
+    }
+
     void __not_in_flash_func(timer_isr)() {
         static uint32_t rows = 0;
-        extern volatile bool vsync;
 
         if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
             switch(state) {
@@ -194,9 +197,9 @@ namespace Matrix {
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                         rows = 0;
-                        if (vsync) {
+                        if (Worker::vsync) {
                             bank = (bank + 1) % 3;
-                            vsync = false;
+                            Worker::vsync = false;
                         }
                     }
                     

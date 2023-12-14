@@ -3,7 +3,7 @@
 #include "Matrix/BCM/memory_format.h"
 #include "Matrix/matrix.h"
 
-namespace Matrix {
+namespace Matrix::Calculator {
     // Panel constants
     constexpr float max_clk_mhz = 25.0;
     constexpr uint8_t columns_per_driver = 16;

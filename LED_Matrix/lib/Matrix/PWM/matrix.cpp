@@ -18,6 +18,10 @@
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
 
+namespace Matrix::Worker {
+    extern volatile bool vsync;
+}
+
 namespace Matrix {
     test2 buf[3];
     static uint8_t bank = 0;
@@ -110,7 +114,7 @@ namespace Matrix {
         constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);
         static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
 
-        verify_configuration();
+        Calculator::verify_configuration();
 
         // This could be 8 or 16 depending on panel. (Kind of random.)
         static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
@@ -199,7 +203,6 @@ namespace Matrix {
 
     void __not_in_flash_func(timer_isr)() {
         static uint32_t rows = 0;
-        extern volatile bool vsync;
 
         if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
             switch(state) {
@@ -210,9 +213,9 @@ namespace Matrix {
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                         rows = 0;
-                        if (vsync) {
+                        if (Worker::vsync) {
                             bank = (bank + 1) % 3;
-                            vsync = false;
+                            Worker::vsync = false;
                         }
                     }
 

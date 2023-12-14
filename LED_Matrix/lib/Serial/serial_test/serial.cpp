@@ -30,7 +30,7 @@ namespace Serial {
         }
         
         buffer = (buffer + 1) % 2;   
-        Matrix::process((void *) &buffers[(buffer + 1) % 2], true);
+        Matrix::Worker::process((void *) &buffers[(buffer + 1) % 2], true);
     }
 
     void __not_in_flash_func(task)() {
@@ -38,6 +38,6 @@ namespace Serial {
     }
 
     void start() {
-        multicore_launch_core1(Matrix::work);
+        multicore_launch_core1(Matrix::Worker::work);
     }
 }
