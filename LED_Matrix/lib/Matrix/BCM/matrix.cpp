@@ -40,7 +40,7 @@ namespace Matrix {
     void start() {
         // Init Matrix hardware
         // IO
-        for (int i = 0; i < 13; i++) {
+        for (int i = 0; i < 8; i++) {
             gpio_init(i + 8);
             gpio_set_dir(i + 8, GPIO_OUT);
         }
