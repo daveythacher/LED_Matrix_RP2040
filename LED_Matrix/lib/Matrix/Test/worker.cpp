@@ -12,7 +12,7 @@
 #include "Matrix/matrix.h"
 #include "Matrix/helper.h"
 
-namespace Matrix {
+namespace Matrix::Worker {
     void __not_in_flash_func(work)() {
         const int TX = 8;
         const int RX = 9;
@@ -25,9 +25,9 @@ namespace Matrix {
         uart_init(uart1, 115200);
         
         while(1) {
-            packet *p = (packet *) APP::multicore_fifo_pop_blocking_inline();
+            Serial::packet *p = (Serial::packet *) APP::multicore_fifo_pop_blocking_inline();
 
-            uart_write_blocking(uart1, (uint8_t *) p, sizeof(packet));
+            uart_write_blocking(uart1, (uint8_t *) p, sizeof(Serial::packet));
         }
     }
 
