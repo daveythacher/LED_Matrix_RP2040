@@ -8,19 +8,21 @@
 #include "hardware/irq.h"
 #include "Matrix/matrix.h"
 
-static void __not_in_flash_func(dma_isr0)() {
-    matrix_dma_isr();
-}
+namespace APP {
+    static void __not_in_flash_func(dma_isr0)() {
+        Matrix::matrix_dma_isr();
+    }
 
-static void __not_in_flash_func(timer_isr)() {
-    matrix_timer_isr();
-}
+    static void __not_in_flash_func(timer_isr)() {
+        Matrix::matrix_timer_isr();
+    }
 
-void isr_start() {
-    irq_set_exclusive_handler(DMA_IRQ_0, dma_isr0);
-    irq_set_priority(DMA_IRQ_0, 0);
-    irq_set_enabled(DMA_IRQ_0, true);
-    irq_set_exclusive_handler(TIMER_IRQ_0 + timer, timer_isr);
-    irq_set_priority(TIMER_IRQ_0 + timer, 0);
-    irq_set_enabled(TIMER_IRQ_0 + timer, true);
+    void isr_start() {
+        irq_set_exclusive_handler(DMA_IRQ_0, dma_isr0);
+        irq_set_priority(DMA_IRQ_0, 0);
+        irq_set_enabled(DMA_IRQ_0, true);
+        irq_set_exclusive_handler(TIMER_IRQ_0 + Matrix::timer, timer_isr);
+        irq_set_priority(TIMER_IRQ_0 + Matrix::timer, 0);
+        irq_set_enabled(TIMER_IRQ_0 + Matrix::timer, true);
+    }
 }

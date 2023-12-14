@@ -6,16 +6,17 @@
  
 #ifndef SERIAL_CONFIG_H
 #define SERIAL_CONFIG_H    
-    
-    // -- DO NOT EDIT BELOW THIS LINE --
 
-    #include <stdint.h>
-    #include "../Matrix/config.h"
-    #include "Serial/types.h"
+#include <stdint.h>
+#include "../Matrix/config.h"
+#include "Serial/types.h"
+    
+namespace Serial {
+    // -- DO NOT EDIT BELOW THIS LINE --
 
     #cmakedefine DEFINE_SERIAL_RGB_TYPE     @DEFINE_SERIAL_RGB_TYPE@
 
-    typedef volatile DEFINE_SERIAL_RGB_TYPE test[2 * MULTIPLEX][COLUMNS];
+    typedef volatile DEFINE_SERIAL_RGB_TYPE test[2 * Matrix::MULTIPLEX][Matrix::COLUMNS];
     
     union packet {
         test data;
@@ -23,5 +24,7 @@
     };
 
     const uint32_t range_high = DEFINE_SERIAL_RGB_TYPE::range_high;
+}
+
 #endif
 

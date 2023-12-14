@@ -7,6 +7,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+namespace Matrix {
     /**
      *  @brief Starts Matrix state machine.
      *  @details Implemented in Matrix/<implementation>/matrix.cpp
@@ -52,6 +53,7 @@
      *  @details Implemented in Matrix/<implementation>/matrix.cpp
      */
     extern volatile int timer;
+}
 
 #endif
 

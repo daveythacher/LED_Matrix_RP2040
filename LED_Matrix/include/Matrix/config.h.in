@@ -6,7 +6,8 @@
  
 #ifndef MATRIX_CONFIG_H
 #define MATRIX_CONFIG_H    
-    
+
+namespace Matrix {
     // -- DO NOT EDIT BELOW THIS LINE --
 
     #cmakedefine DEFINE_MULTIPLEX @DEFINE_MULTIPLEX@
@@ -14,6 +15,7 @@
     
     constexpr int MULTIPLEX = DEFINE_MULTIPLEX;
     constexpr int COLUMNS = DEFINE_COLUMNS;
+}
 
 #endif
 

@@ -6,9 +6,10 @@
  
 #ifndef TYPES_H
 #define TYPES_H
+    
+#include <stdint.h>
 
-    #include <stdint.h>
-
+namespace Serial {
     struct RGB24 {
         volatile uint8_t red;
         volatile uint8_t green;
@@ -40,6 +41,7 @@
 
         static constexpr uint32_t range_high = 1 << 5;
     };
+}
 
 #endif
 
