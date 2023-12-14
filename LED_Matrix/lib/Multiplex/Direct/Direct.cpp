@@ -13,6 +13,7 @@ namespace Multiplex {
             gpio_init(i + 16);
             gpio_set_dir(i + 16, GPIO_OUT);
         }
+        gpio_clr_mask(0x1F0000);
     }
 
     void __not_in_flash_func(SetRow)(int row) {

@@ -48,7 +48,7 @@ namespace Matrix {
             gpio_set_function(i + 8, GPIO_FUNC_PIO0);
         gpio_init(22);
         gpio_set_dir(22, GPIO_OUT);
-        gpio_clr_mask(0x5FFF00);
+        gpio_clr_mask(0x40FF00);
 
         Multiplex::init(MULTIPLEX);
         
