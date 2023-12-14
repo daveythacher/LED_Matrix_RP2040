@@ -1,0 +1,7 @@
+add_subdirectory(Shifter_ABC)
+add_subdirectory(Shifter_ABC_Direct_DE)
+add_subdirectory(Shifter_ACB)
+add_subdirectory(Shifter_BAC)
+add_subdirectory(Shifter_BCA)
+add_subdirectory(Shifter_CAB)
+add_subdirectory(Shifter_CBA)
