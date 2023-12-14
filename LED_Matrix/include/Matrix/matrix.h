@@ -12,21 +12,21 @@ namespace Matrix {
      *  @brief Starts Matrix state machine.
      *  @details Implemented in Matrix/<implementation>/matrix.cpp
      */
-    void matrix_start();
+    void start();
     
     /**
      *  @brief Matrix state machine ISR from DMA/PIO.
      *  @details Mapped to ISR in src/<app>/isr.cpp
      *  @details Implemented in Matrix/<implementation>/matrix.cpp
      */
-    void matrix_dma_isr();
+    void dma_isr();
     
     /**
      *  @brief Matrix ISR from Blank time.
      *  @details Mapped to ISR in src/<app>/isr.cpp
      *  @details Implemented in Matrix/<implementation>/matrix.cpp
      */
-    void matrix_timer_isr();
+    void timer_isr();
     
     /**
      *  @brief State machine for converting RGB-24 to bitplanes.

@@ -10,17 +10,17 @@
 namespace Matrix {
     volatile int timer;
 
-    void matrix_start() {
+    void start() {
         // Do nothing
 
         timer = hardware_alarm_claim_unused(true);
     }
 
-    void __not_in_flash_func(matrix_dma_isr)() {
+    void __not_in_flash_func(dma_isr)() {
         // Do nothing
     }
 
-    void __not_in_flash_func(matrix_timer_isr)() {
+    void __not_in_flash_func(timer_isr)() {
         // Do nothing
     }
 }

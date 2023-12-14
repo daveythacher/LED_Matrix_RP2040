@@ -37,7 +37,7 @@ namespace Matrix {
         The serial protocol used by PIO is column length decremented by one followed by column values.
     */
 
-    void matrix_start() {
+    void start() {
         // Init Matrix hardware
         // IO
         for (int i = 0; i < 13; i++) {
@@ -49,6 +49,8 @@ namespace Matrix {
         gpio_init(22);
         gpio_set_dir(22, GPIO_OUT);
         gpio_clr_mask(0x5FFF00);
+
+        Multiplex::init(MULTIPLEX);
         
         memset((void *) buf, COLUMNS - 1, sizeof(buf));
         memset((void *) null_table, 0, COLUMNS + 1);
@@ -167,7 +169,7 @@ namespace Matrix {
                 address_table[(1 << i) + k - 1].data = buf[buffer][rows][i];
     }
 
-    void __not_in_flash_func(matrix_dma_isr)() {
+    void __not_in_flash_func(dma_isr)() {
         if (dma_channel_get_irq0_status(dma_chan[0])) {      
             // Make sure the FIFO is empty 
             //  There was a bug with LAT when SERIAL_CLOCK is small, but I forgot what it was. (Just counted out additional time as hack.)
@@ -179,7 +181,7 @@ namespace Matrix {
         }
     }
 
-    void __not_in_flash_func(matrix_timer_isr)() {
+    void __not_in_flash_func(timer_isr)() {
         static uint32_t rows = 0;
         extern volatile bool vsync;
 
@@ -198,7 +200,7 @@ namespace Matrix {
                         }
                     }
                     
-                    SetRow(rows);
+                    Multiplex::SetRow(rows);
                     load_line(rows, bank);                                                  // Note this is a fairly expensive operation. This is done in parallel with blank time.
                     state++;
                     break;

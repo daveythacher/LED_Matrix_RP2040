@@ -7,8 +7,8 @@
 #include "Multiplex/Multiplex.h"
 #include "hardware/gpio.h"
 
-namespace Matrix {
-    void init(int rows, int type) {
+namespace Multiplex {
+    void init(int rows) {
         // Do nothing
     }
     

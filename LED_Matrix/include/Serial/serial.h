@@ -12,13 +12,13 @@ namespace Serial {
      *  @brief Starts Serial state machine
      *  @details Implemented in src/<app>/serial.cpp
      */
-    void serial_start();
+    void start();
     
     /**
      *  @brief Callback for Serial state machine
      *  @details Implemented in src/<app>/serial.cpp
      */
-    void serial_task();
+    void task();
 }
 
 #endif

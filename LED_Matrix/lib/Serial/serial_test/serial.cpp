@@ -33,11 +33,11 @@ namespace Serial {
         Matrix::process((void *) &buffers[(buffer + 1) % 2], true);
     }
 
-    void __not_in_flash_func(serial_task)() {
+    void __not_in_flash_func(task)() {
         test_driver();
     }
 
-    void serial_start() {
+    void start() {
         multicore_launch_core1(Matrix::work);
     }
 }

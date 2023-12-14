@@ -7,14 +7,12 @@
 #ifndef MULTIPLEX_H
 #define MULTIPLEX_H
 
-namespace Matrix {
-    // TODO: Create enum for type
-
+namespace Multiplex {
     /**
      *  @brief Initialize multiplexer state machine
      *  @details Implemented in Multiplex/<name>/<name>.cpp
      */
-    void init(int rows, int type);
+    void init(int rows);
 
     /**
      *  @brief Change the row for multiplexing

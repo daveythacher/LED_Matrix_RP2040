@@ -10,11 +10,11 @@
 
 namespace APP {
     static void __not_in_flash_func(dma_isr0)() {
-        Matrix::matrix_dma_isr();
+        Matrix::dma_isr();
     }
 
     static void __not_in_flash_func(timer_isr)() {
-        Matrix::matrix_timer_isr();
+        Matrix::timer_isr();
     }
 
     void isr_start() {

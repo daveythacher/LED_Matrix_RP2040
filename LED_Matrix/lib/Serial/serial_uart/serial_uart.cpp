@@ -19,7 +19,7 @@ namespace Serial {
     static volatile bool isIdle = true;
     static volatile uint32_t checksum;
 
-    static void serial_uart_reload(bool reload_dma);
+    static void uart_reload(bool reload_dma);
 
     #if __BYTE_ORDER == __LITTLE_ENDIAN
         #define ntohs(x) __bswap16(x)
@@ -29,7 +29,7 @@ namespace Serial {
         #define ntoh1(x) ((uint32_t)(x))
     #endif
 
-    void serial_uart_start(int dma0, int dma1) {
+    void uart_start(int dma0, int dma1) {
         dma_chan[0] = dma0;
         dma_chan[1] = dma1;
 
@@ -59,7 +59,7 @@ namespace Serial {
         channel_config_set_dreq(&c[1], DREQ_UART0_RX);
         dma_channel_set_irq1_enabled(dma_chan[1], false);
 
-        serial_uart_reload(false);
+        uart_reload(false);
     }
 
 
@@ -69,7 +69,7 @@ namespace Serial {
     //    Sender must wait long enough to ensure this cannot happen!
     // NOTE: Current implementation works but may have issues with certain configuration settings
     //  Cannot use high baud rates, high color density, high refresh rates and/or large blank times
-    void __not_in_flash_func(serial_uart_task)() {
+    void __not_in_flash_func(uart_task)() {
         static uint64_t time = time_us_64(); 
 
         if (isIdle) {
@@ -86,14 +86,14 @@ namespace Serial {
             if (uart_is_readable(uart0) && uart_getc(uart0) == 's') {
                 checksum = 0;
                 isIdle = false;
-                serial_uart_reload(true);
+                uart_reload(true);
             }
         }
 
         // Note this is allowed to trip the error recovery protocol, which should not cause an issue.
         if (dma_channel_get_irq1_status(dma_chan[1])) {
             if ((dma_sniffer_get_data_accumulator() == checksum) && ((uart0_hw->ris & 0x380) == 0))
-                serial_uart_reload(false);
+                uart_reload(false);
             dma_sniffer_disable();
             isIdle = true;
             dma_hw->ints1 = 1 << dma_chan[0];
@@ -101,7 +101,7 @@ namespace Serial {
         }
     }
 
-    void __not_in_flash_func(serial_uart_reload)(bool reload_dma) {
+    void __not_in_flash_func(uart_reload)(bool reload_dma) {
         static uint8_t *ptr = 0;
         static uint8_t *buf = 0;
         static uint16_t len = 0;
@@ -120,7 +120,7 @@ namespace Serial {
                     p[i / 2] = ntohs(p[i / 2]);
             }
 
-            serial_uart_callback(&buf, &len);
+            uart_callback(&buf, &len);
 
             if (ptr)
                 Matrix::process((void *) ptr, false);
