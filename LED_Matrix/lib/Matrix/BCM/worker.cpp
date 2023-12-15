@@ -14,8 +14,6 @@
 #include "Matrix/BCM/memory_format.h"
 #include "Matrix/helper.h"
 
-
-
 namespace Matrix {
     extern test2 buf[];
 }
