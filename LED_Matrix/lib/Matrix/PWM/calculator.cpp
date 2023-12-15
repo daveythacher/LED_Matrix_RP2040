@@ -39,13 +39,24 @@ namespace Matrix::Calculator {
         constexpr float led_rise_us = (max_led_impedance * min_led_harmonics * max_led_cap_pf * MULTIPLEX) / 1000000.0;
         constexpr float period_us = 1000000.0 / (MAX_REFRESH * MULTIPLEX);
         constexpr float brightness = ((period_us / get_refresh_overhead()) - led_rise_us) / period_us;
+        constexpr float accuracy = ((period_us / get_refresh_overhead()) - (led_rise_us * PWM_bits)) / (period_us / get_refresh_overhead());
 
         static_assert(brightness > 0.75, "Brightness less than 75 percent is not recommended");
+        static_assert(accuracy > 0.95, "Accuracy less than 95 percent is not recommended");
+    }
+
+    static constexpr void is_blank_time_valid() {
+        constexpr float led_rise_us_low = (max_led_impedance * COLUMNS * min_led_harmonics * max_led_cap_pf) / 1000000.0;
+        constexpr float led_fall_us_high = (1000 * COLUMNS * min_led_harmonics * max_led_cap_pf) / 1000000.0;
+
+        static_assert(led_rise_us_low < BLANK_TIME, "Blank time is too low for low side");
+        static_assert(led_fall_us_high < BLANK_TIME, "Blank time is too low for high side");
     }
 
     void verify_configuration() {
         is_brightness_valid();
         is_clk_valid();
+        is_blank_time_valid();
 
         static_assert(MAX_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
     }
