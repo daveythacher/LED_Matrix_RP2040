@@ -38,8 +38,8 @@ namespace Matrix::Calculator {
     static constexpr void is_brightness_valid() {
         constexpr float led_rise_us = (max_led_impedance * min_led_harmonics * max_led_cap_pf * MULTIPLEX) / 1000000.0;
         constexpr float period_us = 1000000.0 / (MAX_REFRESH * MULTIPLEX);
-        constexpr float brightness = ((period_us / get_refresh_overhead()) - led_rise_us) / period_us;
-        constexpr float accuracy = ((period_us / get_refresh_overhead()) - (led_rise_us * PWM_bits)) / (period_us / get_refresh_overhead());
+        constexpr float brightness = ((period_us / get_refresh_overhead()) - (led_rise_us * 2)) / period_us;
+        constexpr float accuracy = ((period_us / get_refresh_overhead()) - (led_rise_us * 2)) / (period_us / get_refresh_overhead());
 
         static_assert(brightness > 0.75, "Brightness less than 75 percent is not recommended");
         static_assert(accuracy > 0.95, "Accuracy less than 95 percent is not recommended");
