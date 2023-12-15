@@ -15,7 +15,7 @@ namespace Matrix::Calculator {
     // LED constants
     constexpr uint16_t max_led_impedance = 1650;
     constexpr uint8_t max_led_cap_pf = 18;
-    constexpr uint8_t min_led_harmonics = 3;
+    constexpr uint8_t min_led_harmonics = 5;
 
     static constexpr float get_refresh_overhead() {
         float refresh_overhead = 1000000.0 / (MULTIPLEX * MAX_REFRESH);
@@ -39,7 +39,7 @@ namespace Matrix::Calculator {
         constexpr float brightness = ((period_us / get_refresh_overhead()) - led_rise_us) / period_us;
         constexpr float accuracy = ((period_us / get_refresh_overhead()) - led_rise_us) / (period_us / get_refresh_overhead());
 
-        static_assert(brightness > 0.7, "Brightness less than 70 percent is not recommended");
+        static_assert(brightness > 0.75, "Brightness less than 75 percent is not recommended");
         static_assert(accuracy > 0.95, "Accuracy less than 95 percent is not recommended");
     }
 
