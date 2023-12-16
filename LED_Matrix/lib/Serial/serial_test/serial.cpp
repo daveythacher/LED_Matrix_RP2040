@@ -14,8 +14,8 @@ namespace Serial {
     static volatile uint8_t buffer = 0;
 
     static void __not_in_flash_func(test_driver)() {
-        for (int x = 0; x < Matrix::COLUMNS; x++) {
-            for (int y = 0; y < (2 * Matrix::MULTIPLEX); y++) {
+        for (uint16_t x = 0; x < Matrix::COLUMNS; x++) {
+            for (uint8_t y = 0; y < (2 * Matrix::MULTIPLEX); y++) {
                 if ((x % (2 * Matrix::MULTIPLEX)) == y) {
                     buffers[buffer].data[y][x].red = 0;
                     buffers[buffer].data[y][x].green = 0;
