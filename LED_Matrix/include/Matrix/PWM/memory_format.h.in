@@ -24,14 +24,14 @@ namespace Matrix {
     #define DEFINE_BYPASS_FANOUT            false
     #endif
     
-    constexpr int MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Contrast Ratio - Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
-    constexpr int MIN_REFRESH = DEFINE_MIN_REFRESH;
+    constexpr uint16_t MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Contrast Ratio - Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
+    constexpr uint16_t MIN_REFRESH = DEFINE_MIN_REFRESH;
     constexpr float SERIAL_CLOCK = (DEFINE_MATRIX_DCLOCK * 1000000.0);
-    constexpr int BLANK_TIME = DEFINE_BLANK_TIME;
-    constexpr int FPS = DEFINE_FPS;
+    constexpr uint8_t BLANK_TIME = DEFINE_BLANK_TIME;
+    constexpr uint8_t FPS = DEFINE_FPS;
     constexpr bool BYPASS_FANOUT = DEFINE_BYPASS_FANOUT;
     
-    constexpr int PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
+    constexpr uint8_t PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
     
     typedef volatile uint8_t test2[MULTIPLEX][1 << PWM_bits][COLUMNS + 1];
 }

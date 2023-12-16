@@ -8,7 +8,7 @@
 #define SERIAL_CONFIG_H    
 
 #include <stdint.h>
-#include "../Matrix/config.h"
+#include "Matrix/config.h"
 #include "Serial/types.h"
     
 namespace Serial {

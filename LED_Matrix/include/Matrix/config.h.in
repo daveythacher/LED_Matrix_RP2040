@@ -7,14 +7,16 @@
 #ifndef MATRIX_CONFIG_H
 #define MATRIX_CONFIG_H    
 
+#include <stdint.h>
+
 namespace Matrix {
     // -- DO NOT EDIT BELOW THIS LINE --
 
     #cmakedefine DEFINE_MULTIPLEX_SCAN @DEFINE_MULTIPLEX_SCAN@
     #cmakedefine DEFINE_COLUMNS @DEFINE_COLUMNS@
     
-    constexpr int MULTIPLEX = DEFINE_MULTIPLEX_SCAN;
-    constexpr int COLUMNS = DEFINE_COLUMNS;
+    constexpr uint8_t MULTIPLEX = DEFINE_MULTIPLEX_SCAN;
+    constexpr uint16_t COLUMNS = DEFINE_COLUMNS;
 }
 
 #endif
