@@ -64,8 +64,8 @@ namespace Matrix::Worker {
     }
 
     static void __not_in_flash_func(process_packet)(Serial::packet *p) {
-        for (int y = 0; y < MULTIPLEX; y++) {
-            for (int x = 0; x < COLUMNS; x++) {
+        for (uint8_t y = 0; y < MULTIPLEX; y++) {
+            for (uint16_t x = 0; x < COLUMNS; x++) {
 
                 // Compiler should remove all but one of these.
                 switch (PWM_bits % 4) {
