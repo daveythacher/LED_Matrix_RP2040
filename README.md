@@ -3,7 +3,7 @@ This code base builds a hardware module for abstracting multiplexing of LED matr
 
 Pixel mapping, brightness, color temperature/gamma, dot correction, scaling, etc. is handled by the application which produces RGB data over the IO bus. Note IO bus may increase latency of the display. This project was originally created for a small PoE display. It is in no way capable of competing against a video wall and represents a smaller version of receiver card, in theory.
 
-Static configuration is used but a configuration file exists which makes adjusting this fairly straightforward. Note you are still required to perform required testing as these only help with certain issues.
+Static configuration is used via CMake. Note you are still required to perform required testing as these only help with certain issues. Compile time checks exist to help with some of this.
 
 ## Status
 This code base is a work in progress. Some sections are still experimental. See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/README.md#status) for more details.
