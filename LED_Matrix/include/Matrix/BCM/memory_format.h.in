@@ -26,7 +26,7 @@ namespace Matrix {
     
     constexpr uint16_t MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Contrast Ratio - Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
     constexpr uint16_t MIN_REFRESH = DEFINE_MIN_REFRESH;
-    constexpr float SERIAL_CLOCK = (DEFINE_MATRIX_DCLOCK * 1000000.0);
+    constexpr double SERIAL_CLOCK = (DEFINE_MATRIX_DCLOCK * 1000000.0);
     constexpr uint8_t BLANK_TIME = DEFINE_BLANK_TIME;
     constexpr uint8_t FPS = DEFINE_FPS;
     constexpr bool BYPASS_FANOUT = DEFINE_BYPASS_FANOUT;
