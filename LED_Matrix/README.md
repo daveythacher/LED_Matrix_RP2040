@@ -23,7 +23,9 @@ Three 48KB blocks are allowed to be used for framebuffers. Additional memory for
 
 Three framebuffers are used due to the vsync. The serial protocols are expected to implement a ping-pong approach using two buffers. In order to prevent a back up three framebuffers are allocated to ensure a pipeline. This is not required, but the expectation is that the serial protocol will not overspeed the number of frames per second, however this is not checked or verified by the compile time logic. In the future maybe this can be reduced to just two 64KB buffers.
 
-The matrix algorithm compile time checks attempt to verify a consumption rate. However compile time check does not consider the complexity of processing a frame against frame rate. Therefore it should be noted race conditions in misconfigurations can exist! Again serial protocols should attempt some level of flow control to prevent overspeeding the frame rate, but this is not enforced.
+The matrix algorithm compile time checks attempt to verify a consumption rate. However compile time check does not consider the complexity of processing a frame against frame rate. Therefore it should be noted race conditions in misconfigurations can exist! Again serial protocols should attempt some level of flow control to prevent overspeeding the frame rate, but this is not enforced. 
+
+Run time logic should detect this and drop the frame! Currently this has not been implemented.
 
 ### Multiplex Alogirthms
 CMake configuration selects these as configured for the specific build. Parallel development should be possible.
