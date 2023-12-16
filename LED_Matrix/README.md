@@ -10,13 +10,20 @@ This code base is divided into two parts. The first part is applications which a
 This is a folder for different libraries which could be used by multiple applications.
 
 ### Matrix Alogirthms
-I did not implement these as C++ classes. The memory footprints vary and currently are defined by the preprocessor. I do not want to support dynamic memory as this can be a pain. I also do not want to use union for the different algorithms of matrix. This forced me to use static and only support one at a time. (Assume you have three 48KB Matrix framebuffers and 2 12KB Serial buffers.)
+I did not implement these as C++ classes. The memory footprints vary and currently are defined by the preprocessor. I do not want to support dynamic memory as this can be a pain. I also do not want to use union for the different algorithms of matrix. This forced me to use static and only support one at a time. (Assume you have three 48KB Matrix framebuffers and two 12KB Serial buffers.)
 
 Currently they all use the same interface. They are compiled as library: led_BCM, etc. You must link against one of these. Note ISR logic is handled in application (Serial Algorithm) implementation. There are a few callbacks allocated to matrix algorithms for ISRs. 
 
 To add more you just create folder and implement the Matrix interface, have CMake build a library with led_ prefix, etc. CMake should link against all dependencies used by the lib. Each matrix algorithm is its own library.
 
 Parallel development should be possible.
+
+##### Memory allocation
+Three 48KB blocks are allowed to be used for framebuffers. Additional memory for lookup table is allowed however this is expect to not exceed more than a few kilobytes.
+
+Three framebuffers are used due to the vsync. The serial protocols are expected to implement a ping-pong approach using two buffers. In order to prevent a back up three framebuffers are allocated to ensure a pipeline. This is not required, but the expectation is that the serial protocol will not overspeed the number of frames per second, however this is not checked or verified by the compile time logic. In the future maybe this can be reduced to just two 64KB buffers.
+
+The matrix algorithm compile time checks attempt to verify a consumption rate. However compile time check does not consider the complexity of processing a frame against frame rate. Therefore it should be noted race conditions in misconfigurations can exist! Again serial protocols should attempt some level of flow control to prevent overspeeding the frame rate, but this is not enforced.
 
 ### Multiplex Alogirthms
 CMake configuration selects these as configured for the specific build. Parallel development should be possible.
