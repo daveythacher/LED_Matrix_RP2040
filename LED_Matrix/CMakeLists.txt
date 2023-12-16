@@ -20,18 +20,25 @@ function(pico_add_dis_output2 TARGET)
     )
 endfunction()
 
+# These determine code modules (linker)
 set(DEFINE_APP "uart" CACHE STRING "Serial algorithm name")
-set(DEFINE_SERIAL_CLOCK "17.0" CACHE STRING "Serial clock speed in MHz for Matrix algorithm")
-set(DEFINE_ALGORITHM "PWM" CACHE STRING "Matrix algorithm name")
-set(DEFINE_SERIAL_RGB_TYPE "RGB24" CACHE STRING "RGB type name")
-set(DEFINE_SERIAL_UART_BAUD "4000000" CACHE STRING "Serial algorithm baud rate in Baud")
-set(DEFINE_MULTIPLEX "8" CACHE STRING "Panel scan")
 set(DEFINE_MULTIPLEX_NAME "Decoder" CACHE STRING "Multiplex algorithm name")
+set(DEFINE_ALGORITHM "PWM" CACHE STRING "Matrix algorithm name")
+
+# These determine RAM usage
+set(DEFINE_SERIAL_RGB_TYPE "RGB24" CACHE STRING "RGB type name")
+set(DEFINE_MULTIPLEX "8" CACHE STRING "Panel scan")
 set(DEFINE_COLUMNS "32" CACHE STRING "Shift chain length")
-set(DEFINE_FPS "30" CACHE STRING "Frames per second")
-set(DEFINE_BLANK_TIME "10" CACHE STRING "Blank time in microseconds")
-set(DEFINE_MAX_REFRESH "3000" CACHE STRING "Refresh rate")
 set(DEFINE_MAX_RGB_LED_STEPS "130" CACHE STRING "Min constrast of LED without multiplexing")
+
+# These determine timing and state machine settings at compile time
+set(DEFINE_SERIAL_CLOCK "17.0" CACHE STRING "Serial clock speed in MHz for Matrix algorithm")
+set(DEFINE_SERIAL_UART_BAUD "4000000" CACHE STRING "Serial algorithm baud rate in Baud")
+set(DEFINE_BLANK_TIME "10" CACHE STRING "Blank time in microseconds")
+
+# These verify the configuration settings at compile time
+set(DEFINE_FPS "30" CACHE STRING "Frames per second")
+set(DEFINE_MAX_REFRESH "3000" CACHE STRING "Refresh rate")
 set(DEFINE_BYPASS_FANOUT "false" CACHE STRING "Disable verification of max Matrix algorithm Serial clock fanout speed limit")
 
 add_subdirectory(include)
