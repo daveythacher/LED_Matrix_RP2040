@@ -122,7 +122,7 @@ namespace Matrix {
         // This is depends on panel implementation however the fanout and par cap in matrix limit the max size.
         //  Technically capable of more pixels with multiplexing, if we reduce refresh and contrast.
         //  Picked numbers to simplify support and define limits.
-        static_assert(COLUMNS <= 255, "COLUMNS more than 1024 is not recommended, but we only support up to 255");
+        static_assert(COLUMNS <= 256, "COLUMNS more than 1024 is not recommended, but we only support up to 256");
         static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
 
         // This is the limit observed in testing and from most panel specifications.
