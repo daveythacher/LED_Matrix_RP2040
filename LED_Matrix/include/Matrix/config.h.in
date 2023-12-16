@@ -10,10 +10,10 @@
 namespace Matrix {
     // -- DO NOT EDIT BELOW THIS LINE --
 
-    #cmakedefine DEFINE_MULTIPLEX @DEFINE_MULTIPLEX@
+    #cmakedefine DEFINE_MULTIPLEX_SCAN @DEFINE_MULTIPLEX_SCAN@
     #cmakedefine DEFINE_COLUMNS @DEFINE_COLUMNS@
     
-    constexpr int MULTIPLEX = DEFINE_MULTIPLEX;
+    constexpr int MULTIPLEX = DEFINE_MULTIPLEX_SCAN;
     constexpr int COLUMNS = DEFINE_COLUMNS;
 }
 

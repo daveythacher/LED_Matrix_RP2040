@@ -38,9 +38,9 @@ target_link_libraries(led
     pico_stdio_usb
     pico_runtime
     pico_multicore
-    led_${DEFINE_ALGORITHM}
-    led_multiplex_${DEFINE_MULTIPLEX_NAME}
-    serial_${DEFINE_APP}
+    led_${DEFINE_MATRIX_ALGORITHM}
+    led_multiplex_${DEFINE_MULTIPLEX_ALGORITHM}
+    serial_${DEFINE_SERIAL_ALGORITHM}
 )
 
 target_link_options(led 
