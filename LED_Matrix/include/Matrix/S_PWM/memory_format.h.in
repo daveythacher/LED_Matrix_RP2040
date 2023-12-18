@@ -35,7 +35,7 @@ namespace Matrix {
     constexpr bool BYPASS_FANOUT = DEFINE_BYPASS_FANOUT;
     constexpr uint8_t S_PWM_SEG = DEFINE_S_PWM_SEG;
     
-    constexpr uint8_t PWM_bits = std::max(round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX)), S_PWM_SEG);
+    constexpr uint8_t PWM_bits = std::max((uint8_t) round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX)), S_PWM_SEG);
     constexpr uint8_t upper_bits = PWM_bits - S_PWM_SEG;
     constexpr uint8_t lower_bits = S_PWM_SEG;
     
