@@ -55,16 +55,85 @@ namespace Matrix::Worker {
         }
     }
 
-    // TODO: Update to use table2
+    static uint8_t remap(uint8_t place, uint8_t places) {
+        uint32_t last = 0;
+        uint8_t index = 0;
+        
+        for (uint32_t x = places / 2; x > 0; x /= 2) {
+            uint32_t cntr = 0;
+            for (uint32_t y = last / 2; y < places; y += x) {
+                if (last != 0) {
+                    if ((cntr % 2) == 0) {
+                        if (index == place) {
+                            return y;
+                        }
+
+                        index++;
+                    }
+
+                    cntr++;
+                }
+                else {
+                    if (index == place) {
+                        return y;
+                    }
+
+                    index++;
+                }
+
+                last = x;
+            }
+        }
+
+        return 0;
+    }
+
+    static void store(uint32_t val, uint32_t index) {
+        /*
+        uint32_t j;
+
+            for (j = 0; j < i; j++) {
+                for (uint8_t k = 0; k < 6; k++) {
+
+                    index_table.table2[i][k][j / (1 << S_PWM_SEG)][j % (1 << S_PWM_SEG)] = 1 << k;
+                }
+            }
+
+            for (j = i; j < (1 << PWM_bits); j++) {
+                for (uint8_t k = 0; k < 6; k++) {
+
+                    index_table.table2[i][k][j / (1 << S_PWM_SEG)][j % (1 << S_PWM_SEG)] = 0;
+                }
+            }
+            */
+    }
+
+    static void process(uint32_t val) {
+        uint32_t upper_val, lower_val, temp;
+
+        // Smothing function (This is mostly magic!)
+        val *= (1 << PWM_bits) - (1 << upper_bits) + 1;
+        val /= 1 << PWM_bits;
+
+        upper_val = val / (1 << lower_bits);
+        lower_val = val % (1 << lower_bits);
+
+        for (uint32_t i = 0; i < (1 << upper_bits); i++) {            
+            temp = upper_val * (1 << (lower_bits - upper_bits));
+            temp += lower_val / (1 << upper_bits);
+
+            if ((int32_t) val - (int32_t) (temp * (1 << upper_bits) + i) > 0) {
+                store(temp + 1, remap(i, 1 << upper_bits));
+            }
+            else {
+                store(temp, remap(i, 1 << upper_bits));
+            }
+        }
+    }
+
     static void build_index_table() {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-            uint32_t j;
-            for (j = 0; j < i; j++)
-                for (uint8_t k = 0; k < 6; k++)
-                    index_table.table[i][k][j] = 1 << k;
-            for (j = i; j < (1 << PWM_bits); j++)
-                for (uint8_t k = 0; k < 6; k++)
-                    index_table.table[i][k][j] = 0;
+            process(i);
         }
     }
 
