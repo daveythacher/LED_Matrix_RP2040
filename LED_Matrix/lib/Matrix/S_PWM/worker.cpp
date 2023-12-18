@@ -55,7 +55,7 @@ namespace Matrix::Worker {
         }
     }
 
-    static uint8_t remap(uint8_t place, uint8_t places) {
+    constexpr static uint8_t remap(uint8_t place, uint8_t places) {
         uint32_t last = 0;
         uint8_t index = 0;
         
@@ -86,8 +86,8 @@ namespace Matrix::Worker {
         return 0;
     }
 
-    static void store(uint32_t i, uint32_t val, uint32_t index) {
-        uint32_t j;
+    constexpr static void store(uint32_t i, uint32_t val, uint32_t index) {
+        uint32_t j = 0;
 
         for (j = 0; j < val && j < (1 << lower_bits); j++)
             for (uint8_t k = 0; k < 6; k++)
@@ -98,8 +98,10 @@ namespace Matrix::Worker {
                 index_table.table2[i][k][index][j] = 0;
     }
 
-    static void process(uint32_t val) {
-        uint32_t upper_val, lower_val, temp;
+    constexpr static void process(uint32_t val) {
+        uint32_t upper_val = 0;
+        uint32_t lower_val = 0;
+        uint32_t temp = 0;
 
         // Smoothing function (This is mostly magic!)
         val *= (1 << PWM_bits) - (1 << upper_bits) + 1;
@@ -119,7 +121,7 @@ namespace Matrix::Worker {
         }
     }
 
-    static void build_index_table() {
+    constexpr static void build_index_table() {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++)
             process(i);
     }
