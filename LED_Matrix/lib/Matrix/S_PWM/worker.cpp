@@ -64,9 +64,8 @@ namespace Matrix::Worker {
             for (uint32_t y = last / 2; y < places; y += x) {
                 if (last != 0) {
                     if ((cntr % 2) == 0) {
-                        if (index == place) {
+                        if (index == place)
                             return y;
-                        }
 
                         index++;
                     }
@@ -74,9 +73,8 @@ namespace Matrix::Worker {
                     cntr++;
                 }
                 else {
-                    if (index == place) {
+                    if (index == place)
                         return y;
-                    }
 
                     index++;
                 }
@@ -91,17 +89,13 @@ namespace Matrix::Worker {
     static void store(uint32_t i, uint32_t val, uint32_t index) {
         uint32_t j;
 
-        for (j = 0; j < val && j < (1 << lower_bits); j++) {
-            for (uint8_t k = 0; k < 6; k++) {
+        for (j = 0; j < val && j < (1 << lower_bits); j++)
+            for (uint8_t k = 0; k < 6; k++)
                 index_table.table2[i][k][index][j] = 1 << k;
-            }
-        }
 
-        for (j = val; j < (1 << lower_bits); j++) {
-            for (uint8_t k = 0; k < 6; k++) {
+        for (j = val; j < (1 << lower_bits); j++)
+            for (uint8_t k = 0; k < 6; k++)
                 index_table.table2[i][k][index][j] = 0;
-            }
-        }
     }
 
     static void process(uint32_t val) {
@@ -118,19 +112,16 @@ namespace Matrix::Worker {
             temp = upper_val * (1 << (lower_bits - upper_bits));
             temp += lower_val / (1 << upper_bits);
 
-            if ((int32_t) val - (int32_t) (temp * (1 << upper_bits) + i) > 0) {
+            if ((int32_t) val - (int32_t) (temp * (1 << upper_bits) + i) > 0)
                 store(val, temp + 1, remap(i, 1 << upper_bits));
-            }
-            else {
+            else
                 store(val, temp, remap(i, 1 << upper_bits));
-            }
         }
     }
 
     static void build_index_table() {
-        for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
+        for (uint32_t i = 0; i < (1 << PWM_bits); i++)
             process(i);
-        }
     }
 
     static void __not_in_flash_func(process_packet)(Serial::packet *p) {
