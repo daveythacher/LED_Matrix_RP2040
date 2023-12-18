@@ -88,24 +88,20 @@ namespace Matrix::Worker {
         return 0;
     }
 
-    static void store(uint32_t val, uint32_t index) {
-        /*
+    static void store(uint32_t i, uint32_t val, uint32_t index) {
         uint32_t j;
 
-            for (j = 0; j < i; j++) {
-                for (uint8_t k = 0; k < 6; k++) {
-
-                    index_table.table2[i][k][j / (1 << S_PWM_SEG)][j % (1 << S_PWM_SEG)] = 1 << k;
-                }
+        for (j = 0; j < val && j < (1 << lower_bits); j++) {
+            for (uint8_t k = 0; k < 6; k++) {
+                index_table.table2[i][k][index][j] = 1 << k;
             }
+        }
 
-            for (j = i; j < (1 << PWM_bits); j++) {
-                for (uint8_t k = 0; k < 6; k++) {
-
-                    index_table.table2[i][k][j / (1 << S_PWM_SEG)][j % (1 << S_PWM_SEG)] = 0;
-                }
+        for (j = val; j < (1 << lower_bits); j++) {
+            for (uint8_t k = 0; k < 6; k++) {
+                index_table.table2[i][k][index][j] = 0;
             }
-            */
+        }
     }
 
     static void process(uint32_t val) {
@@ -123,10 +119,10 @@ namespace Matrix::Worker {
             temp += lower_val / (1 << upper_bits);
 
             if ((int32_t) val - (int32_t) (temp * (1 << upper_bits) + i) > 0) {
-                store(temp + 1, remap(i, 1 << upper_bits));
+                store(val, temp + 1, remap(i, 1 << upper_bits));
             }
             else {
-                store(temp, remap(i, 1 << upper_bits));
+                store(val, temp, remap(i, 1 << upper_bits));
             }
         }
     }
