@@ -14,24 +14,28 @@
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/config.h"
 #include "Matrix/matrix.h"
-#include "Matrix/BCM/memory_format.h"
+#include "Matrix/S_PWM/memory_format.h"
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
+
+namespace Matrix::Worker {
+    extern volatile bool vsync;
+}
 
 namespace Matrix {
     test2 buf[3];
     static uint8_t bank = 0;
     static volatile uint8_t state = 0;
     static int dma_chan[2];
-    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << PWM_bits) + 1];
+    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << S_PWM_SEG) + 2];
     static volatile uint8_t null_table[COLUMNS + 1];
     volatile int timer;
 
     static void send_line();
-    static void load_line(uint32_t rows, uint8_t buffer);
+    static void load_line(uint8_t rows, uint8_t seg, uint8_t buffer);
 
     /*
-        There are 2^PWM_bits shifts per period.
+        There are 2^PWM_bits + 1 shifts per period.
         The last shift turns the columns off before multiplexing.
 
         The serial protocol used by PIO is column length decremented by one followed by column values.
@@ -43,9 +47,9 @@ namespace Matrix {
         for (int i = 0; i < 8; i++) {
             gpio_init(i + 8);
             gpio_set_dir(i + 8, GPIO_OUT);
-        }
-        for (int i = 0; i < 8; i++)
             gpio_set_function(i + 8, GPIO_FUNC_PIO0);
+        }
+        
         gpio_init(22);
         gpio_set_dir(22, GPIO_OUT);
         gpio_clr_mask(0x40FF00);
@@ -56,15 +60,15 @@ namespace Matrix {
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
 
-        for (uint32_t i = 0; i < (1 << PWM_bits) - 1; i++)
+        for (uint32_t i = 0; i < (1 << S_PWM_SEG); i++)
             address_table[i].len = COLUMNS + 1;
+
+        address_table[1 << S_PWM_SEG].data = null_table;
+        address_table[1 << S_PWM_SEG].len = COLUMNS + 1;
+        address_table[(1 << S_PWM_SEG) + 1].data = NULL;
+        address_table[(1 << S_PWM_SEG) + 1].len = 0;
         
-        address_table[(1 << PWM_bits) - 1].data = null_table;
-        address_table[(1 << PWM_bits) - 1].len = COLUMNS + 1;
-        address_table[1 << PWM_bits].data = NULL;
-        address_table[1 << PWM_bits].len = 0;
-        
-        // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
+        // Hack to lower the ISR tick rate, accelerates by 2^S_PWM_SEG (Improves refresh performance)
         //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
         //      Works like Hardware PWM without the high refresh
         //      This is more or less how it would work with MACHXO2 FPGA and PIC32MX using PMP.
@@ -72,7 +76,7 @@ namespace Matrix {
         //  OE is not used in this implementation and held to low to enable the display
         //      Last shift will disable display.
         /*while (1) {
-            counter2 = (1 << PWM_bits) - 1; LAT = 0;    // Start of frame, manually push into FIFO (data stream protocol)
+            counter2 = (1 << S_PWM_SEG) - 1; LAT = 0;    // Start of frame, manually push into FIFO (data stream protocol)
             do {
                 counter = COLUMNS - 1;                  // Start of payload, DMA push into FIFO (data stream protocol)
                 do {
@@ -84,7 +88,7 @@ namespace Matrix {
             } while (counter2-- > 0);
             IRQ = 1;                                    // Call CPU at end of frame
         }*/
-        
+    
         // PIO
         const uint16_t instructions[] = {
             (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),   // PIO SM
@@ -144,22 +148,21 @@ namespace Matrix {
         timer = hardware_alarm_claim_unused(true);
         timer_hw->inte |= 1 << timer;
         
-        load_line(0, 1);
+        load_line(0, 0, 1);
         send_line();
     }
 
     void __not_in_flash_func(send_line)() {
         dma_hw->ints0 = 1 << dma_chan[0];
-        pio_sm_put(pio0, 0, (1 << PWM_bits) - 1);
+        pio_sm_put(pio0, 0, 1 << S_PWM_SEG);
         dma_channel_set_read_addr(dma_chan[1], &address_table[0], true);
     }
 
-    // This is done to reduce interrupt rate. Use DMA to automate the BCM bitplanes instead of CPU.
+    // This is done to reduce interrupt rate. Use DMA to automate the PWM bitplanes instead of CPU.
     //  This is possible due to PIO state machine.
-    void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
-        for (uint32_t i = 0; i < PWM_bits; i++)
-            for (uint32_t k = 0; k < (uint32_t) (1 << i); k++)
-                address_table[(1 << i) + k - 1].data = buf[buffer][rows][i];
+    void __not_in_flash_func(load_line)(uint8_t rows, uint8_t seg, uint8_t buffer) {
+        for (uint32_t i = 0; i < (1 << S_PWM_SEG); i++)
+                address_table[i].data = buf[buffer][rows][seg][i];
     }
 
     void __not_in_flash_func(dma_isr)() {
@@ -174,12 +177,9 @@ namespace Matrix {
         }
     }
 
-    namespace Worker {
-        extern volatile bool vsync;
-    }
-
     void __not_in_flash_func(timer_isr)() {
-        static uint32_t rows = 0;
+        static uint8_t rows = 0;
+        static uint8_t seg = 0;
 
         if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
             switch(state) {
@@ -190,14 +190,19 @@ namespace Matrix {
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                         rows = 0;
+                        
+                        if (++seg >= 1 << S_PWM_SEG)
+                            seg = 0;
+
                         if (Worker::vsync) {
                             bank = (bank + 1) % 3;
                             Worker::vsync = false;
+                            seg = 0;
                         }
                     }
-                    
+
                     Multiplex::SetRow(rows);
-                    load_line(rows, bank);                                                  // Note this is a fairly expensive operation. This is done in parallel with blank time.
+                    load_line(rows, seg, bank);                                             // Note this is a fairly expensive operation. This is done in parallel with blank time.
                     state++;
                     break;
                 case 1:
