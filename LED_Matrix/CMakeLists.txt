@@ -30,6 +30,7 @@ set(DEFINE_SERIAL_RGB_TYPE "RGB24" CACHE STRING "RGB type name")
 set(DEFINE_MULTIPLEX_SCAN "8" CACHE STRING "Panel scan")
 set(DEFINE_COLUMNS "32" CACHE STRING "Shift chain length")
 set(DEFINE_MAX_RGB_LED_STEPS "130" CACHE STRING "Min constrast of LED without multiplexing")
+set(DEFINE_S_PWM_SEG "4" CACHE STRING "Number of bits per S-PWM segment")
 
 # These determine timing and state machine settings at compile time
 set(DEFINE_MATRIX_DCLOCK "17.0" CACHE STRING "Matrix serial clock speed in MHz")
