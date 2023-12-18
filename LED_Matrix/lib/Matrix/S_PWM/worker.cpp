@@ -107,7 +107,7 @@ namespace Matrix::Worker {
     static void process(uint32_t val) {
         uint32_t upper_val, lower_val, temp;
 
-        // Smothing function (This is mostly magic!)
+        // Smoothing function (This is mostly magic!)
         val *= (1 << PWM_bits) - (1 << upper_bits) + 1;
         val /= 1 << PWM_bits;
 
