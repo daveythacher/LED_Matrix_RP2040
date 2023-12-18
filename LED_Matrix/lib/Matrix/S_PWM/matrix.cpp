@@ -47,9 +47,9 @@ namespace Matrix {
         for (int i = 0; i < 8; i++) {
             gpio_init(i + 8);
             gpio_set_dir(i + 8, GPIO_OUT);
-        }
-        for (int i = 0; i < 8; i++)
             gpio_set_function(i + 8, GPIO_FUNC_PIO0);
+        }
+        
         gpio_init(22);
         gpio_set_dir(22, GPIO_OUT);
         gpio_clr_mask(0x40FF00);
