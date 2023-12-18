@@ -27,7 +27,7 @@ namespace Matrix {
     static uint8_t bank = 0;
     static volatile uint8_t state = 0;
     static int dma_chan[2];
-    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << PWM_bits) + 2];
+    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << S_PWM_SEG) + 2];
     static volatile uint8_t null_table[COLUMNS + 1];
     volatile int timer;
 
@@ -60,15 +60,15 @@ namespace Matrix {
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
 
-        for (uint32_t i = 0; i < (1 << PWM_bits); i++)
+        for (uint32_t i = 0; i < (1 << S_PWM_SEG); i++)
             address_table[i].len = COLUMNS + 1;
 
-        address_table[1 << PWM_bits].data = null_table;
-        address_table[1 << PWM_bits].len = COLUMNS + 1;
-        address_table[(1 << PWM_bits) + 1].data = NULL;
-        address_table[(1 << PWM_bits) + 1].len = 0;
+        address_table[1 << S_PWM_SEG].data = null_table;
+        address_table[1 << S_PWM_SEG].len = COLUMNS + 1;
+        address_table[(1 << S_PWM_SEG) + 1].data = NULL;
+        address_table[(1 << S_PWM_SEG) + 1].len = 0;
         
-        // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
+        // Hack to lower the ISR tick rate, accelerates by 2^S_PWM_SEG (Improves refresh performance)
         //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
         //      Works like Hardware PWM without the high refresh
         //      This is more or less how it would work with MACHXO2 FPGA and PIC32MX using PMP.
@@ -76,7 +76,7 @@ namespace Matrix {
         //  OE is not used in this implementation and held to low to enable the display
         //      Last shift will disable display.
         /*while (1) {
-            counter2 = (1 << PWM_bits) - 1; LAT = 0;    // Start of frame, manually push into FIFO (data stream protocol)
+            counter2 = (1 << S_PWM_SEG) - 1; LAT = 0;    // Start of frame, manually push into FIFO (data stream protocol)
             do {
                 counter = COLUMNS - 1;                  // Start of payload, DMA push into FIFO (data stream protocol)
                 do {
@@ -116,30 +116,6 @@ namespace Matrix {
 
         Calculator::verify_configuration();
 
-        // This could be 8 or 16 depending on panel. (Kind of random.)
-        static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
-
-        // This is depends on panel implementation however the fanout and par cap in matrix limit the max size.
-        //  Technically capable of more pixels with multiplexing, if we reduce refresh and contrast.
-        //  Picked numbers to simplify support and define limits.
-        static_assert(COLUMNS <= 256, "COLUMNS more than 1024 is not recommended, but we only support up to 256");
-        static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
-
-        // This is the limit observed in testing and from most panel specifications.
-        static_assert((MULTIPLEX * (1 << PWM_bits)) <= (4 * 1024), "The current LED grayscale is not supported");
-
-        // There is a trade off here: (Is most extreme for this matrix algorithm.)
-        //  1. Increase the frame size and do remote computation. (This works up to 96KB, which requires at least 25Mbps in serial algorithm.)
-        //      Currently this is not used and set to 12KB, which requires at least 7.8Mbps in serial algorithm. (Local CPU is used to compute bitplanes.)
-        //          Note 7.8Mbps allows for main processor jitter and 30 frames per second. (7.8Mbps reduces termination complexity.)
-        //  2. Use local computation which constrains the buffer size. (This works up to 48KB, which requires all of core 1.)
-        //      Currently this is used and is constrained to 48KB, which requires all of core 1.
-        //
-        //  The sum off all memory usage for serial frames and LED buffers must not exceed 192KB.
-        //      64KB is reserved for code and 8KB is reserved for stack/heap for both cores.
-        static_assert((2 * MULTIPLEX * COLUMNS * sizeof(Serial::DEFINE_SERIAL_RGB_TYPE)) <= (12 * 1024), "The current frame size is not supported");
-        static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= (48 * 1024), "The current buffer size is not supported");
-
         // PMP / SM
         pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
         pio0->sm[0].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | 8;
@@ -178,7 +154,7 @@ namespace Matrix {
 
     void __not_in_flash_func(send_line)() {
         dma_hw->ints0 = 1 << dma_chan[0];
-        pio_sm_put(pio0, 0, 1 << PWM_bits);
+        pio_sm_put(pio0, 0, 1 << S_PWM_SEG);
         dma_channel_set_read_addr(dma_chan[1], &address_table[0], true);
     }
 

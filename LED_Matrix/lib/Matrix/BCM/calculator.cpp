@@ -54,6 +54,12 @@ namespace Matrix::Calculator {
         is_clk_valid();
         is_blank_time_valid();
         
+        static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
+        static_assert(COLUMNS <= 256, "COLUMNS more than 1024 is not recommended, but we only support up to 256");
+        static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
+        static_assert((2 * MULTIPLEX * COLUMNS * sizeof(Serial::DEFINE_SERIAL_RGB_TYPE)) <= (12 * 1024), "The current frame size is not supported");
+        static_assert((MULTIPLEX * COLUMNS * (PWM_bits)) <= (48 * 1024), "The current buffer size is not supported");
+        static_assert((MULTIPLEX * (1 << PWM_bits)) <= (4 * 1024), "The current LED grayscale is not supported");
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
     }
 }

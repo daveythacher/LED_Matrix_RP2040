@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "Matrix/S_PWM/memory_format.h"
 #include "Matrix/matrix.h"
+#include "Serial/config.h"
 
 namespace Matrix::Calculator {
     // Panel constants
@@ -53,6 +54,30 @@ namespace Matrix::Calculator {
         is_brightness_valid();
         is_clk_valid();
         is_blank_time_valid();
+
+        // This could be 8 or 16 depending on panel. (Kind of random.)
+        static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
+
+        // This is depends on panel implementation however the fanout and par cap in matrix limit the max size.
+        //  Technically capable of more pixels with multiplexing, if we reduce refresh and contrast.
+        //  Picked numbers to simplify support and define limits.
+        static_assert(COLUMNS <= 256, "COLUMNS more than 1024 is not recommended, but we only support up to 256");
+        static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
+
+        // This is the limit observed in testing and from most panel specifications.
+        static_assert((MULTIPLEX * (1 << PWM_bits)) <= (4 * 1024), "The current LED grayscale is not supported");
+
+        // There is a trade off here: (Is most extreme for this matrix algorithm.)
+        //  1. Increase the frame size and do remote computation. (This works up to 96KB, which requires at least 25Mbps in serial algorithm.)
+        //      Currently this is not used and set to 12KB, which requires at least 7.8Mbps in serial algorithm. (Local CPU is used to compute bitplanes.)
+        //          Note 7.8Mbps allows for main processor jitter and 30 frames per second. (7.8Mbps reduces termination complexity.)
+        //  2. Use local computation which constrains the buffer size. (This works up to 48KB, which requires all of core 1.)
+        //      Currently this is used and is constrained to 48KB, which requires all of core 1.
+        //
+        //  The sum off all memory usage for serial frames and LED buffers must not exceed 192KB.
+        //      64KB is reserved for code and 8KB is reserved for stack/heap for both cores.
+        static_assert((2 * MULTIPLEX * COLUMNS * sizeof(Serial::DEFINE_SERIAL_RGB_TYPE)) <= (12 * 1024), "The current frame size is not supported");
+        static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= (48 * 1024), "The current buffer size is not supported");
 
         static_assert(MIN_REFRESH / (1 << (PWM_bits - S_PWM_SEG)) > 2, "Refresh rate too low to support the current S_PWM segment size for the selected LED contrast");
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
