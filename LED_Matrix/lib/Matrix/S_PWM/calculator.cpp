@@ -80,6 +80,7 @@ namespace Matrix::Calculator {
         static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= (48 * 1024), "The current buffer size is not supported");
 
         static_assert(MIN_REFRESH / (1 << (PWM_bits - S_PWM_SEG)) > 2, "Refresh rate too low to support the current S_PWM segment size for the selected LED contrast");
+        static_assert(lower_bits >= upper_bits, "Invalid S-PWM configuration");
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
     }
 }
