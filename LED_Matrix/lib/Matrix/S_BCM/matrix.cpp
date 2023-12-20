@@ -14,7 +14,7 @@
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/config.h"
 #include "Matrix/matrix.h"
-#include "Matrix/S_PWM/memory_format.h"
+#include "Matrix/S_BCM/memory_format.h"
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
 

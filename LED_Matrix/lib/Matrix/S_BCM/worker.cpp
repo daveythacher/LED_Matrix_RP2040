@@ -11,7 +11,7 @@
 #include "pico/multicore.h"
 #include "Serial/config.h"
 #include "Matrix/matrix.h"
-#include "Matrix/S_PWM/memory_format.h"
+#include "Matrix/S_BCM/memory_format.h"
 #include "Matrix/helper.h"
 
 namespace Matrix {
@@ -23,9 +23,9 @@ namespace Matrix::Worker {
     volatile bool vsync = false;
 
     union index_table_t {
-        uint8_t table[1 << PWM_bits][6][1 << PWM_bits];
-        uint8_t table2[1 << PWM_bits][6][1 << upper_bits][1 << lower_bits];
-        uint32_t v[(1 << PWM_bits) * 6 * (1 << PWM_bits) / 4];
+        uint8_t table[1 << PWM_bits][6][(1 << upper_bits) * lower_bits];
+        uint8_t table2[1 << PWM_bits][6][1 << upper_bits][lower_bits];
+        uint32_t v[(1 << PWM_bits) * 6 * (1 << upper_bits) * lower_bits / 4];
     };
 
     static index_table_t index_table;
@@ -47,7 +47,7 @@ namespace Matrix::Worker {
             T p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
 
             for (uint32_t k = 0; k < (1 << upper_bits); k++)
-                for (uint32_t j = 0; (j < sizeof(T)) && ((i + j) < (1 << lower_bits)); j++)
+                for (uint32_t j = 0; (j < sizeof(T)) && ((i + j) < lower_bits); j++)
                     Matrix::buf[bank][y][k][i + j][x + 1] = (p >> (j * 8)) & 0xFF;
 
             for (uint32_t j = 0; j < 6; j++)
@@ -89,13 +89,12 @@ namespace Matrix::Worker {
     constexpr static void store(uint32_t i, uint32_t val, uint32_t index) {
         uint32_t j = 0;
 
-        for (j = 0; j < val && j < (1 << lower_bits); j++)
+        for (j = 0; j < val && j < lower_bits; j++)
             for (uint8_t k = 0; k < 6; k++)
-                index_table.table2[i][k][index][j] = 1 << k;
-
-        for (j = val; j < (1 << lower_bits); j++)
-            for (uint8_t k = 0; k < 6; k++)
-                index_table.table2[i][k][index][j] = 0;
+                if (i & (1 << j))
+                    index_table.table2[i][k][index][j] = 1 << k;
+                else
+                    index_table.table2[i][k][index][j] = 0;
     }
 
     constexpr static void process(uint32_t val) {
