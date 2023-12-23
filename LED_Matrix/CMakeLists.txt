@@ -20,6 +20,9 @@ function(pico_add_dis_output2 TARGET)
     )
 endfunction()
 
+# This determines application name
+set(DEFINE_APP "app" CACHE STRING "Binary name")
+
 # These determine code modules (linker)
 set(DEFINE_SERIAL_ALGORITHM "uart" CACHE STRING "Serial algorithm name")
 set(DEFINE_MULTIPLEX_ALGORITHM "Decoder" CACHE STRING "Multiplex algorithm name")
