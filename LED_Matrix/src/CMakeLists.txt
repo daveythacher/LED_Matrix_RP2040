@@ -28,7 +28,7 @@ target_compile_definitions(led_${DEFINE_APP} PRIVATE
     PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64
 )
 
-pico_set_binary_type(led_${DEFINE_APP} copy_to_ram)
+pico_set_binary_type(led_${DEFINE_APP} no_flash)
 
 # enable usb output, disable uart output
 pico_enable_stdio_usb(led_${DEFINE_APP} 1)
