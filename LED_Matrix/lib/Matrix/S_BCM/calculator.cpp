@@ -81,6 +81,7 @@ namespace Matrix::Calculator {
 
         static_assert(MIN_REFRESH / (1 << upper_bits) > 95, "Refresh rate too low to support the current S_PWM segment size for the selected LED contrast");
         static_assert(lower_bits >= upper_bits, "Invalid S-PWM configuration");
+        static_assert(lower_bits >= 4, "Invalid S-PWM configuration");
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
     }
 }
