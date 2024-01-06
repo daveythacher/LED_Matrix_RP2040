@@ -1,5 +1,5 @@
 # S_PWM Documentation
-This implements the S_PWM Matrix Algorithm for standard (GEN 1) LED Panels. This does not use binary coded modulation (BCM) or bit angle modulation (BAM).
+This implements the S_BCM Matrix Algorithm for standard (GEN 1) LED Panels. This does use binary coded modulation (BCM) or bit angle modulation (BAM).
 
 ## Status
 This is believed to be in working order, however no testing has been done. 
