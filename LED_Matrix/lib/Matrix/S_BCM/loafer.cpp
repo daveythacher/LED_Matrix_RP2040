@@ -24,22 +24,14 @@ namespace Matrix::Worker {
 
 namespace Matrix::Loafer {
     static uint8_t bank = 1;
+    
+    void __not_in_flash_func(toss)(void *arg) {
+        // TODO: 
 
-    static void __not_in_flash_func(loaf_big_data)(test2 *d) {
-        for (uint8_t y = 0; y < MULTIPLEX; y++) {
-            for (uint16_t x = 0; x < COLUMNS; x++) {
-                // TODO
-            }
-        }
-        
         if (!Worker::vsync) {
             bank = (bank + 1) % Serial::num_framebuffers;
             Worker::vsync = true;
         }
-    }
-
-    void __not_in_flash_func(toss)(void *arg) {
-        loaf_big_data((test2 *) arg);
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
