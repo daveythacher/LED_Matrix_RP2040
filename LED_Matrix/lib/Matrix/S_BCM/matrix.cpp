@@ -195,7 +195,7 @@ namespace Matrix {
                             seg = 0;
 
                         if (Worker::vsync) {
-                            bank = (bank + 1) % 3;
+                            bank = (bank + 1) % Serial::num_framebuffers;
                             Worker::vsync = false;
                             seg = 0;
                         }

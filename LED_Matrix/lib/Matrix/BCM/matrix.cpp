@@ -191,7 +191,7 @@ namespace Matrix {
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                         rows = 0;
                         if (Worker::vsync) {
-                            bank = (bank + 1) % 3;
+                            bank = (bank + 1) % Serial::num_framebuffers;
                             Worker::vsync = false;
                         }
                     }

@@ -145,7 +145,7 @@ namespace Matrix::Worker {
         }
         
         if (!vsync) {
-            bank = (bank + 1) % 3;
+            bank = (bank + 1) % Serial::num_framebuffers;
             vsync = true;
         }
     }

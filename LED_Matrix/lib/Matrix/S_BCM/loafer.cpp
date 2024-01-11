@@ -19,29 +19,29 @@ namespace Matrix {
 }
 
 namespace Matrix::Worker {
-    static uint8_t bank = 1;
-    volatile bool vsync = false;
+    extern volatile bool vsync;
 }
 
 namespace Matrix::Loafer {
+    static uint8_t bank = 1;
 
-    static void __not_in_flash_func(loaf_big_data)(Serial::packet *p) {
+    static void __not_in_flash_func(loaf_big_data)(test2 *d) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint16_t x = 0; x < COLUMNS; x++) {
                 // TODO
             }
         }
         
-        if (!vsync) {
-            bank = (bank + 1) % 3;
-            vsync = true;
+        if (!Worker::vsync) {
+            bank = (bank + 1) % Serial::num_framebuffers;
+            Worker::vsync = true;
         }
     }
 
     void __not_in_flash_func(loaf)() {        
         while(1) {
-            Serial::data *p = (Serial::data *) APP::multicore_fifo_pop_blocking_inline();
-            loaf_big_data(p);
+            test2 *d = (test2 *) APP::multicore_fifo_pop_blocking_inline();
+            loaf_big_data(d);
         }
     }
 
@@ -52,5 +52,11 @@ namespace Matrix::Loafer {
         }
 
         return false;
+    }
+
+    void *__not_in_flash_func(get_back_buffer)() {
+        // TODO:
+
+        return nullptr;
     }
 }

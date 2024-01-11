@@ -65,13 +65,20 @@ namespace Matrix {
          *  @return Return true if processing was not discarded
          */
         bool toss(void *arg, bool block);
+
+        /**
+         * @brief Function used to grab a back buffer
+         * @details Implemented in Matrix/<implementation>/loafer.cpp
+         * @return Raw memory pointer to back buffer, no type is known by API. (Not very classy)
+         */
+        void *get_back_buffer();
     }
 
     namespace Calculator {
         /**
          * @brief Function used to verify configuration
          * @details Implemented in Matrix/<implementation>/matrix.cpp
-        */
+         */
         void verify_configuration();
     }
 }
