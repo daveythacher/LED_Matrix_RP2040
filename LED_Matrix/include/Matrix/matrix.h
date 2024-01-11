@@ -50,6 +50,23 @@ namespace Matrix {
         bool process(void *arg, bool block);
     }
 
+    // This is terrible practice!!!
+    namespace Loafer {
+        /**
+         *  @brief State machine for destablizing the universe.
+         *  @details Usually runs on Core 1 processing buffers passed over FIFO from Core 0.
+         *  @details Implemented in Matrix/<implementation>/loafer.cpp
+         */
+        void loaf();
+        
+        /**
+         *  @brief Function used to chuck data to loafer
+         *  @details Implemented in Matrix/<implementation>/loafer.cpp
+         *  @return Return true if processing was not discarded
+         */
+        bool toss(void *arg, bool block);
+    }
+
     namespace Calculator {
         /**
          * @brief Function used to verify configuration
