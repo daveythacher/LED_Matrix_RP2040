@@ -19,7 +19,7 @@ namespace Matrix::Worker {
 }
 
 namespace Matrix::Loafer {
-    static uint8_t bank = 1;
+    static uint8_t bank = 1;    // TODO: I think we may want to share this with Matrix::Worker and Matrix now! (make volatile!!!)
 
     void __not_in_flash_func(toss)(void *arg) {
         // TODO: 
