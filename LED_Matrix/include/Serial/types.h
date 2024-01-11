@@ -49,7 +49,7 @@ namespace Serial {
             static constexpr uint32_t max_framebuffer_size = 48 * 1024;
             static constexpr uint32_t payload_size = 12 * 1024;
             static constexpr bool isPacket = true;
-            static constexpr uint8_t num_packets = 2;
+            static constexpr uint8_t num_packets = 3;   // TODO: Determine is if this can be 2
         };
 
         struct test {
@@ -57,7 +57,7 @@ namespace Serial {
             static constexpr uint32_t max_framebuffer_size = 48 * 1024;
             static constexpr uint32_t payload_size = 12 * 1024;
             static constexpr bool isPacket = true;
-            static constexpr uint8_t num_packets = 2;
+            static constexpr uint8_t num_packets = 3;   // TODO: Determine is if this can be 2
         };
     }
 }
