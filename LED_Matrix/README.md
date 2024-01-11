@@ -58,7 +58,7 @@ Increased computation latency from 1.09mS to 1.11mS, when using copy_to_ram. The
 Note these results are old.
 
 ## Interrupts
-Core 0 should run all front end serial logic. Core 1 should run all processing in loop for GEN 1. There is no processing on core 0 outside of GEN 1 multiplexing interrupts or front end serial protocols.
+Core 0 should run all front end serial logic. Core 1 should run all processing in loop for GEN 1. There is no processing on core 0 outside of GEN 1 multiplexing interrupts or front end serial protocols. (When Serial Algorithm is using Matrix Algorithm Worker, core 1 is owned by Matrix algorithm. When Serial Algorithm is using Matrix Algorithm Loafer, core 1 is owned by Serial Algorithm and core 0 is no longer shared with Serial Algorithm. This means Serial Algorithm implementations must choose where to put the payload processing.)
 
 Serial protocol interrupts are the highest priority, but this is discouraged. (It is recommended to use core 0's loop.) Next is multiplexing interrupts, if any. (GEN 1 works this way.) Matrix algorithms are free to configure interrupts on Core 1 if they desire. Matrix algorithms own core 1. Note performance can slip if core 1 is mismanaged. Responsiveness is the most important thing and the multiplexing is to never be compromised under any case.
 
