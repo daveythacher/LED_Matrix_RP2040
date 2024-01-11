@@ -19,7 +19,7 @@
 #include "Serial/config.h"
 
 namespace Matrix {
-    test2 buf[3];
+    test2 buf[Serial::num_framebuffers];
     static uint8_t bank = 0;
     static volatile uint8_t state = 0;
     static int dma_chan[2];

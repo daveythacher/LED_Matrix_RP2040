@@ -77,7 +77,7 @@ namespace Matrix::Calculator {
         //  The sum off all memory usage for serial frames and LED buffers must not exceed 192KB.
         //      64KB is reserved for code and 8KB is reserved for stack/heap for both cores.
         static_assert((2 * MULTIPLEX * COLUMNS * sizeof(Serial::DEFINE_SERIAL_RGB_TYPE)) <= (12 * 1024), "The current frame size is not supported");
-        static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= (48 * 1024), "The current buffer size is not supported");
+        static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= Serial::max_framebuffer_size, "The current buffer size is not supported");
 
         static_assert(MIN_REFRESH / (1 << upper_bits)) > 95, "Refresh rate too low to support the current S_PWM segment size for the selected LED contrast");
         static_assert(lower_bits >= upper_bits, "Invalid S-PWM configuration");

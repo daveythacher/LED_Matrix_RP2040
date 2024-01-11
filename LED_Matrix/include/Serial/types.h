@@ -41,6 +41,19 @@ namespace Serial {
 
         static constexpr uint32_t range_high = 1 << 5;
     };
+
+    // This is terrible practice!!!
+    namespace internal {
+        struct uart {
+            static constexpr uint8_t num_framebuffers = 3;
+            static constexpr uint32_t max_framebuffer_size = 48 * 1024;
+        };
+
+        struct test {
+            static constexpr uint8_t num_framebuffers = 3;
+            static constexpr uint32_t max_framebuffer_size = 48 * 1024;
+        };
+    }
 }
 
 #endif

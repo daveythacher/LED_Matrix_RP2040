@@ -15,6 +15,7 @@ namespace Serial {
     // -- DO NOT EDIT BELOW THIS LINE --
 
     #cmakedefine DEFINE_SERIAL_RGB_TYPE     @DEFINE_SERIAL_RGB_TYPE@
+    #cmakedefine DEFINE_SERIAL_ALGORITHM     @DEFINE_SERIAL_ALGORITHM@
 
     typedef volatile DEFINE_SERIAL_RGB_TYPE test[2 * Matrix::MULTIPLEX][Matrix::COLUMNS];
     
@@ -24,6 +25,8 @@ namespace Serial {
     };
 
     const uint32_t range_high = DEFINE_SERIAL_RGB_TYPE::range_high;
+    constexpr uint8_t num_framebuffers = internal::DEFINE_SERIAL_ALGORITHM::num_framebuffers;
+    constexpr uint32_t max_framebuffer_size = internal::DEFINE_SERIAL_ALGORITHM::max_framebuffer_size;
 }
 
 #endif
