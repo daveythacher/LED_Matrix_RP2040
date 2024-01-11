@@ -10,7 +10,7 @@
 #include "Matrix/matrix.h"
 
 namespace Serial {
-    static volatile packet buffers[2];
+    static volatile packet buffers[num_packets];
     static volatile uint8_t buffer = 0;
 
     static void __not_in_flash_func(test_driver)() {
@@ -29,8 +29,8 @@ namespace Serial {
             }
         }
         
-        buffer = (buffer + 1) % 2;   
-        Matrix::Worker::process((void *) &buffers[(buffer + 1) % 2], true);
+        buffer = (buffer + 1) % num_packets;   
+        Matrix::Worker::process((void *) &buffers[(buffer + 1) % num_packets], true);
     }
 
     void __not_in_flash_func(task)() {
