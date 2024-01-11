@@ -47,11 +47,17 @@ namespace Serial {
         struct uart {
             static constexpr uint8_t num_framebuffers = 3;
             static constexpr uint32_t max_framebuffer_size = 48 * 1024;
+            static constexpr uint32_t payload_size = 12 * 1024;
+            static constexpr bool isPacket = true;
+            static constexpr uint8_t num_packets = 2;
         };
 
         struct test {
             static constexpr uint8_t num_framebuffers = 3;
             static constexpr uint32_t max_framebuffer_size = 48 * 1024;
+            static constexpr uint32_t payload_size = 12 * 1024;
+            static constexpr bool isPacket = true;
+            static constexpr uint8_t num_packets = 2;
         };
     }
 }
