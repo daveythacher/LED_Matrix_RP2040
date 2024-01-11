@@ -38,20 +38,8 @@ namespace Matrix::Loafer {
         }
     }
 
-    void __not_in_flash_func(loaf)() {        
-        while(1) {
-            test2 *d = (test2 *) APP::multicore_fifo_pop_blocking_inline();
-            loaf_big_data(d);
-        }
-    }
-
-    bool __not_in_flash_func(toss)(void *arg, bool block) {
-        if (multicore_fifo_wready() || block) {
-            APP::multicore_fifo_push_blocking_inline((uint32_t) arg);
-            return true;
-        }
-
-        return false;
+    void __not_in_flash_func(toss)(void *arg) {
+        loaf_big_data((test2 *) arg);
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
