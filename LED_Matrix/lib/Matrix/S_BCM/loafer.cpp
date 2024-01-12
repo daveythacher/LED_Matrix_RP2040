@@ -23,7 +23,7 @@ namespace Matrix::Loafer {
 
     static void increment_count() {
         ++count;
-        while (count > Serial::num_framebuffers);
+        while (count >= Serial::num_framebuffers);
     }
 
     static void decrement_count() {
