@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "Matrix/PWM/memory_format.h"
 #include "Matrix/matrix.h"
+#include "Serial/config.h"
 
 namespace Matrix::Calculator {
     // Panel constants
