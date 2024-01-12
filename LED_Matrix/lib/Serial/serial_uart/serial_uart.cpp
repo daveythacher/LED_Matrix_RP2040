@@ -122,8 +122,12 @@ namespace Serial {
 
             uart_callback(&buf, &len);
 
-            if (ptr)
-                Matrix::Worker::process((void *) ptr, false);
+            if (ptr) {
+                if (isPacket)
+                    Matrix::Worker::process((void *) ptr, false);
+                else
+                    Matrix::Loafer::toss(ptr);
+            }
         }
     }
 }
