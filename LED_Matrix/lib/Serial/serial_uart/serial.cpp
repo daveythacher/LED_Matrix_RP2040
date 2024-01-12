@@ -12,15 +12,15 @@
 #include "Serial/serial_uart/serial_uart.h"
 
 namespace Serial {
-    static packet buffers[num_packets];
-    static volatile uint8_t buffer = 0;
-
     void __not_in_flash_func(task)() {  
         uart_task();
     }
 
     void __not_in_flash_func(uart_callback)(uint8_t **buf, uint16_t *len) {
         if (isPacket) {
+            static packet buffers[num_packets];
+            static volatile uint8_t buffer = 0;
+
             *buf = (uint8_t *) &buffers[(buffer + 1) % num_packets];
             *len = sizeof(packet);
             buffer = (buffer + 1) % num_packets;
