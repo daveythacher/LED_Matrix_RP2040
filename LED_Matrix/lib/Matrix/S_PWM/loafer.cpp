@@ -19,39 +19,9 @@ namespace Matrix::Worker {
 }
 
 namespace Matrix::Loafer {
-    static volatile uint8_t count = 0;
-
-    static void increment_count() {
-        ++count;
-        while (count >= Serial::num_framebuffers);
-    }
-
-    static void decrement_count() {
-        if (count == 0)
-            while (1);
-        else
-            --count;
-    }
-
-    bool __not_in_flash_func(toss)(void *arg, bool block) {
-        if (block) {
-            while(Worker::vsync);
-
-            Worker::vsync = true;
-            decrement_count();
-            return false;
-        }
-        else {
-            if (!Worker::vsync) {
-                Worker::vsync = true;
-                decrement_count();
-                return false;
-            }
-            else {
-                decrement_count();
-                return true;
-            }
-        }
+    void __not_in_flash_func(toss)(void *arg) {
+        while(Worker::vsync);
+        Worker::vsync = true;
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
@@ -60,7 +30,6 @@ namespace Matrix::Loafer {
         // TODO:
         
         bank = (bank + 1) % Serial::num_framebuffers;
-        increment_count();
         return nullptr;
     }
 }

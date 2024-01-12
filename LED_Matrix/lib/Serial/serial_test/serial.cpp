@@ -30,7 +30,7 @@ namespace Serial {
         }
         
         buffer = (buffer + 1) % num_packets;   
-        Matrix::Worker::process((void *) &buffers[(buffer + 1) % num_packets], true);
+        Matrix::Worker::process((void *) &buffers[(buffer + 1) % num_packets]);
     }
 
     static void __not_in_flash_func(test_driver_loafer)() {

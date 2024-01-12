@@ -99,12 +99,7 @@ namespace Matrix::Worker {
         }
     }
 
-    bool __not_in_flash_func(process)(void *arg, bool block) {
-        if (multicore_fifo_wready() || block) {
-            APP::multicore_fifo_push_blocking_inline((uint32_t) arg);
-            return true;
-        }
-
-        return false;
+    void __not_in_flash_func(process)(void *arg) {
+        APP::multicore_fifo_push_blocking_inline((uint32_t) arg);
     }
 }

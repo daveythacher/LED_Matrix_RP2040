@@ -45,9 +45,8 @@ namespace Matrix {
         /**
          *  @brief Function used to pass data to worker
          *  @details Implemented in Matrix/<implementation>/worker.cpp
-         *  @return Return true if processing was not discarded
          */
-        bool process(void *arg, bool block);
+        void process(void *arg);
     }
 
     // This is terrible practice!!!
@@ -55,9 +54,8 @@ namespace Matrix {
         /**
          *  @brief Function used to chuck data to loafer
          *  @details Implemented in Matrix/<implementation>/loafer.cpp
-         *  @return Return true if processing was not discarded
          */
-        bool toss(void *arg, bool block);
+        void toss(void *arg);
 
         /**
          * @brief Function used to grab a back buffer
