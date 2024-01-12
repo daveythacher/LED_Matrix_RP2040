@@ -39,6 +39,7 @@ set(DEFINE_S_PWM_SEG "4" CACHE STRING "Number of bits per S-PWM segment")
 set(DEFINE_MATRIX_DCLOCK "17.0" CACHE STRING "Matrix serial clock speed in MHz")
 set(DEFINE_SERIAL_UART_BAUD "4000000" CACHE STRING "Serial algorithm baud rate in Baud")
 set(DEFINE_BLANK_TIME "10" CACHE STRING "Blank time in microseconds")
+set(DEFINE_IS_LOAFER "false" CACHE STRING "Select Serial Algorithm protocol mode")
 
 # These verify the configuration settings at compile time
 set(DEFINE_FPS "30" CACHE STRING "Frames per second")
