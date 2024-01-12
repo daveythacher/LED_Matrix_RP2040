@@ -10,10 +10,10 @@
 #include "Matrix/matrix.h"
 
 namespace Serial {
-    static volatile packet buffers[num_packets];
-    static volatile uint8_t buffer = 0;
-
-    static void __not_in_flash_func(test_driver)() {
+    static void __not_in_flash_func(test_driver_worker)() {
+        static volatile packet buffers[num_packets];
+        static volatile uint8_t buffer = 0;
+        
         for (uint16_t x = 0; x < Matrix::COLUMNS; x++) {
             for (uint8_t y = 0; y < (2 * Matrix::MULTIPLEX); y++) {
                 if ((x % (2 * Matrix::MULTIPLEX)) == y) {
@@ -33,8 +33,15 @@ namespace Serial {
         Matrix::Worker::process((void *) &buffers[(buffer + 1) % num_packets], true);
     }
 
+    static void __not_in_flash_func(test_driver_loafer)() {
+        static_assert(isPacket, "Loafer version of test Serial Algorithm is not supported");
+    }
+
     void __not_in_flash_func(task)() {
-        test_driver();
+        if (isPacket)
+            test_driver_worker();
+        else
+            test_driver_loafer();
     }
 
     void start() {
