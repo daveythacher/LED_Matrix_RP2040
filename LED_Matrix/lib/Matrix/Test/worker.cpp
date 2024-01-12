@@ -6,6 +6,7 @@
  
 #include <stdint.h>
 #include "pico/multicore.h"
+#include "hardware/uart.h"
 #include "Serial/config.h"
 #include "Matrix/matrix.h"
 #include "Matrix/helper.h"

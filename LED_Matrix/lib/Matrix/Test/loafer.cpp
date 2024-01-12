@@ -12,7 +12,7 @@
 
 namespace Matrix::Loafer {
     void __not_in_flash_func(toss)(void *arg) {
-        uart_write_blocking(uart1, (uint8_t *) arg, payload_size);
+        uart_write_blocking(uart1, (uint8_t *) arg, Serial::payload_size);
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
