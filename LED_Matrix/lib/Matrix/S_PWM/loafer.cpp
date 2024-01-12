@@ -32,4 +32,8 @@ namespace Matrix::Loafer {
         bank = (bank + 1) % Serial::num_framebuffers;
         return nullptr;
     }
+
+    uint32_t __not_in_flash_func(get_buffer_size)() {
+        return sizeof(test2);
+    }
 }

@@ -65,6 +65,13 @@ namespace Matrix {
          *  @return Raw memory pointer to back buffer, no type is known by API. (Not very classy)
          */
         void *get_back_buffer();
+
+        /**
+         *  @brief Function to get size of back buffer
+         *  @details Implemended in Matrix/<implementation/loafer.cpp
+         *  @return Buffer size
+        */
+        uint32_t get_buffer_size();
     }
 
     namespace Calculator {

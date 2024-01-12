@@ -35,4 +35,8 @@ namespace Matrix::Loafer {
 
         return nullptr;
     }
+
+    uint32_t __not_in_flash_func(get_buffer_size)() {
+        return sizeof(test2);
+    }
 }

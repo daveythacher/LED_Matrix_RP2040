@@ -27,7 +27,7 @@ namespace Serial {
         }
         else {
             *buf = (uint8_t *) Matrix::Loafer::get_back_buffer();
-            *len = payload_size;        // TODO: Fix this!
+            *len = Matrix::Loafer::get_buffer_size();
         }
     }
 
