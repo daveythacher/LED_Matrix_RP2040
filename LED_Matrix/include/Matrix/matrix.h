@@ -43,7 +43,7 @@ namespace Matrix {
         void work();
         
         /**
-         *  @brief Function used to pass data to worker
+         *  @brief Function used to pass data to worker (Assumes flow control)
          *  @details Implemented in Matrix/<implementation>/worker.cpp
          */
         void process(void *arg);
@@ -52,7 +52,7 @@ namespace Matrix {
     // This is terrible practice!!!
     namespace Loafer {        
         /**
-         *  @brief Function used to chuck data to loafer
+         *  @brief Function used to chuck data to loafer (Assumes flow control)
          *  @details Implemented in Matrix/<implementation>/loafer.cpp
          */
         void toss(void *arg);
