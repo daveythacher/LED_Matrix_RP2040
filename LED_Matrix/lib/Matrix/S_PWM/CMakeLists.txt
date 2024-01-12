@@ -7,6 +7,7 @@ target_sources(led_S_PWM INTERFACE
     matrix.cpp
     worker.cpp
     calculator.cpp
+    loafer.cpp
 )
 
 target_link_libraries(led_S_PWM INTERFACE
