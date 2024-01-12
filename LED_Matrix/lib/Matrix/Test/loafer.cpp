@@ -11,8 +11,9 @@
 #include "Matrix/matrix.h"
 
 namespace Matrix::Loafer {
-    void __not_in_flash_func(toss)(void *arg) {
+    bool __not_in_flash_func(toss)(void *arg, bool block) {
         uart_write_blocking(uart1, (uint8_t *) arg, Serial::payload_size);
+        return false;
     }
 
     void *__not_in_flash_func(get_back_buffer)() {

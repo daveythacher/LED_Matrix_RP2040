@@ -126,7 +126,7 @@ namespace Serial {
                 if (isPacket)
                     Matrix::Worker::process((void *) ptr, false);
                 else
-                    Matrix::Loafer::toss(ptr);
+                    Matrix::Loafer::toss(ptr, false);
             }
         }
     }

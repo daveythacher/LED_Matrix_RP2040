@@ -55,8 +55,9 @@ namespace Matrix {
         /**
          *  @brief Function used to chuck data to loafer
          *  @details Implemented in Matrix/<implementation>/loafer.cpp
+         *  @return Return true if processing was not discarded
          */
-        void toss(void *arg);
+        bool toss(void *arg, bool block);
 
         /**
          * @brief Function used to grab a back buffer
