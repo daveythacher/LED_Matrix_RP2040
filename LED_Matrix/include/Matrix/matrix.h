@@ -53,22 +53,24 @@ namespace Matrix {
     namespace Loafer {        
         /**
          *  @brief Function used to chuck data to loafer (Assumes flow control)
+         *  @details Warning must toss buffer before asking for another.
          *  @details Implemented in Matrix/<implementation>/loafer.cpp
          */
         void toss(void *arg);
 
         /**
-         * @brief Function used to grab a back buffer
-         * @details Implemented in Matrix/<implementation>/loafer.cpp
-         * @return Raw memory pointer to back buffer, no type is known by API. (Not very classy)
+         *  @brief Function used to grab a back buffer
+         *  @details Warning must only have one back buffer at a time.
+         *  @details Implemented in Matrix/<implementation>/loafer.cpp
+         *  @return Raw memory pointer to back buffer, no type is known by API. (Not very classy)
          */
         void *get_back_buffer();
     }
 
     namespace Calculator {
         /**
-         * @brief Function used to verify configuration
-         * @details Implemented in Matrix/<implementation>/matrix.cpp
+         *  @brief Function used to verify configuration
+         *  @details Implemented in Matrix/<implementation>/matrix.cpp
          */
         void verify_configuration();
     }
