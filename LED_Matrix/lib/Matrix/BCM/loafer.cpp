@@ -19,21 +19,16 @@ namespace Matrix::Worker {
 }
 
 namespace Matrix::Loafer {
-    static uint8_t bank = 1;    // TODO: I think we may want to share this with Matrix::Worker and Matrix now! (make volatile!!!)
-
     void __not_in_flash_func(toss)(void *arg) {
-        // TODO: 
-
-        if (!Worker::vsync) {
-            bank = (bank + 1) % Serial::num_framebuffers;
-            Worker::vsync = true;
-        }
+        while(Worker::vsync);
+        Worker::vsync = true;
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
-        // TODO:
-
-        return nullptr;
+        static uint8_t bank = 1;
+        void *ptr = (void *) Matrix::buf[bank];
+        bank = (bank + 1) % Serial::num_framebuffers;
+        return ptr;
     }
 
     uint32_t __not_in_flash_func(get_buffer_size)() {

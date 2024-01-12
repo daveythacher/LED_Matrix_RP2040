@@ -16,12 +16,12 @@ namespace Matrix::Loafer {
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
-        // TODO:
+        static volatile uint8_t back_buffer[Serial::payload_size];
 
-        return nullptr;
+        return (void *) back_buffer;
     }
 
     uint32_t __not_in_flash_func(get_buffer_size)() {
-        return sizeof(test2);
+        return Serial::payload_size;
     }
 }
