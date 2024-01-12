@@ -25,12 +25,10 @@ namespace Matrix::Loafer {
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
-        static uint8_t bank = 1;  
-        
-        // TODO:
-        
+        static uint8_t bank = 1;
+        void *ptr = (void *) Matrix::buf[bank];
         bank = (bank + 1) % Serial::num_framebuffers;
-        return nullptr;
+        return ptr;
     }
 
     uint32_t __not_in_flash_func(get_buffer_size)() {
