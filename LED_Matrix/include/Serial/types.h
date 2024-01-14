@@ -45,7 +45,6 @@ namespace Serial {
     // This is terrible practice!!!
     namespace internal {
         struct uart {
-            static constexpr uint8_t num_framebuffers = 3;                  // Should be atleast 3
             static constexpr uint32_t max_framebuffer_size = 48 * 1024;     // Should not exceed 48KB or 64KB.
 
             // These are never used if isPacket is false.
@@ -54,7 +53,6 @@ namespace Serial {
         };
 
         struct test {
-            static constexpr uint8_t num_framebuffers = 3;                  // Should be atleast 3
             static constexpr uint32_t max_framebuffer_size = 48 * 1024;     // Should not exceed 48KB or 64KB.
 
             // These are never used if isPacket is false.
