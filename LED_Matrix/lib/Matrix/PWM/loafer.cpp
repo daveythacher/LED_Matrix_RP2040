@@ -19,14 +19,21 @@ namespace Matrix::Worker {
 }
 
 namespace Matrix::Loafer {
+    static volatile bool isFree = true;
+
     void __not_in_flash_func(toss)(void *arg) {
         while(Worker::vsync);
         Worker::vsync = true;
+        isFree = true;
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
         static uint8_t bank = 1;
-        void *ptr = (void *) Matrix::buf[bank];
+        void *ptr;
+
+        while (!isFree);
+        isFree = false;
+        ptr = (void *) Matrix::buf[bank];
         bank = (bank + 1) % Serial::num_framebuffers;
         return ptr;
     }
