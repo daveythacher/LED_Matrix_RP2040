@@ -45,6 +45,9 @@ namespace Serial {
     }
 
     void start() {
-        multicore_launch_core1(Matrix::Worker::work);
+        if (isPacket)
+            multicore_launch_core1(Matrix::Worker::work);
+        else
+            multicore_launch_core1(task);
     }
 }
