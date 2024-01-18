@@ -19,6 +19,9 @@ namespace Serial {
     static volatile bool isIdle = true;
     static volatile uint32_t checksum;
 
+    static constexpr uint8_t micro_frame = 25;
+    static constexpr uint8_t macro_frame = 26;
+
     static void uart_reload(bool reload_dma);
 
     #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -54,39 +57,43 @@ namespace Serial {
         uart_reload(false);
     }
 
-
-    // Note: Response time of seeing start token
-    //  The sender should wait for the bus to go active before sending checksum and data.
-    //  However the sender can get a false positive if this task is starved. (ISR can starve.)
-    //    Sender must wait long enough to ensure this cannot happen!
-    // NOTE: Current implementation works but may have issues with certain configuration settings
-    //  Cannot use high baud rates, high color density, high refresh rates and/or large blank times
     void __not_in_flash_func(uart_task)() {
-        static uint64_t time = time_us_64(); 
-
-        if (isIdle) {
+        if (!((uart0_hw->ris & 0x380) == 0)) {
             // Clear Errors
             uart0_hw->icr = 0x7FF;
 
-            // Send idle token
-            if ((time + 10) < time_us_64()) {
-                uart_putc(uart0, 'i');
-                time = time_us_64();
-            }
+            // TODO: Abort
+        }
 
-            // Look for start_token
-            if (uart_is_readable(uart0) && uart_getc(uart0) == 's') {
-                checksum = 0;
-                isIdle = false;
-                uart_reload(true);
-            }
+        // Micro Frame Finish
+        if (gpio_get_irq_event_mask(micro_frame) & GPIO_IRQ_EDGE_FALL) {
+            // Check DMA state, abort if required
+
+            // Wait for next Macro Frame
+
+            // Reset interrupt
+        }
+
+        // Macro Frame Finish
+        if (gpio_get_irq_event_mask(macro_frame) & GPIO_IRQ_EDGE_FALL) {
+            // Check DMA state, abort if required
+
+            // Wait from next Macro Frame
+
+            // Reset interrupt
         }
 
         // Note this is allowed to trip the error recovery protocol, which should not cause an issue.
         if (dma_channel_get_irq1_status(dma_chan)) {
-            if ((uart0_hw->ris & 0x380) == 0)
+            if ((uart0_hw->ris & 0x380) == 0) {
                 uart_reload(false);
-            isIdle = true;
+            }
+            else {
+                // Clear Errors
+                uart0_hw->icr = 0x7FF;
+            }
+
+            uart_reload(true);
             dma_hw->ints1 = 1 << dma_chan;
         }
     }
