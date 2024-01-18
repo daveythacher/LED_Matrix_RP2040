@@ -13,8 +13,6 @@
 #include "Serial/serial_uart/serial_uart.h"
 #include "Matrix/matrix.h"
 
-// Note: Byte Order must be LITTLE_ENDIAN
-
 namespace Serial {
     static int dma_chan;
     static dma_channel_config c;
