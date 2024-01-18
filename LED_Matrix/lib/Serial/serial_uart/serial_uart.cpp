@@ -19,8 +19,8 @@ namespace Serial {
     static volatile bool isIdle = true;
     static volatile uint32_t checksum;
 
-    static constexpr uint8_t micro_frame = 25;
-    static constexpr uint8_t macro_frame = 26;
+    static constexpr uint8_t micro_frame = 25;  // TODO: Verify
+    static constexpr uint8_t macro_frame = 26;  // TODO: Verify
 
     static void uart_reload(bool reload_dma);
 
