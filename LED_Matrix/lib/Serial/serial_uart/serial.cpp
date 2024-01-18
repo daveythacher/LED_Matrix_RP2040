@@ -42,8 +42,6 @@ namespace Serial {
         else
             multicore_launch_core1(task_internal);
         
-        int serial_dma_chan0 = dma_claim_unused_channel(true);
-        int serial_dma_chan1 = dma_claim_unused_channel(true);
-        uart_start(serial_dma_chan0, serial_dma_chan1); 
+        uart_start(dma_claim_unused_channel(true)); 
     }
 }

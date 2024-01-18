@@ -13,9 +13,11 @@
 #include "Serial/serial_uart/serial_uart.h"
 #include "Matrix/matrix.h"
 
+// Note: Byte Order must be LITTLE_ENDIAN
+
 namespace Serial {
-    static int dma_chan[2];
-    static dma_channel_config c[2];
+    static int dma_chan;
+    static dma_channel_config c;
     static volatile bool isIdle = true;
     static volatile uint32_t checksum;
 
@@ -29,9 +31,8 @@ namespace Serial {
         #define ntoh1(x) ((uint32_t)(x))
     #endif
 
-    void uart_start(int dma0, int dma1) {
-        dma_chan[0] = dma0;
-        dma_chan[1] = dma1;
+    void uart_start(int dma) {
+        dma_chan = dma;
 
         // IO
         gpio_init(0);
@@ -45,19 +46,12 @@ namespace Serial {
         uart_init(uart0, SERIAL_UART_BAUD);
 
         // DMA
-        c[0] = dma_channel_get_default_config(dma_chan[0]);
-        channel_config_set_transfer_data_size(&c[0], DMA_SIZE_8);
-        channel_config_set_write_increment(&c[0], true);
-        channel_config_set_read_increment(&c[0], false);
-        channel_config_set_dreq(&c[0], DREQ_UART0_RX);
-        channel_config_set_chain_to(&c[0], dma_chan[1]);
-        dma_channel_set_irq1_enabled(dma_chan[0], false);
-        c[1] = dma_channel_get_default_config(dma_chan[1]);
-        channel_config_set_transfer_data_size(&c[1], DMA_SIZE_8);
-        channel_config_set_write_increment(&c[1], true);
-        channel_config_set_read_increment(&c[1], false);
-        channel_config_set_dreq(&c[1], DREQ_UART0_RX);
-        dma_channel_set_irq1_enabled(dma_chan[1], false);
+        c = dma_channel_get_default_config(dma_chan);
+        channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+        channel_config_set_write_increment(&c, true);
+        channel_config_set_read_increment(&c, false);
+        channel_config_set_dreq(&c, DREQ_UART0_RX);
+        dma_channel_set_irq1_enabled(dma_chan, false);
 
         uart_reload(false);
     }
@@ -91,43 +85,41 @@ namespace Serial {
         }
 
         // Note this is allowed to trip the error recovery protocol, which should not cause an issue.
-        if (dma_channel_get_irq1_status(dma_chan[1])) {
-            if ((dma_sniffer_get_data_accumulator() == checksum) && ((uart0_hw->ris & 0x380) == 0))
+        if (dma_channel_get_irq1_status(dma_chan)) {
+            if ((uart0_hw->ris & 0x380) == 0)
                 uart_reload(false);
-            dma_sniffer_disable();
             isIdle = true;
-            dma_hw->ints1 = 1 << dma_chan[0];
-            dma_hw->ints1 = 1 << dma_chan[1];
+            dma_hw->ints1 = 1 << dma_chan;
         }
     }
 
     void __not_in_flash_func(uart_reload)(bool reload_dma) {
-        static uint8_t *ptr = 0;
         static uint8_t *buf = 0;
         static uint16_t len = 0;
         uint16_t *p = (uint16_t *) buf;
         
-        // Note: Uses CRC-32/MPEG-2
         if (reload_dma) {
-            dma_sniffer_set_data_accumulator(0xFFFFFFFF);
-            dma_channel_configure(dma_chan[0], &c[0], &checksum, &uart_get_hw(uart0)->dr, sizeof(checksum), true);
-            dma_channel_configure(dma_chan[1], &c[1], buf, &uart_get_hw(uart0)->dr, len, false);
-            dma_sniffer_enable(dma_chan[1], 0, true);
+            dma_channel_configure(dma_chan, &c, buf, &uart_get_hw(uart0)->dr, len, true);
         }
         else {
-            if ((p != 0) && (sizeof(DEFINE_SERIAL_RGB_TYPE) >= 2)) {
-                for (uint16_t i = 0; i < len; i += 2)
-                    p[i / 2] = ntohs(p[i / 2]);
+            switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
+                case 2:
+                case 6:
+                    for (uint16_t i = 0; i < len; i += 2)
+                        p[i / 2] = ntohs(p[i / 2]);
+                    break;
+                default:
+                    break;
+            }
+
+            if (buf) {
+                if (isPacket)
+                    Matrix::Worker::process((void *) buf);
+                else
+                    Matrix::Loafer::toss((void *) buf);
             }
 
             uart_callback(&buf, &len);
-
-            if (ptr) {
-                if (isPacket)
-                    Matrix::Worker::process((void *) ptr);
-                else
-                    Matrix::Loafer::toss(ptr);
-            }
         }
     }
 }
