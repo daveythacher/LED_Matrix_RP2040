@@ -40,14 +40,12 @@ namespace Serial {
     void __not_in_flash_func(task)() {
         if (isPacket)
             test_driver_worker();
-        else
-            test_driver_loafer();
     }
 
     void start() {
         if (isPacket)
             multicore_launch_core1(Matrix::Worker::work);
         else
-            multicore_launch_core1(task);
+            multicore_launch_core1(test_driver_loafer);
     }
 }
