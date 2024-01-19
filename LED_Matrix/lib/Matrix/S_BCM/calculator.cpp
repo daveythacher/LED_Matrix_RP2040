@@ -18,6 +18,7 @@ namespace Matrix::Calculator {
     constexpr uint8_t max_led_cap_pf = 18;
     constexpr uint8_t min_led_harmonics = 5;
 
+    // Ignores upper bits
     static constexpr double get_refresh_overhead() {
         double refresh_overhead = 1000000.0 / (MULTIPLEX * MIN_REFRESH);
         refresh_overhead /= refresh_overhead - BLANK_TIME;
@@ -34,6 +35,7 @@ namespace Matrix::Calculator {
         static_assert(clk_hz >= 1.0, "Configuration is not possible");
     }
 
+    // Ignores upper bits
     static constexpr void is_brightness_valid() {
         constexpr double led_rise_us = (max_led_impedance * min_led_harmonics * max_led_cap_pf * MULTIPLEX) / 1000000.0;
         constexpr double period_us = 1000000.0 / (MIN_REFRESH * MULTIPLEX);
@@ -80,7 +82,6 @@ namespace Matrix::Calculator {
         static_assert((MULTIPLEX * COLUMNS * (1 << upper_bits) * lower_bits) <= Serial::max_framebuffer_size, "The current buffer size is not supported");
 
         static_assert(MIN_REFRESH / (1 << upper_bits) > 95, "Refresh rate too low to support the current S_PWM segment size for the selected LED contrast");
-        static_assert(lower_bits >= upper_bits, "Invalid S-PWM configuration");
         static_assert(lower_bits >= 4, "Invalid S-PWM configuration");
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
     }
