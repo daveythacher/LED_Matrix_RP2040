@@ -103,8 +103,8 @@ namespace Matrix::Worker {
         uint32_t temp = 0;
 
         // Smoothing function (This is mostly magic!)
-        val *= (1 << PWM_bits) - (1 << upper_bits) + 1;
-        val /= 1 << PWM_bits;
+        val *= (1 << PWM_bits) - (1 << upper_bits) + 1;             // Multiply by new card range
+        val /= 1 << PWM_bits;                                       // Divide by old card range
 
         upper_val = val / (1 << lower_bits);                        // Most significant bits are extracted into upper
         lower_val = val % (1 << lower_bits);                        // Least significant bits are extracted into lower
