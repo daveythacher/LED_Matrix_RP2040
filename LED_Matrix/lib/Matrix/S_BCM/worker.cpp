@@ -106,17 +106,17 @@ namespace Matrix::Worker {
         val *= (1 << PWM_bits) - (1 << upper_bits) + 1;
         val /= 1 << PWM_bits;
 
-        upper_val = val / (1 << lower_bits);
-        lower_val = val % (1 << lower_bits);
+        upper_val = val / (1 << lower_bits);                        // Most significant bits are extracted into upper
+        lower_val = val % (1 << lower_bits);                        // Least significant bits are extracted into lower
 
         for (uint32_t i = 0; i < (1 << upper_bits); i++) {            
-            temp = upper_val * (1 << (lower_bits - upper_bits));
-            temp += lower_val / (1 << upper_bits);
+            temp = upper_val * (1 << (lower_bits - upper_bits));    // Make sure the most significant bits are kept (in every deck)
+            temp += lower_val / (1 << upper_bits);                  // TODO: Add in least significant bits if they still remain
 
             if ((int32_t) val - (int32_t) (temp * (1 << upper_bits) + i) > 0)
-                store(val, temp + 1, remap(i, 1 << upper_bits));
+                store(val, temp + 1, remap(i, 1 << upper_bits));    // Map the deck to the correct place
             else
-                store(val, temp, remap(i, 1 << upper_bits));
+                store(val, temp, remap(i, 1 << upper_bits));        // Map the deck to the correct place
         }
     }
 
