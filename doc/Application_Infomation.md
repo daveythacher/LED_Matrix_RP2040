@@ -16,12 +16,12 @@ High refresh displays need special control circuits in multiplexing and LED driv
 Generally high refresh rate is generally accomplished using hardware PWM. This is more efficient in terms of bus cycles. Traditional PWM is used in many cases however this is being replaced somewhat by S-PWM. The LEDs are only capable of so much contrast, so there is no point to using more PWM bits than required. These cycles can be converted to refresh rate instead.
 
 ### S-PWM
-Note I discourage S-PWM due to cameras picking up distortion. Note this only really matters if you plan to use high refresh rate. Many people will not see a difference but cameras may. See internal documentation [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/Applications.md) for more information.
+Note I discourage S-PWM due to cameras picking up distortion. Note this only really matters if you plan to use high refresh rate. Many people will not see a difference but cameras may. See internal documentation [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/doc/Applications.md) for more information.
 
 ### Ghosting
 Refresh rate or multilexing rate is limited by certain things. The panel itself is only capable of moving so fast before small capacitors inside the panel start to slow and corrupt things. To get around this you need to use pull-ups on the low side or near the LED drivers and pull-downs on the high side or near the row drivers. If you do this the LEDs will be reverse biased when they are supposed to be off and forward biased when they are supposed to be on. (The other option is push-pull drivers.)
 
-See internal documentation [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/Applications.md) for more information.
+See internal documentation [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/doc/Applications.md) for more information.
 
 ## Mappers
 All of this is handled by application logic.
@@ -55,4 +55,4 @@ For example four 16x32 P6 1:8 panels given 11 bit color depth LEDs would have a 
 It is important to use a quality power supply with proper voltage rating, load regulation, current capacity, power supply response time, etc.
 
 ## Wiring and Signal issues
-See internal documentation [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/Applications.md) for more information.
+See internal documentation [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/doc/Applications.md) for more information.

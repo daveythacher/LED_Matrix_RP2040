@@ -1,5 +1,5 @@
 # Internal Documentation
-Place to talk about internal code stuff
+Place to talk about internal code stuff. (Note there are other information dumping grounds [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/doc/Applications.md) and [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/doc/Memory.md)
 
 Critical sections of code are RAM functions, as I do not trust XIP cache for this. Be mindful of interrupts. Currently multiplexing generates a lot of interrupts, which can cause issues. Be mindful of interrupt allocation, which can also cause issues. (Follow conventions outline here.)
 
