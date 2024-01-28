@@ -12,6 +12,10 @@ If the frame rate drops then you will increase the number of effective PWM bits 
 S-PWM works on GEN 2 panels, hardware PWM panels without SRAM. GEN 3 panels, hardware PWM panels with SRAM, are subject to issues with frame rate while GEN 2 generally force this to be constant.
 
 ## Ghosting
+Another issue than can occur is the response time of LEDs themselves. If the LEDs have large capacitors on the low side there may be intensity corruption if you attempt to send a signal into it too fast. This will play a larger role on least significant PWM bits as these may be attenuated completely. Therefore large PWM periods may be recommended to combat this. BCM in this case is not recommended as it simulates a small sub PWM periods like what is used in S-PWM. These are attentuated independently, as the state change is what created the issue. PWM uses a single duty cycle, while the others use multiple.
+
+Compile time calculators exist to help here too.
+
 #### Low side only algorithm
 Overview is to use small pull up resistors on the columns to allow a small amount of current to trickle to the low side. This is required to prevent a LED from becoming forward biased. No current is required to flow through the LEDs to become reverse biased. This appproach can be faster but can be more expensive. Small bleeding is still possible with this approach. This happens due to the previous row's high side capacitor discharging through the columns. (A modified version of this is possible which manages this. See below.) Specialized low side drivers exist which may reduce cost.
 
