@@ -13,7 +13,7 @@ I am not responsible in any way for any damages or issues created in any way as 
 ## Contributing, feedback, questions, etc.
 If in doubt use the discussion feature. I am okay with meaningful discussion in issues however please use the discussion feature first.
 
-Some weird conventions are used. These should be documented in LED_Matrix/README.md. This is the place for documenting technical interworkings and troubleshooting. (Outside of comments.)
+Some weird conventions are used. These should be documented in [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/README.md). This is the place for documenting technical interworkings and troubleshooting. (Outside of comments.)
 
 ## Building
 See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Building.md) for more details.
