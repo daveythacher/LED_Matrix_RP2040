@@ -8,7 +8,7 @@
 #include "pico/multicore.h"
 #include "Serial/config.h"
 #include "Matrix/matrix.h"
-#include "Matrix/BCM/memory_format.h"
+#include "Matrix/HUB75/BCM/memory_format.h"
 
 namespace Matrix {
     extern test2 buf[];

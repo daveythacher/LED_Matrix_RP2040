@@ -1,4 +1,3 @@
-add_subdirectory(BCM)
-add_subdirectory(PWM)
+add_subdirectory(HUB75)
 
 configure_file(config.h.in config.h @ONLY)

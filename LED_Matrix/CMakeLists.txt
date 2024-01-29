@@ -27,6 +27,7 @@ set(DEFINE_APP "app" CACHE STRING "Binary name")
 set(DEFINE_SERIAL_ALGORITHM "uart" CACHE STRING "Serial algorithm name")
 set(DEFINE_MULTIPLEX_ALGORITHM "Decoder" CACHE STRING "Multiplex algorithm name")
 set(DEFINE_MATRIX_ALGORITHM "PWM" CACHE STRING "Matrix algorithm name")
+set(DEFINE_MATRIX_FAMILY "HUB75" CACHE STRING "Matrix interface family")
 
 # These determine RAM usage
 set(DEFINE_SERIAL_RGB_TYPE "RGB24" CACHE STRING "RGB type name")

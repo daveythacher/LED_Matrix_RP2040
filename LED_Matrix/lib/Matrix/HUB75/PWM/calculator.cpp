@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <stdint.h>
-#include "Matrix/PWM/memory_format.h"
+#include "Matrix/HUB75/PWM/memory_format.h"
 #include "Matrix/matrix.h"
 #include "Serial/config.h"
 
