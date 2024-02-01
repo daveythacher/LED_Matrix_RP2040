@@ -19,8 +19,7 @@ namespace Serial {
     static volatile bool isIdle = true;
     static volatile uint32_t checksum;
 
-    static constexpr uint8_t micro_frame = 25;  // TODO: Verify
-    static constexpr uint8_t macro_frame = 26;  // TODO: Verify
+    static constexpr uint8_t macro_frame = 25;  // TODO: Verify
 
     static void uart_reload(bool reload_dma);
 
@@ -58,43 +57,48 @@ namespace Serial {
     }
 
     void __not_in_flash_func(uart_task)() {
+        static uint8_t state = 1;
+
+        // Check for errors
         if (!((uart0_hw->ris & 0x380) == 0)) {
-            // Clear Errors
             uart0_hw->icr = 0x7FF;
-
-            // TODO: Abort
-        }
-
-        // Micro Frame Finish
-        if (gpio_get_irq_event_mask(micro_frame) & GPIO_IRQ_EDGE_FALL) {
-            // Check DMA state, abort if required
-
-            // Wait for next Macro Frame
-
-            // Reset interrupt
+            state = 4;              // UART is drunk, restart later
         }
 
         // Macro Frame Finish
         if (gpio_get_irq_event_mask(macro_frame) & GPIO_IRQ_EDGE_FALL) {
             // Check DMA state, abort if required
-
-            // Wait from next Macro Frame
+            if (dma_channel_get_irq1_status(dma_chan)) {
+                uart_reload(false);
+                dma_hw->ints1 = 1 << dma_chan;
+                state = 1;
+            }
+            else if (state == 3)    // Corrupt Frame has passed, restart now
+                state = 1;
+            else                    // DMA is drunk, restart now
+                state = 2;
 
             // Reset interrupt
         }
 
-        // Note this is allowed to trip the error recovery protocol, which should not cause an issue.
-        if (dma_channel_get_irq1_status(dma_chan)) {
-            if ((uart0_hw->ris & 0x380) == 0) {
-                uart_reload(false);
-            }
-            else {
-                // Clear Errors
-                uart0_hw->icr = 0x7FF;
-            }
-
-            uart_reload(true);
-            dma_hw->ints1 = 1 << dma_chan;
+        // State machine
+        switch (state) {
+            case 4:                 // Abort current frame as we cannot recover it due to some kind of error
+                // TODO
+                state = 3;
+                break;
+            case 3:                 // Wait till next frame (hold here)
+                break;
+            case 2:                 // Abort current frame as we cannot recover it due to some kind of error (Slide into state 1)
+                // TODO
+            case 1:                 // Start up normally (Slide into state 0)
+                uart_reload(true);
+                state = 0;
+            case 0:                 // Idle state (hold here)
+                break;
+            default:                // We should never be here
+                state = 3;
+                break;
         }
     }
 
