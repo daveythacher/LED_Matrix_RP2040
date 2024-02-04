@@ -33,7 +33,7 @@ CMake configuration selects these as configured for the specific build. Parallel
 ### Serial Algorithms
 These are used by the src folder to implement different applications/front end protocols. Configuration for specific build picks the src folder implementation. Parallel development should be possible.
 
-Note these have control over ISRs. These are also responsible for booting core 1 which is owned by matrix algorithm. Design of serial protocols is a decent topic depending on application. (Flow control and framing is pretty much a requirement currently.)
+Note these have control over ISRs. These are also responsible for booting core 1 which is owned by matrix algorithm. Design of serial protocols is a decent topic depending on application. (Flow control and framing is pretty much a requirement currently. The application logic is responsible for dropping frames.)
 
 ## src folder
 This is boiler plate application which pulls the matrix and serial algorithms together. CMake configures preprocessor for size, multiplex algorithm, matrix algorithm, serial algorithm, etc. The idea here is build flavors.
