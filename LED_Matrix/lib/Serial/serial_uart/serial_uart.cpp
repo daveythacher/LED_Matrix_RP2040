@@ -18,8 +18,8 @@ namespace Serial {
     static dma_channel_config c;
     static volatile bool isIdle = true;
     static volatile uint32_t checksum;
-
-    static constexpr uint8_t macro_frame = 25;  // TODO: Verify
+    static constexpr uint8_t macro_frame = 25;
+    static constexpr uint32_t macro_frame_event = GPIO_IRQ_EDGE_FALL;
 
     static void uart_reload(bool reload_dma);
 
@@ -35,11 +35,13 @@ namespace Serial {
         dma_chan = dma;
 
         // IO
-        gpio_init(0);
         gpio_init(1);
-        gpio_set_dir(0, GPIO_OUT);
-        gpio_set_function(0, GPIO_FUNC_UART);
+        gpio_init(3);
+        gpio_init(macro_frame);
+        gpio_set_dir(3, GPIO_OUT);
         gpio_set_function(1, GPIO_FUNC_UART);
+        gpio_set_function(3, GPIO_FUNC_UART);
+        gpio_set_irq_enabled(macro_frame, macro_frame_event, true);
 
         // UART
         static_assert(SERIAL_UART_BAUD <= 7800000, "Baud rate must be less than 7.8MBaud");
@@ -62,23 +64,24 @@ namespace Serial {
         // Check for errors
         if (!((uart0_hw->ris & 0x380) == 0)) {
             uart0_hw->icr = 0x7FF;
-            state = 4;              // UART is drunk, restart later
+            state = 4;              // Error, restart later
         }
 
         // Macro Frame Finish
-        if (gpio_get_irq_event_mask(macro_frame) & GPIO_IRQ_EDGE_FALL) {
+        if (gpio_get_irq_event_mask(macro_frame) & macro_frame_event) {
             // Check DMA state, abort if required
             if (dma_channel_get_irq1_status(dma_chan)) {
                 uart_reload(false);
-                dma_hw->ints1 = 1 << dma_chan;
                 state = 1;
+                dma_hw->ints1 = 1 << dma_chan;
             }
             else if (state == 3)    // Corrupt Frame has passed, restart now
                 state = 1;
-            else                    // DMA is drunk, restart now
+            else                    // Error, restart now
                 state = 2;
 
             // Reset interrupt
+            gpio_acknowledge_irq(macro_frame, macro_frame_event);
         }
 
         // State machine
