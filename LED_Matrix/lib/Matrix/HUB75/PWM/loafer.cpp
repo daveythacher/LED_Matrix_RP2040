@@ -39,6 +39,7 @@ namespace Matrix::Loafer {
     }
 
     uint32_t __not_in_flash_func(get_buffer_size)() {
+            static_assert(sizeof(test2) % 2 == 0, "Loafer buffer must be multiple of two");
         return sizeof(test2);
     }
 }

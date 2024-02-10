@@ -29,6 +29,8 @@ namespace Serial {
             *buf = (uint8_t *) &buffers[(buffer + 1) % num_packets];
             *len = sizeof(packet);
             buffer = (buffer + 1) % num_packets;
+
+            static_assert(sizeof(packet) % 2 == 0, "Serial frame must be multiple of two");
         }
         else {
             *buf = (uint8_t *) Matrix::Loafer::get_back_buffer();
