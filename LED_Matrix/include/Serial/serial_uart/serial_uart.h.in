@@ -13,7 +13,7 @@
 
 namespace Serial {
     
-    void uart_start(int dma_chan);
+    void uart_start(int dma_chan0, int dma_chan1);
     void uart_task();
     void uart_callback(uint8_t **buf, uint16_t *len);
 

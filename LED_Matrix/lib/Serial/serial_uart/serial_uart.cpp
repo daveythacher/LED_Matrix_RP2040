@@ -14,12 +14,8 @@
 #include "Matrix/matrix.h"
 
 namespace Serial {
-    static int dma_chan;
-    static dma_channel_config c;
-    static volatile bool isIdle = true;
-    static volatile uint32_t checksum;
-    static constexpr uint8_t macro_frame = 25;
-    static constexpr uint32_t macro_frame_event = GPIO_IRQ_EDGE_FALL;
+    static int dma_chan[2];
+    static dma_channel_config c[2];
 
     static void uart_reload(bool reload_dma);
 
@@ -31,77 +27,50 @@ namespace Serial {
         #define ntoh1(x) ((uint32_t)(x))
     #endif
 
-    void uart_start(int dma) {
-        dma_chan = dma;
+    void uart_start(int dma0, int dma1) {
+        dma_chan[0] = dma0;
+        dma_chan[1] = dma1;
 
         // IO
+        gpio_init(0);
         gpio_init(1);
-        gpio_init(3);
-        gpio_init(macro_frame);
-        gpio_set_dir(3, GPIO_OUT);
+        gpio_set_dir(0, GPIO_OUT);
+        gpio_set_function(0, GPIO_FUNC_UART);
         gpio_set_function(1, GPIO_FUNC_UART);
-        gpio_set_function(3, GPIO_FUNC_UART);
-        gpio_set_irq_enabled(macro_frame, macro_frame_event, true);
 
         // UART
         static_assert(SERIAL_UART_BAUD <= 7800000, "Baud rate must be less than 7.8MBaud");
         uart_init(uart0, SERIAL_UART_BAUD);
 
         // DMA
-        c = dma_channel_get_default_config(dma_chan);
-        channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
-        channel_config_set_write_increment(&c, true);
-        channel_config_set_read_increment(&c, false);
-        channel_config_set_dreq(&c, DREQ_UART0_RX);
-        dma_channel_set_irq1_enabled(dma_chan, false);
+        c[0] = dma_channel_get_default_config(dma_chan[0]);
+        channel_config_set_transfer_data_size(&c[0], DMA_SIZE_8);
+        channel_config_set_write_increment(&c[0], true);
+        channel_config_set_read_increment(&c[0], false);
+        channel_config_set_dreq(&c[0], DREQ_UART0_RX);
+        dma_channel_set_irq1_enabled(dma_chan[0], false);
+
+        // TODO:
 
         uart_reload(false);
     }
 
     void __not_in_flash_func(uart_task)() {
-        static uint8_t state = 1;
-
         // Check for errors
         if (!((uart0_hw->ris & 0x380) == 0)) {
             uart0_hw->icr = 0x7FF;
-            state = 4;              // Error, restart later
         }
 
-        // Macro Frame Finish
-        if (gpio_get_irq_event_mask(macro_frame) & macro_frame_event) {
-            // Check DMA state, abort if required
-            if (dma_channel_get_irq1_status(dma_chan)) {
-                uart_reload(false);
-                state = 1;
-                dma_hw->ints1 = 1 << dma_chan;
-            }
-            else if (state == 3)    // Corrupt Frame has passed, restart now
-                state = 1;
-            else                    // Error, restart now
-                state = 2;
-
-            // Reset interrupt
-            gpio_acknowledge_irq(macro_frame, macro_frame_event);
+        // Check DMA state, abort if required
+        if (dma_channel_get_irq1_status(dma_chan[0])) {
+            // TODO:
+            //uart_reload(false);
+            dma_hw->ints1 = 1 << dma_chan[0];
         }
 
-        // State machine
-        switch (state) {
-            case 4:                 // Abort current frame as we cannot recover it due to some kind of error
-                // TODO
-                state = 3;
-                break;
-            case 3:                 // Wait till next frame (hold here)
-                break;
-            case 2:                 // Abort current frame as we cannot recover it due to some kind of error (Slide into state 1)
-                // TODO
-            case 1:                 // Start up normally (Slide into state 0)
-                uart_reload(true);
-                state = 0;
-            case 0:                 // Idle state (hold here)
-                break;
-            default:                // We should never be here
-                state = 3;
-                break;
+        {
+            // TODO:
+            uart_reload(true);
         }
     }
 
@@ -111,7 +80,7 @@ namespace Serial {
         uint16_t *p = (uint16_t *) buf;
         
         if (reload_dma) {
-            dma_channel_configure(dma_chan, &c, buf, &uart_get_hw(uart0)->dr, len, true);
+            dma_channel_configure(dma_chan[0], &c[0], buf, &uart_get_hw(uart0)->dr, len, true);
         }
         else {
             switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {

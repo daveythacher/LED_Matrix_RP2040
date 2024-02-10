@@ -42,6 +42,6 @@ namespace Serial {
         else
             multicore_launch_core1(task_internal);
         
-        uart_start(dma_claim_unused_channel(true)); 
+        uart_start(dma_claim_unused_channel(true), dma_claim_unused_channel(true)); 
     }
 }
