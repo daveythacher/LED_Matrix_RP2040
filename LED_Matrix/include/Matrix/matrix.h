@@ -69,6 +69,7 @@ namespace Matrix {
         /**
          *  @brief Function to get size of back buffer
          *  @details Implemended in Matrix/<implementation/loafer.cpp
+         *  @details Must always return a number which is a multiple of two!
          *  @return Buffer size
         */
         uint32_t get_buffer_size();
