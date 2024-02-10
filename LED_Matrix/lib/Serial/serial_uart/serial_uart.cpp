@@ -95,6 +95,8 @@ namespace Serial {
         static uint8_t *buf = 0;
         static uint16_t len = 0;
         uint16_t *p = (uint16_t *) buf;
+
+        // TODO: Add packet state machine for frame
         
         if (reload_dma) {
             dma_channel_configure(dma_chan[1], &c[1], &buf[len / 2], &uart_get_hw(uart0)->dr, len / 2, false);
