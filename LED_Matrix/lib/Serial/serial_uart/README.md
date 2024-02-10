@@ -10,7 +10,9 @@ Serial algorithm for receiving RGB frame data.
 ### Event loop
 Uses event loop which should not be significantly starved. Most of this is software and therefore some CPU time is required. 
 
-Do not miss the half packet mark under any circumstances. Packet size is frame size divided by two divided by multiplex. Divide this number by two and compute the packet bit time. You must never speed more than this amount of time away. Maybe in the future this will become a high priority interrupt to forbid this from every creating a problem. (Higher than the multiplexing of the Matrix algorithm.)
+Do not miss the half packet mark under any circumstances. Packet size is frame size divided by two divided by multiplex. Divide this number by two and compute the packet bit time. You must never speed more than this amount of time away. 
+
+Maybe in the future this will become a high priority interrupt to forbid this from ever creating a problem. (Higher than the multiplexing of the Matrix algorithm.)
 
 ### Flow Control
 Packets are divided in two, which allows a state token to be updated. This token is transmitted every 10 microseconds to the host. Host must wait for permission before sending a packet. Host is allowed to send full packet as two DMA channels are chained to capture the full packet. The event loop will deny permission to the host at the half way point. Host must wait for packet transmission to complete before looking at token.
