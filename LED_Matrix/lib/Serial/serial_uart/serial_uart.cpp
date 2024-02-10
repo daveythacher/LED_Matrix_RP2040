@@ -16,6 +16,7 @@
 namespace Serial {
     static int dma_chan[2];
     static dma_channel_config c[2];
+    static char state = 'y';
 
     static void uart_reload(bool reload_dma);
 
@@ -48,29 +49,45 @@ namespace Serial {
         channel_config_set_write_increment(&c[0], true);
         channel_config_set_read_increment(&c[0], false);
         channel_config_set_dreq(&c[0], DREQ_UART0_RX);
-        dma_channel_set_irq1_enabled(dma_chan[0], false);
+        channel_config_set_chain_to(&c[0], dma_chan[1]);
 
-        // TODO:
+        c[1] = dma_channel_get_default_config(dma_chan[1]);
+        channel_config_set_transfer_data_size(&c[1], DMA_SIZE_8);
+        channel_config_set_write_increment(&c[1], true);
+        channel_config_set_read_increment(&c[1], false);
+        channel_config_set_dreq(&c[1], DREQ_UART0_RX);
 
         uart_reload(false);
+        uart_reload(true);
     }
 
+    // Warning host is required to obey flow control and handle bus recovery
     void __not_in_flash_func(uart_task)() {
+        static uint64_t time = 0;
+
         // Check for errors
         if (!((uart0_hw->ris & 0x380) == 0)) {
             uart0_hw->icr = 0x7FF;
         }
 
-        // Check DMA state, abort if required
+        // First half of packet
         if (dma_channel_get_irq1_status(dma_chan[0])) {
-            // TODO:
-            //uart_reload(false);
+            state = 'n';
             dma_hw->ints1 = 1 << dma_chan[0];
         }
 
-        {
-            // TODO:
+        // Second half of packet
+        if (dma_channel_get_irq1_status(dma_chan[1])) {
+            state = 'y';
+            uart_reload(false);
             uart_reload(true);
+            dma_hw->ints1 = 1 << dma_chan[1];
+        }
+
+        // Report flow control and/or internal state
+        if ((time + 10) < time_us_64()) {
+            uart_putc(uart0, state);
+            time = time_us_64();
         }
     }
 
@@ -80,7 +97,8 @@ namespace Serial {
         uint16_t *p = (uint16_t *) buf;
         
         if (reload_dma) {
-            dma_channel_configure(dma_chan[0], &c[0], buf, &uart_get_hw(uart0)->dr, len, true);
+            dma_channel_configure(dma_chan[1], &c[1], &buf[len / 2], &uart_get_hw(uart0)->dr, len / 2, false);
+            dma_channel_configure(dma_chan[0], &c[0], buf, &uart_get_hw(uart0)->dr, len / 2, true);
         }
         else {
             switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
