@@ -70,13 +70,13 @@ namespace Serial {
             uart0_hw->icr = 0x7FF;
         }
 
-        // First half of packet
+        // First half of packet completed (bus still active)
         if (dma_channel_get_irq1_status(dma_chan[0])) {
             state = 'n';
             dma_hw->ints1 = 1 << dma_chan[0];
         }
 
-        // Second half of packet
+        // Second half of packet completed (bus now idle)
         if (dma_channel_get_irq1_status(dma_chan[1])) {
             state = 'y';
 
