@@ -29,7 +29,15 @@ namespace Matrix::Worker {
         
         v = v * mul / div;
         //v %= (1 << PWM_bits);
-        return table[(v >> (nibble * sizeof(T))) & ((1 << sizeof(T)) - 1)][i];
+        switch (sizeof(T)) {
+            case 2:
+                return index_table.table[(v >> (nibble * sizeof(T))) & 0x3][i];
+            case 4:
+                return index_table.table[(v >> (nibble * sizeof(T))) & 0xF][i];
+            case 1:
+            default:
+                return index_table.table[(v >> (nibble * sizeof(T))) & 0x1][i];
+        }
     }
 
     // Forgive the shameless and reckless casting.
