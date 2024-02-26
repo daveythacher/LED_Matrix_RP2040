@@ -51,8 +51,8 @@ namespace Serial {
         uart_init(uart0, SERIAL_UART_BAUD);
 
         // PIO
-        sm = pio_claim_unused_sm(pio1, true, trigger);
-        setup_debouncer(pio1, sm);
+        sm = pio_claim_unused_sm(pio1, true);
+        APP::setup_debouncer(pio1, sm, trigger);
 
         // DMA
         c[0] = dma_channel_get_default_config(dma_chan[0]);
