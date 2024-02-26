@@ -43,7 +43,7 @@ This is the baud rate used for the uart serial algorithm.
 ### DEFINE_BLANK_TIME
 This is the number of uS the LEDs will be off during multplexing to prevent ghosting. This is usually 1-4uS. Note this number should be whole numbers only.
 
-If DEFINE_MAX_RGB_LED_STEPS is large there can be a slight issue, the panel will slightly dim and the refresh rate will drop slightly.
+If DEFINE_MAX_RGB_LED_STEPS is large there can be a slight issue, the panel will slightly dim and the refresh rate will drop slightly. (Not verified by calculators!)
 
 ### DEFINE_IS_LOAFER
 Relax don't do it!
