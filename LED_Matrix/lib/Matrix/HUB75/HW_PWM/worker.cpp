@@ -34,7 +34,7 @@ namespace Matrix::Worker {
 
     // Forgive the shameless and reckless casting.
     template <typename T> static void __not_in_flash_func(set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
-        for (uint32_t nib = 0; nib < PWM_bits; nib += sizeof(T)) {
+        for (uint32_t nib = 0; nib < 16; nib += sizeof(T)) {
             T *c[6] = { (T *) get_table<T>(r0, 0, nib), (T *) get_table<T>(g0, 1, nib), (T *) get_table<T>(b0, 2, nib),
                     (T *) get_table<T>(r1, 3, nib), (T *) get_table<T>(g1, 4, nib), (T *) get_table<T>(b1, 5, nib) };
         
