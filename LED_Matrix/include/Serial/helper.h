@@ -75,6 +75,12 @@ namespace APP {
         pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, false);
 
         // TODO:
+
+        // Make single hold at ~1 MHz
+        const uint32_t clock_mhz = 125;
+        const uint32_t target_hold_mhz = 1;
+        const uint32_t cycles_per_sample = 3;
+        pio_sm_put(pio, sm, (clock_mhz / cycles_per_sample) / target_hold_mhz);   
     }
 }
 
