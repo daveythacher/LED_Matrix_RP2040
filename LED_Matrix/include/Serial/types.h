@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
  
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef SERIAL_TYPES_H
+#define SERIAL_TYPES_H
     
 #include <stdint.h>
 
