@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
  
-#ifndef HELPER_H
-#define HELPER_H
+#ifndef MATRIX_HELPER_H
+#define MATRIX_HELPER_H
 
 #include <stdint.h>
 #include <pico/multicore.h>

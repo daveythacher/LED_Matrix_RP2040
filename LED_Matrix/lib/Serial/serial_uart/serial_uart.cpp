@@ -12,11 +12,15 @@
 #include "hardware/timer.h"
 #include "Serial/serial_uart/serial_uart.h"
 #include "Matrix/matrix.h"
+#include "Serial/helper.h"
 
 namespace Serial {
     static int dma_chan[2];
     static dma_channel_config c[2];
     static char state = 'y';
+    static int sm;
+    static const int trigger = 2;
+    static const int sync = 3;
 
     static bool uart_reload(bool reload_dma);
 
@@ -35,13 +39,20 @@ namespace Serial {
         // IO
         gpio_init(0);
         gpio_init(1);
+        gpio_init(trigger);
+        gpio_init(sync);
         gpio_set_dir(0, GPIO_OUT);
+        gpio_set_dir(trigger, GPIO_OUT);
         gpio_set_function(0, GPIO_FUNC_UART);
         gpio_set_function(1, GPIO_FUNC_UART);
 
         // UART
         static_assert(SERIAL_UART_BAUD <= 7800000, "Baud rate must be less than 7.8MBaud");
         uart_init(uart0, SERIAL_UART_BAUD);
+
+        // PIO
+        sm = pio_claim_unused_sm(pio1, true, trigger);
+        setup_debouncer(pio1, sm);
 
         // DMA
         c[0] = dma_channel_get_default_config(dma_chan[0]);
