@@ -12,7 +12,6 @@
 namespace APP {
     // Detect leading edge of trigger and assert ISR
     void setup_debouncer(PIO pio, int sm, int pin) {
-
         // uint32_t osr = pull_fifo();
         // uint32_t isr_flag = 0;
         // while (true) {
@@ -36,7 +35,7 @@ namespace APP {
             (uint16_t) pio_encode_pull(false, true),            // Line 0
 
             // uint32_t isr_flag = 0;
-            (uint16_t) pio_encode_irq_clear(false, 0),          // Line 1
+            (uint16_t) pio_encode_irq_clear(false, sm),          // Line 1
 
             // while (true) {
             //      uint32_t x = osr;
@@ -54,10 +53,10 @@ namespace APP {
             (uint16_t) pio_encode_jmp_x_dec(9),                 // Line 5
 
             //                  isr_flag = 1;
-            (uint16_t) pio_encode_irq_set(false, 0),            // Line 6
+            (uint16_t) pio_encode_irq_set(false, sm),            // Line 6
 
             //                  while (isr_flag);
-            (uint16_t) pio_encode_wait_irq(false, false, 0),    // Line 7
+            (uint16_t) pio_encode_wait_irq(false, false, sm),    // Line 7
 
             //                  break;
             (uint16_t) pio_encode_jmp(2),                       // Line 8
