@@ -47,7 +47,7 @@ namespace Matrix::Worker {
             T p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
 
             for (uint32_t j = 0; j < sizeof(T); j++)
-                Matrix::buf[bank][y][nib * sizeof(T)][x + 1] = (p >> (j * 8)) & 0xFF;
+                Matrix::buf[bank][y][(nib * sizeof(T)) + j][x + 1] = (p >> (j * 8)) & 0xFF;
         }
     }
 
