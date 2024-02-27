@@ -12,6 +12,9 @@
 namespace APP {
     // Detect leading edge of trigger and assert ISR
     void setup_debouncer(PIO pio, int sm, int pin) {
+        pin %= 32;
+        sm %= 4;
+
         // uint32_t osr = pull_fifo();
         // uint32_t isr_flag = 0;
         // while (true) {
@@ -71,10 +74,29 @@ namespace APP {
             .origin = 0,
         };
 
-        pio_add_program(pio, &pio_programs);
+        uint addr = pio_add_program(pio, &pio_programs);
         pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, false);
 
-        // TODO:
+        // Don't worry the compiler will see through the SDK's complexity!
+        //  Just in case the SDK actually needs this level of complexity someday...
+        switch (sm) {
+            case 0:
+                pio->sm[sm].execctrl = (pin << PIO_SM0_EXECCTRL_JMP_PIN_LSB);
+                break;
+            case 1:
+                pio->sm[sm].execctrl = (pin << PIO_SM1_EXECCTRL_JMP_PIN_LSB);
+                break;
+            case 2:
+                pio->sm[sm].execctrl = (pin << PIO_SM2_EXECCTRL_JMP_PIN_LSB);
+                break;
+            case 3:
+            default:
+                pio->sm[sm].execctrl = (pin << PIO_SM3_EXECCTRL_JMP_PIN_LSB);
+                break;
+        }
+
+        pio->sm[sm].instr = pio_encode_jmp(addr);
+        hw_set_bits(&pio->ctrl, sm << PIO_CTRL_SM_ENABLE_LSB);
 
         // Make single hold at ~1 MHz
         const uint32_t clock_mhz = 125;
