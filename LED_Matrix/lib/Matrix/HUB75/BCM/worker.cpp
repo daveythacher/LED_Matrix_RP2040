@@ -22,6 +22,7 @@ namespace Matrix::Worker {
     static uint8_t bank = 1;
     volatile bool vsync = false;
 
+    // Please overlook the subclass
     template <typename T> struct BCM_worker {
         public:
             BCM_worker();
