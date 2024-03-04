@@ -26,10 +26,10 @@ namespace Matrix::Worker {
     template <typename T> struct BCM_worker {
         public:
             BCM_worker();
-            void build_index_table();
             void process_packet(Serial::packet *p);
 
         private:
+            void build_index_table();
             T *get_table(uint16_t v, uint8_t i, uint8_t nibble);
             void set_pixel(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1);
 
@@ -44,6 +44,8 @@ namespace Matrix::Worker {
     template <typename T> BCM_worker<T>::BCM_worker() {
         for (uint32_t i = 0; i < sizeof(index_table_t::v) / sizeof(uint32_t); i++)
             index_table.v[i] = 0;
+        
+        build_index_table();
     }
 
     template <typename T> void BCM_worker<T>::build_index_table() {
@@ -89,7 +91,6 @@ namespace Matrix::Worker {
 
     template <typename T> static void __not_in_flash_func(worker_internal)() {
         static BCM_worker<T> w;
-        w.build_index_table();
         
         while(1) {
             Serial::packet *p = (Serial::packet *) APP::multicore_fifo_pop_blocking_inline();
