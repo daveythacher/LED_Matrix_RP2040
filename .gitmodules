@@ -1,6 +1,3 @@
-[submodule "LED_Matrix/lib/pico-sdk"]
-	path = LED_Matrix/lib/pico-sdk
-	url = https://github.com/raspberrypi/pico-sdk.git
 [submodule "scripts/RP2040_Symbol_Parser"]
 	path = scripts/RP2040_Symbol_Parser
 	url = https://github.com/daveythacher/RP2040_Symbol_Parser.git
