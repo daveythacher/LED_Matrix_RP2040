@@ -3,6 +3,10 @@
 
 add_library(led_${DEFINE_MATRIX_FOLDER}_BCM INTERFACE)
 
+target_include_directories(led_${DEFINE_MATRIX_FOLDER}_BCM INTERFACE
+    ${CMAKE_CURRENT_BINARY_DIR}/../../../../include
+)
+
 target_sources(led_${DEFINE_MATRIX_FOLDER}_BCM INTERFACE
     matrix.cpp
     worker.cpp
