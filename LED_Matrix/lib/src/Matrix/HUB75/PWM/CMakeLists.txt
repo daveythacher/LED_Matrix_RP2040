@@ -3,10 +3,6 @@
 
 add_library(led_${DEFINE_MATRIX_FOLDER}_PWM INTERFACE)
 
-target_include_directories(led_${DEFINE_MATRIX_FOLDER}_PWM INTERFACE
-    ${CMAKE_CURRENT_BINARY_DIR}/../../../../include
-)
-
 target_sources(led_${DEFINE_MATRIX_FOLDER}_PWM INTERFACE
     matrix.cpp
     worker.cpp

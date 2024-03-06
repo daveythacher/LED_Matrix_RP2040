@@ -4,7 +4,9 @@ add_executable(led_${DEFINE_APP}
 
 target_include_directories(led_${DEFINE_APP} PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/../include
+    ${CMAKE_CURRENT_BINARY_DIR}/../lib/include
     ../include
+    ../lib/include
 )
 
 target_compile_options(led_${DEFINE_APP} PRIVATE 
