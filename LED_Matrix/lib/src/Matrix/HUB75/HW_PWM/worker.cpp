@@ -3,7 +3,10 @@
  * Author: David Thacher
  * License: GPL 3.0
  */
- 
+
+// This file is not fully finished and serves as an outline for the approach. (Use one PIO resource for the data pins.)
+//  This should hold for SRAM PWM LED drivers and PWM LED drivers alike.
+
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
