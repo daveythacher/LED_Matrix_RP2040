@@ -73,6 +73,19 @@ namespace Serial {
     }
 
     // Warning host is required to obey flow control and handle bus recovery
+    // Protocol overview: (Not finished)
+    //    1. Data is received on RX (assumes 7.8 MBaud)
+    //        a. Recovery protocol (Needs work)
+    //            i. Push byte slowly (10mS) till ack byte moves from 'n' to 'y'.
+    //            ii. Continue till ack byte 'y' moves to 'n', set count to 1.
+    //            iii. Continue till ack byte is 'y' again, counting each push.
+    //            iv. Push the counted number of bytes
+    //    2. Ack byte (flow control) is sent on TX (periodically - 10uS)
+    //        a. First half of frame will send 'n' to indicate the bus is active.
+    //        b. Second half of frame will send 'y' to indicate the bus is idle. (Note it may still be completing second half.)
+    //    3. Trigger signal is used to notify the controllers that they have reached the fence.
+    //    4. Sync signal is used to notify the controllers that all have reached the fence. (All trigger signals anded together.)
+    //        a. This signal should be at least +/- 100uS, transmitter to receiver.
     void __not_in_flash_func(uart_task)() {
         static uint64_t time = 0;
 
