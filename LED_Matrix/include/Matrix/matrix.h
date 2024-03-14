@@ -25,6 +25,7 @@ namespace Matrix {
      *  @brief Matrix ISR from Blank time.
      *  @details Mapped to ISR in src/<app>/isr.cpp
      *  @details Implemented in Matrix/<implementation>/matrix.cpp
+     *  @details This may be capable of being rendered into a coprocessor. (Currently just interrupts core 0.)
      */
     void timer_isr();
 
@@ -34,6 +35,7 @@ namespace Matrix {
      */
     extern volatile int timer;
     
+    // This can be rendered into coprocessor. (Currently this is done via super loop on core 1.)
     namespace Worker {
         /**
          *  @brief State machine for converting RGB-24 to bitplanes.

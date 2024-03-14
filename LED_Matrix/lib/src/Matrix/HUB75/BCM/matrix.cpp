@@ -82,7 +82,6 @@ namespace Matrix {
                 LAT = 1;                                // Automate LAT pulse at end of payload (bitplane shift)
                 LAT = 0;
             } while (counter2-- > 0);
-            IRQ = 1;                                    // Call CPU at end of frame
         }*/
         
         // PIO
