@@ -19,6 +19,7 @@ namespace Serial {
     static dma_channel_config c[2];
     static char state = 'y';
     static int sm;
+    static bool isLast = false;
     static const int trigger = 2;
     static const int sync = 3;
 
@@ -52,7 +53,7 @@ namespace Serial {
 
         // PIO
         sm = pio_claim_unused_sm(pio1, true);
-        APP::setup_debouncer(pio1, sm, trigger);
+        APP::setup_debouncer(pio1, sm, sync);
 
         // DMA
         c[0] = dma_channel_get_default_config(dma_chan[0]);
@@ -69,7 +70,7 @@ namespace Serial {
         channel_config_set_dreq(&c[1], DREQ_UART0_RX);
 
         uart_reload(false);             // Prepare next frame
-        uart_reload(true);              // Start DMA state machine
+        isLast = uart_reload(true);     // Start DMA state machine
     }
 
     // Warning host is required to obey flow control and handle bus recovery
@@ -88,6 +89,7 @@ namespace Serial {
     //        a. This signal should be at least +/- 100uS, transmitter to receiver.
     void __not_in_flash_func(uart_task)() {
         static uint64_t time = 0;
+        static bool isReady = false;
 
         // Check for errors
         if (!((uart0_hw->ris & 0x380) == 0)) {
@@ -104,11 +106,27 @@ namespace Serial {
         if (dma_channel_get_irq1_status(dma_chan[1])) {
             state = 'y';
 
-            // Advance DMA state machine
-            if (uart_reload(true))
-                uart_reload(false);     // On last packet, prepare next frame
+            if (isLast) {
+                isReady = true;
+            }
+            else {
+                // Advance DMA state machine
+                isLast = uart_reload(true);
+            }
 
             dma_hw->ints1 = 1 << dma_chan[1];
+        }
+
+        if (isReady) {
+            gpio_set_mask(1 << trigger);
+            
+            if (pio1_hw->intr & 1 << (sm + 8)) {
+                uart_reload(false);
+                gpio_clr_mask(1 << trigger);
+                isReady = false;
+                isLast = uart_reload(true);
+                pio1_hw->irq = 1 << sm;
+            }
         }
 
         // Report flow control and/or internal state
