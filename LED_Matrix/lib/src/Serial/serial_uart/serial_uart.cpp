@@ -19,11 +19,10 @@ namespace Serial {
     static dma_channel_config c[2];
     static char state = 'y';
     static int sm;
-    static bool isLast = false;
     static const int trigger = 2;
     static const int sync = 3;
 
-    static bool uart_reload(bool reload_dma);
+    static void uart_reload(bool reload_dma);
 
     #if __BYTE_ORDER == __LITTLE_ENDIAN
         #define ntohs(x) __bswap16(x)
@@ -70,7 +69,7 @@ namespace Serial {
         channel_config_set_dreq(&c[1], DREQ_UART0_RX);
 
         uart_reload(false);             // Prepare next frame
-        isLast = uart_reload(true);     // Start DMA state machine
+        uart_reload(true);              // Start DMA state machine
     }
 
     // Warning host is required to obey flow control and handle bus recovery
@@ -105,15 +104,7 @@ namespace Serial {
         // Second half of packet completed (bus now idle)
         if (dma_channel_get_irq1_status(dma_chan[1])) {
             state = 'y';
-
-            if (isLast) {
-                isReady = true;
-            }
-            else {
-                // Advance DMA state machine
-                isLast = uart_reload(true);
-            }
-
+            isReady = true;
             dma_hw->ints1 = 1 << dma_chan[1];
         }
 
@@ -124,7 +115,7 @@ namespace Serial {
                 uart_reload(false);
                 gpio_clr_mask(1 << trigger);
                 isReady = false;
-                isLast = uart_reload(true);
+                uart_reload(true);
                 pio1_hw->irq = 1 << sm;
             }
         }
@@ -136,22 +127,17 @@ namespace Serial {
         }
     }
 
-    bool __not_in_flash_func(uart_reload)(bool reload_dma) {
-        static uint8_t index = 0;
+    void __not_in_flash_func(uart_reload)(bool reload_dma) {
         static uint8_t *buf = 0;
         static uint16_t len = 0;
         uint16_t *p = (uint16_t *) buf;
         
         // Packet state machine for frame
         if (reload_dma) {
-            uint32_t size = len / (2 * Matrix::MULTIPLEX);
+            uint32_t size = len / 2;
 
-            dma_channel_configure(dma_chan[1], &c[1], &buf[(index + 1) * size], &uart_get_hw(uart0)->dr, size, false);
-            dma_channel_configure(dma_chan[0], &c[0], &buf[index * size], &uart_get_hw(uart0)->dr, size, true);
-
-            index += 2;
-            index %= Matrix::MULTIPLEX;
-            return index == 0;
+            dma_channel_configure(dma_chan[1], &c[1], &buf[size], &uart_get_hw(uart0)->dr, size, false);
+            dma_channel_configure(dma_chan[0], &c[0], &buf[0], &uart_get_hw(uart0)->dr, size, true);
         }
         else {
             switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
@@ -171,9 +157,7 @@ namespace Serial {
                     Matrix::Loafer::toss((void *) buf);
             }
 
-            index = 0;
             uart_callback(&buf, &len);
-            return false;
         }
     }
 }
