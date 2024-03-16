@@ -51,12 +51,12 @@ namespace Matrix {
         void process(void *arg);
 
         /**
-         *  @brief Function used to grab the back buffer
+         *  @brief Function used to grab the front buffer
          *  @details Pulls from FIFO when processing has finished.
          *  @details Implemented in Matrix/<implementation>/worker.cpp
-         *  @return Raw memory pointer to back buffer, no type is known by API. (Not very classy)
+         *  @return Raw memory pointer to front buffer, no type is known by API. (Not very classy)
          */
-        void *get_back_buffer();
+        void *get_front_buffer();
 
         /**
          *  @brief Function to get size of back buffer
@@ -76,6 +76,14 @@ namespace Matrix {
          *  @details Implemented in Matrix/<implementation>/loafer.cpp
          */
         void toss();
+
+        /**
+         *  @brief Function used to grab a front buffer
+         *  @details Warning must only have one front buffer at a time.
+         *  @details Implemented in Matrix/<implementation>/loafer.cpp
+         *  @return Raw memory pointer to front buffer, no type is known by API. (Not very classy)
+         */
+        void *get_front_buffer();
 
         /**
          *  @brief Function used to grab a back buffer
