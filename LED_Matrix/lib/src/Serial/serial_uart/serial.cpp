@@ -33,8 +33,10 @@ namespace Serial {
             static_assert(sizeof(packet) % 2 == 0, "Serial frame must be multiple of two");
         }
         else {
-            *buf = (uint8_t *) Matrix::Loafer::get_back_buffer();
-            *len = Matrix::Loafer::get_buffer_size();
+            do {
+                *buf = (uint8_t *) Matrix::Loafer::get_back_buffer();
+                *len = Matrix::Loafer::get_buffer_size();
+            } while (*buf != nullptr);
         }
     }
 

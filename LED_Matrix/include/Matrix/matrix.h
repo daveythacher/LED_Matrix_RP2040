@@ -56,7 +56,7 @@ namespace Matrix {
          *  @details Implemented in Matrix/<implementation>/worker.cpp
          *  @return Raw memory pointer to back buffer, no type is known by API. (Not very classy)
          */
-        void *get_back_buffer(bool block);
+        void *get_back_buffer();
 
         /**
          *  @brief Function to get size of back buffer

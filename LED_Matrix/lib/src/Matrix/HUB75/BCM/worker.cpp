@@ -93,13 +93,11 @@ namespace Matrix::Worker {
         APP::multicore_fifo_push_blocking_inline((uint32_t) arg);
     }
 
-    void *__not_in_flash_func(get_back_buffer)(bool block) {
-        do {
-            if (multicore_fifo_rvalid()) {
-                uint32_t i = (uint32_t) APP::multicore_fifo_pop_blocking_inline();
-                return (void *) buf[i % Serial::num_framebuffers];
-            }
-        } while (block);
+    void *__not_in_flash_func(get_back_buffer)() {
+        if (multicore_fifo_rvalid()) {
+            uint32_t i = (uint32_t) APP::multicore_fifo_pop_blocking_inline();
+            return (void *) buf[i % Serial::num_framebuffers];
+        }
 
         return nullptr;
     }

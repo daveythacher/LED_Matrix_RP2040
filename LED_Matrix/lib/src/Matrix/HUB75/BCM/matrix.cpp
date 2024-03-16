@@ -23,7 +23,7 @@ namespace Matrix::Worker {
 }
 
 namespace Matrix {
-    static test2 *buffer;
+    static test2 *buffer = nullptr;
     static volatile uint8_t state = 0;
     static int dma_chan[2];
     static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << PWM_bits) + 1];
@@ -192,13 +192,18 @@ namespace Matrix {
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                         rows = 0;
-                        test2 *p;
-                        if (Serial::isPacket)
-                            p = (test2 *) Worker::get_back_buffer(false);
-                        else
-                            p = (test2 *) Loafer::get_back_buffer();
-                        if (p != nullptr)
-                            buffer = p;
+
+                        do {
+                            test2 *p;
+
+                            if (Serial::isPacket)
+                                p = (test2 *) Worker::get_back_buffer();
+                            else
+                                p = (test2 *) Loafer::get_back_buffer();
+                                
+                            if (p != nullptr)
+                                buffer = p;
+                        } while (buffer == nullptr);
                     }
                     
                     Multiplex::SetRow(rows);
