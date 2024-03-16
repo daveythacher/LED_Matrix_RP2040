@@ -41,6 +41,7 @@ namespace Serial {
     }
 
     void start() {
+        // TODO: Move to IPC
         if (isPacket)
             multicore_launch_core1(Matrix::Worker::work);
         else
