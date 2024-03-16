@@ -9,7 +9,6 @@
 #include "hardware/watchdog.h"
 #include "hardware/timer.h"
 #include "Serial/serial.h"
-#include "ISR/isr.h"
 
 static void __not_in_flash_func(loop)() {
     while (1) {
@@ -25,6 +24,5 @@ int main() {
     watchdog_enable(100, false);    // Make sure picotool can never be disconnected
     Serial::start();
     //IPC::start();
-    APP::isr_start();
     loop();
 }

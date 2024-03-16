@@ -142,9 +142,6 @@ namespace Matrix {
         channel_config_set_write_increment(&c, true);
         channel_config_set_ring(&c, true, 3);                                       // 1 << 3 byte boundary on write ptr
         dma_channel_configure(dma_chan[1], &c, &dma_hw->ch[dma_chan[0]].al3_transfer_count, &address_table[0], 2, false);
-
-        timer = hardware_alarm_claim_unused(true);
-        timer_hw->inte |= 1 << timer;
         
         load_line(0);
         send_line();
@@ -164,7 +161,7 @@ namespace Matrix {
                 address_table[(1 << i) + k - 1].data = (*buffer)[rows][i];
     }
 
-    void __not_in_flash_func(dma_isr)() {
+    static void __not_in_flash_func(dma_isr)() {
         if (dma_channel_get_irq0_status(dma_chan[0])) {      
             // Make sure the FIFO is empty 
             //  There was a bug with LAT when SERIAL_CLOCK is small, but I forgot what it was. (Just counted out additional time as hack.)
@@ -180,7 +177,7 @@ namespace Matrix {
         extern volatile bool vsync;
     }
 
-    void __not_in_flash_func(timer_isr)() {
+    static void __not_in_flash_func(timer_isr)() {
         static uint32_t rows = 0;
 
         if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
@@ -221,5 +218,10 @@ namespace Matrix {
             
             timer_hw->intr = 1 << timer;                                            // Clear the interrupt
         }
+    }
+
+    void __not_in_flash_func(loop)() {
+        timer_isr();
+        dma_isr();
     }
 }

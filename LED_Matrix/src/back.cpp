@@ -9,7 +9,6 @@
 #include "hardware/watchdog.h"
 #include "hardware/timer.h"
 #include "Matrix/matrix.h"
-#include "ISR/isr.h"
 
 static void __not_in_flash_func(loop)() {
     while (1) {
@@ -24,6 +23,6 @@ int main() {
     watchdog_enable(100, false);    // Make sure picotool can never be disconnected
     Matrix::start();
     //IPC::start();
-    APP::isr_start();
+    multicore_launch_core1(Matrix::loop);
     loop();
 }
