@@ -188,7 +188,11 @@ namespace Matrix {
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                         rows = 0;
                         if (Worker::vsync) {
-                            test2 *p = (test2 *) Worker::get_back_buffer(false);
+                            test2 *p;
+                            if (Serial::isPacket)
+                                p = (test2 *) Worker::get_back_buffer(false);
+                            else
+                                p = (test2 *) Loafer::get_back_buffer();
                             if (p != nullptr) {
                                 buffer = p;
                                 Worker::vsync = false;
