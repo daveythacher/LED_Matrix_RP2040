@@ -49,6 +49,22 @@ namespace Matrix {
          *  @details Implemented in Matrix/<implementation>/worker.cpp
          */
         void process(void *arg);
+
+        /**
+         *  @brief Function used to grab the back buffer
+         *  @details Pulls from FIFO when processing has finished.
+         *  @details Implemented in Matrix/<implementation>/worker.cpp
+         *  @return Raw memory pointer to back buffer, no type is known by API. (Not very classy)
+         */
+        void *get_back_buffer(bool block);
+
+        /**
+         *  @brief Function to get size of back buffer
+         *  @details Implemended in Matrix/<implementation/worker.cpp
+         *  @details Must always return a number which is a multiple of two!
+         *  @return Buffer size
+         */
+        uint32_t get_buffer_size();
     }
 
     // This is terrible practice!!!

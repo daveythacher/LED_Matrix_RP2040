@@ -15,13 +15,10 @@
 #include "Matrix/helper.h"
 #include "Matrix/HUB75/BCM/BCM_worker.h"
 
-namespace Matrix {
-    extern test2 buf[];
-}
-
 namespace Matrix::Worker {
-    static uint8_t bank = 1;
-    volatile bool vsync = false;
+    static test2 buf[Serial::num_framebuffers];
+    static uint8_t bank = 0;
+    volatile bool vsync = true;
 
     template <typename T> BCM_worker<T>::BCM_worker() {
         for (uint32_t i = 0; i < sizeof(index_table_t::v) / sizeof(uint32_t); i++)
@@ -67,7 +64,7 @@ namespace Matrix::Worker {
             T p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
 
             for (uint32_t j = 0; j < sizeof(T); j++)
-                Matrix::buf[bank][y][(nib * sizeof(T)) + j][x + 1] = (p >> (j * 8)) & 0xFF;
+                buf[bank][y][(nib * sizeof(T)) + j][x + 1] = (p >> (j * 8)) & 0xFF;
         }
     }
 
@@ -81,6 +78,9 @@ namespace Matrix::Worker {
     }
 
     void __not_in_flash_func(work)() {
+        // TODO: This can be a major issue!
+        memset((void *) buf, COLUMNS - 1, sizeof(buf));
+
         // Compiler should remove all but one of these.
         switch (PWM_bits % 4) {
             case 0:
@@ -97,5 +97,14 @@ namespace Matrix::Worker {
 
     void __not_in_flash_func(process)(void *arg) {
         APP::multicore_fifo_push_blocking_inline((uint32_t) arg);
+    }
+
+    void *__not_in_flash_func(get_back_buffer)(bool block) {
+        // TODO:
+        return nullptr;
+    }
+
+    uint32_t __not_in_flash_func(get_buffer_size)() {
+        return Loafer::get_buffer_size();
     }
 }
