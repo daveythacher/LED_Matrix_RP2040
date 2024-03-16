@@ -20,7 +20,9 @@ namespace Matrix::Loafer {
     static uint8_t bank = 0;
 
     // Warning we can drop frames here. (There is no feedback or syncing back with front.)
+    //  TODO: Replace with queue? (We have to throttle the production to avoid glitches.)
     // Warning if we do not have a queue deep enough things will become undefined.
+    //  Configuration is responsible for this, recommendation is at least three Serial::num_framebuffers
     void __not_in_flash_func(toss)() {
         isFrontFree = true;
         isBackFree = true;
