@@ -18,6 +18,10 @@
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
 
+namespace Matrix::Worker {
+    extern test2 buf[Serial::num_framebuffers];
+}
+
 namespace Matrix {
     static test2 *buffer;
     static volatile uint8_t state = 0;
@@ -51,6 +55,7 @@ namespace Matrix {
 
         Multiplex::init(MULTIPLEX);
        
+        memset((void *) Worker::buf, COLUMNS - 1, sizeof(Worker::buf));
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
 
@@ -187,17 +192,13 @@ namespace Matrix {
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                         rows = 0;
-                        if (Worker::vsync) {
-                            test2 *p;
-                            if (Serial::isPacket)
-                                p = (test2 *) Worker::get_back_buffer(false);
-                            else
-                                p = (test2 *) Loafer::get_back_buffer();
-                            if (p != nullptr) {
-                                buffer = p;
-                                Worker::vsync = false;
-                            }
-                        }
+                        test2 *p;
+                        if (Serial::isPacket)
+                            p = (test2 *) Worker::get_back_buffer(false);
+                        else
+                            p = (test2 *) Loafer::get_back_buffer();
+                        if (p != nullptr)
+                            buffer = p;
                     }
                     
                     Multiplex::SetRow(rows);
