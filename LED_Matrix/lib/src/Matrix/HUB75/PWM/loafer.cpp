@@ -10,31 +10,45 @@
 #include "Matrix/matrix.h"
 #include "Matrix/HUB75/PWM/memory_format.h"
 
-namespace Matrix {
+namespace Matrix::Worker {
     extern test2 buf[];
 }
 
-namespace Matrix::Worker {
-    extern volatile bool vsync;
-}
-
 namespace Matrix::Loafer {
-    static volatile bool isFree = true;
+    static volatile bool isBackFree = true;
+    static volatile bool isFrontFree = true;
+    static uint8_t bank = 0;
 
-    void __not_in_flash_func(toss)(void *arg) {
-        while(Worker::vsync);
-        Worker::vsync = true;
-        isFree = true;
+    // Warning we can drop frames here. (There is no feedback or syncing back with front.)
+    //  TODO: Replace with queue? (We have to throttle the production to avoid glitches.)
+    // Warning if we do not have a queue deep enough things will become undefined.
+    //  Configuration is responsible for this, recommendation is at least three Serial::num_framebuffers
+    void __not_in_flash_func(toss)() {
+        isFrontFree = true;
+        isBackFree = true;
+        bank = (bank + 1) % Serial::num_framebuffers;
+    }
+
+    void *__not_in_flash_func(get_front_buffer)() {
+        void *ptr = nullptr;
+
+        if (isFrontFree) {
+            isFrontFree = false;
+            ptr = (void *) Matrix::Worker::buf[bank];
+        }
+
+        return ptr;
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
-        static uint8_t bank = 1;
-        void *ptr;
+        void *ptr = nullptr;
 
-        while (!isFree);
-        isFree = false;
-        ptr = (void *) Matrix::buf[bank];
-        bank = (bank + 1) % Serial::num_framebuffers;
+        if (isBackFree) {
+            isBackFree = false;
+            uint8_t i = (bank + 1) % Serial::num_framebuffers;
+            ptr = (void *) Matrix::Worker::buf[i];
+        }
+
         return ptr;
     }
 

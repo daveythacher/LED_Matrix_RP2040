@@ -19,12 +19,11 @@
 #include "Serial/config.h"
 
 namespace Matrix::Worker {
-    extern volatile bool vsync;
+    extern test2 buf[Serial::num_framebuffers];
 }
 
 namespace Matrix {
-    test2 buf[Serial::num_framebuffers];
-    static uint8_t bank = 0;
+    static test2 *buffer = nullptr;
     static volatile uint8_t state = 0;
     static int dma_chan[2];
     static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << PWM_bits) + 2];
@@ -32,7 +31,7 @@ namespace Matrix {
     volatile int timer;
 
     static void send_line();
-    static void load_line(uint32_t rows, uint8_t buffer);
+    static void load_line(uint32_t rows);
 
     /*
         There are 2^PWM_bits + 1 shifts per period.
@@ -56,7 +55,7 @@ namespace Matrix {
 
         Multiplex::init(MULTIPLEX);
         
-        memset((void *) buf, COLUMNS - 1, sizeof(buf));
+        memset((void *) Worker::buf, COLUMNS - 1, sizeof(Worker::buf));
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
 
@@ -147,7 +146,7 @@ namespace Matrix {
         timer = hardware_alarm_claim_unused(true);
         timer_hw->inte |= 1 << timer;
         
-        load_line(0, 1);
+        load_line(0);
         send_line();
     }
 
@@ -159,9 +158,9 @@ namespace Matrix {
 
     // This is done to reduce interrupt rate. Use DMA to automate the PWM bitplanes instead of CPU.
     //  This is possible due to PIO state machine.
-    void __not_in_flash_func(load_line)(uint32_t rows, uint8_t buffer) {
+    void __not_in_flash_func(load_line)(uint32_t rows) {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++)
-                address_table[i].data = buf[buffer][rows][i];
+                address_table[i].data = (*buffer)[rows][i];
     }
 
     void __not_in_flash_func(dma_isr)() {
@@ -188,14 +187,22 @@ namespace Matrix {
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                         rows = 0;
-                        if (Worker::vsync) {
-                            bank = (bank + 1) % Serial::num_framebuffers;
-                            Worker::vsync = false;
-                        }
+
+                        do {
+                            test2 *p;
+
+                            if (Serial::isPacket)
+                                p = (test2 *) Worker::get_front_buffer();
+                            else
+                                p = (test2 *) Loafer::get_front_buffer();
+
+                            if (p != nullptr)
+                                buffer = p;
+                        } while (buffer == nullptr);
                     }
 
                     Multiplex::SetRow(rows);
-                    load_line(rows, bank);                                                  // Note this is a fairly expensive operation. This is done in parallel with blank time.
+                    load_line(rows);                                                        // Note this is a fairly expensive operation. This is done in parallel with blank time.
                     state++;
                     break;
                 case 1:
