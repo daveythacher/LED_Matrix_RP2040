@@ -154,7 +154,7 @@ namespace Serial {
                 if (isPacket)
                     Matrix::Worker::process((void *) buf);
                 else
-                    Matrix::Loafer::toss((void *) buf);
+                    Matrix::Loafer::toss();
             }
 
             uart_callback(&buf, &len);

@@ -72,9 +72,10 @@ namespace Matrix {
         /**
          *  @brief Function used to chuck data to loafer (Assumes flow control)
          *  @details Warning must toss buffer before asking for another.
+         *  @details Uses zero copy, but must call to sync state.
          *  @details Implemented in Matrix/<implementation>/loafer.cpp
          */
-        void toss(void *arg);
+        void toss();
 
         /**
          *  @brief Function used to grab a back buffer

@@ -10,30 +10,27 @@
 #include "Matrix/matrix.h"
 #include "Matrix/HUB75/BCM/memory_format.h"
 
-namespace Matrix {
-    extern test2 buf[];
-}
-
 namespace Matrix::Worker {
     extern volatile bool vsync;
+    extern test2 buf[];
 }
 
 namespace Matrix::Loafer {
     static volatile bool isFree = true;
 
-    void __not_in_flash_func(toss)(void *arg) {
+    void __not_in_flash_func(toss)() {
         while(Worker::vsync);
         Worker::vsync = true;
         isFree = true;
     }
 
     void *__not_in_flash_func(get_back_buffer)() {
-        static uint8_t bank = 1;
+        static uint8_t bank = 0;
         void *ptr;
 
         while (!isFree);
         isFree = false;
-        ptr = (void *) Matrix::buf[bank];
+        ptr = (void *) Matrix::Worker::buf[bank];
         bank = (bank + 1) % Serial::num_framebuffers;
         return ptr;
     }
