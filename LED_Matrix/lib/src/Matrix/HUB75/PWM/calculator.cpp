@@ -81,5 +81,6 @@ namespace Matrix::Calculator {
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
 
         // TODO: Qualify the PWM Worker performance
+        static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= 16 * 1024, "The current buffer size is not supported");
     }
 }
