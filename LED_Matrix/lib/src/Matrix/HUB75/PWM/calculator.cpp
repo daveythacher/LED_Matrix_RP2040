@@ -79,5 +79,7 @@ namespace Matrix::Calculator {
         static_assert((2 * MULTIPLEX * COLUMNS * sizeof(Serial::DEFINE_SERIAL_RGB_TYPE)) <= Serial::payload_size, "The current frame size is not supported");
         static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= Serial::max_framebuffer_size, "The current buffer size is not supported");
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
+
+        // TODO: Qualify the PWM Worker performance
     }
 }

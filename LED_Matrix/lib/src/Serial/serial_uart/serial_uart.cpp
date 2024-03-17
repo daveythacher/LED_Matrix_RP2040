@@ -111,6 +111,7 @@ namespace Serial {
         if (isReady) {
             gpio_set_mask(1 << trigger);
             
+            // TODO: Fix blocking logic here
             if (pio1_hw->intr & 1 << (sm + 8)) {
                 uart_reload(false);
                 gpio_clr_mask(1 << trigger);
