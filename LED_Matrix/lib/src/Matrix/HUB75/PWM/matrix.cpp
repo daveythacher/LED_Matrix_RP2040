@@ -163,7 +163,7 @@ namespace Matrix {
                 address_table[i].data = (*buffer)[rows][i];
     }
 
-    static void __not_in_flash_func(dma_isr)() {
+    void __not_in_flash_func(dma_isr)() {
         if (dma_channel_get_irq0_status(dma_chan[0])) {      
             // Make sure the FIFO is empty 
             //  There was a bug with LAT when SERIAL_CLOCK is small, but I forgot what it was. (Just counted out additional time as hack.)
@@ -175,7 +175,7 @@ namespace Matrix {
         }
     }
 
-    static void __not_in_flash_func(timer_isr)() {
+    void __not_in_flash_func(timer_isr)() {
         static uint32_t rows = 0;
 
         if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
@@ -216,10 +216,5 @@ namespace Matrix {
             
             timer_hw->intr = 1 << timer;                                            // Clear the interrupt
         }
-    }
-
-    void __not_in_flash_func(loop)() {
-        timer_isr();
-        dma_isr();
     }
 }
