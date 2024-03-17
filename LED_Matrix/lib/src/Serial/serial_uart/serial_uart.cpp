@@ -12,13 +12,11 @@
 #include "hardware/timer.h"
 #include "Serial/serial_uart/serial_uart.h"
 #include "Matrix/matrix.h"
-#include "Serial/helper.h"
 
 namespace Serial {
     static int dma_chan[2];
     static dma_channel_config c[2];
     static char state = 'y';
-    static int sm;
     static const int trigger = 2;
     static const int sync = 3;
 
@@ -49,10 +47,6 @@ namespace Serial {
         // UART
         static_assert(SERIAL_UART_BAUD <= 7800000, "Baud rate must be less than 7.8MBaud");
         uart_init(uart0, SERIAL_UART_BAUD);
-
-        // PIO
-        sm = pio_claim_unused_sm(pio1, true);
-        APP::setup_debouncer(pio1, sm, sync);
 
         // DMA
         c[0] = dma_channel_get_default_config(dma_chan[0]);
@@ -112,12 +106,12 @@ namespace Serial {
             gpio_set_mask(1 << trigger);
             
             // TODO: Fix blocking logic here
-            if (pio1_hw->intr & 1 << (sm + 8)) {
+            if (gpio_get(sync)) {
                 uart_reload(false);
                 gpio_clr_mask(1 << trigger);
                 isReady = false;
                 uart_reload(true);
-                pio1_hw->irq = 1 << sm;
+                while(gpio_get(sync));
             }
         }
 
