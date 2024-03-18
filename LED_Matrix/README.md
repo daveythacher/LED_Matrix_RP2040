@@ -80,3 +80,10 @@ serial_uart - experimental
 I use a linker trick with C abstract class/functions to avoid complexity in compilation. This is also reduces code size and improves run time performance. It should be possible to do this with C++ using abstract class and templates. This would still require the linker or run time, which made this seem pointless to me. The code expression is currently close enough for templates to not make sense.
 
 This was done in Multiplex, Matrix and Serial. These are three abstract classes/APIs which the C preprocessor and CMake are used to modify compilation and linking. The strings used come from the configuration file directly.
+
+## Rant
+Currently the code is written for a single RP2040. However it is possible to break this up into two RP2040s. (I am not sure I see the point of this, but it would allow for more complex front end protocols.) Current there are three CPU intensive parts: multiplexing, worker processing and serial protocol.
+
+On the single core worker processing goes to core 1. Multiplexing goes to core 0 and yields to serial protocol. The serial protocol should have flow control which should cause a collapse in frame rate if nothing else. This means multiplex should never be hindered. Frane rate can also be limited by the worker processing performance.
+
+If the multiplexing consumes too much CPU and the bandwidth is tight on the serial protocol there can be a collapse in frame rate. The only way to fix this potentially is with a better front end hardware system. (I am not sure how much DMA bandwidth there is.)

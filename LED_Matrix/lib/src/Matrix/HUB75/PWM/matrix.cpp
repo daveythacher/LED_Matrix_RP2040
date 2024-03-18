@@ -130,6 +130,7 @@ namespace Matrix {
         dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);
         channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
         channel_config_set_read_increment(&c, true);
+        channel_config_set_high_priority(&c, true);
         channel_config_set_dreq(&c, DREQ_PIO0_TX0);
         channel_config_set_chain_to(&c, dma_chan[1]);
         channel_config_set_irq_quiet(&c, true);
@@ -140,6 +141,7 @@ namespace Matrix {
         channel_config_set_transfer_data_size(&c, DMA_SIZE_32);
         channel_config_set_read_increment(&c, true);
         channel_config_set_write_increment(&c, true);
+        channel_config_set_high_priority(&c, true);
         channel_config_set_ring(&c, true, 3);                                       // 1 << 3 byte boundary on write ptr
         dma_channel_configure(dma_chan[1], &c, &dma_hw->ch[dma_chan[0]].al3_transfer_count, &address_table[0], 2, false);
 
