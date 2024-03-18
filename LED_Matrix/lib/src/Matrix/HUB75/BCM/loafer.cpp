@@ -11,7 +11,7 @@
 #include "Matrix/HUB75/BCM/memory_format.h"
 
 namespace Matrix::Worker {
-    extern test2 buf[];
+    extern test2 buf[Serial::num_framebuffers];
 }
 
 namespace Matrix::Loafer {
