@@ -100,7 +100,7 @@ namespace Matrix::Worker {
     void *__not_in_flash_func(get_front_buffer)() {
         if (multicore_fifo_rvalid()) {
             uint32_t i = (uint32_t) APP::multicore_fifo_pop_blocking_inline();
-            return (void *) buf[i % Serial::num_framebuffers];
+            return (void *) &buf[i % Serial::num_framebuffers];
         }
 
         return nullptr;

@@ -35,7 +35,7 @@ namespace Matrix::Loafer {
 
         if (isFrontFree) {
             isFrontFree = false;
-            ptr = (void *) Matrix::Worker::buf[bank];
+            ptr = (void *) &Matrix::Worker::buf[bank];
         }
 
         return ptr;
@@ -47,7 +47,7 @@ namespace Matrix::Loafer {
         if (isBackFree) {
             isBackFree = false;
             uint8_t i = (bank + 1) % Serial::num_framebuffers;
-            ptr = (void *) Matrix::Worker::buf[i];
+            ptr = (void *) &Matrix::Worker::buf[i];
         }
 
         return ptr;
