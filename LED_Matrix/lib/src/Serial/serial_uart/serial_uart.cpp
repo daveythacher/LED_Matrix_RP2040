@@ -18,7 +18,7 @@ namespace Serial {
     static dma_channel_config c[2];
     static char state = 'y';
 
-    static void uart_reload(bool reload_dma);
+    static void uart_reload(bool init);
 
     #if __BYTE_ORDER == __LITTLE_ENDIAN
         #define ntohs(x) __bswap16(x)
@@ -57,7 +57,6 @@ namespace Serial {
         channel_config_set_read_increment(&c[1], false);
         channel_config_set_dreq(&c[1], DREQ_UART0_RX);
 
-        uart_reload(false);             // Prepare next frame
         uart_reload(true);              // Start DMA state machine
     }
 
@@ -77,6 +76,7 @@ namespace Serial {
 
         // Second half of packet completed (bus now idle)
         if (dma_channel_get_irq1_status(dma_chan[1])) {
+            uart_reload(false);
             state = 'y';
             dma_hw->ints1 = 1 << dma_chan[1];
         }
@@ -88,37 +88,40 @@ namespace Serial {
         }
     }
 
-    void __not_in_flash_func(uart_reload)(bool reload_dma) {
+    void __not_in_flash_func(uart_reload)(bool init) {
         static uint8_t *buf = 0;
         static uint16_t len = 0;
+        static uint32_t index = 0;
         uint16_t *p = (uint16_t *) buf;
-        
-        // Packet state machine for frame
-        if (reload_dma) {
-            uint32_t size = len / 2;
+        uint32_t size = len / (2 * Matrix::MULTIPLEX);
 
-            dma_channel_configure(dma_chan[1], &c[1], &buf[size], &uart_get_hw(uart0)->dr, size, false);
-            dma_channel_configure(dma_chan[0], &c[0], &buf[0], &uart_get_hw(uart0)->dr, size, true);
+        if (init) {
+            uart_callback(&buf, &len);
         }
         else {
-            switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
-                case 2:
-                case 6:
-                    for (uint16_t i = 0; i < len; i += 2)
-                        p[i / 2] = ntohs(p[i / 2]);
-                    break;
-                default:
-                    break;
-            }
+            if (index == 0) {
+                switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
+                    case 2:
+                    case 6:
+                        for (uint16_t i = 0; i < len; i += 2)
+                            p[i / 2] = ntohs(p[i / 2]);
+                        break;
+                    default:
+                        break;
+                }
 
-            if (buf) {
                 if (isPacket)
                     Matrix::Worker::process((void *) buf);
                 else
-                    Matrix::Loafer::toss();
-            }
+                    Matrix::Loafer::toss();   
 
-            uart_callback(&buf, &len);
+                uart_callback(&buf, &len);        
+            }
         }
+
+        dma_channel_configure(dma_chan[1], &c[1], &buf[(index + 1) * size], &uart_get_hw(uart0)->dr, size, false);
+        dma_channel_configure(dma_chan[0], &c[0], &buf[0], &uart_get_hw(uart0)->dr, size, true);
+        index += 2;
+        index %= 2 * Matrix::MULTIPLEX;
     }
 }
