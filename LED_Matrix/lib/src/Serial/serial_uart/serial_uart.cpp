@@ -16,7 +16,7 @@
 namespace Serial {
     static int dma_chan[2];
     static dma_channel_config c[2];
-    static char state = 'y';
+    static char state = 'a';
     static const int trigger = 2;
     static const int sync = 3;
 
@@ -97,7 +97,7 @@ namespace Serial {
 
         // Second half of packet completed (bus now idle)
         if (dma_channel_get_irq1_status(dma_chan[1])) {
-            state = 'y';
+            state = 'a';
             isReady = true;
             dma_hw->ints1 = 1 << dma_chan[1];
         }
@@ -105,13 +105,13 @@ namespace Serial {
         if (isReady) {
             gpio_set_mask(1 << trigger);
             
-            // TODO: Fix blocking logic here
             if (gpio_get(sync)) {
                 uart_reload(false);
                 gpio_clr_mask(1 << trigger);
                 isReady = false;
                 uart_reload(true);
                 while(gpio_get(sync));
+                state = 'y';
             }
         }
 
