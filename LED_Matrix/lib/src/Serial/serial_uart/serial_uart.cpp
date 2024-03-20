@@ -16,9 +16,7 @@
 namespace Serial {
     static int dma_chan[2];
     static dma_channel_config c[2];
-    static char state = 'a';
-    static const int trigger = 2;
-    static const int sync = 3;
+    static char state = 'y';
 
     static void uart_reload(bool reload_dma);
 
@@ -37,10 +35,7 @@ namespace Serial {
         // IO
         gpio_init(0);
         gpio_init(1);
-        gpio_init(trigger);
-        gpio_init(sync);
         gpio_set_dir(0, GPIO_OUT);
-        gpio_set_dir(trigger, GPIO_OUT);
         gpio_set_function(0, GPIO_FUNC_UART);
         gpio_set_function(1, GPIO_FUNC_UART);
 
@@ -67,23 +62,8 @@ namespace Serial {
     }
 
     // Warning host is required to obey flow control and handle bus recovery
-    // Protocol overview: (Not finished)
-    //    1. Data is received on RX (assumes 7.8 MBaud)
-    //        a. Recovery protocol (Needs work)
-    //            i. Push byte slowly (10mS) till ack byte moves from 'n' to 'y'.
-    //            ii. Continue till ack byte 'y' moves to 'n', set count to 1.
-    //            iii. Continue till ack byte is 'y' again, counting each push.
-    //            iv. Push the counted number of bytes
-    //    2. Ack byte (flow control) is sent on TX (periodically - 10uS)
-    //        a. First half of frame will send 'n' to indicate the bus is active.
-    //        b. Second half of frame will send 'y' to indicate the bus is idle. (Note it may still be completing second half.)
-    //    3. Trigger signal is used to notify the controllers that they have reached the fence.
-    //    4. Sync signal is used to notify the controllers that all have reached the fence. (All trigger signals anded together.)
-    //        a. This signal should be at least +/- 100uS, transmitter to receiver.
     void __not_in_flash_func(uart_task)() {
         static uint64_t time = 0;
-        static bool isReady = false;
-
         // Check for errors
         if (!((uart0_hw->ris & 0x380) == 0)) {
             uart0_hw->icr = 0x7FF;
@@ -97,22 +77,8 @@ namespace Serial {
 
         // Second half of packet completed (bus now idle)
         if (dma_channel_get_irq1_status(dma_chan[1])) {
-            state = 'a';
-            isReady = true;
+            state = 'y';
             dma_hw->ints1 = 1 << dma_chan[1];
-        }
-
-        if (isReady) {
-            gpio_set_mask(1 << trigger);
-            
-            if (gpio_get(sync)) {
-                uart_reload(false);
-                gpio_clr_mask(1 << trigger);
-                isReady = false;
-                uart_reload(true);
-                while(gpio_get(sync));
-                state = 'y';
-            }
         }
 
         // Report flow control and/or internal state
