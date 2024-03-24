@@ -28,7 +28,7 @@ namespace Serial {
             }
         }
         
-        Matrix::Worker::process((void *) &buffer);
+        Matrix::Worker::process(&buffer);
         Loafer::toss();
     }
 
