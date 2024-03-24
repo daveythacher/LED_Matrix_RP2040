@@ -10,11 +10,8 @@
 #include "Matrix/matrix.h"
 #include "Matrix/HUB75/BCM/memory_format.h"
 
-namespace Matrix::Worker {
-    extern test2 buf[Serial::num_framebuffers];
-}
-
 namespace Matrix::Loafer {
+    test2 buf[Serial::num_framebuffers];
     static volatile bool isBackFree = true;
     static volatile bool isFrontFree = true;
     static uint8_t bank = 0;
@@ -35,7 +32,7 @@ namespace Matrix::Loafer {
 
         if (isFrontFree) {
             isFrontFree = false;
-            ptr = (void *) &Matrix::Worker::buf[bank];
+            ptr = (void *) &buf[bank];
         }
 
         return ptr;
@@ -47,7 +44,7 @@ namespace Matrix::Loafer {
         if (isBackFree) {
             isBackFree = false;
             uint8_t i = (bank + 1) % Serial::num_framebuffers;
-            ptr = (void *) &Matrix::Worker::buf[i];
+            ptr = (void *) &buf[i];
         }
 
         return ptr;

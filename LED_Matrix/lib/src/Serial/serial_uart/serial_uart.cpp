@@ -109,12 +109,8 @@ namespace Serial {
                     default:
                         break;
                 }
-
-                if (isPacket)
-                    Matrix::Worker::process((void *) buf);
-                else
-                    Matrix::Loafer::toss();   
-
+                
+                Matrix::Loafer::toss();   
                 uart_callback(&buf, &len);        
             }
         }

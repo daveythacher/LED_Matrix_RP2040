@@ -3,7 +3,6 @@ add_library(serial_uart INTERFACE)
 target_sources(serial_uart INTERFACE
     serial_uart.cpp
     serial.cpp
-    isr.cpp
 )
 
 # Use caution here!
