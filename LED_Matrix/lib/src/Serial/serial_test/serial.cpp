@@ -29,7 +29,7 @@ namespace Serial {
         }
         
         Matrix::Worker::process(&buffer);
-        Loafer::toss();
+        Matrix::Loafer::toss();
     }
 
     void __not_in_flash_func(task)() {
