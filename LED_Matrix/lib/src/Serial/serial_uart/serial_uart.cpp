@@ -13,6 +13,8 @@
 #include "Serial/serial_uart/serial_uart.h"
 #include "Matrix/matrix.h"
 
+// TODO: Remove DMA
+
 namespace Serial {
     static int dma_chan[2];
     static dma_channel_config c[2];
@@ -109,7 +111,7 @@ namespace Serial {
                     default:
                         break;
                 }
-                
+
                 Matrix::Loafer::toss();   
                 uart_callback(&buf, &len);        
             }
