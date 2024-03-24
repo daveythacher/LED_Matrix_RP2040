@@ -15,6 +15,8 @@
 #include "Matrix/helper.h"
 #include "Matrix/HUB75/PWM/PWM_worker.h"
 
+// TODO: Remove templates?
+
 namespace Matrix::Worker {
     static test2 *buffer;
 
