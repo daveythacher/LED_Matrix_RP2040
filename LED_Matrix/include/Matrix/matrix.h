@@ -7,6 +7,8 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include "Serial/config.h"
+
 namespace Matrix {
     /**
      *  @brief Starts Matrix state machine.
@@ -26,7 +28,7 @@ namespace Matrix {
          *  @brief Function used to create buffers for testing.
          *  @details Implemented in Matrix/<implementation>/worker.cpp
          */
-        void process(void *arg);
+        void process(Serial::packet *arg);
     }
 
     // This is terrible practice!!!

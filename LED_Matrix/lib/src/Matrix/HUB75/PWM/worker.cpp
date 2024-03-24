@@ -64,14 +64,14 @@ namespace Matrix::Worker {
         }
     }    
     
-    template <typename T> static void __not_in_flash_func(worker_internal)(void *arg) {
+    template <typename T> static void __not_in_flash_func(worker_internal)(Serial::packet *arg) {
         static PWM_worker<T> w;
         
         buffer = (test2 *) Loafer::get_back_buffer();
-        w.process_packet((Serial::packet *) arg);
+        w.process_packet(arg);
     }
 
-    void __not_in_flash_func(process)(void *arg) {
+    void __not_in_flash_func(process)(Serial::packet *arg) {
         // Compiler should remove all but one of these.
         switch (PWM_bits % 4) {
             case 0:
