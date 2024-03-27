@@ -64,6 +64,6 @@ namespace Matrix::Calculator {
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
 
         // Qualify Worker Performance
-        //static_assert(((2 * MULTIPLEX * COLUMNS * 3 * 2 * FPS * PWM_bits) / 1000000.0) <= 1.5, "CPU is only capable of so many operations per second.");
+        static_assert(((2 * MULTIPLEX * COLUMNS * 3 * 2 * FPS * PWM_bits) / 1000000.0) <= 1.5, "CPU is only capable of so many operations per second.");
     }
 }
