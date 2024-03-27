@@ -169,7 +169,9 @@ namespace Matrix {
     void __not_in_flash_func(dma_isr)() {
         if (dma_channel_get_irq0_status(dma_chan[0])) {      
             // Make sure the FIFO is empty 
-            //  There was a bug with LAT when SERIAL_CLOCK is small, but I forgot what it was. (Just counted out additional time as hack.)
+            //  We will have up to 1uS of delay at the end of every row. 
+            //      Display will be off during this time, which may reduce brightness.
+            //      Not factored into calculator!
             constexpr uint32_t FIFO_delay = (uint32_t) 4000000U / ((uint32_t) round(SERIAL_CLOCK));
             timer_hw->alarm[timer] = time_us_32() + FIFO_delay + 1;                 // Load timer
             timer_hw->armed = 1 << timer;                                           // Kick off timer
@@ -210,6 +212,8 @@ namespace Matrix {
                     
                     Multiplex::SetRow(rows);
                     load_line(rows);                                                        // Note this is a fairly expensive operation. This is done in parallel with blank time.
+                                                                                            //  If this creates a delay, the display will stay off during this time.
+                                                                                            //      This may reduce brightness, and this is not factored into the calculator
                     state++;
                     break;
                 case 1:
