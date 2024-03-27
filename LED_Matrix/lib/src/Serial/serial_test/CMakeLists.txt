@@ -2,6 +2,7 @@ add_library(serial_test INTERFACE)
 
 target_sources(serial_test INTERFACE
     serial.cpp
+    isr.cpp
 )
 
 # Use caution here!

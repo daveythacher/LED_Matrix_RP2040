@@ -11,32 +11,41 @@
 
 namespace Serial {
     static void __not_in_flash_func(test_driver_worker)() {
-        static packet buffer;
+        static volatile packet buffers[num_packets];
+        static volatile uint8_t buffer = 0;
         
         for (uint16_t x = 0; x < Matrix::COLUMNS; x++) {
             for (uint8_t y = 0; y < (2 * Matrix::MULTIPLEX); y++) {
                 if ((x % (2 * Matrix::MULTIPLEX)) == y) {
-                    buffer.data[y][x].red = 0;
-                    buffer.data[y][x].green = 0;
-                    buffer.data[y][x].blue = 0;
+                    buffers[buffer].data[y][x].red = 0;
+                    buffers[buffer].data[y][x].green = 0;
+                    buffers[buffer].data[y][x].blue = 0;
                 }
                 else {
-                    buffer.data[y][x].red = 0xFF;
-                    buffer.data[y][x].green = 0xFF;
-                    buffer.data[y][x].blue = 0xFF;
+                    buffers[buffer].data[y][x].red = 0xFF;
+                    buffers[buffer].data[y][x].green = 0xFF;
+                    buffers[buffer].data[y][x].blue = 0xFF;
                 }
             }
         }
         
-        Matrix::Worker::process(&buffer);
-        Matrix::Loafer::toss();
+        buffer = (buffer + 1) % num_packets;   
+        Matrix::Worker::process((void *) &buffers[(buffer + 1) % num_packets]);
+    }
+
+    static void __not_in_flash_func(test_driver_loafer)() {
+        static_assert(isPacket, "Loafer version of test Serial Algorithm is not supported");
     }
 
     void __not_in_flash_func(task)() {
-        test_driver_worker();
+        if (isPacket)
+            test_driver_worker();
     }
 
     void start() {
-        // Do nothing
+        if (isPacket)
+            multicore_launch_core1(Matrix::Worker::work);
+        else
+            multicore_launch_core1(test_driver_loafer);
     }
 }

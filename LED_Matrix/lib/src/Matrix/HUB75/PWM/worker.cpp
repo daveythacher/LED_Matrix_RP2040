@@ -15,10 +15,10 @@
 #include "Matrix/helper.h"
 #include "Matrix/HUB75/PWM/PWM_worker.h"
 
-// TODO: Remove templates?
-
 namespace Matrix::Worker {
-    static test2 *buffer;
+    test2 buf[Serial::num_framebuffers];
+    static uint8_t bank = 0;
+    volatile bool vsync = false;
 
     template <typename T> PWM_worker<T>::PWM_worker() {
         for (uint32_t i = 0; i < sizeof(index_table_t::v) / sizeof(uint32_t); i++)
@@ -43,7 +43,7 @@ namespace Matrix::Worker {
             T p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
 
             for (uint32_t j = 0; (j < sizeof(T)) && ((i + j) < (1 << PWM_bits)); j++)
-                (*buffer)[y][i + j][x + 1] = (p >> (j * 8)) & 0xFF;
+                buf[bank][y][i + j][x + 1] = (p >> (j * 8)) & 0xFF;
 
             for (uint32_t j = 0; j < 6; j++)
                 ++c[j];
@@ -64,27 +64,49 @@ namespace Matrix::Worker {
                     set_pixel(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
             }
         }
+
+        APP::multicore_fifo_push_blocking_inline(bank);
+        bank = (bank + 1) % Serial::num_framebuffers;
     }    
     
-    template <typename T> static void __not_in_flash_func(worker_internal)(Serial::packet *arg) {
+    template <typename T> static void __not_in_flash_func(worker_internal)() {
         static PWM_worker<T> w;
         
-        buffer = (test2 *) Loafer::get_back_buffer();
-        w.process_packet(arg);
+        while(1) {
+            Serial::packet *p = (Serial::packet *) APP::multicore_fifo_pop_blocking_inline();
+            w.process_packet(p);
+        }
     }
 
-    void __not_in_flash_func(process)(Serial::packet *arg) {
+    void __not_in_flash_func(work)() {
         // Compiler should remove all but one of these.
         switch (PWM_bits % 4) {
             case 0:
-                worker_internal<uint32_t>(arg);
+                worker_internal<uint32_t>();
                 break;
             case 2:
-                worker_internal<uint16_t>(arg);
+                worker_internal<uint16_t>();
                 break;
             default:
-                worker_internal<uint8_t>(arg);
+                worker_internal<uint8_t>();
                 break;
         }
+    }
+
+    void __not_in_flash_func(process)(void *arg) {
+        APP::multicore_fifo_push_blocking_inline((uint32_t) arg);
+    }
+
+    void *__not_in_flash_func(get_front_buffer)() {
+        if (multicore_fifo_rvalid()) {
+            uint32_t i = (uint32_t) APP::multicore_fifo_pop_blocking_inline();
+            return (void *) &buf[i % Serial::num_framebuffers];
+        }
+
+        return nullptr;
+    }
+
+    uint32_t __not_in_flash_func(get_buffer_size)() {
+        return Loafer::get_buffer_size();
     }
 }

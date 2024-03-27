@@ -45,18 +45,18 @@ namespace Serial {
     // This is terrible practice!!!
     namespace internal {
         struct uart {
-            static constexpr uint32_t max_framebuffer_size = 48 * 1024;     // Should not exceed 48KB
+            static constexpr uint32_t max_framebuffer_size = 48 * 1024;     // Should not exceed 48KB or 64KB.
 
             // These are never used if isPacket is false.
-            static constexpr uint32_t payload_size = 16 * 1024;             // Should not exceed 16KB or 24KB
+            static constexpr uint32_t payload_size = 12 * 1024;
             static constexpr uint8_t num_packets = 3;   // TODO: Determine is if this can be 2
         };
 
         struct test {
-            static constexpr uint32_t max_framebuffer_size = 48 * 1024;     // Should not exceed 48KB
+            static constexpr uint32_t max_framebuffer_size = 48 * 1024;     // Should not exceed 48KB or 64KB.
 
             // These are never used if isPacket is false.
-            static constexpr uint32_t payload_size = 16 * 1024;             // Should not exceed 16KB or 24KB
+            static constexpr uint32_t payload_size = 12 * 1024;
             static constexpr uint8_t num_packets = 3;   // TODO: Determine is if this can be 2
         };
     }

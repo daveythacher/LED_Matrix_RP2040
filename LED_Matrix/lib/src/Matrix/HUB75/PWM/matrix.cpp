@@ -18,7 +18,7 @@
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
 
-namespace Matrix::Loafer {
+namespace Matrix::Worker {
     extern test2 buf[Serial::num_framebuffers];
 }
 
@@ -55,7 +55,7 @@ namespace Matrix {
 
         Multiplex::init(MULTIPLEX);
         
-        memset((void *) Loafer::buf, COLUMNS - 1, sizeof(Loafer::buf));
+        memset((void *) Worker::buf, COLUMNS - 1, sizeof(Worker::buf));
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
 
@@ -165,7 +165,7 @@ namespace Matrix {
                 address_table[i].data = (*buffer)[rows][i];
     }
 
-    static void __not_in_flash_func(dma_isr)() {
+    void __not_in_flash_func(dma_isr)() {
         if (dma_channel_get_irq0_status(dma_chan[0])) {      
             // Make sure the FIFO is empty 
             //  There was a bug with LAT when SERIAL_CLOCK is small, but I forgot what it was. (Just counted out additional time as hack.)
@@ -177,7 +177,7 @@ namespace Matrix {
         }
     }
 
-    static void __not_in_flash_func(timer_isr)() {
+    void __not_in_flash_func(timer_isr)() {
         static uint32_t rows = 0;
 
         if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
@@ -191,7 +191,12 @@ namespace Matrix {
                         rows = 0;
 
                         do {
-                            test2 *p = (test2 *) Loafer::get_front_buffer();
+                            test2 *p;
+
+                            if (Serial::isPacket)
+                                p = (test2 *) Worker::get_front_buffer();
+                            else
+                                p = (test2 *) Loafer::get_front_buffer();
 
                             if (p != nullptr)
                                 buffer = p;
@@ -213,10 +218,5 @@ namespace Matrix {
             
             timer_hw->intr = 1 << timer;                                            // Clear the interrupt
         }
-    }
-
-    void __not_in_flash_func(loop)() {
-        dma_isr();
-        timer_isr();
     }
 }

@@ -10,8 +10,11 @@
 #include "Matrix/matrix.h"
 #include "Matrix/HUB75/PWM/memory_format.h"
 
+namespace Matrix::Worker {
+    extern test2 buf[Serial::num_framebuffers];
+}
+
 namespace Matrix::Loafer {
-    test2 buf[Serial::num_framebuffers];
     static volatile bool isBackFree = true;
     static volatile bool isFrontFree = true;
     static uint8_t bank = 0;
@@ -32,7 +35,7 @@ namespace Matrix::Loafer {
 
         if (isFrontFree) {
             isFrontFree = false;
-            ptr = (void *) &buf[bank];
+            ptr = (void *) &Matrix::Worker::buf[bank];
         }
 
         return ptr;
@@ -44,7 +47,7 @@ namespace Matrix::Loafer {
         if (isBackFree) {
             isBackFree = false;
             uint8_t i = (bank + 1) % Serial::num_framebuffers;
-            ptr = (void *) &buf[i];
+            ptr = (void *) &Matrix::Worker::buf[i];
         }
 
         return ptr;
@@ -52,6 +55,6 @@ namespace Matrix::Loafer {
 
     uint32_t __not_in_flash_func(get_buffer_size)() {
         static_assert(sizeof(test2) % 2 == 0, "Loafer buffer must be multiple of two");
-        return Serial::payload_size;
+        return sizeof(test2);
     }
 }
