@@ -21,10 +21,10 @@ static void __not_in_flash_func(loop_core0)() {
 
 static void __not_in_flash_func(loop_core1)() {
     Matrix::start();
-    APP::isr_start();
+    APP::isr_start_core1();
 
     while (1) {
-        Matrix::Worker::work();
+        Matrix::Worker::work();     // Note is capable of stalling the watchdog via FIFO consumption rate.
     }
 }
 

@@ -10,10 +10,10 @@
 namespace APP {
 
     /**
-     *  @brief Starts ISR handlers on Core 0
+     *  @brief Starts ISR handlers on Core 1
      *  @details Implemented in src/<app>/isr.cpp
      */
-    void isr_start();
+    void isr_start_core1();
 }
 
 #endif
