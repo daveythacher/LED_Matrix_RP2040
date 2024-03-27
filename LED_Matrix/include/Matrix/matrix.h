@@ -68,6 +68,7 @@ namespace Matrix {
     }
 
     // This is terrible practice!!!
+    // TODO: Remove
     namespace Loafer {        
         /**
          *  @brief Function used to chuck data to loafer (Assumes flow control)

@@ -43,6 +43,7 @@ namespace Serial {
     };
 
     // This is terrible practice!!!
+    // TODO: Remove
     namespace internal {
         struct uart {
             static constexpr uint32_t max_framebuffer_size = 48 * 1024;     // Should not exceed 48KB or 64KB.

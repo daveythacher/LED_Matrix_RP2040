@@ -63,6 +63,7 @@ namespace Matrix::Calculator {
         static_assert((MULTIPLEX * (1 << PWM_bits)) <= (4 * 1024), "The current LED grayscale is not supported");
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
 
-        // TODO: Qualify the BCM Worker performance
+        // Qualify Worker Performance
+        //static_assert(((2 * MULTIPLEX * COLUMNS * 3 * 2 * FPS * PWM_bits) / 1000000.0) <= 1.5, "CPU is only capable of so many operations per second.");
     }
 }

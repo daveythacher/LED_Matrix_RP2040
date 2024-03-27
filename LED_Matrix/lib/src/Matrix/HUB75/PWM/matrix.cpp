@@ -169,7 +169,7 @@ namespace Matrix {
         if (dma_channel_get_irq0_status(dma_chan[0])) {      
             // Make sure the FIFO is empty 
             //  There was a bug with LAT when SERIAL_CLOCK is small, but I forgot what it was. (Just counted out additional time as hack.)
-            constexpr uint32_t FIFO_delay = (uint32_t) 125000000U / ((uint32_t) round(SERIAL_CLOCK) / 5 * 1000);
+            constexpr uint32_t FIFO_delay = (uint32_t) 4000000U / ((uint32_t) round(SERIAL_CLOCK));
             timer_hw->alarm[timer] = time_us_32() + FIFO_delay + 1;                 // Load timer
             timer_hw->armed = 1 << timer;                                           // Kick off timer
             state = 0;
