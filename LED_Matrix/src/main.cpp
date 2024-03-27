@@ -20,11 +20,12 @@ static void __not_in_flash_func(loop_core0)() {
 }
 
 static void __not_in_flash_func(loop_core1)() {
-    Matrix::start();
+    Matrix::start();                // Note ISR logic may not be detected by watchdog.
     APP::isr_start_core1();         // Matrix ISRs are allocated to this core. (These will slow the FIFO consumption rate.)
 
     while (1) {
         Matrix::Worker::work();     // Note is capable of stalling the watchdog via FIFO consumption rate. (Reduce OPs if need be.)
+                                    //  Does nothing when loafer is used.
     }
 }
 
