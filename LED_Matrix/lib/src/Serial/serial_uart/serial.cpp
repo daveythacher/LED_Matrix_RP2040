@@ -12,13 +12,8 @@
 #include "Serial/serial_uart/serial_uart.h"
 
 namespace Serial {
-    static void __not_in_flash_func(task_internal)() {
+    void __not_in_flash_func(task)() { 
         uart_task();
-    }
-
-    void __not_in_flash_func(task)() {  
-        if (isPacket)
-            task_internal();
     }
 
     void __not_in_flash_func(uart_callback)(uint8_t **buf, uint16_t *len) {
@@ -40,12 +35,7 @@ namespace Serial {
         }
     }
 
-    void start() {
-        if (isPacket)
-            multicore_launch_core1(Matrix::Worker::work);
-        else
-            multicore_launch_core1(task_internal);
-        
+    void start() {        
         uart_start(dma_claim_unused_channel(true), dma_claim_unused_channel(true)); 
     }
 }

@@ -33,19 +33,12 @@ namespace Serial {
         Matrix::Worker::process((void *) &buffers[(buffer + 1) % num_packets]);
     }
 
-    static void __not_in_flash_func(test_driver_loafer)() {
-        static_assert(isPacket, "Loafer version of test Serial Algorithm is not supported");
-    }
-
     void __not_in_flash_func(task)() {
         if (isPacket)
             test_driver_worker();
     }
 
     void start() {
-        if (isPacket)
-            multicore_launch_core1(Matrix::Worker::work);
-        else
-            multicore_launch_core1(test_driver_loafer);
+        static_assert(isPacket, "Loafer version of test Serial Algorithm is not supported");
     }
 }
