@@ -103,6 +103,6 @@ namespace Matrix::Worker {
     }
 
     uint32_t __not_in_flash_func(get_buffer_size)() {
-        return Loafer::get_buffer_size();
+        return sizeof(test2);
     }
 }

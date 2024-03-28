@@ -6,7 +6,6 @@ add_library(led_Test_Test INTERFACE)
 target_sources(led_Test_Test INTERFACE
     matrix.cpp
     worker.cpp
-    loafer.cpp
 )
 
 target_link_libraries(led_Test_Test INTERFACE

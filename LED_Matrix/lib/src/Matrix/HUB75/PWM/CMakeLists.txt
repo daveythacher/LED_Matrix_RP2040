@@ -7,7 +7,6 @@ target_sources(led_HUB75_PWM INTERFACE
     matrix.cpp
     worker.cpp
     calculator.cpp
-    loafer.cpp
 )
 
 target_link_libraries(led_HUB75_PWM INTERFACE

@@ -67,41 +67,6 @@ namespace Matrix {
         uint32_t get_buffer_size();
     }
 
-    // This is terrible practice!!!
-    namespace Loafer {        
-        /**
-         *  @brief Function used to chuck data to loafer (Assumes flow control)
-         *  @details Warning must toss buffer before asking for another.
-         *  @details Uses zero copy, but must call to sync state.
-         *  @details Implemented in Matrix/<implementation>/loafer.cpp
-         */
-        void toss();
-
-        /**
-         *  @brief Function used to grab a front buffer
-         *  @details Warning must only have one front buffer at a time.
-         *  @details Implemented in Matrix/<implementation>/loafer.cpp
-         *  @return Raw memory pointer to front buffer, no type is known by API. (Not very classy)
-         */
-        void *get_front_buffer();
-
-        /**
-         *  @brief Function used to grab a back buffer
-         *  @details Warning must only have one back buffer at a time.
-         *  @details Implemented in Matrix/<implementation>/loafer.cpp
-         *  @return Raw memory pointer to back buffer, no type is known by API. (Not very classy)
-         */
-        void *get_back_buffer();
-
-        /**
-         *  @brief Function to get size of back buffer
-         *  @details Implemended in Matrix/<implementation/loafer.cpp
-         *  @details Must always return a number which is a multiple of two!
-         *  @return Buffer size
-        */
-        uint32_t get_buffer_size();
-    }
-
     namespace Calculator {
         /**
          *  @brief Function used to verify configuration

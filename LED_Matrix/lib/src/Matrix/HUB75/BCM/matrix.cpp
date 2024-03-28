@@ -198,12 +198,7 @@ namespace Matrix {
                         rows = 0;
 
                         do {
-                            test2 *p;
-
-                            if (Serial::isPacket)
-                                p = (test2 *) Worker::get_front_buffer();
-                            else
-                                p = (test2 *) Loafer::get_front_buffer();
+                            test2 *p = (test2 *) Worker::get_front_buffer();
 
                             if (p != nullptr)
                                 buffer = p;
