@@ -46,6 +46,7 @@ namespace Serial {
             uart0_hw->icr = 0x7FF;
         }
 
+        // TODO:
         switch (state) {
             case 0:
                 uart_callback(&buf, &len);
