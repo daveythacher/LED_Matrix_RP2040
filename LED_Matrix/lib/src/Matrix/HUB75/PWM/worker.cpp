@@ -18,7 +18,8 @@
 namespace Matrix::Worker {
     test2 buf[Serial::num_framebuffers];
     static uint8_t bank = 0;
-    volatile bool vsync = false;
+    static volatile uint8_t bank_vsync = 0;
+    static volatile bool vsync = false;
 
     template <typename T> PWM_worker<T>::PWM_worker() {
         for (uint32_t i = 0; i < sizeof(index_table_t::v) / sizeof(uint32_t); i++)
@@ -65,7 +66,11 @@ namespace Matrix::Worker {
             }
         }
 
-        APP::multicore_fifo_push_blocking_inline(bank);
+        while (vsync) {
+            // Block
+        }
+
+        vsync = true;
         bank = (bank + 1) % Serial::num_framebuffers;
     }    
     
@@ -98,11 +103,14 @@ namespace Matrix::Worker {
     }
 
     void *__not_in_flash_func(get_front_buffer)() {
-        if (multicore_fifo_rvalid()) {
-            uint32_t i = (uint32_t) APP::multicore_fifo_pop_blocking_inline();
-            return (void *) &buf[i % Serial::num_framebuffers];
+        void *result = nullptr;
+
+        if (vsync) {
+            result = (void *) &buf[bank_vsync];
+            bank_vsync = (bank_vsync + 1) % Serial::num_framebuffers;
+            vsync = false;
         }
 
-        return nullptr;
+        return result;
     }
 }
