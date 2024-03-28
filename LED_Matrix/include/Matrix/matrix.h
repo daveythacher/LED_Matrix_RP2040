@@ -57,14 +57,6 @@ namespace Matrix {
          *  @return Raw memory pointer to front buffer, no type is known by API. (Not very classy)
          */
         void *get_front_buffer();
-
-        /**
-         *  @brief Function to get size of back buffer
-         *  @details Implemended in Matrix/<implementation/worker.cpp
-         *  @details Must always return a number which is a multiple of two!
-         *  @return Buffer size
-         */
-        uint32_t get_buffer_size();
     }
 
     namespace Calculator {
