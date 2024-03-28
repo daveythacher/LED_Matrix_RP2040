@@ -17,10 +17,12 @@ namespace Serial {
     #cmakedefine DEFINE_SERIAL_RGB_TYPE     @DEFINE_SERIAL_RGB_TYPE@
 
     typedef volatile DEFINE_SERIAL_RGB_TYPE test[2 * Matrix::MULTIPLEX][Matrix::COLUMNS];
+
+    constexpr uint32_t pad = 4;
     
     union packet {
         test data;
-        volatile uint32_t mem[((sizeof(test) / 64) + 1) * (64 / sizeof(uint32_t))];
+        volatile uint32_t mem[((sizeof(test) / pad) + 1) * (pad / sizeof(uint32_t))];
     };
 
     const uint32_t range_high = DEFINE_SERIAL_RGB_TYPE::range_high;
