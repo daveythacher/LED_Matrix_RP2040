@@ -8,7 +8,7 @@
 #define PWM_WORKER_H
 
 #include <stdint.h>
-#include <Serial/config.h>
+#include "Serial/config.h"
 
 namespace Matrix::Worker {
     template <typename T> struct PWM_worker {
