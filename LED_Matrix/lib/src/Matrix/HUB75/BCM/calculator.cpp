@@ -51,14 +51,14 @@ namespace Matrix::Calculator {
     }
 
     /*  Must test the following:
-     *  1) Fanout
-     *  2) Refresh
-     *  3) Memory usage
-     *  4) Computation operations required
-     * Additional Tests:
-     *  1) Grayscale limits
-     *  2) Ghosting limits
-     *  3) Accuracy of signals
+     *      1) Fanout
+     *      2) Refresh
+     *      3) Memory usage
+     *      4) Computation operations required
+     *  Additional Tests:
+     *      1) Grayscale limits
+     *      2) Ghosting limits
+     *      3) Accuracy of signals
      */
     void verify_configuration() {
         is_brightness_valid();
