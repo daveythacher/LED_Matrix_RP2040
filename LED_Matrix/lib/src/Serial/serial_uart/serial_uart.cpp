@@ -17,12 +17,9 @@ namespace Serial {
 
     enum class DATA_STATES {
         SETUP,
-        PREAMBLE,   // TODO: Combine with CMD_LEN
-        CMD_LEN,
+        PREAMBLE_CMD_LEN,
         PAYLOAD,    // TODO: Compute checksum in parallel (via DMA?)
-        CHECKSUM,   // TODO: Combine with DELIMITER (and PROCESS?)
-        DELIMITER,
-        PROCESS
+        CHECKSUM_DELIMITER_PROCESS
     };
 
     enum class CONTROL_STATES {
@@ -33,9 +30,9 @@ namespace Serial {
     };
 
     union random_type {
-        uint8_t bytes[4];
-        uint16_t shorts[2];
-        uint32_t val;
+        uint8_t bytes[8];
+        uint16_t shorts[4];
+        uint32_t longs[2];
     };
 
     enum class STATUS {
@@ -84,6 +81,7 @@ namespace Serial {
         static uint32_t index;
         static random_type data;
         static STATUS status;
+        static uint32_t checksum;
         bool escape;
 
         // Check for errors
@@ -129,11 +127,13 @@ namespace Serial {
                 index = 0;
                 status = STATUS::IDLE;
                 uart_callback(&buf, &len);
-                state_data = DATA_STATES::PREAMBLE;
+                state_data = DATA_STATES::PREAMBLE_CMD_LEN;
                 break;
 
-            case DATA_STATES::PREAMBLE:
-                while (index < 4) {
+            case DATA_STATES::PREAMBLE_CMD_LEN:             // Host protocol should create bubble waiting for status after sending data.
+                escape = false;
+
+                while (index < 8) {
                     if (uart_is_readable(uart0)) {
                         data.bytes[index] = uart_getc(uart0);
                         index++;
@@ -142,72 +142,56 @@ namespace Serial {
                         break;
                 }
 
-                if (ntohl(data.val) == 0xAAEEAAEE) {
-                    state_data = DATA_STATES::CMD_LEN;
-                    index = 0;
-                    status = STATUS::ACTIVE_0;
+                if (index == 8) {
+                    if (ntohl(data.longs[0]) == 0xAAEEAAEE) {
+                        // Currently we only support the one command
+                        switch (data.bytes[5]) {
+                            case 'd':
+                                switch (data.bytes[4]) {
+                                    case 'd':
+                                        if (ntohs(data.shorts[3]) == len) {
+                                            state_data = DATA_STATES::PAYLOAD;
+                                            command = COMMAND::DATA;
+                                            status = STATUS::ACTIVE_0;
+                                            index = 0;
+                                            checksum = 0;
+                                        }
+                                        else {
+                                            escape = true;
+                                        }
+                                        break;
+
+                                    default:
+                                        escape = true;
+                                        break;
+                                }
+                                break;
+
+                            default:
+                                escape = true;
+                                break;
+                        }
+                    }
+                    else {
+                        escape = true;
+                    }
                 }
+
                 // Reseed and try again.
                 //  Host app will do the right thing. (Did not see 'r' to 'a')
-                else { 
+                if (escape) {
                     data.bytes[0] = data.bytes[1];
                     data.bytes[1] = data.bytes[2];
                     data.bytes[2] = data.bytes[3];
+                    data.bytes[3] = data.bytes[4];
+                    data.bytes[4] = data.bytes[5];
+                    data.bytes[5] = data.bytes[6];
+                    data.bytes[6] = data.bytes[7];
                     index--;
                 }
                 break;
 
-            case DATA_STATES::CMD_LEN:
-                while (index < 4) {
-                    if (uart_is_readable(uart0)) {
-                        data.bytes[index] = uart_getc(uart0);
-                        index++;
-                    }
-                    else
-                        break;
-                }
-
-                if (index == 4) {
-                    escape = false;
-                    index = 0;
-                
-                    // Currently we only support the one command
-                    switch (data.bytes[1]) {
-                        case 'd':
-                            switch (data.bytes[0]) {
-                                case 'd':
-                                    if (ntohs(data.shorts[1]) == len) {
-                                        state_data = DATA_STATES::PAYLOAD;
-                                        command = COMMAND::DATA;
-                                        status = STATUS::ACTIVE_1;
-                                    }
-                                    else {
-                                        escape = true;
-                                    }
-                                    break;
-
-                                default:
-                                    escape = true;
-                                    break;
-
-                            }
-                            break;
-
-                        default:
-                            escape = true;
-                            break;
-                    }
-
-                    // At this point we will discard command and length rather than seed preamble.
-                    //  Host app will do the right thing. (Saw 'a' to 'r')
-                    if (escape) {
-                            state_data = DATA_STATES::PREAMBLE;
-                            status = STATUS::IDLE;
-                    }
-                }
-                break;
-
-            case DATA_STATES::PAYLOAD:
+            case DATA_STATES::PAYLOAD:                      // Host protocol should create bubble waiting for status after sending data.
                 while (index < len) {
                     if (uart_is_readable(uart0)) {
                         buf[index] = uart_getc(uart0);
@@ -217,15 +201,17 @@ namespace Serial {
                         break;
                 }
 
+                // TODO: Compute checksum
+
                 if (len == index) {
-                    state_data = DATA_STATES::CHECKSUM;
+                    state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
                     index = 0;
-                    status = STATUS::ACTIVE_0;
+                    status = STATUS::ACTIVE_1;
                 }
                 break;
 
-            case DATA_STATES::CHECKSUM:
-                while (index < 4) {
+            case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:   // Host protocol should create bubble waiting for status after sending data.
+                while (index < 8) {
                     if (uart_is_readable(uart0)) {
                         data.bytes[index] = uart_getc(uart0);
                         index++;
@@ -234,60 +220,27 @@ namespace Serial {
                         break;
                 }
 
-                if (index == 4) {
+                if (index == 8) {
                     index = 0;
                     
-                    // TODO: Compute checksum
-                    if (ntohl(data.val) == 0xAAEEAAEE) {
-                        state_data = DATA_STATES::DELIMITER;
-                        status = STATUS::ACTIVE_1;
+                    // We are allowed to block here
+                    if (ntohl(data.longs[0]) == checksum && ntohl(data.longs[1]) == 0xAEAEAEAE) {
+                        switch (command) {
+                            case COMMAND::DATA:
+                                uart_process();
+                                break;
+                            default:
+                                break;
+                        }
+
+                        state_data = DATA_STATES::SETUP;
                     }
-                    // At this point we will discard payload rather than seed preamble.
-                    //  Host app will do the right thing. (Saw 'a' to 'r')
+                    // TODO: At this point we have lost the frame (reliable delivery option not possible currently)
                     else {
-                        state_data = DATA_STATES::PREAMBLE;
+                        state_data = DATA_STATES::PREAMBLE_CMD_LEN;
                         status = STATUS::IDLE;
                     }
                 }
-                break;
-
-            case DATA_STATES::DELIMITER:
-                while (index < 4) {
-                    if (uart_is_readable(uart0)) {
-                        data.bytes[index] = uart_getc(uart0);
-                        index++;
-                    }
-                    else
-                        break;
-                }
-
-                if (index == 4) {
-                    index = 0;
-
-                    if (ntohl(data.val) == 0xAEAEAEAE) {
-                        state_data = DATA_STATES::PROCESS;
-                        status = STATUS::ACTIVE_0;
-                    }
-                    // At this point we will discard payload rather than seed preamble.
-                    //  Host app will do the right thing. (Saw 'b' to 'r')
-                    else {
-                        state_data = DATA_STATES::PREAMBLE;
-                        status = STATUS::IDLE;
-                    }
-                }
-                break;
-
-            case DATA_STATES::PROCESS:
-                switch (command) {
-                    case COMMAND::DATA:
-                        uart_process();
-                        break;
-                    default:
-                        break;
-                }
-
-                state_data = DATA_STATES::SETUP;
-                status = STATUS::ACTIVE_1;
                 break;
 
             default:
