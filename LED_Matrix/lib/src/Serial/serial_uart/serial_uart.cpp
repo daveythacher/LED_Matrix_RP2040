@@ -166,6 +166,7 @@ namespace Serial {
                                     if (ntohs(data.shorts[1]) == len) {
                                         state_data = DATA_STATES::PAYLOAD;
                                         command = COMMAND::DATA;
+                                        state = 'b';
                                     }
                                     else {
                                         escape = true;
@@ -206,6 +207,7 @@ namespace Serial {
                 if (len == index) {
                     state_data = DATA_STATES::CHECKSUM;
                     index = 0;
+                    state = 'a';
                 }
                 break;
 
@@ -225,6 +227,7 @@ namespace Serial {
                     // TODO: Compute checksum
                     if (ntohl(data.val) == 0xAAEEAAEE) {
                         state_data = DATA_STATES::DELIMITER;
+                        state = 'b';
                     }
                     // At this point we will discard payload rather than seed preamble.
                     //  Host app will do the right thing. (Saw 'a' to 'r')
@@ -250,9 +253,10 @@ namespace Serial {
 
                     if (ntohl(data.val) == 0xAEAEAEAE) {
                         state_data = DATA_STATES::PROCESS;
+                        state = 'a';
                     }
                     // At this point we will discard payload rather than seed preamble.
-                    //  Host app will do the right thing. (Saw 'a' to 'r')
+                    //  Host app will do the right thing. (Saw 'b' to 'r')
                     else {
                         state_data = DATA_STATES::PREAMBLE;
                         state = 'r';
@@ -270,6 +274,7 @@ namespace Serial {
                 }
 
                 state_data = DATA_STATES::SETUP;
+                state = 'b';
                 break;
 
             default:
