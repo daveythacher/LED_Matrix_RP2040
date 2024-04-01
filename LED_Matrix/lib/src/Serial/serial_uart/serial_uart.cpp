@@ -108,7 +108,8 @@ namespace Serial {
         }
 
         // Currently we drop the frame and wait for the next valid header.
-        //  Because we drop this may have unstable path which never really recovers.
+        //  Host app will do the right thing using status messages.
+        //
         // Currently we do not implement a valid control header for status messages.
         switch (state_data) {
             case DATA_STATES::SETUP:
@@ -133,7 +134,9 @@ namespace Serial {
                     index = 0;
                     state = 'a';
                 }
-                else {
+                // Reseed and try again.
+                //  Host app will do the right thing. (Did not see 'r' to 'a')
+                else { 
                     data.bytes[0] = data.bytes[1];
                     data.bytes[1] = data.bytes[2];
                     data.bytes[2] = data.bytes[3];
@@ -181,6 +184,8 @@ namespace Serial {
                             break;
                     }
 
+                    // At this point we will discard command and length rather than seed preamble.
+                    //  Host app will do the right thing. (Saw 'a' to 'r')
                     if (escape) {
                             state_data = DATA_STATES::PREAMBLE;
                             state = 'r';
@@ -221,6 +226,8 @@ namespace Serial {
                     if (ntohl(data.val) == 0xAAEEAAEE) {
                         state_data = DATA_STATES::DELIMITER;
                     }
+                    // At this point we will discard payload rather than seed preamble.
+                    //  Host app will do the right thing. (Saw 'a' to 'r')
                     else {
                         state_data = DATA_STATES::PREAMBLE;
                         state = 'r';
@@ -244,6 +251,8 @@ namespace Serial {
                     if (ntohl(data.val) == 0xAEAEAEAE) {
                         state_data = DATA_STATES::PROCESS;
                     }
+                    // At this point we will discard payload rather than seed preamble.
+                    //  Host app will do the right thing. (Saw 'a' to 'r')
                     else {
                         state_data = DATA_STATES::PREAMBLE;
                         state = 'r';
