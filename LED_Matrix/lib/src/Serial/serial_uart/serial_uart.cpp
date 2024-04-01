@@ -17,10 +17,10 @@ namespace Serial {
 
     enum class DATA_STATES {
         SETUP,
-        PREAMBLE,
+        PREAMBLE,   // TODO: Combine with CMD_LEN
         CMD_LEN,
-        PAYLOAD,
-        CHECKSUM,
+        PAYLOAD,    // TODO: Compute checksum in parallel (via DMA?)
+        CHECKSUM,   // TODO: Combine with DELIMITER (and PROCESS?)
         DELIMITER,
         PROCESS
     };
@@ -29,7 +29,7 @@ namespace Serial {
         SETUP,
         LISTEN,
         TRIGGER,
-        RESET
+        RESET       // TODO: Make non-blocking
     };
 
     union random_type {
