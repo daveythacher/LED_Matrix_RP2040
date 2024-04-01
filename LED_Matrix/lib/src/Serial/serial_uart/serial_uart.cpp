@@ -37,8 +37,9 @@ namespace Serial {
         uint32_t val;
     };
 
-    static DATA_STATES state_data = DATA_STATES::SETUP;
-    static CONTROL_STATES state_control = CONTROL_STATES::SETUP;
+    enum class COMMAND {
+        DATA
+    };
 
     static void uart_process();
 
@@ -68,9 +69,13 @@ namespace Serial {
 
     // Warning host is required to obey flow control and handle bus recovery
     void __not_in_flash_func(uart_task)() {
+        static DATA_STATES state_data = DATA_STATES::SETUP;
+        static CONTROL_STATES state_control = CONTROL_STATES::SETUP;
+        static COMMAND command;
         static uint32_t index;
         static random_type data;
         static uint8_t state;
+        bool escape;
 
         // Check for errors
         if (!((uart0_hw->ris & 0x380) == 0)) {
@@ -147,15 +152,38 @@ namespace Serial {
                 }
 
                 if (index == 4) {
+                    escape = false;
                     index = 0;
                 
                     // Currently we only support the one command
-                    if (data.bytes[1] == 'd' && data.bytes[0] == 'd' && ntohs(data.shorts[1]) == len) {
-                        state_data = DATA_STATES::PAYLOAD;
+                    switch (data.bytes[1]) {
+                        case 'd':
+                            switch (data.bytes[0]) {
+                                case 'd':
+                                    if (ntohs(data.shorts[1]) == len) {
+                                        state_data = DATA_STATES::PAYLOAD;
+                                        command = COMMAND::DATA;
+                                    }
+                                    else {
+                                        escape = true;
+                                    }
+                                    break;
+
+                                default:
+                                    escape = true;
+                                    break;
+
+                            }
+                            break;
+
+                        default:
+                            escape = true;
+                            break;
                     }
-                    else {
-                        state_data = DATA_STATES::PREAMBLE;
-                        state = 'r';
+
+                    if (escape) {
+                            state_data = DATA_STATES::PREAMBLE;
+                            state = 'r';
                     }
                 }
                 break;
@@ -186,10 +214,10 @@ namespace Serial {
                         break;
                 }
 
-                // TODO:
                 if (index == 4) {
                     index = 0;
                     
+                    // TODO: Compute checksum
                     if (ntohl(data.val) == 0xAAEEAAEE) {
                         state_data = DATA_STATES::DELIMITER;
                     }
@@ -224,7 +252,14 @@ namespace Serial {
                 break;
 
             case DATA_STATES::PROCESS:
-                uart_process();
+                switch (command) {
+                    case COMMAND::DATA:
+                        uart_process();
+                        break;
+                    default:
+                        break;
+                }
+
                 state_data = DATA_STATES::SETUP;
                 break;
 
