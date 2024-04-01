@@ -28,7 +28,8 @@ namespace Serial {
     enum class CONTROL_STATES {
         SETUP,
         LISTEN,
-        TRIGGER
+        TRIGGER,
+        RESET
     };
 
     union random_type {
@@ -107,6 +108,10 @@ namespace Serial {
                 //state_control = CONTROL_STATES::TRIGGER;
                 break;
             case CONTROL_STATES::TRIGGER:
+                // TODO:
+                state_control = CONTROL_STATES::SETUP;
+                break;
+            case CONTROL_STATES::RESET:
                 // TODO:
                 state_control = CONTROL_STATES::SETUP;
                 break;
