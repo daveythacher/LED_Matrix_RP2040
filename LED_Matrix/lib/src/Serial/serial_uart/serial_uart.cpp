@@ -37,11 +37,19 @@ namespace Serial {
         uint32_t val;
     };
 
+    enum class STATUS {
+        IDLE,
+        ACTIVE_0,
+        ACTIVE_1
+    };
+
     enum class COMMAND {
         DATA
     };
 
     static void uart_process();
+    static void send_status(STATUS status);
+    static void send_message(uint8_t *buf, uint16_t len, bool block);
 
     #if __BYTE_ORDER == __LITTLE_ENDIAN
         #define ntohs(x) __bswap16(x)
@@ -74,7 +82,7 @@ namespace Serial {
         static COMMAND command;
         static uint32_t index;
         static random_type data;
-        static uint8_t state;
+        static STATUS status;
         bool escape;
 
         // Check for errors
@@ -114,7 +122,7 @@ namespace Serial {
         switch (state_data) {
             case DATA_STATES::SETUP:
                 index = 0;
-                state = 'r';
+                status = STATUS::IDLE;
                 uart_callback(&buf, &len);
                 state_data = DATA_STATES::PREAMBLE;
                 break;
@@ -132,7 +140,7 @@ namespace Serial {
                 if (ntohl(data.val) == 0xAAEEAAEE) {
                     state_data = DATA_STATES::CMD_LEN;
                     index = 0;
-                    state = 'a';
+                    status = STATUS::ACTIVE_0;
                 }
                 // Reseed and try again.
                 //  Host app will do the right thing. (Did not see 'r' to 'a')
@@ -166,7 +174,7 @@ namespace Serial {
                                     if (ntohs(data.shorts[1]) == len) {
                                         state_data = DATA_STATES::PAYLOAD;
                                         command = COMMAND::DATA;
-                                        state = 'b';
+                                        status = STATUS::ACTIVE_1;
                                     }
                                     else {
                                         escape = true;
@@ -189,7 +197,7 @@ namespace Serial {
                     //  Host app will do the right thing. (Saw 'a' to 'r')
                     if (escape) {
                             state_data = DATA_STATES::PREAMBLE;
-                            state = 'r';
+                            status = STATUS::IDLE;
                     }
                 }
                 break;
@@ -207,7 +215,7 @@ namespace Serial {
                 if (len == index) {
                     state_data = DATA_STATES::CHECKSUM;
                     index = 0;
-                    state = 'a';
+                    status = STATUS::ACTIVE_0;
                 }
                 break;
 
@@ -227,13 +235,13 @@ namespace Serial {
                     // TODO: Compute checksum
                     if (ntohl(data.val) == 0xAAEEAAEE) {
                         state_data = DATA_STATES::DELIMITER;
-                        state = 'b';
+                        status = STATUS::ACTIVE_1;
                     }
                     // At this point we will discard payload rather than seed preamble.
                     //  Host app will do the right thing. (Saw 'a' to 'r')
                     else {
                         state_data = DATA_STATES::PREAMBLE;
-                        state = 'r';
+                        status = STATUS::IDLE;
                     }
                 }
                 break;
@@ -253,13 +261,13 @@ namespace Serial {
 
                     if (ntohl(data.val) == 0xAEAEAEAE) {
                         state_data = DATA_STATES::PROCESS;
-                        state = 'a';
+                        status = STATUS::ACTIVE_0;
                     }
                     // At this point we will discard payload rather than seed preamble.
                     //  Host app will do the right thing. (Saw 'b' to 'r')
                     else {
                         state_data = DATA_STATES::PREAMBLE;
-                        state = 'r';
+                        status = STATUS::IDLE;
                     }
                 }
                 break;
@@ -274,7 +282,7 @@ namespace Serial {
                 }
 
                 state_data = DATA_STATES::SETUP;
-                state = 'b';
+                status = STATUS::ACTIVE_1;
                 break;
 
             default:
@@ -282,9 +290,7 @@ namespace Serial {
                 break;
         }
 
-        if (uart_is_writable(uart0)) {
-            uart_putc(uart0, state);
-        }
+        send_status(status);
     }
 
     void __not_in_flash_func(uart_process)() {
@@ -301,5 +307,21 @@ namespace Serial {
         }
 
         Matrix::Worker::process((void *) buf);
+    }
+
+    void __not_in_flash_func(send_status)(STATUS status) {
+        // TODO:
+        switch (status) {
+            case STATUS::IDLE:
+            case STATUS::ACTIVE_0:
+            case STATUS::ACTIVE_1:
+            default:
+                break;
+        }
+        send_message(nullptr, 0, false);
+    }
+
+    void __not_in_flash_func(send_message)(uint8_t *buf, uint16_t len, bool block) {
+        // TODO: Use uart1
     }
 }
