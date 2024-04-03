@@ -15,6 +15,18 @@ namespace Serial {
     static uint8_t *buf = 0;
     static uint16_t len = 0;
 
+    #if __BYTE_ORDER == __LITTLE_ENDIAN
+        #define ntohs(x) __bswap16(x)
+        #define ntohl(x) __bswap32(x)
+        #define htons(x) __bswap16(x)
+        #define htonl(x) __bswap32(x)
+    #else
+        #define ntohs(x) ((uint16_t)(x))
+        #define ntoh1(x) ((uint32_t)(x))
+        #define htons(x) ((uint16_t)(x))
+        #define hton1(x) ((uint32_t)(x))
+    #endif
+
     enum class DATA_STATES {
         SETUP,
         PREAMBLE_CMD_LEN,
@@ -45,17 +57,51 @@ namespace Serial {
         DATA
     };
 
+    struct Status_Message {
+        Status_Message() {
+            header = htonl(0xAAEEAAEE);
+            cmd[0] = 's';
+            cmd[1] = 's';
+            len = htons(4);
+            delimiter = htonl(0xAEAEAEAE);
+        }
+
+        void set_status(STATUS s) {
+            switch (s) {
+                case STATUS::IDLE:
+                    status = htonl(0);
+                    // TODO: Checksum
+                    checksum = htonl(0);
+                    break;
+                case STATUS::ACTIVE_0:
+                    status = htonl(1);
+                    // TODO: Checksum
+                    checksum = htonl(0);
+                    break;
+                case STATUS::ACTIVE_1:
+                    status = htonl(2);
+                    // TODO: Checksum
+                    checksum = htonl(0);
+                    break;
+                default:
+                    status = htonl(0xFFFFFFFF);
+                    // TODO: Checksum
+                    checksum = htonl(0);
+                    break;
+            }
+        }
+
+        uint32_t header;
+        uint8_t cmd[2];
+        uint16_t len;
+        uint32_t status;
+        uint32_t checksum;
+        uint32_t delimiter;
+    };
+
     static void uart_process();
     static void send_status(STATUS status);
-    static void send_message(uint8_t *buf, uint16_t len, bool block);
-
-    #if __BYTE_ORDER == __LITTLE_ENDIAN
-        #define ntohs(x) __bswap16(x)
-        #define ntohl(x) __bswap32(x)
-    #else
-        #define ntohs(x) ((uint16_t)(x))
-        #define ntoh1(x) ((uint32_t)(x))
-    #endif
+    static uint8_t send_message(Status_Message *message, bool block);
 
     void uart_start() {
         // IO
@@ -268,18 +314,25 @@ namespace Serial {
     }
 
     void __not_in_flash_func(send_status)(STATUS status) {
-        // TODO:
-        switch (status) {
-            case STATUS::IDLE:
-            case STATUS::ACTIVE_0:
-            case STATUS::ACTIVE_1:
-            default:
-                break;
+        static Status_Message messages[6];
+        static uint8_t front_counter = 0;
+        static uint8_t back_counter = 0;
+
+        if (back_counter < 6) {
+            // TODO:
         }
-        send_message(nullptr, 0, false);
+        else {
+            // TODO:
+        }
+
+        messages[front_counter].set_status(status);
+        back_counter += send_message(&messages[front_counter], false);
+        front_counter = (front_counter + 1) / 6;
+        back_counter %= 6;
     }
 
-    void __not_in_flash_func(send_message)(uint8_t *buf, uint16_t len, bool block) {
+    uint8_t __not_in_flash_func(send_message)(Status_Message *buf, bool block) {
         // TODO: Use uart1
+        return 0;
     }
 }
