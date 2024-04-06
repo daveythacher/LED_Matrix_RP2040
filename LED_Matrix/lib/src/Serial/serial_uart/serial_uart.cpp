@@ -101,7 +101,7 @@ namespace Serial {
 
     static void uart_process();
     static void send_status(STATUS status);
-    static uint8_t send_message(Status_Message *message, bool block);
+    static void send_message(Status_Message *message, bool block);
 
     void uart_start() {
         // IO
@@ -116,7 +116,7 @@ namespace Serial {
         // UART
         static_assert(SERIAL_UART_BAUD <= 7800000, "Baud rate must be less than 7.8MBaud");
         uart_init(uart0, SERIAL_UART_BAUD);
-        uart_init(uart1, 115200);
+        uart_init(uart1, SERIAL_UART_BAUD);
     }
 
     // Warning host is required to obey flow control and handle bus recovery
@@ -314,25 +314,14 @@ namespace Serial {
     }
 
     void __not_in_flash_func(send_status)(STATUS status) {
-        static Status_Message messages[6];
-        static uint8_t front_counter = 0;
-        static uint8_t back_counter = 0;
+        static Status_Message messages;
 
-        if (back_counter < 6) {
-            // TODO:
-        }
-        else {
-            // TODO:
-        }
-
-        messages[front_counter].set_status(status);
-        back_counter += send_message(&messages[front_counter], false);
-        front_counter = (front_counter + 1) / 6;
-        back_counter %= 6;
+        messages.set_status(status);
+        send_message(&messages, true);
     }
 
-    uint8_t __not_in_flash_func(send_message)(Status_Message *buf, bool block) {
+    void __not_in_flash_func(send_message)(Status_Message *buf, bool block) {
         // TODO: Use uart1
-        return 0;
+        // TODO: Make sure watchdog does not fire in here
     }
 }
