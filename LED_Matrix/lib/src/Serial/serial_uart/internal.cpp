@@ -1,3 +1,9 @@
+/* 
+ * File:   internal.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include "pico/multicore.h"
 #include "hardware/uart.h"
 #include "Serial/serial_uart/internal.h"

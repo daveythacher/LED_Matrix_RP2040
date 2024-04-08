@@ -1,3 +1,9 @@
+/* 
+ * File:   data_node.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include "hardware/uart.h"
 #include "Serial/serial_uart/internal.h"
 #include "Serial/serial_uart/serial_uart.h"
@@ -6,6 +12,7 @@ namespace Serial::UART::internal {
     static uint8_t *buf = 0;
     static uint16_t len = 0;
     
+    // TODO: Refactor
     STATUS __not_in_flash_func(data_node)() {
         static DATA_STATES state_data = DATA_STATES::SETUP;
         static COMMAND command;

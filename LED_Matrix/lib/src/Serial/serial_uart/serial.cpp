@@ -4,10 +4,7 @@
  * License: GPL 3.0
  */
  
-#include <stdint.h>
 #include "pico/multicore.h"
-#include "Serial/config.h"
-#include "Matrix/matrix.h"
 #include "Serial/serial_uart/serial_uart.h"
 
 namespace Serial {

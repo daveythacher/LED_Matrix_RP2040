@@ -1,3 +1,9 @@
+/* 
+ * File:   calculator.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include <algorithm>
 #include <stdint.h>
 #include "Matrix/HUB75/PWM/memory_format.h"

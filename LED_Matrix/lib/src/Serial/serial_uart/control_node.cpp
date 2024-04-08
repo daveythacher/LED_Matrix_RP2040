@@ -1,3 +1,9 @@
+/* 
+ * File:   control_node.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include "hardware/uart.h"
 #include "pico/multicore.h"
 #include "Serial/serial_uart/internal.h"
