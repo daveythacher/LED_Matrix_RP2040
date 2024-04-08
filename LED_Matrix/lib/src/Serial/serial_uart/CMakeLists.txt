@@ -4,6 +4,9 @@ target_sources(serial_uart INTERFACE
     serial_uart.cpp
     serial.cpp
     isr.cpp
+    control_node.cpp
+    data_node.cpp
+    internal.cpp
 )
 
 # Use caution here!
