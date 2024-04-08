@@ -9,10 +9,10 @@
     
 #include "Serial/serial_uart/types.h"
 
-namespace Serial::internal {
-    void uart_process(uint16_t *buf, uint16_t len);
-
+namespace Serial::UART::internal {
     STATUS data_node();
+    void process(uint16_t *buf, uint16_t len);
+
     void control_node();
     void set_id(uint8_t id);
 

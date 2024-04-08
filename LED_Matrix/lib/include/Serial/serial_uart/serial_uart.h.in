@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include "Serial/config.h"
 
-namespace Serial {
+namespace Serial::UART {
     
     void uart_start();
     void uart_task();

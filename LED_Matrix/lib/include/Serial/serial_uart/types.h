@@ -9,7 +9,7 @@
     
 #include "Serial/serial_uart/machine.h"
 
-namespace Serial {
+namespace Serial::UART {
     enum class DATA_STATES {
         SETUP,
         PREAMBLE_CMD_LEN,

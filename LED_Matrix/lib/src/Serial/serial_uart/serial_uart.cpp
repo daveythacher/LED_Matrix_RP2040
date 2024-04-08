@@ -11,7 +11,7 @@
 #include "Serial/serial_uart/internal.h"
 #include "Matrix/matrix.h"
 
-namespace Serial {
+namespace Serial::UART {
     void uart_start() {
         // IO
         gpio_init(0);
@@ -42,24 +42,17 @@ namespace Serial {
             uart1_hw->icr = 0x7FF;
         }
 
-        Serial::internal::control_node();
-        status = Serial::internal::data_node();
-        Serial::internal::send_status(status);
+        Serial::UART::internal::control_node();
+        status = Serial::UART::internal::data_node();
+        Serial::UART::internal::send_status(status);
     }
+    
+    void __not_in_flash_func(uart_callback)(uint8_t **buf, uint16_t *len) {
+        static packet buffers[num_packets];
+        static volatile uint8_t buffer = 0;
 
-    namespace internal {
-        void __not_in_flash_func(uart_process)(uint16_t *p, uint16_t len) {
-            switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
-                case 2:
-                case 6:
-                    for (uint16_t i = 0; i < len; i += 2)
-                        p[i / 2] = ntohs(p[i / 2]);
-                    break;
-                default:
-                    break;
-            }
-
-            Matrix::Worker::process((void *) p);
-        }
-    }
+        *buf = (uint8_t *) &buffers[(buffer + 1) % num_packets];
+        *len = sizeof(packet);
+        buffer = (buffer + 1) % num_packets;
+    }    
 }

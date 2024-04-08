@@ -2,7 +2,7 @@
 #include "Serial/serial_uart/internal.h"
 #include "Serial/serial_uart/serial_uart.h"
 
-namespace Serial::internal {
+namespace Serial::UART::internal {
     static uint8_t *buf = 0;
     static uint16_t len = 0;
     
@@ -22,7 +22,7 @@ namespace Serial::internal {
             case DATA_STATES::SETUP:
                 index = 0;
                 status = STATUS::IDLE;
-                uart_callback(&buf, &len);
+                Serial::UART::uart_callback(&buf, &len);
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN;
                 break;
 
@@ -61,7 +61,7 @@ namespace Serial::internal {
                                         break;
                                 }
                                 break;
-                                
+
                             case 'c':
                                 switch (data.bytes[4]) {
                                     case 'i':
@@ -170,7 +170,7 @@ namespace Serial::internal {
                     if (ntohl(data.longs[0]) == checksum && ntohl(data.longs[1]) == 0xAEAEAEAE) {
                         switch (command) {
                             case COMMAND::DATA:
-                                uart_process((uint16_t *) buf, len);
+                                process((uint16_t *) buf, len);
                                 break;
                             default:
                                 break;
