@@ -5,10 +5,12 @@
  */
 
 #include "hardware/uart.h"
-#include "Serial/serial_uart/internal.h"
 #include "Serial/serial_uart/serial_uart.h"
+#include "Serial/serial_uart/internal.h"
+#include "Serial/serial_uart/control_node.h"
+#include "Serial/serial_uart/data_node.h"
 
-namespace Serial::UART::internal {
+namespace Serial::UART::DATA_NODE {
     static uint8_t *buf = 0;
     static uint16_t len = 0;
     
@@ -146,7 +148,7 @@ namespace Serial::UART::internal {
                         // TODO: Compute checksum in parallel (via DMA?)
 
                         if (index == 1) {
-                            set_id(data.bytes[0]);
+                            Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
                             state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
                             index = 0;
                             status = STATUS::ACTIVE_1;
@@ -177,7 +179,7 @@ namespace Serial::UART::internal {
                     if (ntohl(data.longs[0]) == checksum && ntohl(data.longs[1]) == 0xAEAEAEAE) {
                         switch (command) {
                             case COMMAND::DATA:
-                                process((uint16_t *) buf, len);
+                                Serial::UART::internal::process((uint16_t *) buf, len);
                                 break;
                             default:
                                 break;

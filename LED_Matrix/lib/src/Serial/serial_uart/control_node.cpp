@@ -6,9 +6,9 @@
 
 #include "hardware/uart.h"
 #include "pico/multicore.h"
-#include "Serial/serial_uart/internal.h"
+#include "Serial/serial_uart/control_node.h"
 
-namespace Serial::UART::internal {
+namespace Serial::UART::CONTROL_NODE {
     static uint8_t id = 0;
     
     void __not_in_flash_func(control_node)() {

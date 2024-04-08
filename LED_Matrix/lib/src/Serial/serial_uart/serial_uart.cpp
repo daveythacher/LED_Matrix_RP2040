@@ -9,6 +9,8 @@
 #include "hardware/uart.h"
 #include "Serial/serial_uart/serial_uart.h"
 #include "Serial/serial_uart/internal.h"
+#include "Serial/serial_uart/control_node.h"
+#include "Serial/serial_uart/data_node.h"
 #include "Matrix/matrix.h"
 
 namespace Serial::UART {
@@ -42,8 +44,8 @@ namespace Serial::UART {
             uart1_hw->icr = 0x7FF;
         }
 
-        Serial::UART::internal::control_node();
-        status = Serial::UART::internal::data_node();
+        Serial::UART::CONTROL_NODE::control_node();
+        status = Serial::UART::DATA_NODE::data_node();
         Serial::UART::internal::send_status(status);
     }
     
