@@ -37,6 +37,7 @@ namespace Serial::UART {
 
     enum class COMMAND {
         DATA,
+        RAW_DATA,
         SET_ID
     };
 

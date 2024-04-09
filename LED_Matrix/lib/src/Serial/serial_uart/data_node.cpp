@@ -55,7 +55,7 @@ namespace Serial::UART::DATA_NODE {
             // Host protocol should create bubble waiting for status after sending data.
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
-            case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:       // Host should see ACTIVE_1 to IDLE (We currently drop on error which is not right!)
+            case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:       // Host should see ACTIVE_1 to IDLE (We currently crash on error which is not right!)
                 get_data(data.bytes, 8, false);
                 process_frame();
                 break;
@@ -96,6 +96,17 @@ namespace Serial::UART::DATA_NODE {
                                 if (ntohs(data.shorts[3]) == len) {
                                     state_data = DATA_STATES::PAYLOAD;
                                     command = COMMAND::DATA;
+                                    status = STATUS::ACTIVE_0;
+                                    index = 0;
+                                    checksum = 0;
+                                    escape = false;
+                                }
+                                break;
+
+                            case 'r':
+                                if (ntohs(data.shorts[3]) == len) {
+                                    state_data = DATA_STATES::PAYLOAD;
+                                    command = COMMAND::RAW_DATA;
                                     status = STATUS::ACTIVE_0;
                                     index = 0;
                                     checksum = 0;
@@ -158,6 +169,16 @@ namespace Serial::UART::DATA_NODE {
                 }
                 break;
 
+            case COMMAND::RAW_DATA:
+                get_data(buf, len, false);
+
+                if (len == index) {
+                    state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
+                    index = 0;
+                    status = STATUS::ACTIVE_1;
+                }
+                break;
+
             case COMMAND::SET_ID:
                 get_data(data.bytes, 1, true);
 
@@ -179,14 +200,30 @@ namespace Serial::UART::DATA_NODE {
         if (index == 8) {
             index = 0;
                     
-            if (ntohl(data.longs[0]) == checksum && ntohl(data.longs[1]) == 0xAEAEAEAE) {
+            if (ntohl(data.longs[1]) == 0xAEAEAEAE) {
                 switch (command) {
                     case COMMAND::DATA:
-                        Serial::UART::internal::process((uint16_t *) buf, len);
+                        if (ntohl(data.longs[0]) == checksum)
+                            Serial::UART::internal::process((uint16_t *) buf, len);
+                        else {
+                            // TODO: At this point we have lost the frame (reliable delivery option not possible currently)
+                            state_data = DATA_STATES::PREAMBLE_CMD_LEN;
+                            status = STATUS::IDLE;
+                        }
                         break;
 
                     case COMMAND::SET_ID:
-                        Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
+                        if (ntohl(data.longs[0]) == checksum)
+                            Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
+                        else {
+                            // TODO: At this point we have lost the frame (reliable delivery option not possible currently)
+                            state_data = DATA_STATES::PREAMBLE_CMD_LEN;
+                            status = STATUS::IDLE;
+                        }
+                        break;
+                    
+                    case COMMAND::RAW_DATA:
+                        Serial::UART::internal::process((uint16_t *) buf, len);
                         break;
 
                     default:
@@ -195,8 +232,8 @@ namespace Serial::UART::DATA_NODE {
 
                 state_data = DATA_STATES::SETUP;
             }
-            // TODO: At this point we have lost the frame (reliable delivery option not possible currently)
             else {
+                // TODO: At this point we have lost the frame (reliable delivery option not possible currently)
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN;
                 status = STATUS::IDLE;
             }
