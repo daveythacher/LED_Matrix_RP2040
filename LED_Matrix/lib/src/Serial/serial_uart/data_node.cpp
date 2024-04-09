@@ -21,7 +21,7 @@ namespace Serial::UART::DATA_NODE {
     static uint32_t checksum;
     static STATUS status;
 
-    static void get_data(uint8_t *buf, uint16_t len);
+    static void get_data(uint8_t *buf, uint16_t len, bool checksum);
     static void process_command();
     static void process_payload();
     static void process_frame();
@@ -38,7 +38,7 @@ namespace Serial::UART::DATA_NODE {
                 break;
 
             case DATA_STATES::PREAMBLE_CMD_LEN:             // Host protocol should create bubble waiting for status after sending data.
-                get_data(data.bytes, 8);
+                get_data(data.bytes, 8, false);
                 process_command();                
                 break;
 
@@ -47,7 +47,7 @@ namespace Serial::UART::DATA_NODE {
                 break;
 
             case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:   // Host protocol should create bubble waiting for status after sending data.
-                get_data(data.bytes, 8);
+                get_data(data.bytes, 8, false);
                 process_frame();
                 break;
 
@@ -59,14 +59,19 @@ namespace Serial::UART::DATA_NODE {
         return status;
     }
 
-    void get_data(uint8_t *buf, uint16_t len) {
-        while (index < len) {
-            if (uart_is_readable(uart0)) {
-                buf[index] = uart_getc(uart0);
-                index++;
+    void get_data(uint8_t *buf, uint16_t len, bool checksum) {
+        if (checksum) {
+            // TODO: Compute checksum in parallel (via DMA?)
+        }
+        else {
+            while (index < len) {
+                if (uart_is_readable(uart0)) {
+                    buf[index] = uart_getc(uart0);
+                    index++;
+                }
+                else
+                    break;
             }
-            else
-                break;
         }
     }
 
@@ -135,9 +140,7 @@ namespace Serial::UART::DATA_NODE {
     void process_payload() {
         switch (command) {
             case COMMAND::DATA:
-                get_data(buf, len);
-
-                // TODO: Compute checksum in parallel (via DMA?)
+                get_data(buf, len, true);
 
                 if (len == index) {
                     state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
@@ -147,9 +150,7 @@ namespace Serial::UART::DATA_NODE {
                 break;
 
             case COMMAND::SET_ID:
-                get_data(data.bytes, 1);
-
-                // TODO: Compute checksum in parallel (via DMA?)
+                get_data(data.bytes, 1, true);
 
                 if (index == 1) {
                     state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
