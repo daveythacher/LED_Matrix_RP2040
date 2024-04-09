@@ -17,6 +17,7 @@ namespace Serial::UART::CONTROL_NODE {
     void __not_in_flash_func(control_node)() {
         static Control_Message message;
 
+        // Never respond to control messages
         if (get_message(&message)) {
             switch (message.payload) {
                 case 0:
@@ -30,7 +31,6 @@ namespace Serial::UART::CONTROL_NODE {
                     break;
 
                 default:
-                    // send_message?
                     break;
             }
         }
@@ -41,6 +41,7 @@ namespace Serial::UART::CONTROL_NODE {
     }
 
     // Use uart1
+    // TODO: Switch to ISR?
     bool __not_in_flash_func(get_message)(Control_Message *msg) {
         // TODO: Nonblocking
         return false;
