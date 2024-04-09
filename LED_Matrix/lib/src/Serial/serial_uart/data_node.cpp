@@ -86,11 +86,6 @@ namespace Serial::UART::DATA_NODE {
                 break;
         }
 
-        // TODO: Add timer to timeout
-        if (0) {
-            reset();
-        }
-
         return status;
     }
 
