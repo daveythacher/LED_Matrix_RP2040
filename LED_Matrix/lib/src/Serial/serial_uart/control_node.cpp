@@ -44,6 +44,8 @@ namespace Serial::UART::CONTROL_NODE {
     // TODO: Switch to ISR?
     bool __not_in_flash_func(get_message)(Control_Message *msg) {
         // TODO: Nonblocking
+
+        // TODO: Verify checksum
         return false;
     }
 }
