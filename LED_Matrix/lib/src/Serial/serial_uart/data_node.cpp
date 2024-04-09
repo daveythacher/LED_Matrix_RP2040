@@ -15,6 +15,7 @@ namespace Serial::UART::DATA_NODE {
     static uint16_t len = 0;
 
     static DATA_STATES state_data = DATA_STATES::SETUP;
+    static uint8_t idle_num = 0;
     static COMMAND command;
     static uint32_t index;
     static random_type data;
@@ -32,15 +33,19 @@ namespace Serial::UART::DATA_NODE {
         switch (state_data) {
             case DATA_STATES::SETUP:
                 index = 0;
-                status = STATUS::IDLE;
                 Serial::UART::uart_callback(&buf, &len);
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN;
+
+                if (idle_num == 0)
+                    status = STATUS::IDLE_0;
+                else
+                    status = STATUS::IDLE_1;
                 break;
 
             // Host protocol should create bubble waiting for status after sending data.
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
-            case DATA_STATES::PREAMBLE_CMD_LEN:                 // Host should see IDLE to ACTIVE_0
+            case DATA_STATES::PREAMBLE_CMD_LEN:                 // Host should see IDLE_0/1 to ACTIVE_0
                 get_data(data.bytes, 8, false);
                 process_command();                
                 break;
@@ -55,7 +60,7 @@ namespace Serial::UART::DATA_NODE {
             // Host protocol should create bubble waiting for status after sending data.
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
-            case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:       // Host should see ACTIVE_1 to IDLE (We currently crash on error which is not right!)
+            case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:       // Host should see ACTIVE_1 to IDLE_1/0
                 get_data(data.bytes, 8, false);
                 process_frame();
                 break;
@@ -144,7 +149,7 @@ namespace Serial::UART::DATA_NODE {
         }
 
         // Reseed and try again.
-        //  Host app will do the right thing. (Did not see IDLE to ACTIVE_0)
+        //  Host app will do the right thing. (Did not see IDLE_0/1 to ACTIVE_0)
         if (escape) {
             data.bytes[0] = data.bytes[1];
             data.bytes[1] = data.bytes[2];
@@ -190,53 +195,47 @@ namespace Serial::UART::DATA_NODE {
                 break;
 
             default:
-                state_data = DATA_STATES::PREAMBLE_CMD_LEN;
-                status = STATUS::IDLE;
+                state_data = DATA_STATES::SETUP;
                 break;
         }
     }
 
     inline void __not_in_flash_func(process_frame)() {
+        bool error = true;
+
         if (index == 8) {
             index = 0;
                     
             if (ntohl(data.longs[1]) == 0xAEAEAEAE) {
                 switch (command) {
                     case COMMAND::DATA:
-                        if (ntohl(data.longs[0]) == checksum)
+                        if (ntohl(data.longs[0]) == checksum) {
                             Serial::UART::internal::process((uint16_t *) buf, len);
-                        else {
-                            // TODO: At this point we have lost the frame (reliable delivery option not possible currently)
-                            state_data = DATA_STATES::PREAMBLE_CMD_LEN;
-                            status = STATUS::IDLE;
+                            error = false;
                         }
                         break;
 
                     case COMMAND::SET_ID:
-                        if (ntohl(data.longs[0]) == checksum)
+                        if (ntohl(data.longs[0]) == checksum) {
                             Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
-                        else {
-                            // TODO: At this point we have lost the frame (reliable delivery option not possible currently)
-                            state_data = DATA_STATES::PREAMBLE_CMD_LEN;
-                            status = STATUS::IDLE;
+                            error = false;
                         }
                         break;
                     
                     case COMMAND::RAW_DATA:
                         Serial::UART::internal::process((uint16_t *) buf, len);
+                        error = false;
                         break;
 
                     default:
                         break;
                 }
+            }
+            
+            if (!error) 
+                idle_num = (idle_num + 1) % 2;
 
-                state_data = DATA_STATES::SETUP;
-            }
-            else {
-                // TODO: At this point we have lost the frame (reliable delivery option not possible currently)
-                state_data = DATA_STATES::PREAMBLE_CMD_LEN;
-                status = STATUS::IDLE;
-            }
+            state_data = DATA_STATES::SETUP;
         }
     }
 }

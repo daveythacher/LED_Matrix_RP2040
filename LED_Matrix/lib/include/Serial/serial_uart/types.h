@@ -30,7 +30,8 @@ namespace Serial::UART {
     };
 
     enum class STATUS {
-        IDLE,
+        IDLE_0,
+        IDLE_1,
         ACTIVE_0,
         ACTIVE_1
     };
@@ -61,18 +62,23 @@ namespace Serial::UART {
 
         void set_status(STATUS s) {
             switch (s) {
-                case STATUS::IDLE:
+                case STATUS::IDLE_0:
                     status = htonl(0);
                     // TODO: Checksum
                     checksum = htonl(0);
                     break;
-                case STATUS::ACTIVE_0:
+                case STATUS::IDLE_1:
                     status = htonl(1);
                     // TODO: Checksum
                     checksum = htonl(0);
                     break;
-                case STATUS::ACTIVE_1:
+                case STATUS::ACTIVE_0:
                     status = htonl(2);
+                    // TODO: Checksum
+                    checksum = htonl(0);
+                    break;
+                case STATUS::ACTIVE_1:
+                    status = htonl(3);
                     // TODO: Checksum
                     checksum = htonl(0);
                     break;
