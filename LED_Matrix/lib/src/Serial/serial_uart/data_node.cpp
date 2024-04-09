@@ -168,6 +168,10 @@ namespace Serial::UART::DATA_NODE {
                                     escape = false;
                                 }
                                 break;
+                            
+                            case 'b':
+                                // TODO: Blank the display (hold off)
+                                break;
 
                             default:
                                 break;
@@ -228,6 +232,10 @@ namespace Serial::UART::DATA_NODE {
                 }
                 break;
 
+            case COMMAND::BLANK:
+                // TODO:
+                break;
+
             default:
                 state_data = DATA_STATES::SETUP;
                 break;
@@ -262,6 +270,10 @@ namespace Serial::UART::DATA_NODE {
                             Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
                             error = false;
                         }
+                        break;
+
+                    case COMMAND::BLANK:
+                        // TODO:
                         break;
 
                     default:
