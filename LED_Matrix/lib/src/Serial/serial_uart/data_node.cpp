@@ -93,6 +93,10 @@ namespace Serial::UART::DATA_NODE {
         trigger = true;
     }
 
+    void __not_in_flash_func(reset)() {
+        state_data = DATA_STATES::SETUP;
+    }
+
     void __not_in_flash_func(get_data)(uint8_t *buf, uint16_t len, bool checksum) {
         if (checksum) {
             // TODO: Compute checksum in parallel (via DMA?)
@@ -126,6 +130,7 @@ namespace Serial::UART::DATA_NODE {
                                     index = 0;
                                     checksum = 0;
                                     escape = false;
+                                    trigger = false;
                                 }
                                 break;
 
@@ -137,6 +142,7 @@ namespace Serial::UART::DATA_NODE {
                                     index = 0;
                                     checksum = 0;
                                     escape = false;
+                                    trigger = false;
                                 }
                                 break;
 
@@ -192,6 +198,7 @@ namespace Serial::UART::DATA_NODE {
                     state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
                     index = 0;
                     status = STATUS::ACTIVE_1;
+                    trigger = false;
                 }
                 break;
 
@@ -202,6 +209,7 @@ namespace Serial::UART::DATA_NODE {
                     state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
                     index = 0;
                     status = STATUS::ACTIVE_1;
+                    trigger = false;
                 }
                 break;
 
@@ -233,20 +241,22 @@ namespace Serial::UART::DATA_NODE {
                         if (ntohl(data.longs[0]) == checksum) {
                             state_data = DATA_STATES::READY;
                             status = STATUS::READY;
+                            trigger = false;
                             return;
                         }
                         break;
+                    
+                    case COMMAND::RAW_DATA:
+                        state_data = DATA_STATES::READY;
+                        status = STATUS::READY;
+                        trigger = false;
+                        return;
 
                     case COMMAND::SET_ID:
                         if (ntohl(data.longs[0]) == checksum) {
                             Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
                             error = false;
                         }
-                        break;
-                    
-                    case COMMAND::RAW_DATA:
-                        Serial::UART::internal::process((uint16_t *) buf, len);
-                        error = false;
                         break;
 
                     default:

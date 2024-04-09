@@ -24,6 +24,11 @@ namespace Serial::UART::CONTROL_NODE {
                         Serial::UART::DATA_NODE::trigger_processing();
                     break;
 
+                case 1:
+                    if (message.id == 0 || message.id == id)
+                        Serial::UART::DATA_NODE::reset();
+                    break;
+
                 default:
                     // send_message?
                     break;

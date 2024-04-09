@@ -32,6 +32,7 @@ namespace Serial::UART::DATA_NODE {
 
     Serial::UART::internal::STATUS data_node();
     void trigger_processing();
+    void reset();
 }
 
 #endif
