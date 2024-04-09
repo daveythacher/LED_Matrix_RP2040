@@ -27,8 +27,7 @@ namespace Serial::UART::DATA_NODE {
     enum class COMMAND {
         DATA,
         RAW_DATA,
-        SET_ID,
-        BLANK
+        SET_ID
     };
 
     Serial::UART::internal::STATUS data_node();
