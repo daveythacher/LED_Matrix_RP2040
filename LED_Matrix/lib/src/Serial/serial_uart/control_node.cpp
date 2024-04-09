@@ -29,6 +29,12 @@ namespace Serial::UART::CONTROL_NODE {
                     if (message.id == 0 || message.id == id)
                         Serial::UART::DATA_NODE::reset();
                     break;
+                
+                case 2:
+                    if (message.id == 0 || message.id == id) {
+                        // TODO: Blank
+                    }
+                    break;
 
                 default:
                     break;
