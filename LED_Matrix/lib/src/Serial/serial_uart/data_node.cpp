@@ -37,16 +37,25 @@ namespace Serial::UART::DATA_NODE {
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN;
                 break;
 
-            case DATA_STATES::PREAMBLE_CMD_LEN:             // Host protocol should create bubble waiting for status after sending data.
+            // Host protocol should create bubble waiting for status after sending data.
+            //  Half duplex like currently for simplicity. We should have the bandwidth.
+            //  Host needs to be on the ball though. Performance loss is possible from OS!
+            case DATA_STATES::PREAMBLE_CMD_LEN:                 // Host should see IDLE to ACTIVE_0
                 get_data(data.bytes, 8, false);
                 process_command();                
                 break;
 
-            case DATA_STATES::PAYLOAD:                      // Host protocol should create bubble waiting for status after sending data.
+            // Host protocol should create bubble waiting for status after sending data.
+            //  Half duplex like currently for simplicity. We should have the bandwidth.
+            //  Host needs to be on the ball though. Performance loss is possible from OS!
+            case DATA_STATES::PAYLOAD:                          // Host should see ACTIVE_0 to ACTIVE_1
                 process_payload();
                 break;
 
-            case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:   // Host protocol should create bubble waiting for status after sending data.
+            // Host protocol should create bubble waiting for status after sending data.
+            //  Half duplex like currently for simplicity. We should have the bandwidth.
+            //  Host needs to be on the ball though. Performance loss is possible from OS!
+            case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:       // Host should see ACTIVE_1 to IDLE (We currently drop on error which is not right!)
                 get_data(data.bytes, 8, false);
                 process_frame();
                 break;
@@ -75,7 +84,7 @@ namespace Serial::UART::DATA_NODE {
         }
     }
 
-    void process_command() {
+    inline void process_command() {
         bool escape = true;
 
         if (index == 8) {
@@ -124,7 +133,7 @@ namespace Serial::UART::DATA_NODE {
         }
 
         // Reseed and try again.
-        //  Host app will do the right thing. (Did not see 'r' to 'a')
+        //  Host app will do the right thing. (Did not see IDLE to ACTIVE_0)
         if (escape) {
             data.bytes[0] = data.bytes[1];
             data.bytes[1] = data.bytes[2];
@@ -137,7 +146,7 @@ namespace Serial::UART::DATA_NODE {
         }
     }
 
-    void process_payload() {
+    inline void process_payload() {
         switch (command) {
             case COMMAND::DATA:
                 get_data(buf, len, true);
@@ -166,7 +175,7 @@ namespace Serial::UART::DATA_NODE {
         }
     }
 
-    void process_frame() {
+    inline void process_frame() {
         if (index == 8) {
             index = 0;
                     
