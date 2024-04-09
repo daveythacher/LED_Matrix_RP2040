@@ -68,7 +68,7 @@ namespace Serial::UART::DATA_NODE {
         return status;
     }
 
-    void get_data(uint8_t *buf, uint16_t len, bool checksum) {
+    void __not_in_flash_func(get_data)(uint8_t *buf, uint16_t len, bool checksum) {
         if (checksum) {
             // TODO: Compute checksum in parallel (via DMA?)
         }
@@ -84,7 +84,7 @@ namespace Serial::UART::DATA_NODE {
         }
     }
 
-    inline void process_command() {
+    inline void __not_in_flash_func(process_command)() {
         bool escape = true;
 
         if (index == 8) {
@@ -157,7 +157,7 @@ namespace Serial::UART::DATA_NODE {
         }
     }
 
-    inline void process_payload() {
+    inline void __not_in_flash_func(process_payload)() {
         switch (command) {
             case COMMAND::DATA:
                 get_data(buf, len, true);
@@ -196,7 +196,7 @@ namespace Serial::UART::DATA_NODE {
         }
     }
 
-    inline void process_frame() {
+    inline void __not_in_flash_func(process_frame)() {
         if (index == 8) {
             index = 0;
                     
