@@ -42,7 +42,7 @@ namespace Serial::UART::internal {
         }
     }
 
-    // Blocking buts keeps watchdog doing
+    // Blocking buts keeps watchdog going
     void __not_in_flash_func(send_message)(Status_Message *buf) {
         write_chunk(buf->header, 32);
         write_chunk(buf->cmd, 8);
