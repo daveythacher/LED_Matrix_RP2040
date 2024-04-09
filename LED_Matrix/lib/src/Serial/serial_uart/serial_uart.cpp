@@ -12,6 +12,7 @@
 #include "Serial/serial_uart/control_node.h"
 #include "Serial/serial_uart/data_node.h"
 #include "Matrix/matrix.h"
+using Serial::UART::internal::STATUS;
 
 namespace Serial::UART {
     void uart_start() {
