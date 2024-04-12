@@ -19,16 +19,20 @@ namespace Serial::UART::internal {
     };
 
     struct Status_Message {
-        Status_Message();
+        public:
+            Status_Message();
 
-        void set_status(STATUS s);
+            void set_status(STATUS s);
 
-        uint32_t header;
-        uint8_t cmd;
-        uint16_t len;
-        uint32_t status;
-        uint32_t checksum;
-        uint32_t delimiter;
+            uint32_t header;
+            uint8_t cmd;
+            uint16_t len;
+            uint32_t status;
+            uint32_t checksum;
+            uint32_t delimiter;
+
+        private:
+            uint32_t compute_checksum();
     };
 
     void process(uint16_t *buf, uint16_t len);

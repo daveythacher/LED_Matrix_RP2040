@@ -7,6 +7,7 @@ target_sources(serial_uart INTERFACE
     control_node.cpp
     data_node.cpp
     internal.cpp
+    Status_Message.cpp
 )
 
 # Use caution here!
