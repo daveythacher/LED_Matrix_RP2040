@@ -27,7 +27,19 @@ namespace Serial::UART {
 
         // UART
         static_assert(SERIAL_UART_BAUD <= 7800000, "Baud rate must be less than 7.8MBaud");
+
+        // With DMA the required tick rate could be as low as 5.1uS
+        //  We send and receive on this port. (RX is critical, TX is protected by protocol.)
+        //      RX should be protected by TX.
         uart_init(uart0, SERIAL_UART_BAUD);
+
+        // With DMA the required tick rate could be as low as 10.2S
+        //  This is higher priority than uart0.
+        //      However the host protocol design should block this from ever becoming an issue.
+        //  We only receive on this port. (RX is critical.)
+        //      RX is not protected by protocol. (Failure can be observed by host.)
+        //          Host has ability to recover bus by daemon (bootloader) and/or by control procedure.
+        //              Watchdog and timeout will yield controller back to daemon and/or control procedure.
         uart_init(uart1, SERIAL_UART_BAUD);
     }
 
