@@ -37,7 +37,7 @@ namespace Serial::UART::DATA_NODE {
             case DATA_STATES::SETUP:
                 index = 0;
                 trigger = false;
-                checksum = 0;
+                checksum = 0xFFFFFFFF;
                 Serial::UART::uart_callback(&buf, &len);
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN;
 
@@ -224,7 +224,7 @@ namespace Serial::UART::DATA_NODE {
             if (ntohl(data.longs[1]) == 0xAEAEAEAE) {
                 switch (command) {
                     case COMMAND::DATA:
-                        if (ntohl(data.longs[0]) == checksum) {
+                        if (ntohl(data.longs[0]) == ~checksum) {
                             state_data = DATA_STATES::READY;
                             status = STATUS::READY;
                             trigger = false;
@@ -239,7 +239,7 @@ namespace Serial::UART::DATA_NODE {
                         return;
 
                     case COMMAND::SET_ID:
-                        if (ntohl(data.longs[0]) == checksum) {
+                        if (ntohl(data.longs[0]) == ~checksum) {
                             Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
                             error = false;
                         }

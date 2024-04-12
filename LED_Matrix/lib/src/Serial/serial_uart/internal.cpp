@@ -54,12 +54,11 @@ namespace Serial::UART::internal {
     }
 
     uint32_t crc(uint32_t crc, uint8_t data) {
-        crc = ~crc;
         crc ^= data;
 
         for (int i = 0; i < 8; i++)
             crc = crc & 1 ? (crc >> 1) ^ 0x82F63B78 : crc >> 1;
 
-        return ~crc;
+        return crc;
     }
 }
