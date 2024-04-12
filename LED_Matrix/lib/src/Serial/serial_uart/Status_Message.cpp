@@ -53,7 +53,7 @@ namespace Serial::UART::internal {
         return checksum;
     }
 
-    uint32_t __not_in_flash_func(Status_Message::compute_checksum)() {
+    inline uint32_t __not_in_flash_func(Status_Message::compute_checksum)() {
         uint32_t checksum = 0;
 
         checksum = checksum_chunk(checksum, header, 32);
