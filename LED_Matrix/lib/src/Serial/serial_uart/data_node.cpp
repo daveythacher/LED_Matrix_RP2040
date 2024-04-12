@@ -108,7 +108,6 @@ namespace Serial::UART::DATA_NODE {
             //  Use index to mark state of DMA
         }
         else {
-            // TODO: Replace with DMA?
             while (index < len) {
                 if (uart_is_readable(uart0)) {
                     buf[index] = uart_getc(uart0);
