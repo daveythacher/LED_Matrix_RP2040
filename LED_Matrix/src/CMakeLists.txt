@@ -7,6 +7,8 @@ target_include_directories(led_${DEFINE_APP} PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/../lib/include
     ../include
     ../lib/include
+    ${FREERTOS_KERNEL_PATH}/${FREERTOS_KERNEL_RP2040_RELATIVE_PATH}/include
+    .
 )
 
 target_compile_options(led_${DEFINE_APP} PRIVATE 
@@ -20,7 +22,6 @@ target_compile_options(led_${DEFINE_APP} PRIVATE
     -fstack-usage
     -O3
     -funroll-loops 
-    -Werror 
     -Wall
 )
 
@@ -44,6 +45,8 @@ target_link_libraries(led_${DEFINE_APP}
     led_${DEFINE_MATRIX_FOLDER}_${DEFINE_MATRIX_ALGORITHM}
     led_multiplex_${DEFINE_MULTIPLEX_ALGORITHM}
     serial_${DEFINE_SERIAL_ALGORITHM}
+    FreeRTOS-Kernel 
+    FreeRTOS-Kernel-Heap4
 )
 
 target_link_options(led_${DEFINE_APP} 

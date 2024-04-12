@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 # Pull in SDK (must be before project)
 include(lib/external/pico-sdk/external/pico_sdk_import.cmake)
+include(lib/external/FreeRTOS-Kernel/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 project(led C CXX ASM)
 set(CMAKE_C_STANDARD 11)
