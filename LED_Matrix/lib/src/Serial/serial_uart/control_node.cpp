@@ -42,6 +42,7 @@ namespace Serial::UART::CONTROL_NODE {
 
     // Use uart1
     // TODO: Switch to ISR?
+    //  Use DMA?
     bool __not_in_flash_func(get_message)(Control_Message *msg) {
         // TODO: Nonblocking
 
