@@ -7,3 +7,6 @@
 [submodule "LED_Matrix/lib/external/pico-sdk"]
 	path = LED_Matrix/lib/external/pico-sdk
 	url = https://github.com/raspberrypi/pico-sdk.git
+[submodule "LED_Matrix/lib/external/FreeRTOS-Kernel"]
+	path = LED_Matrix/lib/external/FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
