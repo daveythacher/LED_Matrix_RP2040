@@ -37,6 +37,7 @@ namespace Serial::UART::DATA_NODE {
             case DATA_STATES::SETUP:
                 index = 0;
                 trigger = false;
+                checksum = 0;
                 Serial::UART::uart_callback(&buf, &len);
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN;
 
@@ -50,7 +51,7 @@ namespace Serial::UART::DATA_NODE {
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::PREAMBLE_CMD_LEN:                 // Host should see IDLE_0/1 to ACTIVE_0
-                get_data(data.bytes, 8, false);
+                get_data(data.bytes, 8, true);
                 process_command();                
                 break;
 
@@ -118,8 +119,6 @@ namespace Serial::UART::DATA_NODE {
     }
 
     inline void __not_in_flash_func(process_command)() {
-        bool escape = true;
-
         if (index == 8) {
             if (ntohl(data.longs[0]) == 0xAAEEAAEE) {
                 switch (data.bytes[5]) {
@@ -131,8 +130,6 @@ namespace Serial::UART::DATA_NODE {
                                     command = COMMAND::DATA;
                                     status = STATUS::ACTIVE_0;
                                     index = 0;
-                                    checksum = 0;
-                                    escape = false;
                                     trigger = false;
                                 }
                                 break;
@@ -143,8 +140,6 @@ namespace Serial::UART::DATA_NODE {
                                     command = COMMAND::RAW_DATA;
                                     status = STATUS::ACTIVE_0;
                                     index = 0;
-                                    checksum = 0;
-                                    escape = false;
                                     trigger = false;
                                 }
                                 break;
@@ -162,8 +157,6 @@ namespace Serial::UART::DATA_NODE {
                                     command = COMMAND::SET_ID;
                                     status = STATUS::ACTIVE_0;
                                     index = 0;
-                                    checksum = 0;
-                                    escape = false;
                                 }
                                 break;
 
@@ -178,18 +171,8 @@ namespace Serial::UART::DATA_NODE {
             }
         }
 
-        // Reseed and try again.
-        //  Host app will do the right thing. (Did not see IDLE_0/1 to ACTIVE_0)
-        if (escape) {
-            data.bytes[0] = data.bytes[1];
-            data.bytes[1] = data.bytes[2];
-            data.bytes[2] = data.bytes[3];
-            data.bytes[3] = data.bytes[4];
-            data.bytes[4] = data.bytes[5];
-            data.bytes[5] = data.bytes[6];
-            data.bytes[6] = data.bytes[7];
-            index--;
-        }
+        // Host app will do the right thing. (Did not see IDLE_0/1 to ACTIVE_0)
+        state_data = DATA_STATES::SETUP;
     }
 
     inline void __not_in_flash_func(process_payload)() {
