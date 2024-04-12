@@ -34,6 +34,7 @@ namespace Serial::UART::internal {
     void process(uint16_t *buf, uint16_t len);
     void send_status(STATUS status);
     void send_message(Status_Message *message);
+    uint32_t crc(uint32_t crc, uint8_t data);
 }
 
 #endif

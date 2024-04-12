@@ -103,19 +103,17 @@ namespace Serial::UART::DATA_NODE {
     }
 
     void __not_in_flash_func(get_data)(uint8_t *buf, uint16_t len, bool checksum) {
-        if (checksum) {
-            // TODO: Compute checksum in parallel (via DMA?)
-            //  Use index to mark state of DMA
-        }
-        else {
-            while (index < len) {
-                if (uart_is_readable(uart0)) {
-                    buf[index] = uart_getc(uart0);
-                    index++;
-                }
-                else
-                    break;
+        while (index < len) {
+            if (uart_is_readable(uart0)) {
+                buf[index] = uart_getc(uart0);
+
+                if (checksum)
+                    checksum = Serial::UART::internal::crc(checksum, buf[index]);
+
+                index++;
             }
+            else
+                break;
         }
     }
 
