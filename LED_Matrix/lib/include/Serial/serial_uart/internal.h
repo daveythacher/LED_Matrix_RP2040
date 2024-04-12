@@ -8,6 +8,7 @@
 #define SERIAL_UART_INTERNAL_H
     
 #include <stdint.h>
+#include "pico/multicore.h"
 
 namespace Serial::UART::internal {
     enum class STATUS {
@@ -38,7 +39,15 @@ namespace Serial::UART::internal {
     void process(uint16_t *buf, uint16_t len);
     void send_status(STATUS status);
     void send_message(Status_Message *message);
-    uint32_t crc(uint32_t crc, uint8_t data);
+
+    inline uint32_t __not_in_flash_func(crc)(uint32_t crc, uint8_t data) {
+        crc ^= data;
+
+        for (int i = 0; i < 8; i++)
+            crc = crc & 1 ? (crc >> 1) ^ 0x82F63B78 : crc >> 1;
+
+        return crc;
+    }
 }
 
 #endif

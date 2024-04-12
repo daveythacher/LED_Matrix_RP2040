@@ -4,7 +4,6 @@
  * License: GPL 3.0
  */
 
-#include "pico/multicore.h"
 #include "Serial/serial_uart/machine.h"
 #include "Serial/serial_uart/internal.h"
 

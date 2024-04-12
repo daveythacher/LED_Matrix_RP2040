@@ -4,7 +4,6 @@
  * License: GPL 3.0
  */
 
-#include "pico/multicore.h"
 #include "hardware/watchdog.h"
 #include "hardware/uart.h"
 #include "Serial/serial_uart/internal.h"
@@ -51,14 +50,5 @@ namespace Serial::UART::internal {
         write_chunk(buf->status, 32);
         write_chunk(buf->checksum, 32);
         write_chunk(buf->delimiter, 32);
-    }
-
-    uint32_t crc(uint32_t crc, uint8_t data) {
-        crc ^= data;
-
-        for (int i = 0; i < 8; i++)
-            crc = crc & 1 ? (crc >> 1) ^ 0x82F63B78 : crc >> 1;
-
-        return crc;
     }
 }
