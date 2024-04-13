@@ -39,18 +39,6 @@ namespace Serial::UART::internal {
     void process(uint16_t *buf, uint16_t len);
     void send_status(STATUS status);
     void send_message(Status_Message *message);
-
-    // TODO: Consider moving this to look up table for performance
-    //  Given the fact we are on microcontroller we likely cannot support buffers,
-    //  unless we have proper hardware framing. (We do not currently use this.)
-    inline uint32_t __not_in_flash_func(crc)(uint32_t crc, uint8_t data) {
-        crc ^= data;
-
-        for (int i = 0; i < 8; i++)
-            crc = crc & 1 ? (crc >> 1) ^ 0x82F63B78 : crc >> 1;
-
-        return crc;
-    }
 }
 
 #endif

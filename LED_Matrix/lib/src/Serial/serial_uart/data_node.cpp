@@ -7,6 +7,7 @@
 #include "hardware/uart.h"
 #include "Serial/serial_uart/serial_uart.h"
 #include "Serial/serial_uart/internal.h"
+#include "Serial/serial_uart/CRC.h"
 #include "Serial/serial_uart/control_node.h"
 #include "Serial/serial_uart/data_node.h"
 #include "Serial/serial_uart/machine.h"
@@ -109,7 +110,7 @@ namespace Serial::UART::DATA_NODE {
                 buf[index] = uart_getc(uart0);
 
                 if (checksum)
-                    checksum = Serial::UART::internal::crc(checksum, buf[index]);
+                    checksum = Serial::UART::CRC::crc32(checksum, buf[index]);
 
                 index++;
             }
