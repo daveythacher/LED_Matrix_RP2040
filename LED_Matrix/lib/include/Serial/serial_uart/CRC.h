@@ -59,6 +59,10 @@ namespace Serial::UART::CRC {
 
     //  Given the fact we are on microcontroller we likely cannot support buffers,
     //  unless we have proper hardware framing. (We do not currently use this.)
+    //  
+    //  Notes:
+    //      1. Always start with 0xFFFFFFFF for CRC
+    //      2. Always bitwise invert returned CRC before comparing checksum
     inline uint32_t crc32(uint32_t crc, uint8_t data) {
         return crc32_tab[(crc ^ data) & 0xFF] ^ (crc >> 8);
     }
