@@ -238,6 +238,7 @@ namespace Serial::UART::DATA_NODE {
             if (ntohl(data.longs[1]) == 0xAEAEAEAE) {
                 switch (command) {
                     case COMMAND::DATA:
+                        // Future: Look into parity
                         if (ntohl(data.longs[0]) == ~checksum) {
                             state_data = DATA_STATES::READY;
                             time = time_us_64();
@@ -255,6 +256,7 @@ namespace Serial::UART::DATA_NODE {
                         return;
 
                     case COMMAND::SET_ID:
+                        // Future: Look into parity
                         if (ntohl(data.longs[0]) == ~checksum) {
                             Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
                             error = false;
