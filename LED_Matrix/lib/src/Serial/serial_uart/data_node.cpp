@@ -91,6 +91,11 @@ namespace Serial::UART::DATA_NODE {
         }
 
         // Timeout after 1mS
+        //  Data node should yield from timeout or watchdog.
+        //      If the Data node is compromised, the device is offline.
+        //          Malformed responses will DoS offline.
+        //      If the Control node is compromised, the device will respond to local commands only.
+        //      If the bootloader or watchdog fail to reset, the data node is compromised.
         if ((time + 1000) < time_us_64()) {
             reset();
         }
