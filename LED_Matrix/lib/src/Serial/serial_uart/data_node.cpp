@@ -25,6 +25,7 @@ namespace Serial::UART::DATA_NODE {
     static uint32_t checksum;
     static STATUS status;
     static bool trigger;
+    static uint64_t time;
 
     static void get_data(uint8_t *buf, uint16_t len, bool checksum);
     static void process_command();
@@ -41,6 +42,7 @@ namespace Serial::UART::DATA_NODE {
                 checksum = 0xFFFFFFFF;
                 Serial::UART::uart_callback(&buf, &len);
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN;
+                time = time_us_64();
 
                 if (idle_num == 0)
                     status = STATUS::IDLE_0;
@@ -88,8 +90,8 @@ namespace Serial::UART::DATA_NODE {
                 break;
         }
 
-        // TODO: Add timer to timeout
-        if (0) {
+        // Timeout after 1mS
+        if ((time + 1000) < time_us_64()) {
             reset();
         }
 
@@ -128,6 +130,7 @@ namespace Serial::UART::DATA_NODE {
                             case 'd':
                                 if (ntohs(data.shorts[3]) == len) {
                                     state_data = DATA_STATES::PAYLOAD;
+                                    time = time_us_64();
                                     command = COMMAND::DATA;
                                     status = STATUS::ACTIVE_0;
                                     index = 0;
@@ -138,6 +141,7 @@ namespace Serial::UART::DATA_NODE {
                             case 'r':
                                 if (ntohs(data.shorts[3]) == len) {
                                     state_data = DATA_STATES::PAYLOAD;
+                                    time = time_us_64();
                                     command = COMMAND::RAW_DATA;
                                     status = STATUS::ACTIVE_0;
                                     index = 0;
@@ -155,6 +159,7 @@ namespace Serial::UART::DATA_NODE {
                             case 'i':
                                 if (ntohs(data.shorts[3]) == 1) {
                                     state_data = DATA_STATES::PAYLOAD;
+                                    time = time_us_64();
                                     command = COMMAND::SET_ID;
                                     status = STATUS::ACTIVE_0;
                                     index = 0;
@@ -183,6 +188,7 @@ namespace Serial::UART::DATA_NODE {
 
                 if (len == index) {
                     state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
+                    time = time_us_64();
                     index = 0;
                     status = STATUS::ACTIVE_1;
                     trigger = false;
@@ -194,6 +200,7 @@ namespace Serial::UART::DATA_NODE {
 
                 if (len == index) {
                     state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
+                    time = time_us_64();
                     index = 0;
                     status = STATUS::ACTIVE_1;
                     trigger = false;
@@ -205,6 +212,7 @@ namespace Serial::UART::DATA_NODE {
 
                 if (index == 1) {
                     state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
+                    time = time_us_64();
                     index = 0;
                     status = STATUS::ACTIVE_1;
                 }
@@ -227,6 +235,7 @@ namespace Serial::UART::DATA_NODE {
                     case COMMAND::DATA:
                         if (ntohl(data.longs[0]) == ~checksum) {
                             state_data = DATA_STATES::READY;
+                            time = time_us_64();
                             status = STATUS::READY;
                             trigger = false;
                             return;
@@ -235,6 +244,7 @@ namespace Serial::UART::DATA_NODE {
                     
                     case COMMAND::RAW_DATA:
                         state_data = DATA_STATES::READY;
+                        time = time_us_64();
                         status = STATUS::READY;
                         trigger = false;
                         return;
