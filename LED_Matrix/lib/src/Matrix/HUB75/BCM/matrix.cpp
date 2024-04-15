@@ -147,6 +147,10 @@ namespace Matrix {
 
         timer = hardware_alarm_claim_unused(true);
         timer_hw->inte |= 1 << timer;
+
+        do {
+            buffer = (test2 *) Worker::get_front_buffer();
+        } while (buffer == nullptr);
         
         load_line(0);
         send_line();
@@ -195,19 +199,11 @@ namespace Matrix {
                     timer_hw->armed = 1 << timer;                                           // Kick off timer
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
+                        test2 *p = (test2 *) Worker::get_front_buffer();
                         rows = 0;
 
-                        do {
-                            test2 *p;
-
-                            if (Serial::isPacket)
-                                p = (test2 *) Worker::get_front_buffer();
-                            else
-                                p = (test2 *) Loafer::get_front_buffer();
-
-                            if (p != nullptr)
-                                buffer = p;
-                        } while (buffer == nullptr);
+                        if (p != nullptr)
+                            buffer = p;
                     }
                     
                     Multiplex::SetRow(rows);

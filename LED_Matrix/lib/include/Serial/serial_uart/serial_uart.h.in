@@ -11,9 +11,9 @@
 #include <stdio.h>
 #include "Serial/config.h"
 
-namespace Serial {
+namespace Serial::UART {
     
-    void uart_start(int dma_chan0, int dma_chan1);
+    void uart_start();
     void uart_task();
     void uart_callback(uint8_t **buf, uint16_t *len);
 

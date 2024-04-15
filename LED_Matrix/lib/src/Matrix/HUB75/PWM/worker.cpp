@@ -18,7 +18,8 @@
 namespace Matrix::Worker {
     test2 buf[Serial::num_framebuffers];
     static uint8_t bank = 0;
-    volatile bool vsync = false;
+    static volatile uint8_t bank_vsync = 0;
+    static volatile bool vsync = false;
 
     template <typename T> PWM_worker<T>::PWM_worker() {
         for (uint32_t i = 0; i < sizeof(index_table_t::v) / sizeof(uint32_t); i++)
@@ -27,7 +28,7 @@ namespace Matrix::Worker {
         build_index_table();
     }
 
-    template <typename T> T *__not_in_flash_func(PWM_worker<T>::get_table)(uint16_t v, uint8_t i) {
+    template <typename T> inline T *__not_in_flash_func(PWM_worker<T>::get_table)(uint16_t v, uint8_t i) {
         constexpr uint32_t div = std::max((uint32_t) Serial::range_high / 1 << PWM_bits, (uint32_t) 1);
         constexpr uint32_t mul = std::max((uint32_t) 1 << PWM_bits / Serial::range_high, (uint32_t) 1);
 
@@ -36,7 +37,7 @@ namespace Matrix::Worker {
         return index_table.table[v][i];
     }
 
-    template <typename T> void __not_in_flash_func(PWM_worker<T>::set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
+    template <typename T> inline void __not_in_flash_func(PWM_worker<T>::set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
         T *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
     
         for (uint32_t i = 0; i < (1 << PWM_bits); i += sizeof(T)) {
@@ -50,7 +51,7 @@ namespace Matrix::Worker {
         }
     }
 
-    template <typename T> void PWM_worker<T>::build_index_table() {
+    template <typename T> inline void PWM_worker<T>::build_index_table() {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
             for (uint32_t j = 0; j < i; j++)
                 for (uint8_t k = 0; k < 6; k++)
@@ -58,18 +59,22 @@ namespace Matrix::Worker {
         }
     }
 
-    template <typename T> void __not_in_flash_func(PWM_worker<T>::process_packet)(Serial::packet *p) {
+    template <typename T> inline void __not_in_flash_func(PWM_worker<T>::process_packet)(Serial::packet *p) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint16_t x = 0; x < COLUMNS; x++) {
                     set_pixel(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
             }
         }
 
-        APP::multicore_fifo_push_blocking_inline(bank);
+        while (vsync) {
+            // Block
+        }
+
+        vsync = true;
         bank = (bank + 1) % Serial::num_framebuffers;
     }    
     
-    template <typename T> static void __not_in_flash_func(worker_internal)() {
+    template <typename T> inline static void __not_in_flash_func(worker_internal)() {
         static PWM_worker<T> w;
         
         while(1) {
@@ -98,15 +103,14 @@ namespace Matrix::Worker {
     }
 
     void *__not_in_flash_func(get_front_buffer)() {
-        if (multicore_fifo_rvalid()) {
-            uint32_t i = (uint32_t) APP::multicore_fifo_pop_blocking_inline();
-            return (void *) &buf[i % Serial::num_framebuffers];
+        void *result = nullptr;
+
+        if (vsync) {
+            result = (void *) &buf[bank_vsync];
+            bank_vsync = (bank_vsync + 1) % Serial::num_framebuffers;
+            vsync = false;
         }
 
-        return nullptr;
-    }
-
-    uint32_t __not_in_flash_func(get_buffer_size)() {
-        return Loafer::get_buffer_size();
+        return result;
     }
 }

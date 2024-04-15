@@ -1,3 +1,9 @@
+/* 
+ * File:   calculator.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include <algorithm>
 #include <stdint.h>
 #include "Matrix/HUB75/BCM/memory_format.h"
@@ -50,6 +56,16 @@ namespace Matrix::Calculator {
         static_assert(led_fall_us_high < BLANK_TIME, "Blank time is too low for high side");
     }
 
+    /*  Must test the following:
+     *      1) Fanout
+     *      2) Refresh
+     *      3) Memory usage
+     *      4) Computation operations required
+     *  Additional Tests:
+     *      1) Grayscale limits
+     *      2) Ghosting limits
+     *      3) Accuracy of signals
+     */
     void verify_configuration() {
         is_brightness_valid();
         is_clk_valid();

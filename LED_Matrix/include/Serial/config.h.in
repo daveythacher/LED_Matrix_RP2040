@@ -15,25 +15,21 @@ namespace Serial {
     // -- DO NOT EDIT BELOW THIS LINE --
 
     #cmakedefine DEFINE_SERIAL_RGB_TYPE     @DEFINE_SERIAL_RGB_TYPE@
-    #cmakedefine DEFINE_IS_LOAFER           @DEFINE_IS_LOAFER@
-
-    #ifndef DEFINE_IS_LOAFER
-    #define DEFINE_IS_LOAFER            false
-    #endif
 
     typedef volatile DEFINE_SERIAL_RGB_TYPE test[2 * Matrix::MULTIPLEX][Matrix::COLUMNS];
+
+    constexpr uint32_t pad = 4;
     
     union packet {
         test data;
-        volatile uint32_t mem[((sizeof(test) / 64) + 1) * (64 / sizeof(uint32_t))];
+        volatile uint32_t mem[((sizeof(test) / pad) + 1) * (pad / sizeof(uint32_t))];
     };
 
     const uint32_t range_high = DEFINE_SERIAL_RGB_TYPE::range_high;
-    constexpr uint8_t num_framebuffers = 3;
+    constexpr uint8_t num_framebuffers = 1 + 1 + 1;
     constexpr uint32_t max_framebuffer_size = 48 * 1024;
     constexpr uint32_t payload_size = 8 * 1024;
-    constexpr uint8_t num_packets = 3;
-    constexpr bool isPacket = !(DEFINE_IS_LOAFER);
+    constexpr uint8_t num_packets = 4 + 2;
 }
 
 #endif

@@ -10,7 +10,7 @@
 #include "Matrix/matrix.h"
 
 namespace Serial {
-    static void __not_in_flash_func(test_driver_worker)() {
+    void __not_in_flash_func(task)() {
         static volatile packet buffers[num_packets];
         static volatile uint8_t buffer = 0;
         
@@ -33,12 +33,7 @@ namespace Serial {
         Matrix::Worker::process((void *) &buffers[(buffer + 1) % num_packets]);
     }
 
-    void __not_in_flash_func(task)() {
-        if (isPacket)
-            test_driver_worker();
-    }
-
     void start() {
-        static_assert(isPacket, "Loafer version of test Serial Algorithm is not supported");
+        // Do nothing
     }
 }
