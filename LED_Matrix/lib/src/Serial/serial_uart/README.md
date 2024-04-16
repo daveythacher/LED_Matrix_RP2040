@@ -12,13 +12,13 @@ Uses event loop which should not be starved. All of this is software and therefo
 
 Use calculation of worst case to determine response time required by implementation. (This is real time process.) Use calculation of worst case to determine CPU usage. This approach is used on core 1 for the worker process in the calculator of the Matrix algorithms. (This is real time process.) Usage was expressed as millions of operations per second, which ensures both conditions are met. (Multiplexing is believed to be constant load.)
 
-### Flow Control (Out of date)
-Packets are divided in two, which allows a state token to be updated. This token is transmitted every 10 microseconds to the host. Host must wait for permission before sending a packet. Host is allowed to send full packet as two DMA channels are chained to capture the full packet. The event loop will deny permission to the host at the half way point. Host must wait for packet transmission to complete before looking at token.
+### Flow Control
+The event loop produces tokens periodically to the host. Host sends data in stages waiting for an expected response before proceeding. When an error occurs this implementation will reset the state machine and begin producing expected tokens for the host to observe. 
 
-### Error Protocol (Out of date)
-This is currently implemented by the host using the state passed from the flow control. Should the flow control fail the host is to freeze. Currently this design hopes for a miracle as the watchdog does not intercept. Should a byte be dropped the host must handle the token change did not occur as expected. This recovery should be slow and careful. (Send a byte, wait and repeat.)
+Every command is sent on its own id like in USB. (Alternating 0 to 1 and 1 to 0.) See Serial::UART::internal::STATUS in lib/include/Serial/serial_uart/internal.h
 
-At some point a checksum may be added to the packets.
+### Error Protocol
+This is currently implemented by the host using the state passed in the flow control. Timeout is used in data node and watchdog. (Watchdog is should trip on core 0 as we use a producer/consumer blocking pipeline on core 0 and core 1.) Corruption of tokens cause the token to be lost which the host should observe and is the host is responsible for doing the right thing.
 
 ### Priority Regulation
 Currently point to point so not handled/required.
