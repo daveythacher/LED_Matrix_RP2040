@@ -133,6 +133,7 @@ namespace Serial::UART::DATA_NODE {
                     case 'd':
                         switch (data.bytes[4]) {
                             case 'd':
+                                // TODO: Verify DEFINE_SERIAL_RGB_TYPE
                                 if (ntohs(data.shorts[3]) == len) {
                                     state_data = DATA_STATES::PAYLOAD;
                                     time = time_us_64();
@@ -144,6 +145,7 @@ namespace Serial::UART::DATA_NODE {
                                 break;
 
                             case 'r':
+                                // TODO: Verify DEFINE_SERIAL_RGB_TYPE
                                 if (ntohs(data.shorts[3]) == len) {
                                     state_data = DATA_STATES::PAYLOAD;
                                     time = time_us_64();
