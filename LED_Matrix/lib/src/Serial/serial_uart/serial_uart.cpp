@@ -45,6 +45,7 @@ namespace Serial::UART {
 
     // Warning host is required to obey flow control and handle bus recovery
     void __not_in_flash_func(uart_task)() {
+        static uint64_t time = time_us_64();
         STATUS status;
 
         // Check for errors
@@ -59,7 +60,11 @@ namespace Serial::UART {
 
         Serial::UART::CONTROL_NODE::control_node();
         status = Serial::UART::DATA_NODE::data_node();
-        Serial::UART::internal::send_status(status);
+
+        if ((time_us_64() - time) >= 30) {
+            Serial::UART::internal::send_status(status);
+            time = time_us_64();
+        }
     }
     
     void __not_in_flash_func(uart_callback)(uint8_t **buf, uint16_t *len) {

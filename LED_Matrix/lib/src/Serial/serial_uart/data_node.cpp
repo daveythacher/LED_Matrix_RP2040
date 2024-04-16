@@ -96,7 +96,7 @@ namespace Serial::UART::DATA_NODE {
         //          Malformed responses will DoS offline.
         //      If the Control node is compromised, the device will respond to local commands only.
         //      If the bootloader or watchdog fail to reset, the data node is compromised.
-        if ((time + 1000) < time_us_64()) {
+        if ((time_us_64() - time) >= 1000) {
             reset();
         }
 

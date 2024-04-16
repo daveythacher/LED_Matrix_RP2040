@@ -19,6 +19,7 @@ namespace Serial::UART::internal {
         READY
     };
 
+    // Should be less than 32 bytes in size
     struct Status_Message {
         public:
             Status_Message();
