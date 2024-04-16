@@ -29,6 +29,8 @@ namespace Serial::UART::internal {
     void __not_in_flash_func(send_status)(STATUS status) {
         static Status_Message messages;
 
+        static_assert(sizeof(Status_Message) <= 32, "Status message too big for UART FIFO on RP2040");
+
         messages.set_status(status);
         send_message(&messages);
     }

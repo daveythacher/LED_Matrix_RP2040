@@ -61,7 +61,7 @@ namespace Serial::UART {
         Serial::UART::CONTROL_NODE::control_node();
         status = Serial::UART::DATA_NODE::data_node();
 
-        if ((time_us_64() - time) >= 30) {
+        if ((time_us_64() - time) >= (((10 * sizeof(Serial::UART::internal::Status_Message) * 1000000) / SERIAL_UART_BAUD) + 1)) {
             Serial::UART::internal::send_status(status);
             time = time_us_64();
         }
