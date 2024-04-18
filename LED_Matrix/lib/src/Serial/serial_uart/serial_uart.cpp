@@ -41,6 +41,8 @@ namespace Serial::UART {
         //          Host has ability to recover bus by daemon (bootloader) and/or by control procedure.
         //              Watchdog and timeout will yield controller back to daemon and/or control procedure.
         uart_init(uart1, SERIAL_UART_BAUD);
+
+        // Future: Enable Hardware Flow control
     }
 
     // Warning host is required to obey flow control and handle bus recovery
