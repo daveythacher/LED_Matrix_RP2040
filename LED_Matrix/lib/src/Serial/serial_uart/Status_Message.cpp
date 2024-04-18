@@ -61,6 +61,6 @@ namespace Serial::UART::internal {
         checksum = checksum_chunk(checksum, len, 16);
         checksum = checksum_chunk(checksum, status, 32);
 
-        return checksum;
+        return ~checksum;
     }
 }

@@ -23,8 +23,12 @@ namespace Serial::UART::CONTROL_NODE {
         // Never respond to control messages
         if (get_message(&message, &checksum)) {
             // Future: Look into parity
-            if (message.checksum == ~checksum) {
-                switch (message.payload) {
+            if (message.header == ntohl(0xAAEEAAEE) &&
+                    message.delimiter == ntohl(0xAEAEAEAE) &&
+                    message.len == 1 &&
+                    message.checksum == htonl(~checksum)) {
+
+                switch (message.cmd) {
                     case 0:
                         if (message.id == 0 || message.id == id)
                             Serial::UART::DATA_NODE::trigger_processing();
@@ -98,16 +102,7 @@ namespace Serial::UART::CONTROL_NODE {
                     }
                     break;
                     
-                case 4:     // payload
-                    msg->payload = c << (8 * (index - 1));
-                    
-                    if (index == sizeof(uint8_t)) {
-                        index = 0;
-                        state++;
-                    }
-                    break;
-                    
-                case 5:     // checksum
+                case 4:     // checksum
                     msg->checksum = c << (8 * (index - 1));
                     check_it = false;
                     
@@ -118,7 +113,7 @@ namespace Serial::UART::CONTROL_NODE {
                     }
                     break;
                     
-                case 6:     // delimiter
+                case 5:     // delimiter
                     msg->delimiter = c << (8 * (index - 1));
                     check_it = false;
                     

@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
  
-#ifndef SERIAL_UART_CRC32_H
-#define SERIAL_UART_CRC32_H
+#ifndef SERIAL_UART_CRC_H
+#define SERIAL_UART_CRC_H
     
 #include <stdint.h>
 #include "pico/multicore.h"

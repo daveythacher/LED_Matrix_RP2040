@@ -15,7 +15,6 @@ namespace Serial::UART::CONTROL_NODE {
         uint8_t cmd;
         uint16_t len;
         uint8_t id;
-        uint8_t payload;
         uint32_t checksum;
         uint32_t delimiter;
     };
