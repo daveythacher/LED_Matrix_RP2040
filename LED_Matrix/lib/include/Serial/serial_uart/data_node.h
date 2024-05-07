@@ -12,16 +12,16 @@
 namespace Serial::UART::DATA_NODE {
     enum class DATA_STATES {
         SETUP,
-        PREAMBLE_CMD_LEN,
+        PREAMBLE_CMD_LEN_T_ROWS_COLUMNS,
         PAYLOAD,
         CHECKSUM_DELIMITER_PROCESS,
         READY
     };
 
     union random_type {
-        uint8_t bytes[8];
-        uint16_t shorts[4];
-        uint32_t longs[2];
+        uint8_t bytes[12];
+        uint16_t shorts[6];
+        uint32_t longs[3];
     };
 
     enum class COMMAND {

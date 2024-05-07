@@ -41,7 +41,7 @@ namespace Serial::UART::DATA_NODE {
                 trigger = false;
                 checksum = 0xFFFFFFFF;
                 Serial::UART::uart_callback(&buf, &len);
-                state_data = DATA_STATES::PREAMBLE_CMD_LEN;
+                state_data = DATA_STATES::PREAMBLE_CMD_LEN_T_ROWS_COLUMNS;
                 time = time_us_64();
 
                 if (idle_num == 0)
@@ -53,8 +53,8 @@ namespace Serial::UART::DATA_NODE {
             // Host protocol should create bubble waiting for status after sending data.
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
-            case DATA_STATES::PREAMBLE_CMD_LEN:                 // Host should see IDLE_0/1 to ACTIVE_0
-                get_data(data.bytes, 8, true);
+            case DATA_STATES::PREAMBLE_CMD_LEN_T_ROWS_COLUMNS:  // Host should see IDLE_0/1 to ACTIVE_0
+                get_data(data.bytes, 12, true);
                 process_command();                
                 break;
 
@@ -133,8 +133,13 @@ namespace Serial::UART::DATA_NODE {
                     case 'd':
                         switch (data.bytes[4]) {
                             case 'd':
-                                // TODO: Verify DEFINE_SERIAL_RGB_TYPE
-                                if (ntohs(data.shorts[3]) == len) {
+                                // TODO: Verify DEFINE_SERIAL_RGB_TYPE use data.bytes[11]
+                                if (ntohs(data.shorts[3]) == len &&
+                                    data.bytes[8] == sizeof(DEFINE_SERIAL_RGB_TYPE) &&
+                                    data.bytes[9] == Matrix::MULTIPLEX &&
+                                    data.bytes[10] == Matrix::COLUMNS &&
+                                    data.bytes[11] == 0
+                                ) {
                                     state_data = DATA_STATES::PAYLOAD;
                                     time = time_us_64();
                                     command = COMMAND::DATA;
@@ -145,8 +150,13 @@ namespace Serial::UART::DATA_NODE {
                                 break;
 
                             case 'r':
-                                // TODO: Verify DEFINE_SERIAL_RGB_TYPE
-                                if (ntohs(data.shorts[3]) == len) {
+                                // TODO: Verify DEFINE_SERIAL_RGB_TYPE use data.bytes[11]
+                                if (ntohs(data.shorts[3]) == len &&
+                                    data.bytes[8] == sizeof(DEFINE_SERIAL_RGB_TYPE) &&
+                                    data.bytes[9] == Matrix::MULTIPLEX &&
+                                    data.bytes[10] == Matrix::COLUMNS &&
+                                    data.bytes[11] == 0
+                                ) {
                                     state_data = DATA_STATES::PAYLOAD;
                                     time = time_us_64();
                                     command = COMMAND::RAW_DATA;
@@ -164,7 +174,9 @@ namespace Serial::UART::DATA_NODE {
                     case 'c':
                         switch (data.bytes[4]) {
                             case 'i':
-                                if (ntohs(data.shorts[3]) == 1) {
+                                if (ntohs(data.shorts[3]) == 1 &&
+                                    ntohl(data.longs[2]) == 0
+                                ) {
                                     state_data = DATA_STATES::PAYLOAD;
                                     time = time_us_64();
                                     command = COMMAND::SET_ID;
