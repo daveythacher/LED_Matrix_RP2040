@@ -41,7 +41,7 @@ namespace Serial::UART::DATA_NODE {
                 trigger = false;
                 checksum = 0xFFFFFFFF;
                 Serial::UART::uart_callback(&buf, &len);
-                state_data = DATA_STATES::PREAMBLE_CMD_LEN_T_ROWS_COLUMNS;
+                state_data = DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS;
                 time = time_us_64();
 
                 if (idle_num == 0)
@@ -53,7 +53,7 @@ namespace Serial::UART::DATA_NODE {
             // Host protocol should create bubble waiting for status after sending data.
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
-            case DATA_STATES::PREAMBLE_CMD_LEN_T_ROWS_COLUMNS:  // Host should see IDLE_0/1 to ACTIVE_0
+            case DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS: // Host should see IDLE_0/1 to ACTIVE_0
                 get_data(data.bytes, 12, true);
                 process_command();                
                 break;
@@ -61,14 +61,14 @@ namespace Serial::UART::DATA_NODE {
             // Host protocol should create bubble waiting for status after sending data.
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
-            case DATA_STATES::PAYLOAD:                          // Host should see ACTIVE_0 to ACTIVE_1
+            case DATA_STATES::PAYLOAD:                              // Host should see ACTIVE_0 to ACTIVE_1
                 process_payload();
                 break;
 
             // Host protocol should create bubble waiting for status after sending data.
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
-            case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:       // Host should see ACTIVE_1 to IDLE_1/0 or READY
+            case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:           // Host should see ACTIVE_1 to IDLE_1/0 or READY
                 get_data(data.bytes, 8, false);
                 process_frame();
                 break;
@@ -77,7 +77,7 @@ namespace Serial::UART::DATA_NODE {
             // Host protocol should create bubble waiting for status after sending data.
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
-            case DATA_STATES::READY:                            // Host should see READY to IDLE_1/0
+            case DATA_STATES::READY:                                // Host should see READY to IDLE_1/0
                 if (trigger) {
                     Serial::UART::internal::process((uint16_t *) buf, len);
                     idle_num = (idle_num + 1) % 2;

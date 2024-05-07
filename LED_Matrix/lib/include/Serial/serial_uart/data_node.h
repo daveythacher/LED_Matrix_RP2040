@@ -12,7 +12,7 @@
 namespace Serial::UART::DATA_NODE {
     enum class DATA_STATES {
         SETUP,
-        PREAMBLE_CMD_LEN_T_ROWS_COLUMNS,
+        PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS,
         PAYLOAD,
         CHECKSUM_DELIMITER_PROCESS,
         READY
