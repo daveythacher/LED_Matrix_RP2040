@@ -133,12 +133,11 @@ namespace Serial::UART::DATA_NODE {
                     case 'd':
                         switch (data.bytes[4]) {
                             case 'd':
-                                // TODO: Verify DEFINE_SERIAL_RGB_TYPE use data.bytes[11]
                                 if (ntohs(data.shorts[3]) == len &&
                                     data.bytes[8] == sizeof(DEFINE_SERIAL_RGB_TYPE) &&
                                     data.bytes[9] == Matrix::MULTIPLEX &&
                                     data.bytes[10] == Matrix::COLUMNS &&
-                                    data.bytes[11] == 0
+                                    data.bytes[11] == DEFINE_SERIAL_RGB_TYPE::id
                                 ) {
                                     state_data = DATA_STATES::PAYLOAD;
                                     time = time_us_64();
@@ -150,12 +149,11 @@ namespace Serial::UART::DATA_NODE {
                                 break;
 
                             case 'r':
-                                // TODO: Verify DEFINE_SERIAL_RGB_TYPE use data.bytes[11]
                                 if (ntohs(data.shorts[3]) == len &&
                                     data.bytes[8] == sizeof(DEFINE_SERIAL_RGB_TYPE) &&
                                     data.bytes[9] == Matrix::MULTIPLEX &&
                                     data.bytes[10] == Matrix::COLUMNS &&
-                                    data.bytes[11] == 0
+                                    data.bytes[11] == DEFINE_SERIAL_RGB_TYPE::id
                                 ) {
                                     state_data = DATA_STATES::PAYLOAD;
                                     time = time_us_64();

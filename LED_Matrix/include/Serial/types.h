@@ -15,7 +15,8 @@ namespace Serial {
         volatile uint8_t green;
         volatile uint8_t blue;
 
-        static constexpr  uint32_t range_high = 1 << 8;
+        static constexpr uint32_t range_high = 1 << 8;
+        static constexpr uint8_t id = 0;
     };
 
     struct RGB48 {
@@ -23,7 +24,8 @@ namespace Serial {
         volatile uint16_t green;
         volatile uint16_t blue;
 
-        static constexpr  uint32_t range_high = 1 << 16;
+        static constexpr uint32_t range_high = 1 << 16;
+        static constexpr uint8_t id = 1;
     };
 
     struct RGB_222 {
@@ -31,7 +33,8 @@ namespace Serial {
         volatile uint8_t green : 2;
         volatile uint8_t blue : 2;
 
-        static constexpr  uint32_t range_high = 1 << 2;
+        static constexpr uint32_t range_high = 1 << 2;
+        static constexpr uint8_t id = 3;
     };
 
     struct RGB_555 {
@@ -40,6 +43,7 @@ namespace Serial {
         volatile uint16_t blue : 5;
 
         static constexpr uint32_t range_high = 1 << 5;
+        static constexpr uint8_t id = 2;
     };
 }
 
