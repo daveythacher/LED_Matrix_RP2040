@@ -75,7 +75,6 @@ namespace Serial::UART::DATA_NODE {
                 process_frame();
                 break;
 
-
             // Host protocol should create bubble waiting for status after sending data.
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
@@ -87,6 +86,8 @@ namespace Serial::UART::DATA_NODE {
                 }
                 break;
                 
+            // Host protocol should create bubble waiting for status containing response data.
+            //  Half duplex like currently for simplicity.
             case DATA_STATES::READY_RESPONSE:
                 if (acknowledge) {
                     idle_num = (idle_num + 1) % 2;
@@ -320,6 +321,9 @@ namespace Serial::UART::DATA_NODE {
                         if (ntohl(data.longs[0]) == ~checksum) {
                             // TODO: Fill in the response packet
                             state_data = DATA_STATES::READY_RESPONSE;
+                            status = STATUS::READY;
+                            time = time_us_64();
+                            acknowledge = false;
                             return;
                         }
                         break;
