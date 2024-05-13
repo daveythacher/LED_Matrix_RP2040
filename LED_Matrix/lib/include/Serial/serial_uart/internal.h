@@ -24,7 +24,7 @@ namespace Serial::UART::internal {
         public:
             Status_Message();
 
-            void set_status(STATUS s, bool respond);
+            void set_status(STATUS s);
 
             uint32_t header;
             uint8_t cmd;

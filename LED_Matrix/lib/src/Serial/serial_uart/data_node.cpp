@@ -319,7 +319,7 @@ namespace Serial::UART::DATA_NODE {
                     case COMMAND::QUERY_TEST:
                         if (ntohl(data.longs[0]) == ~checksum) {
                             // TODO: Fill in the response packet
-                            status_data = DATA_STATES::READY_RESPONSE;
+                            state_data = DATA_STATES::READY_RESPONSE;
                             return;
                         }
                         break;
