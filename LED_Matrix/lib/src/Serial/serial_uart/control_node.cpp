@@ -39,6 +39,11 @@ namespace Serial::UART::CONTROL_NODE {
                             Serial::UART::DATA_NODE::reset();
                         break;
 
+                    case 2:
+                        if (message.id == id)
+                            Serial::UART::DATA_NODE::acknowledge_query();
+                        break;
+
                     default:
                         break;
                 }

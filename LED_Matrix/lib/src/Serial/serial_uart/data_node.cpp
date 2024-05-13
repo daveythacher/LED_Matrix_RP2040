@@ -25,6 +25,7 @@ namespace Serial::UART::DATA_NODE {
     static uint32_t checksum;
     static STATUS status;
     static bool trigger;
+    static bool acknowledge;
     static uint64_t time;
 
     static void get_data(uint8_t *buf, uint16_t len, bool checksum);
@@ -39,6 +40,7 @@ namespace Serial::UART::DATA_NODE {
             case DATA_STATES::SETUP:
                 index = 0;
                 trigger = false;
+                acknowledge = false;
                 checksum = 0xFFFFFFFF;
                 Serial::UART::uart_callback(&buf, &len);
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS;
@@ -84,6 +86,13 @@ namespace Serial::UART::DATA_NODE {
                     state_data = DATA_STATES::SETUP;
                 }
                 break;
+                
+            case DATA_STATES::READY_RESPONSE:
+                if (acknowledge) {
+                    idle_num = (idle_num + 1) % 2;
+                    state_data = DATA_STATES::SETUP;
+                }
+                break;
 
             default:
                 state_data = DATA_STATES::SETUP;
@@ -105,6 +114,10 @@ namespace Serial::UART::DATA_NODE {
 
     void __not_in_flash_func(trigger_processing)() {
         trigger = true;
+    }
+
+    void __not_in_flash_func(acknowledge_query)() {
+        acknowledge = true;
     }
 
     void __not_in_flash_func(reset)() {
@@ -130,6 +143,7 @@ namespace Serial::UART::DATA_NODE {
         if (index == 8) {
             if (ntohl(data.longs[0]) == 0xAAEEAAEE) {
                 switch (data.bytes[5]) {
+                    // Data
                     case 'd':
                         switch (data.bytes[4]) {
                             case 'd':
@@ -169,6 +183,7 @@ namespace Serial::UART::DATA_NODE {
                         }
                         break;
 
+                    // Configure
                     case 'c':
                         switch (data.bytes[4]) {
                             case 'i':
@@ -187,6 +202,21 @@ namespace Serial::UART::DATA_NODE {
                                 break;
                         }
                         break;
+
+                    // Query
+                    case 'q':
+                        switch (data.bytes[4]) {
+                            case 't':
+                                // TODO: Test header
+                                index = 0;
+                                state_data = DATA_STATES::PAYLOAD;
+                                time = time_us_64();
+                                command = COMMAND::QUERY_TEST;
+                                status = STATUS::ACTIVE_0;
+                                break;
+                            default:
+                                break;
+                        }
 
                     default:
                         break;
@@ -235,6 +265,17 @@ namespace Serial::UART::DATA_NODE {
                 }
                 break;
 
+            case COMMAND::QUERY_TEST:
+                // TODO: Get data?
+
+                if (index == 0) {
+                    state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
+                    time = time_us_64();
+                    index = 0;
+                    status = STATUS::ACTIVE_1;
+                }
+                break;
+
             default:
                 state_data = DATA_STATES::SETUP;
                 break;
@@ -272,6 +313,14 @@ namespace Serial::UART::DATA_NODE {
                         if (ntohl(data.longs[0]) == ~checksum) {
                             Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
                             error = false;
+                        }
+                        break;
+
+                    case COMMAND::QUERY_TEST:
+                        if (ntohl(data.longs[0]) == ~checksum) {
+                            // TODO: Fill in the response packet
+                            status_data = DATA_STATES::READY_RESPONSE;
+                            return;
                         }
                         break;
 

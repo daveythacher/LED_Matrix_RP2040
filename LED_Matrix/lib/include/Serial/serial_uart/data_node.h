@@ -15,7 +15,8 @@ namespace Serial::UART::DATA_NODE {
         PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS,
         PAYLOAD,
         CHECKSUM_DELIMITER_PROCESS,
-        READY
+        READY,
+        READY_RESPONSE
     };
 
     union random_type {
@@ -27,11 +28,13 @@ namespace Serial::UART::DATA_NODE {
     enum class COMMAND {
         DATA,
         RAW_DATA,
-        SET_ID
+        SET_ID,
+        QUERY_TEST
     };
 
     Serial::UART::internal::STATUS data_node();
     void trigger_processing();
+    void acknowledge_query();
     void reset();
 }
 
