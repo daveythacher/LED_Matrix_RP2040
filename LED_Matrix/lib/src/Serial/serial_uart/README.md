@@ -40,6 +40,11 @@ UART 1 is simplex with token system. Point to many system. Control node used for
 ### Framing
 Protocol uses packets and flow control to manage framing.
 
+### Topology
+UART 0 is point to point topology. Unicast only. Response are allowed.
+
+UART 1 is point to many (bus) or point to point topology. Broadcast mostly but unicast is also supported if configured using UART 0. Responses are not allowed.
+
 ## Interrupts
 None used per design, which forbids them in Serial Algorithms.
 
