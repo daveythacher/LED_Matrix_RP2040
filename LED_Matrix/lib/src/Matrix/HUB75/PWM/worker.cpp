@@ -43,6 +43,7 @@ namespace Matrix::Worker {
         for (uint32_t i = 0; i < (1 << PWM_bits); i += sizeof(T)) {
             T p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
 
+            // Hopefully the compiler will sort this out. (Inlining set_value)
             for (uint32_t j = 0; (j < sizeof(T)) && ((i + j) < (1 << PWM_bits)); j++)
                 buf[bank].set_value(y, i + j, x + 1, (p >> (j * 8)) & 0xFF);
 
