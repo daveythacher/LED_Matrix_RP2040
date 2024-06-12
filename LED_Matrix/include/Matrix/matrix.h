@@ -53,6 +53,12 @@ namespace Matrix {
         void process(void *arg);
 
         /**
+         *  @brief Function used to pass data thru worker (Assumes flow control)
+         *  @details Implemented in Matrix/<implementation>/worker.cpp
+         */
+        void process(Matrix::Buffer *buffer);
+
+        /**
          *  @brief Function used to grab the front buffer
          *  @details Pulls from FIFO when processing has finished.
          *  @details Implemented in Matrix/<implementation>/worker.cpp
