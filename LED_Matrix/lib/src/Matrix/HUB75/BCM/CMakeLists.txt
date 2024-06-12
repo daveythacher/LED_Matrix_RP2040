@@ -6,6 +6,7 @@ add_library(led_HUB75_BCM INTERFACE)
 target_sources(led_HUB75_BCM INTERFACE
     matrix.cpp
     worker.cpp
+    Buffer.cpp
     calculator.cpp
 )
 

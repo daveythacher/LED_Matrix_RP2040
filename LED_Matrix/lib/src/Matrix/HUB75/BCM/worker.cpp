@@ -16,7 +16,7 @@
 #include "Matrix/HUB75/BCM/BCM_worker.h"
 
 namespace Matrix::Worker {
-    test2 buf[Serial::num_framebuffers];
+    Matrix::Buffer buf[Serial::num_framebuffers];
     static uint8_t bank = 0;
     static volatile uint8_t bank_vsync = 0;
     static volatile bool vsync = false;
@@ -66,8 +66,9 @@ namespace Matrix::Worker {
         
             T p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
 
+            // Hopefully the compiler will sort this out. (Inlining set_value)
             for (uint32_t j = 0; j < sizeof(T); j++)
-                buf[bank][y][(nib * sizeof(T)) + j][x + 1] = (p >> (j * 8)) & 0xFF;
+                buf[bank].set_value(y, (nib * sizeof(T)) + j, x + 1, (p >> (j * 8)) & 0xFF);
         }
     }
 
@@ -99,11 +100,11 @@ namespace Matrix::Worker {
         APP::multicore_fifo_push_blocking_inline((uint32_t) arg);
     }
 
-    void *__not_in_flash_func(get_front_buffer)() {
-        void *result = nullptr;
+    Matrix::Buffer *__not_in_flash_func(get_front_buffer)() {
+        Matrix::Buffer *result = nullptr;
 
         if (vsync) {
-            result = (void *) &buf[bank_vsync];
+            result = &buf[bank_vsync];
             bank_vsync = (bank_vsync + 1) % Serial::num_framebuffers;
             vsync = false;
         }
