@@ -7,6 +7,8 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include "Matrix/Buffer.h"
+
 namespace Matrix {
     /**
      *  @brief Starts Matrix state machine.
@@ -56,7 +58,7 @@ namespace Matrix {
          *  @details Implemented in Matrix/<implementation>/worker.cpp
          *  @return Raw memory pointer to front buffer, no type is known by API. (Not very classy)
          */
-        void *get_front_buffer();
+        Matrix::Buffer *get_front_buffer();
     }
 
     namespace Calculator {

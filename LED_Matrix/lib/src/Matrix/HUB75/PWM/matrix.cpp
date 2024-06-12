@@ -18,12 +18,8 @@
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
 
-namespace Matrix::Worker {
-    extern test2 buf[Serial::num_framebuffers];
-}
-
 namespace Matrix {
-    static test2 *buffer = nullptr;
+    static Buffer *buffer = nullptr;
     static volatile uint8_t state = 0;
     static int dma_chan[2];
     static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << PWM_bits) + 2];
@@ -55,12 +51,11 @@ namespace Matrix {
 
         Multiplex::init(MULTIPLEX);
         
-        memset((void *) Worker::buf, COLUMNS - 1, sizeof(Worker::buf));
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
 
         for (uint32_t i = 0; i < (1 << PWM_bits); i++)
-            address_table[i].len = COLUMNS + 1;
+            address_table[i].len = Buffer::get_line_length();
 
         address_table[1 << PWM_bits].data = null_table;
         address_table[1 << PWM_bits].len = COLUMNS + 1;
@@ -149,7 +144,7 @@ namespace Matrix {
         timer_hw->inte |= 1 << timer;
 
         do {
-            buffer = (test2 *) Worker::get_front_buffer();
+            buffer = Worker::get_front_buffer();
         } while (buffer == nullptr);
         
         load_line(0);
@@ -166,7 +161,7 @@ namespace Matrix {
     //  This is possible due to PIO state machine.
     void __not_in_flash_func(load_line)(uint32_t rows) {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++)
-                address_table[i].data = (*buffer)[rows][i];
+                address_table[i].data = buffer->get_line(rows, i);
     }
 
     void __not_in_flash_func(dma_isr)() {
@@ -194,7 +189,7 @@ namespace Matrix {
                     timer_hw->armed = 1 << timer;                                           // Kick off timer
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
-                        test2 *p = (test2 *) Worker::get_front_buffer();
+                        Buffer *p = Worker::get_front_buffer();
                         rows = 0;
 
                         if (p != nullptr)
