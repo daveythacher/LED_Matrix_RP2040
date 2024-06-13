@@ -23,7 +23,7 @@ namespace Serial::UART::internal {
                 break;
         }
 
-        Matrix::Worker::process((void *) p);
+        Matrix::Worker::process((Serial::packet *) p);
     }
 
     void __not_in_flash_func(send_status)(STATUS status) {

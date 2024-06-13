@@ -50,7 +50,7 @@ namespace Matrix {
          *  @brief Function used to pass data to worker (Assumes flow control)
          *  @details Implemented in Matrix/<implementation>/worker.cpp
          */
-        void process(void *arg);
+        void process(Serial::packet *buffer);
 
         /**
          *  @brief Function used to pass data thru worker (Assumes flow control)

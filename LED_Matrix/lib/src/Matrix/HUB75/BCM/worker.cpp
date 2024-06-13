@@ -96,8 +96,12 @@ namespace Matrix::Worker {
         }
     }
 
-    void __not_in_flash_func(process)(void *arg) {
-        APP::multicore_fifo_push_blocking_inline((uint32_t) arg);
+    void __not_in_flash_func(process)(Serial::packet *buffer) {
+        APP::multicore_fifo_push_blocking_inline((uint32_t) buffer);
+    }
+
+    void __not_in_flash_func(process)(Matrix::Buffer *buffer) {
+        // TODO:
     }
 
     Matrix::Buffer *__not_in_flash_func(get_front_buffer)() {
