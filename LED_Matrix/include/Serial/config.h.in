@@ -23,6 +23,7 @@ namespace Serial {
     union packet {
         test data;
         uint32_t mem[((sizeof(test) / pad) + 1) * (pad / sizeof(uint32_t))];
+        uint16_t val[((sizeof(test) / pad) + 1) * (pad / sizeof(uint16_t))];
         uint8_t raw[((sizeof(test) / pad) + 1) * pad];
     };
 

@@ -17,7 +17,7 @@ namespace Serial::UART::internal {
             case 2:
             case 6:
                 for (uint16_t i = 0; i < len; i += 2)
-                    p->raw[i / 2] = ntohs(p->raw[i / 2]);
+                    p->val[i / 2] = ntohs(p->val[i / 2]);
                 break;
             default:
                 break;
