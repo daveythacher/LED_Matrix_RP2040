@@ -9,6 +9,7 @@
     
 #include <stdint.h>
 #include "pico/multicore.h"
+#include "Serial/config.h"
 
 namespace Serial::UART::internal {
     enum class STATUS {
@@ -37,7 +38,7 @@ namespace Serial::UART::internal {
             uint32_t compute_checksum();
     };
 
-    void process(uint16_t *buf, uint16_t len);
+    void process(Serial::packet *buf, uint16_t len);
     void send_status(STATUS status);
     void send_message(Status_Message *message);
 }

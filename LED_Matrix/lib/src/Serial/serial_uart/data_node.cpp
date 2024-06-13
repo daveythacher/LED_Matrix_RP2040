@@ -14,7 +14,7 @@
 using Serial::UART::internal::STATUS;
 
 namespace Serial::UART::DATA_NODE {
-    static uint8_t *buf = 0;
+    static Serial::packet *buf = 0;
     static uint16_t len = 0;
 
     static DATA_STATES state_data = DATA_STATES::SETUP;
@@ -80,7 +80,7 @@ namespace Serial::UART::DATA_NODE {
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::READY:                                // Host should see READY to IDLE_1/0
                 if (trigger) {
-                    Serial::UART::internal::process((uint16_t *) buf, len);
+                    Serial::UART::internal::process(buf, len);
                     idle_num = (idle_num + 1) % 2;
                     state_data = DATA_STATES::SETUP;
                 }
@@ -232,7 +232,7 @@ namespace Serial::UART::DATA_NODE {
     inline void __not_in_flash_func(process_payload)() {
         switch (command) {
             case COMMAND::DATA:
-                get_data(buf, len, true);
+                get_data(buf->raw, len, true);
 
                 if (len == index) {
                     state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
@@ -244,7 +244,7 @@ namespace Serial::UART::DATA_NODE {
                 break;
 
             case COMMAND::RAW_DATA:
-                get_data(buf, len, false);
+                get_data(buf->raw, len, false);
 
                 if (len == index) {
                     state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;

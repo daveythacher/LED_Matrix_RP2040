@@ -30,7 +30,7 @@ namespace Serial {
         }
         
         buffer = (buffer + 1) % num_packets;   
-        Matrix::Worker::process((void *) &buffers[(buffer + 1) % num_packets]);
+        Matrix::Worker::process(&buffers[(buffer + 1) % num_packets]);
     }
 
     void start() {

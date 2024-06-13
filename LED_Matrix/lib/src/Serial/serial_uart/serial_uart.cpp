@@ -70,12 +70,12 @@ namespace Serial::UART {
         }
     }
     
-    void __not_in_flash_func(uart_callback)(uint8_t **buf, uint16_t *len) {
-        static packet buffers[num_packets];
+    void __not_in_flash_func(uart_callback)(Serial::packet **buf, uint16_t *len) {
+        static Serial::packet buffers[num_packets];
         static volatile uint8_t buffer = 0;
 
-        *buf = (uint8_t *) &buffers[(buffer + 1) % num_packets];
-        *len = sizeof(packet);
+        *buf = &buffers[(buffer + 1) % num_packets];
+        *len = sizeof(Serial::packet);
         buffer = (buffer + 1) % num_packets;
     }    
 }

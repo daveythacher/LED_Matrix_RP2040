@@ -12,18 +12,18 @@
 #include "Matrix/matrix.h"
 
 namespace Serial::UART::internal {
-    void __not_in_flash_func(process)(uint16_t *p, uint16_t len) {
+    void __not_in_flash_func(process)(Serial::packet *p, uint16_t len) {
         switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
             case 2:
             case 6:
                 for (uint16_t i = 0; i < len; i += 2)
-                    p[i / 2] = ntohs(p[i / 2]);
+                    p->raw[i / 2] = ntohs(p->raw[i / 2]);
                 break;
             default:
                 break;
         }
 
-        Matrix::Worker::process((Serial::packet *) p);
+        Matrix::Worker::process(p);
     }
 
     void __not_in_flash_func(send_status)(STATUS status) {

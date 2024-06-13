@@ -23,6 +23,7 @@ namespace Serial {
     union packet {
         test data;
         volatile uint32_t mem[((sizeof(test) / pad) + 1) * (pad / sizeof(uint32_t))];
+        volatile uint8_t raw[((sizeof(test) / pad) + 1) * pad];
     };
 
     const uint32_t range_high = DEFINE_SERIAL_RGB_TYPE::range_high;
