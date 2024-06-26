@@ -140,6 +140,8 @@ namespace Serial::UART::DATA_NODE {
         }
     }
 
+    // TODO: Replace with TCAM logic
+    //  Implement shift register? (Timeout would make this weird!)
     inline void __not_in_flash_func(process_command)() {
         if (index == 8) {
             if (ntohl(data.longs[0]) == 0xAAEEAAEE) {
