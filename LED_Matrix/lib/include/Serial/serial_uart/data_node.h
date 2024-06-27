@@ -19,12 +19,6 @@ namespace Serial::UART::DATA_NODE {
         READY_RESPONSE
     };
 
-    union random_type {
-        uint8_t bytes[12];
-        uint16_t shorts[6];
-        uint32_t longs[3];
-    };
-
     enum class COMMAND {
         DATA,
         RAW_DATA,

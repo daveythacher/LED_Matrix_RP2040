@@ -22,7 +22,7 @@ namespace Serial::UART::DATA_NODE {
     static uint8_t idle_num = 0;
     static COMMAND command;
     static uint32_t index;
-    static random_type data;
+    static Serial::TCAM::TCAM_entry data;
     static uint32_t checksum;
     static STATUS status;
     static bool trigger;
@@ -148,7 +148,7 @@ namespace Serial::UART::DATA_NODE {
     // TODO: Replace with TCAM logic
     inline void __not_in_flash_func(process_command)() {
         if (index == 8) {
-            if (ntohl(data.longs[0]) == 0xAAEEAAEE) {
+            if (ntohl(data.data[0]) == 0xAAEEAAEE) {
                 switch (data.bytes[5]) {
                     // Data
                     case 'd':
@@ -195,7 +195,7 @@ namespace Serial::UART::DATA_NODE {
                         switch (data.bytes[4]) {
                             case 'i':
                                 if (ntohs(data.shorts[3]) == 1 &&
-                                    ntohl(data.longs[2]) == 0
+                                    ntohl(data.data[2]) == 0
                                 ) {
                                     state_data = DATA_STATES::PAYLOAD;
                                     time = time_us_64();
@@ -295,11 +295,11 @@ namespace Serial::UART::DATA_NODE {
         if (index == 8) {
             index = 0;
                     
-            if (ntohl(data.longs[1]) == 0xAEAEAEAE) {
+            if (ntohl(data.data[1]) == 0xAEAEAEAE) {
                 switch (command) {
                     case COMMAND::DATA:
                         // Future: Look into parity
-                        if (ntohl(data.longs[0]) == ~checksum) {
+                        if (ntohl(data.data[0]) == ~checksum) {
                             state_data = DATA_STATES::READY;
                             time = time_us_64();
                             status = STATUS::READY;
@@ -317,14 +317,14 @@ namespace Serial::UART::DATA_NODE {
 
                     case COMMAND::SET_ID:
                         // Future: Look into parity
-                        if (ntohl(data.longs[0]) == ~checksum) {
+                        if (ntohl(data.data[0]) == ~checksum) {
                             Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
                             error = false;
                         }
                         break;
 
                     case COMMAND::QUERY_TEST:
-                        if (ntohl(data.longs[0]) == ~checksum) {
+                        if (ntohl(data.data[0]) == ~checksum) {
                             // TODO: Fill in the response packet
                             state_data = DATA_STATES::READY_RESPONSE;
                             status = STATUS::READY;
