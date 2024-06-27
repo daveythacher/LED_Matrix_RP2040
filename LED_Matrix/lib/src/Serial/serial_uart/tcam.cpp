@@ -1,23 +1,22 @@
-#include <stdint.h>
+#include "pico/multicore.h"
+#include "Serial/serial_uart/tcam.h"
 
 namespace Serial::TCAM {
-    struct TCAM_entry {
-        uint32_t data[3];
-    };
-
     struct TCAM_record {
+        TCAM_record() {
+            claim = false;
+        }
+
         TCAM_entry key;
         TCAM_entry enable;
         void (*func)();
+        bool claim;
     };
 
-    // High priority (0) wins
-    //  I do not support multiple handlers per search by design
-    TCAM_record TCAM_table[4];
+    // Only high priority (0) rule wins
+    static TCAM_record TCAM_table[num_rules];
 
-    // We can speculate this?
-    //  This is pure as long as cache is clean?
-    bool TCAM_search(TCAM_entry data, TCAM_entry key, TCAM_entry enable) {
+    static bool __not_in_flash_func(TCAM_search)(TCAM_entry data, TCAM_entry key, TCAM_entry enable) {
         bool result = true;
 
         // Do not waste time with break
@@ -30,16 +29,28 @@ namespace Serial::TCAM {
         return result;
     }
 
-    void TCAM_process(TCAM_entry data) {
+    bool TCAM_rule(uint8_t priority, TCAM_entry key, TCAM_entry enable, void (*func)()) {
+        if (priority >= num_rules)
+            return false;
+
+        if (TCAM_table[priority].claim)
+            return false;
+        
+        TCAM_table[priority].key = key;
+        TCAM_table[priority].enable = enable;
+        TCAM_table[priority].func = func;
+        TCAM_table[priority].claim = true;
+        return true;
+    }
+
+    void __not_in_flash_func(TCAM_process)(TCAM_entry data) {
         bool results[sizeof(TCAM_table) / sizeof(TCAM_record)];
 
-        // We can unroll this into pure functions or threads?
         for (uint8_t i = 0; i < sizeof(TCAM_table) / sizeof(TCAM_record); i++)
             results[i] = TCAM_search(data, TCAM_table[i].key, TCAM_table[i].enable);
 
         // TODO: We need compiler and CPU barrier
 
-        // We should not speculate this?
         for (uint8_t i = 0; i < sizeof(TCAM_table) / sizeof(TCAM_record); i++) {
             if (results[i]) {
                 TCAM_table[i].func();
