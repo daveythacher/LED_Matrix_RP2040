@@ -55,6 +55,7 @@ namespace Matrix {
         /**
          *  @brief Function used to pass data thru worker (Assumes flow control)
          *  @details Implemented in Matrix/<implementation>/worker.cpp
+         *  @details Buffer is copied into back buffer. (Do not use front or back buffer(s).)
          */
         void process(Matrix::Buffer *buffer);
 

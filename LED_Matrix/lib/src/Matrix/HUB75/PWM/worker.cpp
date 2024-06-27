@@ -73,14 +73,42 @@ namespace Matrix::Worker {
 
         vsync = true;
         bank = (bank + 1) % Serial::num_framebuffers;
+    }   
+
+    template <typename T> inline void __not_in_flash_func(PWM_worker<T>::save_buffer)(Matrix::Buffer *p) {
+        // TODO: Verify the pointer is correct
+        //  Pointer should not be within buf[]
+
+        // TODO: Copy it in
+
+        while (vsync) {
+            // Block
+        }
+
+        vsync = true;
+        bank = (bank + 1) % Serial::num_framebuffers;
     }    
     
     template <typename T> inline static void __not_in_flash_func(worker_internal)() {
         static PWM_worker<T> w;
         
         while(1) {
-            Serial::packet *p = (Serial::packet *) APP::multicore_fifo_pop_blocking_inline();
-            w.process_packet(p);
+            switch (APP::multicore_fifo_pop_blocking_inline()) {
+                case 0:
+                    {
+                        Serial::packet *p = (Serial::packet *) APP::multicore_fifo_pop_blocking_inline();
+                        w.process_packet(p);
+                    }
+                    break;
+                case 1:
+                    {
+                        Matrix::Buffer *p = (Matrix::Buffer *) APP::multicore_fifo_pop_blocking_inline();
+                        w.save_buffer(p);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -100,11 +128,13 @@ namespace Matrix::Worker {
     }
 
     void __not_in_flash_func(process)(Serial::packet *buffer) {
+        APP::multicore_fifo_push_blocking_inline(0);
         APP::multicore_fifo_push_blocking_inline((uint32_t) buffer);
     }
 
     void __not_in_flash_func(process)(Matrix::Buffer *buffer) {
-        // TODO:
+        APP::multicore_fifo_push_blocking_inline(1);
+        APP::multicore_fifo_push_blocking_inline((uint32_t) buffer);
     }
 
     Matrix::Buffer *__not_in_flash_func(get_front_buffer)() {

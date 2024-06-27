@@ -15,6 +15,7 @@ namespace Matrix::Worker {
         public:
             PWM_worker();
             void process_packet(Serial::packet *p);
+            void save_buffer(Matrix::Buffer *p);
 
         private:
             void build_index_table();
