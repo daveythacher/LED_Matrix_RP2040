@@ -8,9 +8,12 @@
 
 namespace Serial::TCAM {
     constexpr uint8_t num_rules = 4;
+    constexpr uint8_t num_bytes = 12;
 
-    struct TCAM_entry {
-        uint32_t data[3];
+    union TCAM_entry {
+        uint8_t bytes[num_bytes];
+        uint16_t shorts[num_bytes / 2];
+        uint32_t data[num_bytes / 4];
     };
 
     // Only the highest priority rule match runs

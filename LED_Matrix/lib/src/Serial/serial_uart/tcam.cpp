@@ -35,6 +35,8 @@ namespace Serial::TCAM {
 
         if (TCAM_table[priority].claim)
             return false;
+
+        static_assert((num_bytes % 4) == 0, "TCAM rules must be multiple of 4.");
         
         TCAM_table[priority].key = key;
         TCAM_table[priority].enable = enable;
