@@ -11,6 +11,7 @@
 #include "Serial/serial_uart/control_node.h"
 #include "Serial/serial_uart/data_node.h"
 #include "Serial/serial_uart/machine.h"
+#include "Serial/serial_uart/tcam.h"
 using Serial::UART::internal::STATUS;
 
 namespace Serial::UART::DATA_NODE {
@@ -32,6 +33,10 @@ namespace Serial::UART::DATA_NODE {
     static void process_command();
     static void process_payload();
     static void process_frame();
+
+    void data_node_setup() {
+        // TODO: TCAM rule apply
+    }
     
     STATUS __not_in_flash_func(data_node)() {
         // Currently we drop the frame and wait for the next valid header.
@@ -141,7 +146,6 @@ namespace Serial::UART::DATA_NODE {
     }
 
     // TODO: Replace with TCAM logic
-    //  Implement shift register? (Timeout would make this weird!)
     inline void __not_in_flash_func(process_command)() {
         if (index == 8) {
             if (ntohl(data.longs[0]) == 0xAAEEAAEE) {

@@ -32,6 +32,7 @@ namespace Serial::UART::DATA_NODE {
         QUERY_TEST
     };
 
+    void data_node_setup();
     Serial::UART::internal::STATUS data_node();
     void trigger_processing();
     void acknowledge_query();

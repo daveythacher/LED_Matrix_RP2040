@@ -42,6 +42,9 @@ namespace Serial::UART {
         //              Watchdog and timeout will yield controller back to daemon and/or control procedure.
         uart_init(uart1, SERIAL_UART_BAUD);
 
+        // Setup TCAM rules
+        Serial::UART::DATA_NODE::data_node_setup();
+
         // Future: Enable Hardware Flow control
     }
 
