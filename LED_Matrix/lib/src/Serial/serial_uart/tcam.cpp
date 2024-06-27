@@ -16,14 +16,14 @@ namespace Serial::TCAM {
     // Only high priority (0) rule wins
     static TCAM_record TCAM_table[num_rules];
 
-    static bool __not_in_flash_func(TCAM_search)(TCAM_entry data, TCAM_entry key, TCAM_entry enable) {
+    static bool __not_in_flash_func(TCAM_search)(const TCAM_entry *data, const TCAM_entry *key, const TCAM_entry *enable) {
         bool result = true;
 
         // Do not waste time with break
         for (uint8_t i = 0; i < sizeof(TCAM_entry) / sizeof(TCAM_entry::data); i++) {
-            data.data[i] &= enable.data[i];
-            key.data[i] &= enable.data[i];
-            result &= data.data[i] == key.data[i];
+            uint32_t d = data->data[i] & enable->data[i];
+            uint32_t k = key->data[i] & enable->data[i];
+            result &= d == k;
         }
 
         return result;
@@ -45,13 +45,13 @@ namespace Serial::TCAM {
         return true;
     }
 
-    void __not_in_flash_func(TCAM_process)(TCAM_entry data) {
+    void __not_in_flash_func(TCAM_process)(const TCAM_entry *data) {
         bool results[sizeof(TCAM_table) / sizeof(TCAM_record)];
 
         for (uint8_t i = 0; i < sizeof(TCAM_table) / sizeof(TCAM_record); i++)
-            results[i] = TCAM_search(data, TCAM_table[i].key, TCAM_table[i].enable);
+            results[i] = TCAM_search(data, &TCAM_table[i].key, &TCAM_table[i].enable);
 
-        // TODO: We need compiler and CPU barrier
+        // Future: We need compiler and CPU barrier
 
         for (uint8_t i = 0; i < sizeof(TCAM_table) / sizeof(TCAM_record); i++) {
             if (results[i]) {

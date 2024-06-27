@@ -19,5 +19,5 @@ namespace Serial::TCAM {
     // Only the highest priority rule match runs
 
     bool TCAM_rule(uint8_t priority, TCAM_entry key, TCAM_entry enable, void (*func)());
-    void TCAM_process(TCAM_entry data);
+    void TCAM_process(const TCAM_entry *data);
 }
