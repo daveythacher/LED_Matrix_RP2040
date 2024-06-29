@@ -1,7 +1,12 @@
-add_subdirectory(Shifter_ABC)
-add_subdirectory(Shifter_ABC_Direct_DE)
-add_subdirectory(Shifter_ACB)
-add_subdirectory(Shifter_BAC)
-add_subdirectory(Shifter_BCA)
-add_subdirectory(Shifter_CAB)
-add_subdirectory(Shifter_CBA)
+# This could possibly be a static library
+add_library(led_multiplex_Shifter INTERFACE)
+
+target_sources(led_multiplex_Shifter INTERFACE
+    Shifter.cpp
+)
+
+target_link_libraries(led_multiplex_Shifter INTERFACE 
+    hardware_gpio
+    hardware_pio
+    hardware_irq
+)

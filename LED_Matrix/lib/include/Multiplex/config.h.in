@@ -1,0 +1,21 @@
+/* 
+ * File:   config.h
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+ 
+#ifndef MULTIPLEX_CONFIG_H
+#define MULTIPLEX_CONFIG_H    
+
+#include <stdint.h>
+    
+namespace Multiplex {
+    // -- DO NOT EDIT BELOW THIS LINE --
+
+    #cmakedefine DEFINE_MULTIPLEX           @DEFINE_MULTIPLEX@
+
+    constexpr uint32_t multiplex_type = DEFINE_MULTIPLEX;
+}
+
+#endif
+
