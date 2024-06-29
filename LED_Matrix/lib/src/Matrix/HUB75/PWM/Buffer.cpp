@@ -5,6 +5,7 @@
  */
 
 #include <string.h>
+#include "pico/multicore.h"
 #include "Matrix/Buffer.h"
 #include "Matrix/HUB75/PWM/memory_format.h"
 
@@ -16,7 +17,7 @@ namespace Matrix {
         memset(buf, COLUMNS - 1, sizeof(buf));
     }
 
-    void Buffer::set_value(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value) {
+    void __not_in_flash_func(Buffer::set_value)(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value) {
         uint32_t i = multiplex * (1 << PWM_bits) * (COLUMNS + 1);
         i += index * (COLUMNS + 1);
         i += column;
@@ -24,14 +25,14 @@ namespace Matrix {
         buf[i] = value;
     }
 
-    uint8_t *Buffer::get_line(uint8_t multiplex, uint16_t index) {
+    uint8_t *__not_in_flash_func(Buffer::get_line)(uint8_t multiplex, uint16_t index) {
         uint32_t i = multiplex * (1 << PWM_bits) * (COLUMNS + 1);
         i += index * (COLUMNS + 1);
 
         return &buf[i];
     }
 
-    uint8_t Buffer::get_line_length() {
+    uint8_t __not_in_flash_func(Buffer::get_line_length)() {
         return COLUMNS + 1;
     }
 }

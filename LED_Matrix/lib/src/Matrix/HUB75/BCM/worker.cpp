@@ -73,10 +73,16 @@ namespace Matrix::Worker {
     }
 
 template <typename T> inline void __not_in_flash_func(BCM_worker<T>::save_buffer)(Matrix::Buffer *p) {
-        // TODO: Verify the pointer is correct
-        //  Pointer should not be within buf[]
+        for (uint8_t y = 0; y < MULTIPLEX; y++) {
+            for (uint32_t i = 0; i < PWM_bits; i++) {
+                uint8_t *p0 = buf[bank].get_line(y, i);
+                uint8_t *p1 = p->get_line(y, i);
 
-        // TODO: Copy it in
+                for (uint8_t x = 0; x < Matrix::Buffer::get_line_length(); x++) {
+                    p1[x] = p0[x];
+                }
+            }
+        }
 
         while (vsync) {
             // Block
