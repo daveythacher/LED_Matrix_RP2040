@@ -22,19 +22,22 @@ namespace Matrix {
     static Buffer *buffer = nullptr;
     static volatile uint8_t state = 0;
     static int dma_chan[2];
-    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << PWM_bits) + 1];
-    static volatile uint8_t null_table[COLUMNS + 1];
     volatile int timer;
+
+    // PIO Protocol
+    //  There are 2^PWM_bits shifts per period.
+    //      The serial protocol used by PIO is column length decremented by one followed by column values.
+    //          The PIO logic is indexed from zero, and there is no way to command zero transfer length.
+    //      The serial protocol has a header which indicates the number of transfers to expect
+    //          This is loaded by the CPU manually before starting DMA (excludes null termination transfer)
+    //  There are 2^PWM_bits plus two transfers.
+    //      The second to last transfer turns the columns off before multiplexing. (Standard shift)
+    //      The last transfer stops the DMA and fires an interrupt.
+    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << PWM_bits) + 2];
+    static volatile uint8_t null_table[COLUMNS + 1];
 
     static void send_line();
     static void load_line(uint32_t rows);
-
-    /*
-        There are 2^PWM_bits shifts per period.
-        The last shift turns the columns off before multiplexing.
-
-        The serial protocol used by PIO is column length decremented by one followed by column values.
-    */
 
     void start() {
         // Init Matrix hardware
@@ -54,13 +57,13 @@ namespace Matrix {
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
 
-        for (uint32_t i = 0; i < (1 << PWM_bits) - 1; i++)
+        for (uint32_t i = 0; i < (1 << PWM_bits); i++)
             address_table[i].len = Buffer::get_line_length();
         
-        address_table[(1 << PWM_bits) - 1].data = null_table;
-        address_table[(1 << PWM_bits) - 1].len = COLUMNS + 1;
-        address_table[1 << PWM_bits].data = NULL;
-        address_table[1 << PWM_bits].len = 0;
+        address_table[1 << PWM_bits].data = null_table;
+        address_table[1 << PWM_bits].len = COLUMNS + 1;
+        address_table[(1 << PWM_bits) + 1].data = NULL;
+        address_table[(1 << PWM_bits) + 1].len = 0;
         
         // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
         //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
@@ -69,18 +72,19 @@ namespace Matrix {
         //          Bus performance is better with RP2040. (Lower cost due to memory, CPU, hardware integration.)
         //  OE is not used in this implementation and held to low to enable the display
         //      Last shift will disable display.
-        /*while (1) {
-            counter2 = (1 << PWM_bits) - 1; LAT = 0;    // Start of frame, manually push into FIFO (data stream protocol)
-            do {
-                counter = COLUMNS - 1;                  // Start of payload, DMA push into FIFO (data stream protocol)
-                do {
-                    DAT = DATA; CLK = 0;                // Payload data, DMA push into FIFO (data stream protocol)
-                    CLK = 1;                            // Automate CLK pulse
-                } while (counter-- > 0); CLK = 0;
-                LAT = 1;                                // Automate LAT pulse at end of payload (bitplane shift)
-                LAT = 0;
-            } while (counter2-- > 0);
-        }*/
+        //
+        //  while (1) {
+        //      counter2 = (1 << PWM_bits) - 1; LAT = 0;    // Start of frame, manually push into FIFO (data stream protocol)
+        //      do {
+        //          counter = COLUMNS - 1;                  // Start of payload, DMA push into FIFO (data stream protocol)
+        //          do {
+        //              DAT = DATA; CLK = 0;                // Payload data, DMA push into FIFO (data stream protocol)
+        //              CLK = 1;                            // Automate CLK pulse
+        //          } while (counter-- > 0); CLK = 0;
+        //          LAT = 1;                                // Automate LAT pulse at end of payload (bitplane shift)
+        //          LAT = 0;
+        //      } while (counter2-- > 0);
+        //  }
         
         // PIO
         const uint16_t instructions[] = {
