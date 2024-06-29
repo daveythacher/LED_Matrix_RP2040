@@ -79,7 +79,7 @@ template <typename T> inline void __not_in_flash_func(BCM_worker<T>::save_buffer
                 uint8_t *p1 = p->get_line(y, i);
 
                 for (uint8_t x = 0; x < Matrix::Buffer::get_line_length(); x++) {
-                    p1[x] = p0[x];
+                    p0[x] = p1[x];
                 }
             }
         }

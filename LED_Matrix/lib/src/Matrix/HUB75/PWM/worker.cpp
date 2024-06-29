@@ -82,7 +82,7 @@ namespace Matrix::Worker {
                 uint8_t *p1 = p->get_line(y, i);
 
                 for (uint8_t x = 0; x < Matrix::Buffer::get_line_length(); x++) {
-                    p1[x] = p0[x];
+                    p0[x] = p1[x];
                 }
             }
         }
