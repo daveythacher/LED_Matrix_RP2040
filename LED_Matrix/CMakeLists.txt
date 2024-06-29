@@ -33,6 +33,9 @@ set(DEFINE_MULTIPLEX_ALGORITHM "Decoder" CACHE STRING "Multiplex algorithm name"
 set(DEFINE_MATRIX_ALGORITHM "PWM" CACHE STRING "Matrix algorithm name")
 set(DEFINE_MATRIX_FAMILY "HUB75" CACHE STRING "Matrix interface family")
 
+# This determines the shifter type
+set(DEFINE_MULTIPLEX_TYPE "0" CACHE STRING "Shifter Multiplex Type")
+
 # These determine RAM usage
 set(DEFINE_SERIAL_RGB_TYPE "RGB24" CACHE STRING "RGB type name")
 set(DEFINE_MULTIPLEX_SCAN "8" CACHE STRING "Panel scan")

@@ -12,9 +12,9 @@
 namespace Multiplex {
     // -- DO NOT EDIT BELOW THIS LINE --
 
-    #cmakedefine DEFINE_MULTIPLEX           @DEFINE_MULTIPLEX@
+    #cmakedefine DEFINE_MULTIPLEX_TYPE      @DEFINE_MULTIPLEX_TYPE@
 
-    constexpr uint32_t multiplex_type = DEFINE_MULTIPLEX;
+    constexpr uint32_t multiplex_type = DEFINE_MULTIPLEX_TYPE;
 }
 
 #endif
