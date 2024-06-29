@@ -161,7 +161,7 @@ namespace Matrix {
     //  This is possible due to PIO state machine.
     void __not_in_flash_func(load_line)(uint32_t rows) {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++)
-                address_table[i].data = buffer->get_line(rows, i);
+            address_table[i].data = buffer->get_line(rows, i);
     }
 
     void __not_in_flash_func(dma_isr)() {
