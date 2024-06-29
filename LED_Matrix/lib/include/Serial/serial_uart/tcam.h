@@ -6,7 +6,9 @@
 
 #include <stdint.h>
 
+// This can be rendered into coprocessor.
 namespace Serial::TCAM {
+    // Future: Add banks
     constexpr uint8_t num_rules = 4;
     constexpr uint8_t num_bytes = 12;
 
