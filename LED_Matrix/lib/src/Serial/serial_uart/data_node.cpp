@@ -34,8 +34,47 @@ namespace Serial::UART::DATA_NODE {
     static void process_payload();
     static void process_frame();
 
+    static void process_data_command_d();
+    static void process_data_command_r();
+    static void process_control_command_i();
+    static void process_query_request_t();
+
     void data_node_setup() {
-        // TODO: TCAM rule apply
+        Serial::TCAM::TCAM_entry key;
+        Serial::TCAM::TCAM_entry enable;
+
+        // TCAM can covert 6-12 operations down to 3.
+        //  The conditionals can be removed with AND down to 1.
+        enable.data[0] = 0xFFFFFFFF;
+        enable.data[1] = 0xFFFFFFFF;
+        enable.data[2] = 0xFFFFFFFF;
+
+        key.data[0] = htonl(0xAAEEAAEE);
+        key.bytes[4] = 'd';
+        key.bytes[5] = 'd';
+        key.shorts[3] = htons(Serial::UART::uart_get_len());
+        key.bytes[8] = sizeof(DEFINE_SERIAL_RGB_TYPE);
+        key.bytes[9] = Matrix::MULTIPLEX;
+        key.bytes[10] = Matrix::COLUMNS;
+        key.bytes[11] = DEFINE_SERIAL_RGB_TYPE::id;
+        while (!Serial::TCAM::TCAM_rule(0, key, enable, process_data_command_d));
+
+        key.bytes[4] = 'r';
+        while (!Serial::TCAM::TCAM_rule(1, key, enable, process_data_command_r));
+
+
+        enable.data[2] = 0;
+        key.shorts[3] = 1;
+        key.bytes[5] = 'c';
+        key.bytes[4] = 'i';
+        while (!Serial::TCAM::TCAM_rule(2, key, enable, process_control_command_i));
+
+
+        // TODO: Update
+        enable.shorts[3] = 0;
+        key.bytes[5] = 'q';
+        key.bytes[4] = 't';
+        while (!Serial::TCAM::TCAM_rule(3, key, enable, process_query_request_t));
     }
     
     STATUS __not_in_flash_func(data_node)() {
@@ -47,7 +86,8 @@ namespace Serial::UART::DATA_NODE {
                 trigger = false;
                 acknowledge = false;
                 checksum = 0xFFFFFFFF;
-                Serial::UART::uart_callback(&buf, &len);
+                Serial::UART::uart_callback(&buf);
+                len = Serial::UART::uart_get_len();
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS;
                 time = time_us_64();
 
@@ -145,94 +185,10 @@ namespace Serial::UART::DATA_NODE {
         }
     }
 
-    // TODO: Replace with TCAM logic
     inline void __not_in_flash_func(process_command)() {
-        if (index == 8) {
-            if (ntohl(data.data[0]) == 0xAAEEAAEE) {
-                switch (data.bytes[5]) {
-                    // Data
-                    case 'd':
-                        switch (data.bytes[4]) {
-                            case 'd':
-                                if (ntohs(data.shorts[3]) == len &&
-                                    data.bytes[8] == sizeof(DEFINE_SERIAL_RGB_TYPE) &&
-                                    data.bytes[9] == Matrix::MULTIPLEX &&
-                                    data.bytes[10] == Matrix::COLUMNS &&
-                                    data.bytes[11] == DEFINE_SERIAL_RGB_TYPE::id
-                                ) {
-                                    state_data = DATA_STATES::PAYLOAD;
-                                    time = time_us_64();
-                                    command = COMMAND::DATA;
-                                    status = STATUS::ACTIVE_0;
-                                    index = 0;
-                                    trigger = false;
-                                }
-                                break;
-
-                            case 'r':
-                                if (ntohs(data.shorts[3]) == len &&
-                                    data.bytes[8] == sizeof(DEFINE_SERIAL_RGB_TYPE) &&
-                                    data.bytes[9] == Matrix::MULTIPLEX &&
-                                    data.bytes[10] == Matrix::COLUMNS &&
-                                    data.bytes[11] == DEFINE_SERIAL_RGB_TYPE::id
-                                ) {
-                                    state_data = DATA_STATES::PAYLOAD;
-                                    time = time_us_64();
-                                    command = COMMAND::RAW_DATA;
-                                    status = STATUS::ACTIVE_0;
-                                    index = 0;
-                                    trigger = false;
-                                }
-                                break;
-
-                            default:
-                                break;
-                        }
-                        break;
-
-                    // Configure
-                    case 'c':
-                        switch (data.bytes[4]) {
-                            case 'i':
-                                if (ntohs(data.shorts[3]) == 1 &&
-                                    ntohl(data.data[2]) == 0
-                                ) {
-                                    state_data = DATA_STATES::PAYLOAD;
-                                    time = time_us_64();
-                                    command = COMMAND::SET_ID;
-                                    status = STATUS::ACTIVE_0;
-                                    index = 0;
-                                }
-                                break;
-
-                            default:
-                                break;
-                        }
-                        break;
-
-                    // Query
-                    case 'q':
-                        switch (data.bytes[4]) {
-                            case 't':
-                                // TODO: Test header
-                                index = 0;
-                                state_data = DATA_STATES::PAYLOAD;
-                                time = time_us_64();
-                                command = COMMAND::QUERY_TEST;
-                                status = STATUS::ACTIVE_0;
-                                break;
-                            default:
-                                break;
-                        }
-
-                    default:
-                        break;
-                }
-            }
+        if (index == 12) {
+            Serial::TCAM::TCAM_process(&data);
         }
-
-        // Host app will do the right thing. (Did not see IDLE_0/1 to ACTIVE_0)
-        state_data = DATA_STATES::SETUP;
     }
 
     inline void __not_in_flash_func(process_payload)() {
@@ -290,8 +246,6 @@ namespace Serial::UART::DATA_NODE {
     }
 
     inline void __not_in_flash_func(process_frame)() {
-        bool error = true;
-
         if (index == 8) {
             index = 0;
                     
@@ -319,7 +273,8 @@ namespace Serial::UART::DATA_NODE {
                         // Future: Look into parity
                         if (ntohl(data.data[0]) == ~checksum) {
                             Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
-                            error = false;
+                            idle_num = (idle_num + 1) % 2;
+                            state_data = DATA_STATES::SETUP;
                         }
                         break;
 
@@ -338,11 +293,40 @@ namespace Serial::UART::DATA_NODE {
                         break;
                 }
             }
-            
-            if (!error) 
-                idle_num = (idle_num + 1) % 2;
-
-            state_data = DATA_STATES::SETUP;
         }
+    }
+
+    void process_data_command_d() {
+        state_data = DATA_STATES::PAYLOAD;
+        time = time_us_64();
+        command = COMMAND::DATA;
+        status = STATUS::ACTIVE_0;
+        index = 0;
+        trigger = false;
+    }
+
+    void process_data_command_r() {
+        state_data = DATA_STATES::PAYLOAD;
+        time = time_us_64();
+        command = COMMAND::RAW_DATA;
+        status = STATUS::ACTIVE_0;
+        index = 0;
+        trigger = false;
+    }
+
+    void process_control_command_i() {
+        state_data = DATA_STATES::PAYLOAD;
+        time = time_us_64();
+        command = COMMAND::SET_ID;
+        status = STATUS::ACTIVE_0;
+        index = 0;
+    }
+
+    void process_query_request_t() {
+        index = 0;
+        state_data = DATA_STATES::PAYLOAD;
+        time = time_us_64();
+        command = COMMAND::QUERY_TEST;
+        status = STATUS::ACTIVE_0;
     }
 }

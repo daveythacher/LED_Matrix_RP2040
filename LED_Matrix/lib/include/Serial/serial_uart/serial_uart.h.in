@@ -15,7 +15,8 @@ namespace Serial::UART {
     
     void uart_start();
     void uart_task();
-    void uart_callback(Serial::packet **buf, uint16_t *len);
+    void uart_callback(Serial::packet **buf);
+    uint16_t uart_get_len();
 
 
     // -- DO NOT EDIT BELOW THIS LINE --
