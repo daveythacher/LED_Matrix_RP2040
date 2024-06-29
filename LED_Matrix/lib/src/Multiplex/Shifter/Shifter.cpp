@@ -11,6 +11,8 @@
 namespace Multiplex {
     void init(int rows) {
         // TODO:
+        //  Add PIO shifter module
+
         switch (multiplex_type) {
 
             default:
@@ -20,6 +22,7 @@ namespace Multiplex {
     
     void __not_in_flash_func(SetRow)(int row) {
         // TODO:
+        
         switch (multiplex_type) {
 
             default:
