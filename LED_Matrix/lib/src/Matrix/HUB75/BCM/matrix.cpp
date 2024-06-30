@@ -196,6 +196,7 @@ namespace Matrix {
                     gpio_set_mask(1 << 22);                                                 // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
                     timer_hw->alarm[timer] = time_us_32() + BLANK_TIME + 1;                 // Load timer (We don't care if it rolls over!)
                     timer_hw->armed = 1 << timer;                                           // Kick off timer
+                    timer_hw->intr = 1 << timer;                                            // Clear the interrupt
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
                         Buffer *p = Worker::get_front_buffer();
@@ -215,12 +216,12 @@ namespace Matrix {
                     gpio_clr_mask(1 << 22);                                         // Turn on the panel (Note software controls PWM/BCM)
                     send_line();                                                    // Kick off hardware
                     state++;
+                    timer_hw->intr = 1 << timer;                                    // Clear the interrupt
                     break;
                 default:
+                    timer_hw->intr = 1 << timer;                                    // Clear the interrupt
                     break;
             }
-            
-            timer_hw->intr = 1 << timer;                                            // Clear the interrupt
         }
     }
 }
