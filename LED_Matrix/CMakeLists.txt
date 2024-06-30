@@ -35,6 +35,7 @@ set(DEFINE_MATRIX_FAMILY "HUB75" CACHE STRING "Matrix interface family")
 
 # This determines the shifter type (0 is reserved!)
 set(DEFINE_MULTIPLEX_TYPE "1" CACHE STRING "Shifter Multiplex Type")
+set(DEFINE_MULTIPLEX_CLOCK "5.0" CACHE STRING "Shifter Multiplex clock speed in MHz")
 
 # These determine RAM usage
 set(DEFINE_SERIAL_RGB_TYPE "RGB24" CACHE STRING "RGB type name")
