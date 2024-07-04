@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 namespace Matrix::HUB75 {
-    // R0 G0 B0 R1 G1 B1 CLK LAT
+    // R0 G0 B0 R1 G1 B1 LAT CLK
     constexpr uint16_t HUB75_DATA_BASE = 8;
     constexpr uint16_t HUB75_DATA_LEN = 8;
 
@@ -22,4 +22,3 @@ namespace Matrix::HUB75 {
 }
 
 #endif
-
