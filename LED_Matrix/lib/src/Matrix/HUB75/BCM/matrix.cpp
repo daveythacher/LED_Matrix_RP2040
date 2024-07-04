@@ -17,6 +17,7 @@
 #include "Matrix/HUB75/BCM/memory_format.h"
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
+#include "Matrix/HUB75/hw_config.h"
 
 namespace Matrix {
     static Buffer *buffer = nullptr;
@@ -42,14 +43,13 @@ namespace Matrix {
     void start() {
         // Init Matrix hardware
         // IO
-        for (int i = 0; i < 8; i++) {
-            gpio_init(i + 8);
-            gpio_set_dir(i + 8, GPIO_OUT);
+        for (int i = 0; i < Matrix::HUB75::HUB75_DATA_LEN; i++) {
+            gpio_init(i + Matrix::HUB75::HUB75_DATA_BASE);
+            gpio_set_dir(i + Matrix::HUB75::HUB75_DATA_BASE, GPIO_OUT);
+            gpio_set_function(i + Matrix::HUB75::HUB75_DATA_BASE, GPIO_FUNC_PIO0);
         }
-        for (int i = 0; i < 8; i++)
-            gpio_set_function(i + 8, GPIO_FUNC_PIO0);
-        gpio_init(22);
-        gpio_set_dir(22, GPIO_OUT);
+        gpio_init(Matrix::HUB75::HUB75_OE);
+        gpio_set_dir(Matrix::HUB75::HUB75_OE, GPIO_OUT);
         gpio_clr_mask(0x40FF00);
 
         Multiplex::init(MULTIPLEX);
@@ -105,7 +105,7 @@ namespace Matrix {
             .origin = 0,
         };
         pio_add_program(pio0, &pio_programs);
-        pio_sm_set_consecutive_pindirs(pio0, 0, 8, 8, true);
+        pio_sm_set_consecutive_pindirs(pio0, 0, Matrix::HUB75::HUB75_DATA_BASE, Matrix::HUB75::HUB75_DATA_LEN, true);
         
         // Verify Serial Clock
         constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);
@@ -114,10 +114,10 @@ namespace Matrix {
         Calculator::verify_configuration();
 
         // PMP / SM
-        pio0->sm[0].clkdiv = ((uint32_t) floor(x) << 16) | ((uint32_t) round((x - floor(x)) * 255.0) << 8);
-        pio0->sm[0].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | 8;
-        pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << 25) | (1 << 19);
-        pio0->sm[0].execctrl = (1 << 17) | (12 << 12);
+        pio0->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
+        pio0->sm[0].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | (Matrix::HUB75::HUB75_DATA_BASE << PIO_SM0_PINCTRL_OUT_BASE_LSB);
+        pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
+        pio0->sm[0].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
         pio0->sm[0].instr = pio_encode_jmp(0);
         hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
         pio_sm_claim(pio0, 0);
@@ -193,7 +193,7 @@ namespace Matrix {
         if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
             switch(state) {
                 case 0:
-                    gpio_set_mask(1 << 22);                                                 // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
+                    gpio_set_mask(1 << Matrix::HUB75::HUB75_OE);                            // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
                     timer_hw->alarm[timer] = time_us_32() + BLANK_TIME + 1;                 // Load timer (We don't care if it rolls over!)
                     timer_hw->armed = 1 << timer;                                           // Kick off timer
                     timer_hw->intr = 1 << timer;                                            // Clear the interrupt
@@ -213,7 +213,7 @@ namespace Matrix {
                     state++;
                     break;
                 case 1:
-                    gpio_clr_mask(1 << 22);                                         // Turn on the panel (Note software controls PWM/BCM)
+                    gpio_clr_mask(1 << Matrix::HUB75::HUB75_OE);                    // Turn on the panel (Note software controls PWM/BCM)
                     send_line();                                                    // Kick off hardware
                     state++;
                     timer_hw->intr = 1 << timer;                                    // Clear the interrupt
