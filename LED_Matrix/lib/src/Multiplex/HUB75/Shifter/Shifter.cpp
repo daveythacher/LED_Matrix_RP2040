@@ -64,15 +64,71 @@ namespace Multiplex {
                     gpio_set_function(data, GPIO_FUNC_PIO1);
                     gpio_set_function(lat, GPIO_FUNC_PIO1);
 
+                    // while(x--) {
+                    //     if (y--) {
+                    //         data, clk = 0, 1
+                    //     }
+                    //     else {
+                    //         data, clk = 1, 1
+                    //         break
+                    //     }
+                    // }
+                    // while (x--) {
+                    //     data, clk = 0, 1
+                    // }
+                    // lat, data, clk = 1, 0, 0
+
+                    // entry:
+                    //     str pins, 0
+                    //     ldb osr, fifo
+                    //     str pins, 0
+                    //     mov x, osr
+                    //     str pins, 0
+                    //     ldb osr, fifo
+                    //     str pins, 0
+                    //     mov y, osr
+                    // loop1_begin:
+                    //     cmp x, 0
+                    //     subi x, x, 1
+                    //     str pins, 0
+                    //     bne loop1   // This should always branch
+                    // loop2_begin:
+                    //     cmp x, 0
+                    //     subi x, x, 1
+                    //     str pins, 0
+                    //     bne loop2
+                    //     str pins, lat
+                    //     nop
+                    //     str pins, 0
+                    //     jmp entry
+                    // loop1:
+                    //     cmp y, 0
+                    //     subi y, y, 1
+                    //     str pins, 0
+                    //     bne internal
+                    //     str pins, clk, data
+                    //     jmp loop2_begin
+                    // internal:
+                    //     str pins, clk
+                    //     jmp loop1_begin
+                    // loop2:
+                    //     str pins, clk
+                    //     jmp loop2_begin
+
                     // PIO
                     const uint16_t instructions[] = {
-                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(5, 0)),
-                        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(5, 0)),
-                        // TODO: Fix the data
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(5, (1 << (data - ADDR_A)) | (1 << (clk - ADDR_A)))),
-                        (uint16_t) (pio_encode_jmp_x_dec(3) | pio_encode_sideset(5, 0)),
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(5, (1 << (lat - ADDR_A)))),
-                        (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(5, 0))
+                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(5, 0)),                                           // Line 0
+                        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(5, 0)),                                         // Line 1
+                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(5, 0)),                                           // Line 2
+                        (uint16_t) (pio_encode_mov(pio_y, pio_osr) | pio_encode_sideset(5, 0)),                                         // Line 3
+                        (uint16_t) (pio_encode_jmp_x_dec(8) | pio_encode_sideset(5, 0)),                                                // Line 4 (This should never advance to Line 5!!!)
+                        (uint16_t) (pio_encode_jmp_x_dec(11) | pio_encode_sideset(5, 0)),                                               // Line 5
+                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(5, (1 << (lat - ADDR_A)))),                                   // Line 6
+                        (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(5, 0)),                                                      // Line 7
+                        (uint16_t) (pio_encode_jmp_y_dec(10) | pio_encode_sideset(5, 0)),                                               // Line 8
+                        (uint16_t) (pio_encode_jmp(5) | pio_encode_sideset(5, (1 << (clk - ADDR_A)) | (1 << (data - ADDR_A)))),         // Line 9
+                        (uint16_t) (pio_encode_jmp(4) | pio_encode_sideset(5, (1 << (clk - ADDR_A)))),                                  // Line 10
+                        (uint16_t) (pio_encode_jmp(5) | pio_encode_sideset(5, (1 << (clk - ADDR_A)))),                                  // Line 11
                     };
                     static const struct pio_program pio_programs = {
                         .instructions = instructions,
@@ -105,14 +161,67 @@ namespace Multiplex {
                     gpio_set_function(clk, GPIO_FUNC_PIO1);
                     gpio_set_function(data, GPIO_FUNC_PIO1);
 
+                    // while(x--) {
+                    //     if (y--) {
+                    //         data, clk = 0, 1
+                    //     }
+                    //     else {
+                    //         data, clk = 1, 1
+                    //         break
+                    //     }
+                    // }
+                    // while (x--) {
+                    //     data, clk = 0, 1
+                    // }
+
+                    // entry:
+                    //     str pins, 0
+                    //     ldb osr, fifo
+                    //     str pins, 0
+                    //     mov x, osr
+                    //     str pins, 0
+                    //     ldb osr, fifo
+                    //     str pins, 0
+                    //     mov y, osr
+                    // loop1_begin:
+                    //     cmp x, 0
+                    //     subi x, x, 1
+                    //     str pins, 0
+                    //     bne loop1   // This should always branch
+                    // loop2_begin:
+                    //     cmp x, 0
+                    //     subi x, x, 1
+                    //     str pins, 0
+                    //     bne loop2
+                    //     str pins, 0
+                    //     jmp entry
+                    // loop1:
+                    //     cmp y, 0
+                    //     subi y, y, 1
+                    //     str pins, 0
+                    //     bne internal
+                    //     str pins, clk, data
+                    //     jmp loop2_begin
+                    // internal:
+                    //     str pins, clk
+                    //     jmp loop1_begin
+                    // loop2:
+                    //     str pins, clk
+                    //     jmp loop2_begin
+
                     // PIO
                     const uint16_t instructions[] = {
-                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(5, 0)),
-                        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(5, 0)),
-                        // TODO: Fix the data
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(5, (1 << (data - ADDR_A)) | (1 << (clk - ADDR_A)))),
-                        (uint16_t) (pio_encode_jmp_x_dec(3) | pio_encode_sideset(5, 0)),
-                        (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(5, 0))
+                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(5, 0)),                                           // Line 0
+                        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(5, 0)),                                         // Line 1
+                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(5, 0)),                                           // Line 2
+                        (uint16_t) (pio_encode_mov(pio_y, pio_osr) | pio_encode_sideset(5, 0)),                                         // Line 3
+                        (uint16_t) (pio_encode_jmp_x_dec(7) | pio_encode_sideset(5, 0)),                                                // Line 4 (This should never advance to Line 5!!!)
+                        (uint16_t) (pio_encode_jmp_x_dec(10) | pio_encode_sideset(5, 0)),                                               // Line 5
+                        (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(5, 0)),                                                      // Line 6
+                        (uint16_t) (pio_encode_jmp_y_dec(9) | pio_encode_sideset(5, 0)),                                               // Line 7
+                        (uint16_t) (pio_encode_jmp(5) | pio_encode_sideset(5, (1 << (clk - ADDR_A)) | (1 << (data - ADDR_A)))),         // Line 8
+                        (uint16_t) (pio_encode_jmp(4) | pio_encode_sideset(5, (1 << (clk - ADDR_A)))),                                  // Line 9
+                        (uint16_t) (pio_encode_jmp(5) | pio_encode_sideset(5, (1 << (clk - ADDR_A)))),                                  // Line 10
                     };
                     static const struct pio_program pio_programs = {
                         .instructions = instructions,
