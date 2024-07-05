@@ -123,7 +123,8 @@ namespace Multiplex {
                         (uint16_t) (pio_encode_mov(pio_y, pio_osr) | pio_encode_sideset(5, 0)),                                         // Line 3
                         (uint16_t) (pio_encode_jmp_x_dec(8) | pio_encode_sideset(5, 0)),                                                // Line 4 (This should never advance to Line 5!!!)
                         (uint16_t) (pio_encode_jmp_x_dec(11) | pio_encode_sideset(5, 0)),                                               // Line 5
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(5, (1 << (lat - ADDR_A)))),                                   // Line 6
+                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(5, (1 << (lat - ADDR_A)))),                                   // Line 6                                               // Line 5
+                        // TODO: Add sync point here
                         (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(5, 0)),                                                      // Line 7
                         (uint16_t) (pio_encode_jmp_y_dec(10) | pio_encode_sideset(5, 0)),                                               // Line 8
                         (uint16_t) (pio_encode_jmp(5) | pio_encode_sideset(5, (1 << (clk - ADDR_A)) | (1 << (data - ADDR_A)))),         // Line 9
@@ -146,7 +147,7 @@ namespace Multiplex {
                     pio1->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
                     pio1->sm[0].pinctrl = (5 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (Multiplex::HUB75::HUB75_ADDR_BASE << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
                     pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB);
-                    pio1->sm[0].execctrl = (5 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
+                    pio1->sm[0].execctrl = (12 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
                     pio1->sm[0].instr = pio_encode_jmp(0);
                     hw_set_bits(&pio1->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
                     pio_sm_claim(pio1, 0);
@@ -217,8 +218,9 @@ namespace Multiplex {
                         (uint16_t) (pio_encode_mov(pio_y, pio_osr) | pio_encode_sideset(5, 0)),                                         // Line 3
                         (uint16_t) (pio_encode_jmp_x_dec(7) | pio_encode_sideset(5, 0)),                                                // Line 4 (This should never advance to Line 5!!!)
                         (uint16_t) (pio_encode_jmp_x_dec(10) | pio_encode_sideset(5, 0)),                                               // Line 5
+                        // TODO: Add sync point here
                         (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(5, 0)),                                                      // Line 6
-                        (uint16_t) (pio_encode_jmp_y_dec(9) | pio_encode_sideset(5, 0)),                                               // Line 7
+                        (uint16_t) (pio_encode_jmp_y_dec(9) | pio_encode_sideset(5, 0)),                                                // Line 7
                         (uint16_t) (pio_encode_jmp(5) | pio_encode_sideset(5, (1 << (clk - ADDR_A)) | (1 << (data - ADDR_A)))),         // Line 8
                         (uint16_t) (pio_encode_jmp(4) | pio_encode_sideset(5, (1 << (clk - ADDR_A)))),                                  // Line 9
                         (uint16_t) (pio_encode_jmp(5) | pio_encode_sideset(5, (1 << (clk - ADDR_A)))),                                  // Line 10
@@ -239,7 +241,7 @@ namespace Multiplex {
                     pio1->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
                     pio1->sm[0].pinctrl = (5 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (Multiplex::HUB75::HUB75_ADDR_BASE << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
                     pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB);
-                    pio1->sm[0].execctrl = (4 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
+                    pio1->sm[0].execctrl = (11 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
                     pio1->sm[0].instr = pio_encode_jmp(0);
                     hw_set_bits(&pio1->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
                     pio_sm_claim(pio1, 0);
