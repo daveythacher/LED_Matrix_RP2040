@@ -6,25 +6,26 @@
 
 #include <math.h>
 #include "Multiplex/Multiplex.h"
+#include "Multiplex/HUB75/hw_config.h"
 #include "Multiplex/config.h"
 #include "hardware/gpio.h"
 #include "hardware/pio.h"
 
 namespace Multiplex {
     static int aux[3];
-    static constexpr int ADDR_A = 16;
-    static constexpr int ADDR_B = 17;
-    static constexpr int ADDR_C = 18;
-    static constexpr int ADDR_D = 19;
-    static constexpr int ADDR_E = 20;
+    static constexpr int ADDR_A = Multiplex::HUB75::HUB75_ADDR_BASE;
+    static constexpr int ADDR_B = Multiplex::HUB75::HUB75_ADDR_BASE + 1;
+    static constexpr int ADDR_C = Multiplex::HUB75::HUB75_ADDR_BASE + 2;
+    static constexpr int ADDR_D = Multiplex::HUB75::HUB75_ADDR_BASE + 3;
+    static constexpr int ADDR_E = Multiplex::HUB75::HUB75_ADDR_BASE + 4;
 
     void init(int rows) {
         int clk, data, lat;
         uint8_t type = 0;
 
-        for (int i = 0; i < 5; i++) {
-            gpio_init(i + 16);
-            gpio_set_dir(i + 16, GPIO_OUT);
+        for (int i = 0; i < Multiplex::HUB75::HUB75_ADDR_LEN; i++) {
+            gpio_init(i + Multiplex::HUB75::HUB75_ADDR_BASE);
+            gpio_set_dir(i + Multiplex::HUB75::HUB75_ADDR_BASE, GPIO_OUT);
         }
         gpio_clr_mask(0x1F0000);
 
@@ -82,7 +83,7 @@ namespace Multiplex {
                         .origin = 0,
                     };
                     pio_add_program(pio1, &pio_programs);
-                    pio_sm_set_consecutive_pindirs(pio1, 0, 16, 5, true);
+                    pio_sm_set_consecutive_pindirs(pio1, 0, Multiplex::HUB75::HUB75_ADDR_BASE, 5, true);
                 
                     // Verify Serial Clock
                     constexpr float x = 125000000.0 / (multiplex_clock * 2.0);
@@ -90,7 +91,7 @@ namespace Multiplex {
 
                     // PMP / SM
                     pio1->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
-                    pio1->sm[0].pinctrl = (5 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (16 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+                    pio1->sm[0].pinctrl = (5 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (Multiplex::HUB75::HUB75_ADDR_BASE << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
                     pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB);
                     pio1->sm[0].execctrl = (12 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
                     pio1->sm[0].instr = pio_encode_jmp(0);
@@ -127,7 +128,7 @@ namespace Multiplex {
                         .origin = 0,
                     };
                     pio_add_program(pio1, &pio_programs);
-                    pio_sm_set_consecutive_pindirs(pio1, 0, 16, 5, true);
+                    pio_sm_set_consecutive_pindirs(pio1, 0, Multiplex::HUB75::HUB75_ADDR_BASE, 5, true);
                 
                     // Verify Serial Clock
                     constexpr float x = 125000000.0 / (multiplex_clock * 2.0);
@@ -135,7 +136,7 @@ namespace Multiplex {
 
                     // PMP / SM
                     pio1->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
-                    pio1->sm[0].pinctrl = (5 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (16 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+                    pio1->sm[0].pinctrl = (5 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (Multiplex::HUB75::HUB75_ADDR_BASE << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
                     pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB);
                     pio1->sm[0].execctrl = (12 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
                     pio1->sm[0].instr = pio_encode_jmp(0);
