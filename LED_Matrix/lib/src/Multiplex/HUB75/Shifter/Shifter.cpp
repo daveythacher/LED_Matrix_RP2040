@@ -54,7 +54,7 @@ namespace Multiplex {
         }
 
         switch (type) {
-            case 0:
+            case 0: // CLK, DATA, LAT version
                 {
                     // TODO:
                     //  Update PIO code
@@ -66,16 +66,13 @@ namespace Multiplex {
 
                     // PIO
                     const uint16_t instructions[] = {
-                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),   // PIO SM
-                        (uint16_t) (pio_encode_out(pio_x, 8) | pio_encode_sideset(2, 0)),
-                        (uint16_t) (pio_encode_out(pio_y, 8) | pio_encode_sideset(2, 0)),
-                        (uint16_t) (pio_encode_out(pio_pins, 6) | pio_encode_sideset(2, 0)),    // PMP Program
-                        (uint16_t) (pio_encode_jmp_y_dec(3) | pio_encode_sideset(2, 1)),
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
-                        (uint16_t) (pio_encode_jmp_x_dec(2) | pio_encode_sideset(2, 0)),
-                        (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(2, 0))
+                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(5, 0)),
+                        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(5, 0)),
+                        // TODO: Fix the data
+                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(5, (1 << (data - ADDR_A)) | (1 << (clk - ADDR_A)))),
+                        (uint16_t) (pio_encode_jmp_x_dec(3) | pio_encode_sideset(5, 0)),
+                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(5, (1 << (lat - ADDR_A)))),
+                        (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(5, 0))
                     };
                     static const struct pio_program pio_programs = {
                         .instructions = instructions,
@@ -86,20 +83,20 @@ namespace Multiplex {
                     pio_sm_set_consecutive_pindirs(pio1, 0, Multiplex::HUB75::HUB75_ADDR_BASE, 5, true);
                 
                     // Verify Serial Clock
-                    constexpr float x = 125000000.0 / (multiplex_clock * 2.0);
+                    constexpr float x = 125000000.0 / (multiplex_clock * 2.0);     // Someday this two will be a four.
                     static_assert(x >= 1.0, "Unabled to configure PIO for MULTIPLEX_CLOCK");
 
                     // PMP / SM
                     pio1->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
                     pio1->sm[0].pinctrl = (5 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (Multiplex::HUB75::HUB75_ADDR_BASE << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
                     pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB);
-                    pio1->sm[0].execctrl = (12 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
+                    pio1->sm[0].execctrl = (5 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
                     pio1->sm[0].instr = pio_encode_jmp(0);
                     hw_set_bits(&pio1->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
                     pio_sm_claim(pio1, 0);
                 }
                 break;
-            case 1:
+            case 1: // CLK, DATA version
                 {
                     // TODO:
                     //  Update PIO code
@@ -107,20 +104,15 @@ namespace Multiplex {
 
                     gpio_set_function(clk, GPIO_FUNC_PIO1);
                     gpio_set_function(data, GPIO_FUNC_PIO1);
-                    gpio_set_function(lat, GPIO_FUNC_PIO1);
 
                     // PIO
                     const uint16_t instructions[] = {
-                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),   // PIO SM
-                        (uint16_t) (pio_encode_out(pio_x, 8) | pio_encode_sideset(2, 0)),
-                        (uint16_t) (pio_encode_out(pio_y, 8) | pio_encode_sideset(2, 0)),
-                        (uint16_t) (pio_encode_out(pio_pins, 6) | pio_encode_sideset(2, 0)),    // PMP Program
-                        (uint16_t) (pio_encode_jmp_y_dec(3) | pio_encode_sideset(2, 1)),
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
-                        (uint16_t) (pio_encode_jmp_x_dec(2) | pio_encode_sideset(2, 0)),
-                        (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(2, 0))
+                        (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(5, 0)),
+                        (uint16_t) (pio_encode_mov(pio_x, pio_osr) | pio_encode_sideset(5, 0)),
+                        // TODO: Fix the data
+                        (uint16_t) (pio_encode_nop() | pio_encode_sideset(5, (1 << (data - ADDR_A)) | (1 << (clk - ADDR_A)))),
+                        (uint16_t) (pio_encode_jmp_x_dec(3) | pio_encode_sideset(5, 0)),
+                        (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(5, 0))
                     };
                     static const struct pio_program pio_programs = {
                         .instructions = instructions,
@@ -131,14 +123,14 @@ namespace Multiplex {
                     pio_sm_set_consecutive_pindirs(pio1, 0, Multiplex::HUB75::HUB75_ADDR_BASE, 5, true);
                 
                     // Verify Serial Clock
-                    constexpr float x = 125000000.0 / (multiplex_clock * 2.0);
+                    constexpr float x = 125000000.0 / (multiplex_clock * 2.0);     // Someday this two will be a four.
                     static_assert(x >= 1.0, "Unabled to configure PIO for MULTIPLEX_CLOCK");
 
                     // PMP / SM
                     pio1->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
                     pio1->sm[0].pinctrl = (5 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (Multiplex::HUB75::HUB75_ADDR_BASE << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
                     pio1->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (8 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB);
-                    pio1->sm[0].execctrl = (12 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
+                    pio1->sm[0].execctrl = (4 << PIO_SM0_EXECCTRL_WRAP_TOP_LSB);
                     pio1->sm[0].instr = pio_encode_jmp(0);
                     hw_set_bits(&pio1->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
                     pio_sm_claim(pio1, 0);
@@ -150,10 +142,13 @@ namespace Multiplex {
     }
     
     void __not_in_flash_func(SetRow)(int row) {
-        // TODO:
-
         switch (multiplex_type) {
-
+            case 1:
+                // TODO:
+            case 2:
+                // TODO
+            case 3:
+                // TODO:
             case 0:
                 // Do not use!
             default:

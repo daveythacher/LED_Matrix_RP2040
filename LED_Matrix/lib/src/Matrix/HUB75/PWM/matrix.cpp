@@ -108,7 +108,7 @@ namespace Matrix {
         pio_sm_set_consecutive_pindirs(pio0, 0, Matrix::HUB75::HUB75_DATA_BASE, Matrix::HUB75::HUB75_DATA_LEN, true);
         
         // Verify Serial Clock
-        constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);
+        constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);     // Someday this two will be a four.
         static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
 
         Calculator::verify_configuration();
