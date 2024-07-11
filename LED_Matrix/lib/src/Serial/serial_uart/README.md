@@ -24,7 +24,7 @@ This is currently implemented by the host using the state passed in the flow con
 Currently point to point so not handled/required.
 
 ### Addressing
-Currently point to point so not handled/required.
+There is only the single endpoint on the data node, however the commands/query API in theory support multiple endpoints. IDs are supported on the control node for addressing specific nodes rather than using the broadcast address.
 
 ### Reliability
 Host reserves right to implement this via commands. Must use compatible commands. Optional checksum is used to detect an unreliable transmission. Error protocol also provides some detection and reliability properties.
