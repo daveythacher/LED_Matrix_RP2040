@@ -24,10 +24,13 @@ This is currently implemented by the host using the state passed in the flow con
 Currently point to point so not handled/required.
 
 ### Addressing
-Currently point to point so not handled/required.
+There is only the single endpoint on the data node, however the commands/query API in theory support multiple endpoints. IDs are supported on the control node for addressing specific nodes rather than using the broadcast address.
 
 ### Reliability
-Host reserves right to implement this via commands. Must use compatible commands.
+Host reserves right to implement this via commands. Must use compatible commands. Optional checksum is used to detect an unreliable transmission. Error protocol also provides some detection and reliability properties.
+
+### Error Correction and Detection
+Currently there is a single parity bit. The protocol support reliable comms, if desired. ECC is not currently supported as we do believe the network is reliable enough to avoid it.
 
 ### Latency Regulation
 Host is responsible for regulating this according to control node global command. Control node will send command which will propogate to all nodes in a small section of time (6kHz or higher) to prevent tearing. Flow control is used in most commands of data nodes to ensure all nodes are sync'd, allowing control node to wait till the right time to release processing. Data nodes will block till ready. Should an error occur the host is capable of becoming aware and may flow error protocol if desired. Data nodes will yield pipe after certain amount of time resulting in an error visible to the host.
