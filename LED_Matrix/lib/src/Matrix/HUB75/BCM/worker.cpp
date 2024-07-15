@@ -60,11 +60,19 @@ namespace Matrix::Worker {
         return index_table.table[(v >> (nibble * sizeof(T))) & ((1 << sizeof(T)) - 1)][i];
     }
 
+    // Tricks: (Branch is index into vector via PC)
+    //  1. Use types (read, write)
+    //  2. Remove if with calculations (multiply and accumulate)
+    //      2.1 SIMD may help
+    //      2.2 Matrix operations may help
+    //  3. Remove if with LUT (needs good cache)
+    //      3.1 Matrix operations may help
     template <typename T> inline void __not_in_flash_func(BCM_worker<T>::set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
         for (uint32_t nib = 0; nib < PWM_bits; nib += sizeof(T)) {
             T *c[6] = { get_table(r0, 0, nib), get_table(g0, 1, nib), get_table(b0, 2, nib), get_table(r1, 3, nib), get_table(g1, 4, nib), get_table(b1, 5, nib) };
         
-            T p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
+            // Superscalar Operation (forgive the loads)
+            T p = *c[0] | *c[1] | *c[2] | *c[3] | *c[4] | *c[5];
 
             // Hopefully the compiler will sort this out. (Inlining set_value)
             for (uint32_t j = 0; j < sizeof(T); j++)

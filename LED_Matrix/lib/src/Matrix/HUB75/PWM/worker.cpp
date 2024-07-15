@@ -37,16 +37,25 @@ namespace Matrix::Worker {
         return index_table.table[v][i];
     }
 
+    // Tricks: (Branch is index into vector via PC)
+    //  1. Use types
+    //  2. Remove if with calculations (multiply and accumulate)
+    //      2.1 SIMD may help
+    //      2.2 Matrix operations may help
+    //  3. Remove if with LUT (needs good cache)
+    //      3.1 Matrix operations may help
     template <typename T> inline void __not_in_flash_func(PWM_worker<T>::set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
         T *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
     
         for (uint32_t i = 0; i < (1 << PWM_bits); i += sizeof(T)) {
-            T p = *c[0] + *c[1] + *c[2] + *c[3] + *c[4] + *c[5];
+            // Superscalar Operation (forgive the loads)
+            T p = *c[0] | *c[1] | *c[2] | *c[3] | *c[4] | *c[5];
 
             // Hopefully the compiler will sort this out. (Inlining set_value)
             for (uint32_t j = 0; (j < sizeof(T)) && ((i + j) < (1 << PWM_bits)); j++)
                 buf[bank].set_value(y, i + j, x + 1, (p >> (j * 8)) & 0xFF);
 
+            // Superscalar operation
             for (uint32_t j = 0; j < 6; j++)
                 ++c[j];
         }
