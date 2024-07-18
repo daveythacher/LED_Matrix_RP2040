@@ -7,6 +7,7 @@ namespace SIMD {
             SIMD_QUARTER<T> operator|(SIMD_QUARTER<T> const& arg);
 
             union {
+                T v[32 / (sizeof(T) * 8)];
                 uint8_t  b[4];
                 uint16_t s[2];
                 uint32_t l;
