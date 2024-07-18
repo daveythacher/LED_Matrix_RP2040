@@ -2,7 +2,7 @@
 #define SIMD_H
 
 namespace SIMD {
-    template <typename T> class SIMD_QUARTER {
+    template <typename T> class SIMD_QUARTER {  // Quarter is 32-bit SIMD
         public:
             SIMD_QUARTER<T> operator|(SIMD_QUARTER<T> const& arg);
 
