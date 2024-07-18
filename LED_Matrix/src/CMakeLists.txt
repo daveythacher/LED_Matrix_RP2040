@@ -41,6 +41,7 @@ target_link_libraries(led_${DEFINE_APP}
     pico_stdio_usb
     pico_runtime
     pico_multicore
+    led_SIMD
     led_${DEFINE_MATRIX_FOLDER}_${DEFINE_MATRIX_ALGORITHM}
     led_multiplex_${DEFINE_MULTIPLEX_FOLDER}_${DEFINE_MULTIPLEX_ALGORITHM}
     serial_${DEFINE_SERIAL_ALGORITHM}
