@@ -6,6 +6,10 @@ namespace SIMD {
         public:
             SIMD_QUARTER<T> operator|(SIMD_QUARTER<T> const& arg);
 
+            static constexpr uint32_t size() {
+                return 32 / (sizeof(T) * 8);
+            }
+
             union {
                 T v[32 / (sizeof(T) * 8)];
                 uint8_t  b[4];

@@ -22,19 +22,24 @@ namespace Matrix::Worker {
     static volatile bool vsync = false;
 
     template <typename T> PWM_worker<T>::PWM_worker() {
-        for (uint32_t i = 0; i < sizeof(index_table_t::v) / sizeof(uint32_t); i++)
-            index_table.v[i] = 0;
+        for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
+            for (uint32_t j = 0; j < 6; j++) {
+                for (uint32_t k = 0; k < (((1 << PWM_bits) / SIMD::SIMD_QUARTER<T>::size()) + 1); k++) {
+                    index_table[i][j][k].l = 0;
+                }
+            }
+        }
 
         build_index_table();
     }
 
-    template <typename T> inline T *__not_in_flash_func(PWM_worker<T>::get_table)(uint16_t v, uint8_t i) {
+    template <typename T> inline SIMD::SIMD_QUARTER<T> *__not_in_flash_func(PWM_worker<T>::get_table)(uint16_t v, uint8_t i) {
         constexpr uint32_t div = std::max((uint32_t) Serial::range_high / 1 << PWM_bits, (uint32_t) 1);
         constexpr uint32_t mul = std::max((uint32_t) 1 << PWM_bits / Serial::range_high, (uint32_t) 1);
 
         v = v * mul / div;
         //v %= (1 << PWM_bits);
-        return index_table.table[v][i];
+        return index_table[v][i];
     }
 
     // Tricks: (Branch is index into vector via PC)
@@ -45,15 +50,15 @@ namespace Matrix::Worker {
     //  3. Remove if with LUT (needs good cache)
     //      3.1 Matrix operations may help
     template <typename T> inline void __not_in_flash_func(PWM_worker<T>::set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
-        T *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
+        SIMD::SIMD_QUARTER<T> *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
     
-        for (uint32_t i = 0; i < (1 << PWM_bits); i += sizeof(T)) {
+        for (uint32_t i = 0; i < (1 << PWM_bits); i += SIMD::SIMD_QUARTER<T>::size()) {
             // Superscalar Operation (forgive the loads)
-            T p = *c[0] | *c[1] | *c[2] | *c[3] | *c[4] | *c[5];
+            SIMD::SIMD_QUARTER<T> p = *c[0] | *c[1] | *c[2] | *c[3] | *c[4] | *c[5];
 
             // Hopefully the compiler will sort this out. (Inlining set_value)
-            for (uint32_t j = 0; (j < sizeof(T)) && ((i + j) < (1 << PWM_bits)); j++)
-                buf[bank].set_value(y, i + j, x + 1, (p >> (j * 8)) & 0xFF);
+            for (uint32_t j = 0; (j < (SIMD::SIMD_QUARTER<T>::size())) && ((i + j) < (1 << PWM_bits)); j++)
+                buf[bank].set_value(y, i + j, x + 1, p.v[j]);
 
             // Superscalar operation
             for (uint32_t j = 0; j < 6; j++)
@@ -65,7 +70,7 @@ namespace Matrix::Worker {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
             for (uint32_t j = 0; j < i; j++)
                 for (uint8_t k = 0; k < 6; k++)
-                    index_table.table[i][k][j / sizeof(T)] |= 1 << (k + ((j % sizeof(T)) * 8));
+                    index_table[i][k][j / SIMD::SIMD_QUARTER<T>::size()].v[j % SIMD::SIMD_QUARTER<T>::size()] = 1 << k;
         }
     }
 
@@ -128,18 +133,8 @@ namespace Matrix::Worker {
     }
 
     void __not_in_flash_func(work)() {
-        // Compiler should remove all but one of these.
-        switch (PWM_bits % 4) {
-            case 0:
-                worker_internal<uint32_t>();
-                break;
-            case 2:
-                worker_internal<uint16_t>();
-                break;
-            default:
-                worker_internal<uint8_t>();
-                break;
-        }
+        // Currently we only support 8-bit port
+        worker_internal<uint8_t>();
     }
 
     void __not_in_flash_func(process)(Serial::packet *buffer) {
