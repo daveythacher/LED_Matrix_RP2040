@@ -11,6 +11,7 @@
 #include "Serial/config.h"
 
 namespace Matrix {
+    // Currently we only support 8-bit port
     struct Buffer {
         public:
             Buffer();
