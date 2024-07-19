@@ -24,7 +24,7 @@ namespace Matrix::Worker {
     template <typename T> PWM_worker<T>::PWM_worker() {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
             for (uint32_t j = 0; j < 6; j++) {
-                for (uint32_t k = 0; k < (((1 << PWM_bits) / SIMD::SIMD_QUARTER<T>::size()) + 1); k++) {
+                for (uint32_t k = 0; k < PWM_worker::size; k++) {
                     index_table[i][j][k].l = 0;
                 }
             }
