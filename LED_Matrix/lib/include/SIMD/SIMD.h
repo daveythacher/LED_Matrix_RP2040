@@ -11,7 +11,7 @@ namespace SIMD {
             }
 
             union {
-                T v[32 / (sizeof(T) * 8)];
+                T v[SIMD_QUARTER<T>::size()];
                 uint8_t  b[4];
                 uint16_t s[2];
                 uint32_t l;
