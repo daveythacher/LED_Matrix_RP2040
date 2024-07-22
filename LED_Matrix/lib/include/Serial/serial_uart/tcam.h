@@ -14,13 +14,13 @@
 namespace Serial::TCAM {
     // Future: Add banks
     constexpr uint8_t num_rules = 4;
-    constexpr uint8_t num_longs = 3;
+    constexpr uint8_t num_longs = sizeof(SIMD::SIMD_SINGLE<uint32_t>) / sizeof(uint32_t);
 
     union TCAM_entry {
         uint8_t bytes[num_longs * 4];
         uint16_t shorts[num_longs * 2];
         uint32_t data[num_longs];
-        SIMD::SIMD_QUARTER<uint32_t> vec[num_longs];
+        SIMD::SIMD_SINGLE<uint32_t> vec;
     };
 
     // Only the highest priority rule match runs

@@ -5,6 +5,8 @@ namespace Serial::TCAM {
     struct TCAM_record {
         TCAM_record() {
             claim = false;
+            key = { 0 };
+            enable = { 0 };
         }
 
         TCAM_entry key;
@@ -17,17 +19,9 @@ namespace Serial::TCAM {
     static TCAM_record TCAM_table[num_rules];
 
     static bool __not_in_flash_func(TCAM_search)(const TCAM_entry *data, const TCAM_entry *key, const TCAM_entry *enable) {
-        bool result = true;
-
-        // Do not waste time with break
-        // Future: Create 128-bit SIMD implementation
-        for (uint8_t i = 0; i < sizeof(TCAM_entry) / sizeof(TCAM_entry::vec); i++) {
-            SIMD::SIMD_QUARTER<uint32_t> d = data->vec[i] & enable->vec[i];
-            SIMD::SIMD_QUARTER<uint32_t> k = key->vec[i] & enable->vec[i];
-            result &= d == k;
-        }
-
-        return result;
+        SIMD::SIMD_SINGLE<uint32_t> d = data->vec & enable->vec;
+        SIMD::SIMD_SINGLE<uint32_t> k = key->vec & enable->vec;
+        return d == k;
     }
 
     bool TCAM_rule(uint8_t priority, TCAM_entry key, TCAM_entry enable, void (*func)()) {
