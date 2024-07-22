@@ -20,9 +20,10 @@ namespace Serial::TCAM {
         bool result = true;
 
         // Do not waste time with break
-        for (uint8_t i = 0; i < sizeof(TCAM_entry) / sizeof(TCAM_entry::data); i++) {
-            uint32_t d = data->data[i] & enable->data[i];
-            uint32_t k = key->data[i] & enable->data[i];
+        // Future: Create 128-bit SIMD implementation
+        for (uint8_t i = 0; i < sizeof(TCAM_entry) / sizeof(TCAM_entry::vec); i++) {
+            SIMD::SIMD_QUARTER<uint32_t> d = data->vec[i] & enable->vec[i];
+            SIMD::SIMD_QUARTER<uint32_t> k = key->vec[i] & enable->vec[i];
             result &= d == k;
         }
 
@@ -35,8 +36,6 @@ namespace Serial::TCAM {
 
         if (TCAM_table[priority].claim)
             return false;
-
-        static_assert((num_bytes % 4) == 0, "TCAM rules must be multiple of 4.");
         
         TCAM_table[priority].key = key;
         TCAM_table[priority].enable = enable;
