@@ -18,7 +18,6 @@ target_compile_options(led_${DEFINE_APP} PRIVATE
     -ffunction-sections 
     -fdata-sections 
     -fstack-usage
-    -O3
     -funroll-loops 
     -Werror 
     -Wall

@@ -5,8 +5,13 @@ include(lib/external/pico-sdk/external/pico_sdk_import.cmake)
 
 project(led C CXX ASM)
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-    
+set(CMAKE_CXX_STANDARD 17)    
+
+# Hack for CMake
+set(CMAKE_C_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_ASM_FLAGS_RELEASE "-O3")
+
 # Initialize the SDK
 pico_sdk_init()
 
