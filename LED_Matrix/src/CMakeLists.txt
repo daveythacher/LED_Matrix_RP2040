@@ -14,7 +14,6 @@ target_compile_options(led_${DEFINE_APP} PRIVATE
     -fno-exceptions 
     -fno-check-new 
     $<$<COMPILE_LANGUAGE:CXX>:-fno-enforce-eh-specs>
-    -g 
     -ffunction-sections 
     -fdata-sections 
     -fstack-usage

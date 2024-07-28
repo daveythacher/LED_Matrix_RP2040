@@ -8,9 +8,9 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)    
 
 # Hack for CMake
-set(CMAKE_C_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_ASM_FLAGS_RELEASE "-O3")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g")
+set(CMAKE_ASM_FLAGS_RELEASE "-O3 -g")
 
 # Initialize the SDK
 pico_sdk_init()
