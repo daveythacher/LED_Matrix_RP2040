@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
  
-#ifndef SERIAL_UART_MACHINE_H
-#define SERIAL_UART_MACHINE_H
+#ifndef MACHINE_H
+#define MACHINE_H
     
 #include <stdint.h>
 #include <machine/endian.h>

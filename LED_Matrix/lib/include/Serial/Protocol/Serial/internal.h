@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
  
-#ifndef SERIAL_UART_INTERNAL_H
-#define SERIAL_UART_INTERNAL_H
+#ifndef SERIAL_PROTOCOL_SERIAL_INTERNAL_H
+#define SERIAL_PROTOCOL_SERIAL_INTERNAL_H
     
 #include <stdint.h>
 #include "pico/multicore.h"

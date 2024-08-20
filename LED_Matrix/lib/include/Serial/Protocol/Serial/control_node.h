@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
  
-#ifndef SERIAL_UART_CONTROL_NODE_H
-#define SERIAL_UART_CONTROL_NODE_H
+#ifndef SERIAL_PROTOCOL_SERIAL_CONTROL_NODE_H
+#define SERIAL_PROTOCOL_SERIAL_CONTROL_NODE_H
     
 #include <stdint.h>
 
