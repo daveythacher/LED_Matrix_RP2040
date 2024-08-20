@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
-#include "Serial/Node/control.h"
+#include "Serial/Node/Control/serial.h"
 #include "Serial/Node/serial_uart/serial_uart.h"
 
 namespace Serial::Node::Control {
