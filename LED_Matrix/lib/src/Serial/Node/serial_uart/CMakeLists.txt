@@ -7,6 +7,7 @@ target_sources(serial_node_uart INTERFACE
 
 # Use caution here!
 target_link_libraries(serial_node_uart INTERFACE 
+    hardware_irq
     hardware_gpio
     hardware_uart
 )

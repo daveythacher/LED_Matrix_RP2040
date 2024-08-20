@@ -8,5 +8,4 @@ target_sources(led_multiplex_HUB75_Shifter INTERFACE
 target_link_libraries(led_multiplex_HUB75_Shifter INTERFACE 
     hardware_gpio
     hardware_pio
-    hardware_irq
 )

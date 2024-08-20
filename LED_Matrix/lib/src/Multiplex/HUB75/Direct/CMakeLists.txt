@@ -7,5 +7,4 @@ target_sources(led_multiplex_HUB75_Direct INTERFACE
 
 target_link_libraries(led_multiplex_HUB75_Direct INTERFACE 
     hardware_gpio
-    hardware_irq
 )
