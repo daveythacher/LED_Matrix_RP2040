@@ -1,7 +1,6 @@
 add_library(serial_node_uart INTERFACE)
 
 target_sources(serial_node_uart INTERFACE
-    serial_uart.cpp
     serial.cpp
     isr.cpp
 )

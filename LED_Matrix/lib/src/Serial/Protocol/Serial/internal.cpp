@@ -8,7 +8,6 @@
 #include "hardware/uart.h"
 #include "Serial/Protocol/Serial/internal.h"
 #include "System/machine.h"
-#include "Serial/Node/serial_uart/serial_uart.h"
 #include "Matrix/matrix.h"
 
 namespace Serial::UART::internal {

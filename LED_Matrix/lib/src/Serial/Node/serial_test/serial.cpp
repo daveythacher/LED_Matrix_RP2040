@@ -33,6 +33,14 @@ namespace Serial {
         Matrix::Worker::process(&buffers[(buffer + 1) % num_packets]);
     }
 
+    void __not_in_flash_func(callback)(Serial::packet **buf) {
+        // Do nothing
+    }
+
+    uint16_t __not_in_flash_func(get_len)() {
+        return sizeof(Serial::packet);
+    }
+
     void start() {
         // Do nothing
     }
