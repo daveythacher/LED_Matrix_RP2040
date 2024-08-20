@@ -5,7 +5,7 @@
  */
 
 #include "hardware/uart.h"
-#include "Serial/serial.h"
+#include "Serial/Node/serial.h"
 #include "Serial/Protocol/Serial/internal.h"
 #include "CRC/CRC.h"
 #include "Serial/Protocol/Serial/control_node.h"
