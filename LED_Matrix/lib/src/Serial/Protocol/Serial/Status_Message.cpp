@@ -4,9 +4,9 @@
  * License: GPL 3.0
  */
 
-#include "Serial/serial_uart/machine.h"
-#include "Serial/serial_uart/internal.h"
-#include "Serial/serial_uart/CRC.h"
+#include "System/machine.h"
+#include "Serial/Protocol/Serial/internal.h"
+#include "CRC/CRC.h"
 
 namespace Serial::UART::internal {
     __not_in_flash_func(Status_Message::Status_Message)() {
@@ -48,7 +48,7 @@ namespace Serial::UART::internal {
 
     static inline uint32_t __not_in_flash_func(checksum_chunk)(uint32_t checksum, uint32_t v, uint8_t bits) {
         for (int i = 0; i < bits; i += 8)
-            checksum = Serial::UART::CRC::crc32(checksum, (v >> i) & 0xFF);
+            checksum = CRC::crc32(checksum, (v >> i) & 0xFF);
         
         return checksum;
     }

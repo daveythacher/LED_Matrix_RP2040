@@ -1,2 +1,2 @@
-add_subdirectory(serial_uart)
-add_subdirectory(serial_test)
+add_subdirectory(Protocol)
+add_subdirectory(Node)

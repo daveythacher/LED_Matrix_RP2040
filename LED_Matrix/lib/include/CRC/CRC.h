@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include "pico/multicore.h"
 
-namespace Serial::UART::CRC {
+namespace CRC {
     /*-
      *  COPYRIGHT (C) 1986 Gary S. Brown.  You may use this program, or
      *  code or tables extracted from it, as desired without restriction.

@@ -6,10 +6,10 @@
 
 #include "hardware/uart.h"
 #include "pico/multicore.h"
-#include "Serial/serial_uart/machine.h"
-#include "Serial/serial_uart/control_node.h"
-#include "Serial/serial_uart/data_node.h"
-#include "Serial/serial_uart/CRC.h"
+#include "System/machine.h"
+#include "Serial/Protocol/Serial/control_node.h"
+#include "Serial/Protocol/Serial/data_node.h"
+#include "CRC/CRC.h"
 
 namespace Serial::UART::CONTROL_NODE {
     static uint8_t id = 0;
@@ -137,7 +137,7 @@ namespace Serial::UART::CONTROL_NODE {
             }
 
             if (check_it)
-                *checksum = Serial::UART::CRC::crc32(*checksum, c);
+                *checksum = CRC::crc32(*checksum, c);
         }
 
         return result;;

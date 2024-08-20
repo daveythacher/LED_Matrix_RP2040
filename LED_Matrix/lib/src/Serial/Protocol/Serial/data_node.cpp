@@ -5,13 +5,13 @@
  */
 
 #include "hardware/uart.h"
-#include "Serial/serial_uart/serial_uart.h"
-#include "Serial/serial_uart/internal.h"
-#include "Serial/serial_uart/CRC.h"
-#include "Serial/serial_uart/control_node.h"
-#include "Serial/serial_uart/data_node.h"
-#include "Serial/serial_uart/machine.h"
-#include "Serial/serial_uart/tcam.h"
+#include "Serial/Node/serial_uart/serial_uart.h"
+#include "Serial/Protocol/Serial/internal.h"
+#include "CRC/CRC.h"
+#include "Serial/Protocol/Serial/control_node.h"
+#include "Serial/Protocol/Serial/data_node.h"
+#include "System/machine.h"
+#include "TCAM/tcam.h"
 using Serial::UART::internal::STATUS;
 
 namespace Serial::UART::DATA_NODE {
@@ -22,7 +22,7 @@ namespace Serial::UART::DATA_NODE {
     static uint8_t idle_num = 0;
     static COMMAND command;
     static uint32_t index;
-    static Serial::TCAM::TCAM_entry data;
+    static TCAM::TCAM_entry data;
     static uint32_t checksum;
     static STATUS status;
     static bool trigger;
@@ -40,8 +40,8 @@ namespace Serial::UART::DATA_NODE {
     static void process_query_request_t();
 
     void data_node_setup() {
-        Serial::TCAM::TCAM_entry key;
-        Serial::TCAM::TCAM_entry enable;
+        TCAM::TCAM_entry key;
+        TCAM::TCAM_entry enable;
 
         // TCAM can covert 6-12 operations down to 3.
         //  The conditionals can be removed with AND down to 1.
@@ -57,24 +57,24 @@ namespace Serial::UART::DATA_NODE {
         key.bytes[9] = Matrix::MULTIPLEX;
         key.bytes[10] = Matrix::COLUMNS;
         key.bytes[11] = DEFINE_SERIAL_RGB_TYPE::id;
-        while (!Serial::TCAM::TCAM_rule(0, key, enable, process_data_command_d));
+        while (!TCAM::TCAM_rule(0, key, enable, process_data_command_d));
 
         key.bytes[4] = 'r';
-        while (!Serial::TCAM::TCAM_rule(1, key, enable, process_data_command_r));
+        while (!TCAM_rule(1, key, enable, process_data_command_r));
 
 
         enable.data[2] = 0;
         key.shorts[3] = 1;
         key.bytes[5] = 'c';
         key.bytes[4] = 'i';
-        while (!Serial::TCAM::TCAM_rule(2, key, enable, process_control_command_i));
+        while (!TCAM::TCAM_rule(2, key, enable, process_control_command_i));
 
 
         // TODO: Update
         enable.shorts[3] = 0;
         key.bytes[5] = 'q';
         key.bytes[4] = 't';
-        while (!Serial::TCAM::TCAM_rule(3, key, enable, process_query_request_t));
+        while (!TCAM::TCAM_rule(3, key, enable, process_query_request_t));
     }
     
     STATUS __not_in_flash_func(data_node)() {
@@ -176,7 +176,7 @@ namespace Serial::UART::DATA_NODE {
                 buf[index] = uart_getc(uart0);
 
                 if (checksum)
-                    checksum = Serial::UART::CRC::crc32(checksum, buf[index]);
+                    checksum = CRC::crc32(checksum, buf[index]);
 
                 index++;
             }
@@ -187,7 +187,7 @@ namespace Serial::UART::DATA_NODE {
 
     inline void __not_in_flash_func(process_command)() {
         if (index == 12) {
-            Serial::TCAM::TCAM_process(&data);
+            TCAM::TCAM_process(&data);
         }
     }
 

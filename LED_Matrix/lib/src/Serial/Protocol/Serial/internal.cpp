@@ -6,9 +6,9 @@
 
 #include "hardware/watchdog.h"
 #include "hardware/uart.h"
-#include "Serial/serial_uart/internal.h"
-#include "Serial/serial_uart/machine.h"
-#include "Serial/serial_uart/serial_uart.h"
+#include "Serial/Protocol/Serial/internal.h"
+#include "System/machine.h"
+#include "Serial/Node/serial_uart/serial_uart.h"
 #include "Matrix/matrix.h"
 
 namespace Serial::UART::internal {

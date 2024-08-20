@@ -1,7 +1,7 @@
 #include "pico/multicore.h"
-#include "Serial/serial_uart/tcam.h"
+#include "TCAM/tcam.h"
 
-namespace Serial::TCAM {
+namespace TCAM {
     struct TCAM_record {
         TCAM_record() {
             claim = false;

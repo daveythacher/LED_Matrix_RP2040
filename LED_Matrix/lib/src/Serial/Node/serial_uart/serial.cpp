@@ -5,7 +5,7 @@
  */
  
 #include "pico/multicore.h"
-#include "Serial/serial_uart/serial_uart.h"
+#include "Serial/Node/serial_uart/serial_uart.h"
 
 namespace Serial {
     void __not_in_flash_func(task)() { 

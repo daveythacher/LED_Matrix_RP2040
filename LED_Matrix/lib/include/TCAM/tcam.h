@@ -11,7 +11,7 @@
 #include "SIMD/SIMD.h"
 
 // This can be rendered into coprocessor.
-namespace Serial::TCAM {
+namespace TCAM {
     // Future: Add banks
     constexpr uint8_t num_rules = 4;
     constexpr uint8_t num_longs = sizeof(SIMD::SIMD_SINGLE<uint32_t>) / sizeof(uint32_t);

@@ -7,10 +7,10 @@
 #include <stdint.h>
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
-#include "Serial/serial_uart/serial_uart.h"
-#include "Serial/serial_uart/internal.h"
-#include "Serial/serial_uart/control_node.h"
-#include "Serial/serial_uart/data_node.h"
+#include "Serial/Node/serial_uart/serial_uart.h"
+#include "Serial/Protocol/Serial/internal.h"
+#include "Serial/Protocol/Serial/control_node.h"
+#include "Serial/Protocol/Serial/data_node.h"
 #include "Matrix/matrix.h"
 using Serial::UART::internal::STATUS;
 

@@ -40,9 +40,11 @@ target_link_libraries(led_${DEFINE_APP}
     pico_runtime
     pico_multicore
     led_SIMD
+    led_TCAM
     led_${DEFINE_MATRIX_FOLDER}_${DEFINE_MATRIX_ALGORITHM}
     led_multiplex_${DEFINE_MULTIPLEX_FOLDER}_${DEFINE_MULTIPLEX_ALGORITHM}
-    serial_${DEFINE_SERIAL_ALGORITHM}
+    serial_node_${DEFINE_SERIAL_ALGORITHM}
+    serial_protocol_serial
 )
 
 target_link_options(led_${DEFINE_APP} 

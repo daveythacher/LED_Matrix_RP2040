@@ -7,7 +7,7 @@
 #ifndef SERIAL_UART_DATA_NODE_H
 #define SERIAL_UART_DATA_NODE_H
     
-#include "Serial/serial_uart/internal.h"
+#include "Serial/Protocol/Serial/internal.h"
 
 namespace Serial::UART::DATA_NODE {
     enum class DATA_STATES {
