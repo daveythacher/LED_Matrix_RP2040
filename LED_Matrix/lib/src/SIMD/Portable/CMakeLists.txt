@@ -2,5 +2,6 @@
 add_library(led_SIMD INTERFACE)
 
 target_sources(led_SIMD INTERFACE
-    SIMD.cpp
+    SIMD_QUARTER.cpp
+    SIMD_SINGLE.cpp
 )
