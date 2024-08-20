@@ -7,14 +7,19 @@
 #include "pico/stdio_usb.h"
 #include "pico/multicore.h"
 #include "hardware/watchdog.h"
-#include "hardware/timer.h"
 #include "Matrix/matrix.h"
-#include "Serial/serial.h"
+#include "Serial/Node/Control/serial.h"
+#include "Serial/Node/Data/serial.h"
+#include "Serial/Protocol/serial.h"
 #include "ISR/isr.h"
 
 static void __not_in_flash_func(loop_core0)() {
     while (1) {
-        Serial::task();             // Uses blocking pushes to FIFO.
+        // Uses blocking pushes to FIFO.
+        Serial::Node::Control::task();
+        Serial::Node::Data::task();
+        Serial::Protocol::task();
+
         watchdog_update();          // We are only interested in protecting core 0
     }
 }
@@ -33,7 +38,9 @@ int main() {
     busy_wait_ms(1000);             // Make time (1 second) for picotool before system loads
     watchdog_enable(1, false);      // Make sure picotool can never be disconnected
 
-    Serial::start();
+    Serial::Node::Control::start();
+    Serial::Node::Data::start();
+    Serial::Protocol::start();
     multicore_launch_core1(loop_core1);
     loop_core0();
 }

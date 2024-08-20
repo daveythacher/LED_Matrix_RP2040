@@ -5,6 +5,7 @@ target_sources(serial_protocol_serial INTERFACE
     data_node.cpp
     internal.cpp
     Status_Message.cpp
+    serial.cpp
 )
 
 # Use caution here!

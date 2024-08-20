@@ -5,7 +5,7 @@
  */
 
 #include "hardware/uart.h"
-#include "Serial/Node/serial.h"
+#include "Serial/Node/data.h"
 #include "Serial/Protocol/Serial/internal.h"
 #include "CRC/CRC.h"
 #include "Serial/Protocol/Serial/control_node.h"
@@ -52,7 +52,7 @@ namespace Serial::UART::DATA_NODE {
         key.data[0] = htonl(0xAAEEAAEE);
         key.bytes[4] = 'd';
         key.bytes[5] = 'd';
-        key.shorts[3] = htons(Serial::get_len());
+        key.shorts[3] = htons(Serial::Node::Data::get_len());
         key.bytes[8] = sizeof(DEFINE_SERIAL_RGB_TYPE);
         key.bytes[9] = Matrix::MULTIPLEX;
         key.bytes[10] = Matrix::COLUMNS;
@@ -86,8 +86,8 @@ namespace Serial::UART::DATA_NODE {
                 trigger = false;
                 acknowledge = false;
                 checksum = 0xFFFFFFFF;
-                Serial::callback(&buf);
-                len = Serial::get_len();
+                Serial::Node::Data::callback(&buf);
+                len = Serial::Node::Data::get_len();
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS;
                 time = time_us_64();
 
