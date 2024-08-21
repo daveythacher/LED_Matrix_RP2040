@@ -49,4 +49,16 @@ namespace Serial::Node::Data {
     uint16_t __not_in_flash_func(get_len)() {
         return sizeof(Serial::packet);
     }
+
+    bool __not_in_flash_func(isAvailable)() {
+        return uart_is_readable(uart0);
+    }
+
+    uint8_t __not_in_flash_func(getc)() {
+        return uart_getc(uart0);
+    }
+
+    void __not_in_flash_func(putc)(uint8_t c) {
+        uart_putc(uart0, c);
+    }
 }

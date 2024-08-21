@@ -13,6 +13,9 @@
 namespace Serial::Node::Data {
     void callback(Serial::packet **buf);
     uint16_t get_len();
+    bool isAvailable();
+    uint8_t getc();
+    void putc(uint8_t c);
 }
 
 #endif

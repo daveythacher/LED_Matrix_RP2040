@@ -45,4 +45,16 @@ namespace Serial::Node::Data {
     void start() {
         // Do nothing
     }
+
+    bool __not_in_flash_func(isAvailable)() {
+        return false;
+    }
+
+    uint8_t __not_in_flash_func(getc)() {
+        return 0;
+    }
+
+    void __not_in_flash_func(putc)(uint8_t c) {
+        // Do nothing
+    }
 }

@@ -5,10 +5,10 @@
  */
 
 #include "pico/multicore.h"
-#include "System/machine.h"
-#include "Serial/Node/control.h"
 #include "Serial/Protocol/Serial/control_node.h"
 #include "Serial/Protocol/Serial/data_node.h"
+#include "Serial/Node/control.h"
+#include "System/machine.h"
 #include "CRC/CRC.h"
 
 namespace Serial::Protocol::CONTROL_NODE {

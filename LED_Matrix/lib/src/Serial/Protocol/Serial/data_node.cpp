@@ -4,14 +4,13 @@
  * License: GPL 3.0
  */
 
-#include "hardware/uart.h"
-#include "Serial/Node/data.h"
-#include "Serial/Protocol/Serial/internal.h"
-#include "CRC/CRC.h"
-#include "Serial/Protocol/Serial/control_node.h"
 #include "Serial/Protocol/Serial/data_node.h"
+#include "Serial/Protocol/Serial/internal.h"
+#include "Serial/Protocol/Serial/control_node.h"
+#include "Serial/Node/data.h"
 #include "System/machine.h"
 #include "TCAM/tcam.h"
+#include "CRC/CRC.h"
 using Serial::Protocol::internal::STATUS;
 
 namespace Serial::Protocol::DATA_NODE {
@@ -172,8 +171,8 @@ namespace Serial::Protocol::DATA_NODE {
 
     void __not_in_flash_func(get_data)(uint8_t *buf, uint16_t len, bool checksum) {
         while (index < len) {
-            if (uart_is_readable(uart0)) {
-                buf[index] = uart_getc(uart0);
+            if (Serial::Node::Data::isAvailable()) {
+                buf[index] = Serial::Node::Data::getc();
 
                 if (checksum)
                     checksum = CRC::crc32(checksum, buf[index]);

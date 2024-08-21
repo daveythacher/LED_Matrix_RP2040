@@ -5,8 +5,8 @@
  */
 
 #include "hardware/watchdog.h"
-#include "hardware/uart.h"
 #include "Serial/Protocol/Serial/internal.h"
+#include "Serial/Node/data.h"
 #include "System/machine.h"
 #include "Matrix/matrix.h"
 
@@ -36,8 +36,8 @@ namespace Serial::Protocol::internal {
 
     static inline void __not_in_flash_func(write_chunk)(uint32_t v, uint8_t bits) {
         for (int i = 0; i < bits; i += 8) {
-            if (uart_is_writable(uart0))
-                uart_putc(uart0, (v >> i) & 0xFF);
+            if (Serial::Node::Data::isAvailable())
+                Serial::Node::Data::putc((v >> i) & 0xFF);
             else
                 watchdog_update();
         }
