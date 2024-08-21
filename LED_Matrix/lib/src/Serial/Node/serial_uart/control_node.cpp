@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
-#include "Serial/Node/Control/serial.h"
+#include "Serial/Node/control.h"
 #include "Serial/Node/serial_uart/serial_uart.h"
 
 namespace Serial::Node::Control {
@@ -37,5 +37,13 @@ namespace Serial::Node::Control {
         if (!((uart1_hw->ris & 0x380) == 0)) {
             uart1_hw->icr = 0x7FF;
         }
+    }
+
+    bool __not_in_flash_func(isAvailable)() {
+        return uart_is_readable(uart1);
+    }
+
+    uint8_t __not_in_flash_func(getc)() {
+        return uart_getc(uart1);
     }
 }

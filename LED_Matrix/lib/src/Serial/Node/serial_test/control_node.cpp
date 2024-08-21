@@ -16,4 +16,12 @@ namespace Serial::Node::Control {
     void start() {
         // Do nothing
     }
+
+    bool __not_in_flash_func(isAvailable)() {
+        return false;
+    }
+
+    uint8_t __not_in_flash_func(getc)() {
+        return 0;
+    }
 }

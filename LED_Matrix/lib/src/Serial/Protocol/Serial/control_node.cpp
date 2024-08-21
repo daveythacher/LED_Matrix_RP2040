@@ -4,9 +4,9 @@
  * License: GPL 3.0
  */
 
-#include "hardware/uart.h"
 #include "pico/multicore.h"
 #include "System/machine.h"
+#include "Serial/Node/control.h"
 #include "Serial/Protocol/Serial/control_node.h"
 #include "Serial/Protocol/Serial/data_node.h"
 #include "CRC/CRC.h"
@@ -64,8 +64,8 @@ namespace Serial::Protocol::CONTROL_NODE {
         bool result = false;
         uint8_t c;
 
-        if (uart_is_readable(uart1)) {
-            c = uart_getc(uart1);
+        if (Serial::Node::Control::isAvailable()) {
+            c = Serial::Node::Control::getc();
             index++;
 
             switch (state) {
