@@ -60,6 +60,5 @@ set(DEFINE_FPS "30" CACHE STRING "Frames per second")
 set(DEFINE_MIN_REFRESH "3000" CACHE STRING "Refresh rate")
 set(DEFINE_BYPASS_FANOUT "false" CACHE STRING "Disable verification of max Matrix algorithm Serial clock fanout speed limit")
 
-add_subdirectory(include)
 add_subdirectory(lib)
 add_subdirectory(src)
