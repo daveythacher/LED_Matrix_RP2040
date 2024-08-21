@@ -1,7 +1,8 @@
 add_library(serial_node_test INTERFACE)
 
 target_sources(serial_node_test INTERFACE
-    serial.cpp
+    control_node.cpp
+    data_node.cpp
     isr.cpp
 )
 
