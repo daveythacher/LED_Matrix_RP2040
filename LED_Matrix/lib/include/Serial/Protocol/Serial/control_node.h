@@ -9,7 +9,7 @@
     
 #include <stdint.h>
 
-namespace Serial::UART::CONTROL_NODE {
+namespace Serial::Protocol::CONTROL_NODE {
     struct Control_Message {
         uint32_t header;
         uint8_t cmd;

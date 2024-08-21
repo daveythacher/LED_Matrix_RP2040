@@ -16,7 +16,7 @@
 namespace Serial::Protocol {
     void start() {
         // Setup TCAM rules
-        Serial::UART::DATA_NODE::data_node_setup();
+        Serial::Protocol::DATA_NODE::data_node_setup();
     }
 
     // Warning host is required to obey flow control and handle bus recovery
@@ -24,9 +24,9 @@ namespace Serial::Protocol {
 /*        static uint64_t time = time_us_64();
         Serial::UART::internal::STATUS status;*/
 
-        Serial::UART::CONTROL_NODE::control_node();
+        Serial::Protocol::CONTROL_NODE::control_node();
         //status = Serial::UART::DATA_NODE::data_node();
-        Serial::UART::DATA_NODE::data_node();
+        Serial::Protocol::DATA_NODE::data_node();
 
         // TODO: Fix this (API for send_status?)
 /*

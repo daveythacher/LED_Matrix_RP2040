@@ -12,9 +12,9 @@
 #include "Serial/Protocol/Serial/data_node.h"
 #include "System/machine.h"
 #include "TCAM/tcam.h"
-using Serial::UART::internal::STATUS;
+using Serial::Protocol::internal::STATUS;
 
-namespace Serial::UART::DATA_NODE {
+namespace Serial::Protocol::DATA_NODE {
     static Serial::packet *buf = 0;
     static uint16_t len = 0;
 
@@ -125,7 +125,7 @@ namespace Serial::UART::DATA_NODE {
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::READY:                                // Host should see READY to IDLE_1/0
                 if (trigger) {
-                    Serial::UART::internal::process(buf, len);
+                    Serial::Protocol::internal::process(buf, len);
                     idle_num = (idle_num + 1) % 2;
                     state_data = DATA_STATES::SETUP;
                 }
@@ -272,7 +272,7 @@ namespace Serial::UART::DATA_NODE {
                     case COMMAND::SET_ID:
                         // Future: Look into parity
                         if (ntohl(data.data[0]) == ~checksum) {
-                            Serial::UART::CONTROL_NODE::set_id(data.bytes[0]);
+                            Serial::Protocol::CONTROL_NODE::set_id(data.bytes[0]);
                             idle_num = (idle_num + 1) % 2;
                             state_data = DATA_STATES::SETUP;
                         }

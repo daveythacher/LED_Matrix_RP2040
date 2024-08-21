@@ -8,7 +8,7 @@
 #include "Serial/Protocol/Serial/internal.h"
 #include "CRC/CRC.h"
 
-namespace Serial::UART::internal {
+namespace Serial::Protocol::internal {
     __not_in_flash_func(Status_Message::Status_Message)() {
         header = htonl(0xAAEEAAEE);
         cmd = 's';

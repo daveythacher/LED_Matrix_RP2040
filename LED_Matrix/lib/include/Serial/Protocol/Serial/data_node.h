@@ -9,7 +9,7 @@
     
 #include "Serial/Protocol/Serial/internal.h"
 
-namespace Serial::UART::DATA_NODE {
+namespace Serial::Protocol::DATA_NODE {
     enum class DATA_STATES {
         SETUP,
         PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS,
@@ -27,7 +27,7 @@ namespace Serial::UART::DATA_NODE {
     };
 
     void data_node_setup();
-    Serial::UART::internal::STATUS data_node();
+    Serial::Protocol::internal::STATUS data_node();
     void trigger_processing();
     void acknowledge_query();
     void reset();

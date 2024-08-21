@@ -10,7 +10,7 @@
 #include "System/machine.h"
 #include "Matrix/matrix.h"
 
-namespace Serial::UART::internal {
+namespace Serial::Protocol::internal {
     void __not_in_flash_func(process)(Serial::packet *p, uint16_t len) {
         switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
             case 2:

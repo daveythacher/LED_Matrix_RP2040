@@ -11,7 +11,7 @@
 #include "Serial/Protocol/Serial/data_node.h"
 #include "CRC/CRC.h"
 
-namespace Serial::UART::CONTROL_NODE {
+namespace Serial::Protocol::CONTROL_NODE {
     static uint8_t id = 0;
 
     static bool get_message(Control_Message *msg, uint32_t *checksum);
@@ -31,17 +31,17 @@ namespace Serial::UART::CONTROL_NODE {
                 switch (message.cmd) {
                     case 0:
                         if (message.id == 0 || message.id == id)
-                            Serial::UART::DATA_NODE::trigger_processing();
+                            Serial::Protocol::DATA_NODE::trigger_processing();
                         break;
 
                     case 1:
                         if (message.id == 0 || message.id == id)
-                            Serial::UART::DATA_NODE::reset();
+                            Serial::Protocol::DATA_NODE::reset();
                         break;
 
                     case 2:
                         if (message.id == id)
-                            Serial::UART::DATA_NODE::acknowledge_query();
+                            Serial::Protocol::DATA_NODE::acknowledge_query();
                         break;
 
                     default:

@@ -11,7 +11,7 @@
 #include "pico/multicore.h"
 #include "Serial/config.h"
 
-namespace Serial::UART::internal {
+namespace Serial::Protocol::internal {
     enum class STATUS {
         IDLE_0,
         IDLE_1,
