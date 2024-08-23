@@ -7,16 +7,14 @@
 #include "hardware/watchdog.h"
 #include "Serial/Protocol/serial.h"
 #include "Serial/Protocol/Serial/internal.h"
-#include "Serial/Protocol/Serial/data_node.h"
+#include "Serial/Protocol/Serial/Command/Command.h"
+#include "Serial/Protocol/Serial/Command/filter.h"
 #include "Serial/Protocol/Serial/control_node.h"
-#include "Serial/Protocol/Serial/internal.h"
-#include "System/machine.h"
-#include "Matrix/matrix.h"
 
 namespace Serial::Protocol {
     void start() {
         // Setup TCAM rules
-        Serial::Protocol::DATA_NODE::data_node_setup();
+        Serial::Protocol::DATA_NODE::filter_setup();
     }
 
     // Warning host is required to obey flow control and handle bus recovery
@@ -26,7 +24,7 @@ namespace Serial::Protocol {
 
         Serial::Protocol::CONTROL_NODE::control_node();
         //status = Serial::UART::DATA_NODE::data_node();
-        Serial::Protocol::DATA_NODE::data_node();
+        Serial::Protocol::DATA_NODE::Command::data_node();
 
         // TODO: Fix this (API for send_status?)
 /*

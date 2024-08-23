@@ -29,7 +29,6 @@ namespace Serial::Protocol::DATA_NODE {
     static uint64_t time;
 
     static void get_data(uint8_t *buf, uint16_t len, bool checksum);
-    static void process_command();
     static void process_payload();
     static void process_frame();
 
@@ -101,7 +100,9 @@ namespace Serial::Protocol::DATA_NODE {
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS: // Host should see IDLE_0/1 to ACTIVE_0
                 get_data(data.bytes, 12, true);
-                process_command();                
+                pif (index == 12) {
+                    TCAM::TCAM_process(&data);
+                }               
                 break;
 
             // Host protocol should create bubble waiting for status after sending data.
@@ -181,12 +182,6 @@ namespace Serial::Protocol::DATA_NODE {
             }
             else
                 break;
-        }
-    }
-
-    inline void __not_in_flash_func(process_command)() {
-        if (index == 12) {
-            TCAM::TCAM_process(&data);
         }
     }
 

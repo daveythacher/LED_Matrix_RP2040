@@ -6,7 +6,7 @@
 
 #include "pico/multicore.h"
 #include "Serial/Protocol/Serial/control_node.h"
-#include "Serial/Protocol/Serial/data_node.h"
+#include "Serial/Protocol/Serial/Command/Command.h"
 #include "Serial/Node/control.h"
 #include "System/machine.h"
 #include "CRC/CRC.h"
@@ -31,17 +31,17 @@ namespace Serial::Protocol::CONTROL_NODE {
                 switch (message.cmd) {
                     case 0:
                         if (message.id == 0 || message.id == id)
-                            Serial::Protocol::DATA_NODE::trigger_processing();
+                            Serial::Protocol::DATA_NODE::Command::trigger_processing();
                         break;
 
                     case 1:
                         if (message.id == 0 || message.id == id)
-                            Serial::Protocol::DATA_NODE::reset();
+                            Serial::Protocol::DATA_NODE::Command::reset();
                         break;
 
                     case 2:
                         if (message.id == id)
-                            Serial::Protocol::DATA_NODE::acknowledge_query();
+                            Serial::Protocol::DATA_NODE::Command::acknowledge_query();
                         break;
 
                     default:

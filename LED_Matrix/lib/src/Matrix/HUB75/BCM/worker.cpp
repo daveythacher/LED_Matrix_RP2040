@@ -80,7 +80,7 @@ namespace Matrix::Worker {
         }
     }
 
-template <typename T> inline void __not_in_flash_func(BCM_worker<T>::save_buffer)(Matrix::Buffer *p) {
+    template <typename T> inline void __not_in_flash_func(BCM_worker<T>::save_buffer)(Matrix::Buffer *p) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint32_t i = 0; i < PWM_bits; i++) {
                 uint8_t *p0 = buf[bank].get_line(y, i);
