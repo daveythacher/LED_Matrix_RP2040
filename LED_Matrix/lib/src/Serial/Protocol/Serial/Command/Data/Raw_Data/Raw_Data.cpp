@@ -34,4 +34,8 @@ namespace Serial::Protocol::DATA_NODE {
             status = Serial::Protocol::internal::STATUS::READY;
             trigger = false;
     }
+
+    void __not_in_flash_func(Raw_Data::process_internal)(Serial::packet *buf, uint16_t len) {
+        Serial::Protocol::internal::process(buf, len);
+    }
 }

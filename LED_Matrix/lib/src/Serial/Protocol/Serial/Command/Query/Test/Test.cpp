@@ -36,4 +36,8 @@ namespace Serial::Protocol::DATA_NODE {
             acknowledge = false;
         }
     }
+
+    void __not_in_flash_func(Test::process_internal)(Serial::packet *buf, uint16_t len) {
+        // Do nothing?
+    }
 }

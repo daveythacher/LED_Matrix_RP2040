@@ -54,24 +54,24 @@ namespace Serial::Protocol::DATA_NODE {
     void __not_in_flash_func(filter::process_data_command_d)() {
         static Data data;
         Command::ptr = &data;        
-        Command::process_command();
+        Command::ptr->process_command_internal();
     }
 
     void __not_in_flash_func(filter::process_data_command_r)() {
         static Raw_Data data;
         Command::ptr = &data;
-        Command::process_command();
+        Command::ptr->process_command_internal();
     }
 
     void __not_in_flash_func(filter::process_control_command_i)() {
         static ID id;
         Command::ptr = &id;        
-        Command::process_command();
+        Command::ptr->process_command_internal();
     }
 
     void __not_in_flash_func(filter::process_query_request_t)() {
         static Test test;
         Command::ptr = &test;
-        Command::process_command();
+        Command::ptr->process_command_internal();
     }
 }

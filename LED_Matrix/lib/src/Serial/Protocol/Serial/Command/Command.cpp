@@ -93,7 +93,10 @@ namespace Serial::Protocol::DATA_NODE {
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::READY:                                // Host should see READY to IDLE_1/0
                 if (trigger) {
-                    Serial::Protocol::internal::process(buf, len);  // TODO: Create process_internal as virtual method
+                    if (ptr != nullptr) {
+                        ptr->process_internal(buf, len);
+                    }
+
                     idle_num = (idle_num + 1) % 2;
                     state_data = DATA_STATES::SETUP;
                 }
@@ -150,12 +153,6 @@ namespace Serial::Protocol::DATA_NODE {
             }
             else
                 break;
-        }
-    }
-
-    void __not_in_flash_func(Command::process_command)() {
-        if (ptr != nullptr) {
-            ptr->process_command_internal();
         }
     }
 }

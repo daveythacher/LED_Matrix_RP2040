@@ -38,4 +38,8 @@ namespace Serial::Protocol::DATA_NODE {
             state_data = DATA_STATES::SETUP;
         }
     }
+
+    void __not_in_flash_func(ID::process_internal)(Serial::packet *buf, uint16_t len) {
+        // Do nothing
+    }
 }

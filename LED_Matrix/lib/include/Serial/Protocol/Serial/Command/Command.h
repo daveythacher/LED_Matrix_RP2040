@@ -9,6 +9,7 @@
 
 #include "Serial/Protocol/Serial/internal.h"
 #include "Serial/Protocol/Serial/Command/filter.h"
+#include "Serial/config.h"
 #include "TCAM/tcam.h"
 
 namespace Serial::Protocol::DATA_NODE {
@@ -20,12 +21,12 @@ namespace Serial::Protocol::DATA_NODE {
             static void reset();
 
         protected:
-            static void process_command();
             static void get_data(uint8_t *buf, uint16_t len, bool checksum);
 
             virtual void process_frame_internal() = 0;
             virtual void process_command_internal() = 0;
             virtual void process_payload_internal() = 0;
+            virtual void process_internal(Serial::packet *buf, uint16_t len) = 0;
 
             enum class DATA_STATES {
                 SETUP,
