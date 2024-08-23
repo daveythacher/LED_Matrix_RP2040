@@ -14,7 +14,7 @@
 namespace Serial::Protocol {
     void start() {
         // Setup TCAM rules
-        Serial::Protocol::DATA_NODE::filter_setup();
+        Serial::Protocol::DATA_NODE::filter::filter_setup();
     }
 
     // Warning host is required to obey flow control and handle bus recovery

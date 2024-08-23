@@ -8,22 +8,23 @@
 #define SERIAL_PROTOCOL_SERIAL_COMMAND_H
 
 #include "Serial/Protocol/Serial/internal.h"
+#include "Serial/Protocol/Serial/Command/filter.h"
 #include "TCAM/tcam.h"
 
 namespace Serial::Protocol::DATA_NODE {
     class Command {
         public:
             static Serial::Protocol::internal::STATUS data_node();
-            static void process_payload();
-            static void process_frame();
-            static void process_command();
-            static void get_data(uint8_t *buf, uint16_t len, bool checksum);
-
             static void trigger_processing();
             static void acknowledge_query();
             static void reset();
 
         protected:
+            static void process_payload();
+            static void process_frame();
+            static void process_command();
+            static void get_data(uint8_t *buf, uint16_t len, bool checksum);
+
             virtual void process_frame_internal() = 0;
             virtual void process_command_internal() = 0;
             virtual void process_payload_internal() = 0;
@@ -49,6 +50,8 @@ namespace Serial::Protocol::DATA_NODE {
             static bool acknowledge;
             static uint64_t time;
             static Command *ptr;
+
+            friend class filter;
     };
 }
 

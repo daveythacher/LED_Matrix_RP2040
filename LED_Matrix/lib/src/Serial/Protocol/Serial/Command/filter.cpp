@@ -4,19 +4,16 @@
  * License: GPL 3.0
  */
 
-#include "Serial/Protocol/Serial/Command/Command.h"
+#include "Serial/Protocol/Serial/Command/Data/Data/Data.h"
+#include "Serial/Protocol/Serial/Command/Data/Raw_Data/Raw_Data.h"
+#include "Serial/Protocol/Serial/Command/Data/ID/ID.h"
+#include "Serial/Protocol/Serial/Command/Query/Test/Test.h"
 #include "Serial/Node/data.h"
 #include "System/machine.h"
 #include "TCAM/tcam.h"
-using Serial::Protocol::internal::STATUS;
 
 namespace Serial::Protocol::DATA_NODE {
-    static void process_data_command_d();
-    static void process_data_command_r();
-    static void process_control_command_i();
-    static void process_query_request_t();
-
-    void filter_setup() {
+    void filter::filter_setup() {
         TCAM::TCAM_entry key;
         TCAM::TCAM_entry enable;
 
@@ -54,45 +51,27 @@ namespace Serial::Protocol::DATA_NODE {
         while (!TCAM::TCAM_rule(3, key, enable, process_query_request_t));
     }
 
-    void __not_in_flash_func(process_data_command_d)() {
-        /*state_data = DATA_STATES::PAYLOAD;
-        time = time_us_64();
-        command = COMMAND::DATA;
-        status = STATUS::ACTIVE_0;
-        index = 0;
-        trigger = false;*/
-        
+    void __not_in_flash_func(filter::process_data_command_d)() {
+        static Data data;
+        Command::ptr = &data;        
         Command::process_command();
     }
 
-    void __not_in_flash_func(process_data_command_r)() {
-        /*state_data = DATA_STATES::PAYLOAD;
-        time = time_us_64();
-        command = COMMAND::RAW_DATA;
-        status = STATUS::ACTIVE_0;
-        index = 0;
-        trigger = false;*/
-        
+    void __not_in_flash_func(filter::process_data_command_r)() {
+        static Raw_Data data;
+        Command::ptr = &data;
         Command::process_command();
     }
 
-    void __not_in_flash_func(process_control_command_i)() {
-        /*state_data = DATA_STATES::PAYLOAD;
-        time = time_us_64();
-        command = COMMAND::SET_ID;
-        status = STATUS::ACTIVE_0;
-        index = 0;*/
-        
+    void __not_in_flash_func(filter::process_control_command_i)() {
+        static ID id;
+        Command::ptr = &id;        
         Command::process_command();
     }
 
-    void __not_in_flash_func(process_query_request_t)() {
-        /*index = 0;
-        state_data = DATA_STATES::PAYLOAD;
-        time = time_us_64();
-        command = COMMAND::QUERY_TEST;
-        status = STATUS::ACTIVE_0;*/
-
+    void __not_in_flash_func(filter::process_query_request_t)() {
+        static Test test;
+        Command::ptr = &test;
         Command::process_command();
     }
 }

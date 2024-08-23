@@ -5,7 +5,6 @@
  */
 
 #include "Serial/Protocol/Serial/Command/Command.h"
-#include "Serial/Protocol/Serial/control_node.h"
 #include "Serial/Node/data.h"
 #include "System/machine.h"
 #include "CRC/CRC.h"
@@ -51,7 +50,12 @@ namespace Serial::Protocol::DATA_NODE {
             case DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS: // Host should see IDLE_0/1 to ACTIVE_0
                 get_data(data.bytes, 12, true);
                 if (index == 12) {
+                    ptr = nullptr;
                     TCAM::TCAM_process(&data);
+
+                    if (ptr == nullptr) {
+                        // TODO: Add error handler
+                    }
                 }               
                 break;
 
@@ -75,7 +79,7 @@ namespace Serial::Protocol::DATA_NODE {
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::READY:                                // Host should see READY to IDLE_1/0
                 if (trigger) {
-                    Serial::Protocol::internal::process(buf, len);
+                    Serial::Protocol::internal::process(buf, len);  // TODO: Create process_internal as virtual method
                     idle_num = (idle_num + 1) % 2;
                     state_data = DATA_STATES::SETUP;
                 }
@@ -136,57 +140,9 @@ namespace Serial::Protocol::DATA_NODE {
     }
 
     inline void __not_in_flash_func(Command::process_payload)() {
-        /*switch (command) {
-            case COMMAND::DATA:
-                get_data(buf->raw, len, true);
-
-                if (len == index) {
-                    state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
-                    time = time_us_64();
-                    index = 0;
-                    status = STATUS::ACTIVE_1;
-                    trigger = false;
-                }
-                break;
-
-            case COMMAND::RAW_DATA:
-                get_data(buf->raw, len, false);
-
-                if (len == index) {
-                    state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
-                    time = time_us_64();
-                    index = 0;
-                    status = STATUS::ACTIVE_1;
-                    trigger = false;
-                }
-                break;
-
-            case COMMAND::SET_ID:
-                get_data(data.bytes, 1, true);
-
-                if (index == 1) {
-                    state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
-                    time = time_us_64();
-                    index = 0;
-                    status = STATUS::ACTIVE_1;
-                }
-                break;
-
-            case COMMAND::QUERY_TEST:
-                // TODO: Get data?
-
-                if (index == 0) {
-                    state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
-                    time = time_us_64();
-                    index = 0;
-                    status = STATUS::ACTIVE_1;
-                }
-                break;
-
-            default:
-                state_data = DATA_STATES::SETUP;
-                break;
-        }*/
+        if (ptr != nullptr) {
+            ptr->process_payload_internal();
+        }
     }
 
     inline void __not_in_flash_func(Command::process_frame)() {
@@ -194,48 +150,9 @@ namespace Serial::Protocol::DATA_NODE {
             index = 0;
                     
             if (ntohl(data.data[1]) == 0xAEAEAEAE) {
-                /*switch (command) {
-                    case COMMAND::DATA:
-                        // Future: Look into parity
-                        if (ntohl(data.data[0]) == ~checksum) {
-                            state_data = DATA_STATES::READY;
-                            time = time_us_64();
-                            status = STATUS::READY;
-                            trigger = false;
-                            return;
-                        }
-                        break;
-                    
-                    case COMMAND::RAW_DATA:
-                        state_data = DATA_STATES::READY;
-                        time = time_us_64();
-                        status = STATUS::READY;
-                        trigger = false;
-                        return;
-
-                    case COMMAND::SET_ID:
-                        // Future: Look into parity
-                        if (ntohl(data.data[0]) == ~checksum) {
-                            Serial::Protocol::CONTROL_NODE::set_id(data.bytes[0]);
-                            idle_num = (idle_num + 1) % 2;
-                            state_data = DATA_STATES::SETUP;
-                        }
-                        break;
-
-                    case COMMAND::QUERY_TEST:
-                        if (ntohl(data.data[0]) == ~checksum) {
-                            // TODO: Fill in the response packet
-                            state_data = DATA_STATES::READY_RESPONSE;
-                            status = STATUS::READY;
-                            time = time_us_64();
-                            acknowledge = false;
-                            return;
-                        }
-                        break;
-
-                    default:
-                        break;
-                }*/
+                if (ptr != nullptr) {
+                    ptr->process_frame_internal();
+                }
             }
         }
     }
