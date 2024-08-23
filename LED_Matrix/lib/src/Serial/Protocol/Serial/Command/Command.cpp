@@ -63,7 +63,9 @@ namespace Serial::Protocol::DATA_NODE {
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::PAYLOAD:                              // Host should see ACTIVE_0 to ACTIVE_1
-                process_payload();
+                if (ptr != nullptr) {
+                    ptr->process_payload_internal();
+                }
                 break;
 
             // Host protocol should create bubble waiting for status after sending data.
@@ -71,7 +73,16 @@ namespace Serial::Protocol::DATA_NODE {
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:           // Host should see ACTIVE_1 to IDLE_1/0 or READY
                 get_data(data.bytes, 8, false);
-                process_frame();
+
+                if (index == 8) {
+                    index = 0;
+                            
+                    if (ntohl(data.data[1]) == 0xAEAEAEAE) {
+                        if (ptr != nullptr) {
+                            ptr->process_frame_internal();
+                        }
+                    }
+                }
                 break;
 
             // Host protocol should create bubble waiting for status after sending data.
@@ -136,24 +147,6 @@ namespace Serial::Protocol::DATA_NODE {
             }
             else
                 break;
-        }
-    }
-
-    inline void __not_in_flash_func(Command::process_payload)() {
-        if (ptr != nullptr) {
-            ptr->process_payload_internal();
-        }
-    }
-
-    inline void __not_in_flash_func(Command::process_frame)() {
-        if (index == 8) {
-            index = 0;
-                    
-            if (ntohl(data.data[1]) == 0xAEAEAEAE) {
-                if (ptr != nullptr) {
-                    ptr->process_frame_internal();
-                }
-            }
         }
     }
 

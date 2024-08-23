@@ -20,8 +20,6 @@ namespace Serial::Protocol::DATA_NODE {
             static void reset();
 
         protected:
-            static void process_payload();
-            static void process_frame();
             static void process_command();
             static void get_data(uint8_t *buf, uint16_t len, bool checksum);
 
