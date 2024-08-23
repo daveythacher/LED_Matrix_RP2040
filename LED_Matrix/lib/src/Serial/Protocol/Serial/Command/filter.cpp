@@ -54,7 +54,7 @@ namespace Serial::Protocol::DATA_NODE {
         while (!TCAM::TCAM_rule(3, key, enable, process_query_request_t));
     }
 
-    void process_data_command_d() {
+    void __not_in_flash_func(process_data_command_d)() {
         /*state_data = DATA_STATES::PAYLOAD;
         time = time_us_64();
         command = COMMAND::DATA;
@@ -65,7 +65,7 @@ namespace Serial::Protocol::DATA_NODE {
         Command::process_command();
     }
 
-    void process_data_command_r() {
+    void __not_in_flash_func(process_data_command_r)() {
         /*state_data = DATA_STATES::PAYLOAD;
         time = time_us_64();
         command = COMMAND::RAW_DATA;
@@ -76,7 +76,7 @@ namespace Serial::Protocol::DATA_NODE {
         Command::process_command();
     }
 
-    void process_control_command_i() {
+    void __not_in_flash_func(process_control_command_i)() {
         /*state_data = DATA_STATES::PAYLOAD;
         time = time_us_64();
         command = COMMAND::SET_ID;
@@ -86,7 +86,7 @@ namespace Serial::Protocol::DATA_NODE {
         Command::process_command();
     }
 
-    void process_query_request_t() {
+    void __not_in_flash_func(process_query_request_t)() {
         /*index = 0;
         state_data = DATA_STATES::PAYLOAD;
         time = time_us_64();

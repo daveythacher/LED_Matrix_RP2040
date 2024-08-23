@@ -1,5 +1,5 @@
 /* 
- * File:   data_node.cpp
+ * File:   Command.cpp
  * Author: David Thacher
  * License: GPL 3.0
  */
@@ -240,7 +240,7 @@ namespace Serial::Protocol::DATA_NODE {
         }
     }
 
-    void Command::process_command() {
+    void __not_in_flash_func(Command::process_command)() {
         if (ptr != nullptr) {
             ptr->process_command_internal();
         }
