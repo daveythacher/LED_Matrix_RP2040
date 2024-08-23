@@ -16,6 +16,7 @@ namespace Serial::Node::Data {
     bool isAvailable();
     uint8_t getc();
     void putc(uint8_t c);
+    uint32_t get_packet_time_us(uint16_t packet_size);
 }
 
 #endif

@@ -57,4 +57,9 @@ namespace Serial::Node::Data {
     void __not_in_flash_func(putc)(uint8_t c) {
         // Do nothing
     }
+
+    uint32_t __not_in_flash_func(get_packet_time_us)(uint16_t packet_size) {
+        return 0;
+    }
+}
 }

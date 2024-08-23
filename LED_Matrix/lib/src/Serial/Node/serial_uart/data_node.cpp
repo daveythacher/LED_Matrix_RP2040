@@ -61,4 +61,8 @@ namespace Serial::Node::Data {
     void __not_in_flash_func(putc)(uint8_t c) {
         uart_putc(uart0, c);
     }
+
+    uint32_t __not_in_flash_func(get_packet_time_us)(uint16_t packet_size) {
+        return ((10 * packet_size * 1000000) / Serial::UART::SERIAL_UART_BAUD);
+    }
 }
