@@ -51,10 +51,13 @@ namespace Serial::Protocol::DATA_NODE {
                 get_data(data.bytes, 12, true);
                 if (index == 12) {
                     ptr = nullptr;
+                    
+                    // This calls process_command_internal
                     TCAM::TCAM_process(&data);
 
                     if (ptr == nullptr) {
                         // TODO: Add error handler
+                        //  We did not call process_command_internal
                     }
                 }               
                 break;
