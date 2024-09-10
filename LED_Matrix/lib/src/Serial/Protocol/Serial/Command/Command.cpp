@@ -138,13 +138,12 @@ namespace Serial::Protocol::DATA_NODE {
                 if (trigger) {
                     if (ptr != nullptr) {
                         ptr->process_internal(buf, len);
+                        idle_num = (idle_num + 1) % 2;
+                        state_data = DATA_STATES::SETUP;
                     }
                     else {
                         error();                                // Advances state
                     }
-
-                    idle_num = (idle_num + 1) % 2;
-                    state_data = DATA_STATES::SETUP;
                 }
                 else {
                     // Wait for reset
