@@ -52,17 +52,18 @@ namespace Serial::Protocol::DATA_NODE {
                     static uint32_t state = 0;
                     uint8_t sum[4];
 
+                    // This is protected by the reset timer, but mistakes can lead to high error rates
                     switch (state) {
-                        case 0:
+                        case 0: // Grab the header
                             get_data(data.bytes, 12, true);
 
                             if (index == 12) {
                                 index = 0;
-                                state = 1;
+                                state = 1;                      // Advances state (local)
                             }
                             break;
 
-                        case 1:
+                        case 1: // Grab the checksum for the header, process header if it checks out
                             get_data(sum, 4, false);
 
                             if (index == 4) {
@@ -71,26 +72,26 @@ namespace Serial::Protocol::DATA_NODE {
 
                                 if (~checksum == csum) {
                                     ptr = nullptr;
-                                    state = 0;
+                                    state = 0;                  // Assume local will advance (reset for next iteration of global)
                                     checksum = 0xFFFFFFFF;
                                         
-                                    // This calls process_command_internal (advances state)
-                                    TCAM::TCAM_process(&data);
+                                    // This calls process_command_internal
+                                    TCAM::TCAM_process(&data);  // Advances state (global)
 
                                     if (ptr == nullptr) {
-                                        state = 2;
+                                        state = 2;              // Advances state (local)
                                     }
                                 }
                                 else {
-                                    state = 2;
+                                    state = 2;                  // Advances state (local)
                                 }
                             }
                             break;
 
-                        case 2:
+                        case 2: // This exists to allow local to reset for next iteration
                         default:
-                            state = 0;
-                            error();                            // Advances state
+                            state = 0;                          // Reset for next iteration of global
+                            error();                            // Advances state (global)
                             break;
                     }
                 }
