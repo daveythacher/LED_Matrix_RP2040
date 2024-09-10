@@ -48,18 +48,52 @@ namespace Serial::Protocol::DATA_NODE {
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS: // Host should see IDLE_0/1 to ACTIVE_0
-                get_data(data.bytes, 12, true);
-                if (index == 12) {
-                    ptr = nullptr;
-                    
-                    // This calls process_command_internal
-                    TCAM::TCAM_process(&data);
+                {
+                    static uint32_t state = 0;
+                    uint8_t sum[4];
 
-                    if (ptr == nullptr) {
-                        // TODO: Add error handler
-                        //  We did not call process_command_internal
+                    switch (state) {
+                        case 0:
+                            get_data(data.bytes, 12, true);
+
+                            if (index == 12) {
+                                index = 0;
+                                state = 1;
+                            }
+                            break;
+
+                        case 1:
+                            get_data(sum, 4, false);
+
+                            if (index == 4) {
+                                uint32_t csum = (sum[3] << 24) + (sum[2] << 16) + (sum[1] << 8) + sum[0];
+                                csum = ntohl(csum);
+
+                                if (~checksum == csum) {
+                                    ptr = nullptr;
+                                    state = 0;
+                                    checksum = 0xFFFFFFFF;
+                                        
+                                    // This calls process_command_internal (advances state)
+                                    TCAM::TCAM_process(&data);
+
+                                    if (ptr == nullptr) {
+                                        state = 2;
+                                    }
+                                }
+                                else {
+                                    state = 2;
+                                }
+                            }
+                            break;
+
+                        case 2:
+                        default:
+                            state = 0;
+                            error();                            // Advances state
+                            break;
                     }
-                }               
+                }
                 break;
 
             // Host protocol should create bubble waiting for status after sending data.
@@ -67,7 +101,10 @@ namespace Serial::Protocol::DATA_NODE {
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::PAYLOAD:                              // Host should see ACTIVE_0 to ACTIVE_1
                 if (ptr != nullptr) {
-                    ptr->process_payload_internal();
+                    ptr->process_payload_internal();            // Advances state
+                }
+                else {
+                    error();                                    // Advances state
                 }
                 break;
 
@@ -82,8 +119,14 @@ namespace Serial::Protocol::DATA_NODE {
                             
                     if (ntohl(data.data[1]) == 0xAEAEAEAE) {
                         if (ptr != nullptr) {
-                            ptr->process_frame_internal();
+                            ptr->process_frame_internal();      // Advances state
                         }
+                        else {
+                            error();                            // Advances state
+                        }
+                    }
+                    else {
+                        error();                                // Advances state
                     }
                 }
                 break;
@@ -96,9 +139,15 @@ namespace Serial::Protocol::DATA_NODE {
                     if (ptr != nullptr) {
                         ptr->process_internal(buf, len);
                     }
+                    else {
+                        error();                                // Advances state
+                    }
 
                     idle_num = (idle_num + 1) % 2;
                     state_data = DATA_STATES::SETUP;
+                }
+                else {
+                    // Wait for reset
                 }
                 break;
                 
@@ -109,6 +158,13 @@ namespace Serial::Protocol::DATA_NODE {
                     idle_num = (idle_num + 1) % 2;
                     state_data = DATA_STATES::SETUP;
                 }
+                else {
+                    // Wait for reset
+                }
+                break;
+            
+            case DATA_STATES::ERROR:
+                // Wait for reset
                 break;
 
             default:
@@ -139,6 +195,10 @@ namespace Serial::Protocol::DATA_NODE {
 
     void __not_in_flash_func(Command::reset)() {
         state_data = DATA_STATES::SETUP;
+    }
+
+    void __not_in_flash_func(Command::error)() {
+        state_data = DATA_STATES::ERROR;
     }
 
     void __not_in_flash_func(Command::get_data)(uint8_t *buf, uint16_t len, bool checksum) {
