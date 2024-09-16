@@ -35,7 +35,7 @@ namespace Matrix {
     //      The second to last transfer turns the columns off before multiplexing. (Standard shift)
     //      The last transfer stops the DMA and fires an interrupt.
     static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[2][MULTIPLEX + 1][(1 << PWM_bits) + 1];   // TODO: Clean up with 3-D DMA table
-    static volatile uint8_t null_table[COLUMNS + 1];
+    static volatile uint8_t null_table[COLUMNS + 2];
 
     static void send_buffer();
     static void load_buffer(Buffer *buffer);
@@ -56,6 +56,7 @@ namespace Matrix {
        
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
+        null_table[COLUMNS + 1] = (2 * SERIAL_CLOCK) / (1000000 / BLANK_TIME);
 
         for (uint32_t b = 0; b < 2; b++) {
             for (uint32_t m = 0; m < MULTIPLEX; m++) {
@@ -64,7 +65,7 @@ namespace Matrix {
                 }
                 
                 address_table[b][m][1 << PWM_bits].data = null_table;
-                address_table[b][m][1 << PWM_bits].len = COLUMNS + 1;
+                address_table[b][m][1 << PWM_bits].len = COLUMNS + 2;
             }
 
             address_table[b][MULTIPLEX][0].data = NULL;
