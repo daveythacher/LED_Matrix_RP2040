@@ -20,10 +20,10 @@
 #include "Matrix/HUB75/hw_config.h"
 
 namespace Matrix {
-    static Buffer *buffer = nullptr;
-    static volatile uint8_t state = 0;
     static int dma_chan[2];
-    volatile int timer;
+    static uint8_t bank = 0;
+    static bool hold = false;
+    volatile int timer;     // TODO: Remove
 
     // PIO Protocol
     //  There are 2^PWM_bits shifts per period.
@@ -34,11 +34,11 @@ namespace Matrix {
     //  There are 2^PWM_bits plus two transfers.
     //      The second to last transfer turns the columns off before multiplexing. (Standard shift)
     //      The last transfer stops the DMA and fires an interrupt.
-    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[(1 << PWM_bits) + 2];
+    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[2][MULTIPLEX + 1][(1 << PWM_bits) + 1];   // TODO: Clean up with 3-D DMA table
     static volatile uint8_t null_table[COLUMNS + 1];
 
-    static void send_line();
-    static void load_line(uint32_t rows);
+    static void send_buffer();
+    static void load_buffer(Buffer *buffer);
 
     void start() {
         // Init Matrix hardware
@@ -52,18 +52,24 @@ namespace Matrix {
         gpio_set_dir(Matrix::HUB75::HUB75_OE, GPIO_OUT);
         gpio_clr_mask(0x40FF00);
 
-        Multiplex::init(MULTIPLEX);
+        Multiplex::init(MULTIPLEX); // TODO: Convert this to PIO program
        
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
 
-        for (uint32_t i = 0; i < (1 << PWM_bits); i++)
-            address_table[i].len = Buffer::get_line_length();
-        
-        address_table[1 << PWM_bits].data = null_table;
-        address_table[1 << PWM_bits].len = COLUMNS + 1;
-        address_table[(1 << PWM_bits) + 1].data = NULL;
-        address_table[(1 << PWM_bits) + 1].len = 0;
+        for (uint32_t b = 0; b < 2; b++) {
+            for (uint32_t m = 0; m < MULTIPLEX; m++) {
+                for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
+                    address_table[b][m][i].len = Buffer::get_line_length();
+                }
+                
+                address_table[b][m][1 << PWM_bits].data = null_table;
+                address_table[b][m][1 << PWM_bits].len = COLUMNS + 1;
+            }
+
+            address_table[b][MULTIPLEX][0].data = NULL;
+            address_table[b][MULTIPLEX][0].len = 0;
+        }
         
         // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
         //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
@@ -97,6 +103,7 @@ namespace Matrix {
             (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
             (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
             (uint16_t) (pio_encode_jmp_x_dec(2) | pio_encode_sideset(2, 0)),
+            // TODO: Kill the madness that blocks memmory and wastes time
             (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(2, 0))
         };
         static const struct pio_program pio_programs = {
@@ -104,6 +111,9 @@ namespace Matrix {
             .length = count_of(instructions),
             .origin = 0,
         };
+
+        // TODO: Add OE program
+
         pio_add_program(pio0, &pio_programs);
         pio_sm_set_consecutive_pindirs(pio0, 0, Matrix::HUB75::HUB75_DATA_BASE, Matrix::HUB75::HUB75_DATA_LEN, true);
         
@@ -147,81 +157,60 @@ namespace Matrix {
         timer = hardware_alarm_claim_unused(true);
         timer_hw->inte |= 1 << timer;
 
+        Buffer *buffer = nullptr;
+
         do {
             buffer = Worker::get_front_buffer();
         } while (buffer == nullptr);
         
-        load_line(0);
-        send_line();
+        load_buffer(buffer);
+        send_buffer();
     }
 
-    void __not_in_flash_func(send_line)() {
+    void __not_in_flash_func(send_buffer)() {
         dma_hw->ints0 = 1 << dma_chan[0];
-        pio_sm_put(pio0, 0, (1 << PWM_bits) - 1);
-        dma_channel_set_read_addr(dma_chan[1], &address_table[0], true);
+        pio_sm_put(pio0, 0, (1 << PWM_bits) - 1); // TODO: Fix this
+        dma_channel_set_read_addr(dma_chan[1], &address_table[bank][0][0], true);
     }
 
     // This is done to reduce interrupt rate. Use DMA to automate the BCM bitplanes instead of CPU.
     //  This is possible due to PIO state machine.
-    void __not_in_flash_func(load_line)(uint32_t rows) {
-        for (uint32_t i = 0; i < PWM_bits; i++)
-            for (uint32_t k = 0; k < (uint32_t) (1 << i); k++)
-                address_table[(1 << i) + k - 1].data = buffer->get_line(rows, i);
+    void __not_in_flash_func(load_buffer)(Buffer *buffer) {
+        while (hold);
+
+        for (uint32_t rows = 0; rows < MULTIPLEX; rows++) {
+            for (uint32_t i = 0; i < PWM_bits; i++) {
+                for (uint32_t k = 0; k < (uint32_t) (1 << i); k++) {
+                    address_table[bank][rows][(1 << i) + k - 1].data = buffer->get_line(rows, i);
+                }
+            }
+        }
+
+        hold = true;
+        while (hold);
+    }
+
+    void __not_in_flash_func(matrix_task)(void) {
+        Buffer *p = Worker::get_front_buffer();
+
+        if (p != nullptr) {
+            load_buffer(p);
+        }
     }
 
     void __not_in_flash_func(dma_isr)() {
         if (dma_channel_get_irq0_status(dma_chan[0])) {      
-            // Make sure the FIFO is empty 
-            //  We will have up to 1uS of delay at the end of every row. 
-            //      Display will be off during this time, which may reduce brightness.
-            //      Not factored into calculator!
-            constexpr uint32_t FIFO_delay = (uint32_t) 4000000U / ((uint32_t) round(SERIAL_CLOCK));
-            timer_hw->alarm[timer] = time_us_32() + FIFO_delay + 1;                 // Load timer
-            timer_hw->armed = 1 << timer;                                           // Kick off timer
-            state = 0;
+            if (hold) {
+                bank = (bank + 1) % 2;
+                hold = false;
+            }
+
+            send_buffer();
             dma_hw->intr = 1 << dma_chan[0];                                        // Clear the interrupt
         }
     }
 
-    namespace Worker {
-        extern volatile bool vsync;
-    }
-
     void __not_in_flash_func(timer_isr)() {
-        static uint32_t rows = 0;
-
-        if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
-            switch(state) {
-                case 0:
-                    gpio_set_mask(1 << Matrix::HUB75::HUB75_OE);                            // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
-                    timer_hw->alarm[timer] = time_us_32() + BLANK_TIME + 1;                 // Load timer (We don't care if it rolls over!)
-                    timer_hw->armed = 1 << timer;                                           // Kick off timer
-                    timer_hw->intr = 1 << timer;                                            // Clear the interrupt
-                    
-                    if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
-                        Buffer *p = Worker::get_front_buffer();
-                        rows = 0;
-
-                        if (p != nullptr)
-                            buffer = p;
-                    }
-                    
-                    Multiplex::SetRow(rows);
-                    load_line(rows);                                                        // Note this is a fairly expensive operation. This is done in parallel with blank time.
-                                                                                            //  If this creates a delay, the display will stay off during this time.
-                                                                                            //      This may reduce brightness, and this is not factored into the calculator
-                    state++;
-                    break;
-                case 1:
-                    gpio_clr_mask(1 << Matrix::HUB75::HUB75_OE);                    // Turn on the panel (Note software controls PWM/BCM)
-                    send_line();                                                    // Kick off hardware
-                    state++;
-                    timer_hw->intr = 1 << timer;                                    // Clear the interrupt
-                    break;
-                default:
-                    timer_hw->intr = 1 << timer;                                    // Clear the interrupt
-                    break;
-            }
-        }
+        // TODO: Remove
     }
 }
