@@ -165,6 +165,7 @@ namespace Matrix {
         } while (buffer == nullptr);
         
         load_buffer(buffer);
+        bank = (bank + 1) % 2;
         send_buffer();
     }
 
@@ -177,38 +178,38 @@ namespace Matrix {
     // This is done to reduce interrupt rate. Use DMA to automate the BCM bitplanes instead of CPU.
     //  This is possible due to PIO state machine.
     void __not_in_flash_func(load_buffer)(Buffer *buffer) {
-        while (hold);
-
         for (uint32_t rows = 0; rows < MULTIPLEX; rows++) {
             for (uint32_t i = 0; i < PWM_bits; i++) {
                 for (uint32_t k = 0; k < (uint32_t) (1 << i); k++) {
-                    address_table[bank][rows][(1 << i) + k - 1].data = buffer->get_line(rows, i);
+                    address_table[(bank + 1) % 2][rows][(1 << i) + k - 1].data = buffer->get_line(rows, i);
                 }
             }
         }
 
         hold = true;
-        while (hold);
     }
 
     void __not_in_flash_func(matrix_task)(void) {
-        Buffer *p = Worker::get_front_buffer();
+        if (!hold) {
+            Buffer *p = Worker::get_front_buffer();
 
-        if (p != nullptr) {
-            load_buffer(p);
+            if (p != nullptr) {
+                load_buffer(p);                                                     // Capable of killing the thread!
+            }
         }
-    }
 
-    void __not_in_flash_func(dma_isr)() {
-        if (dma_channel_get_irq0_status(dma_chan[0])) {      
+        if (dma_channel_get_irq0_status(dma_chan[0])) {                             // We may have the tick soft enough to run via preemptive OS
             if (hold) {
                 bank = (bank + 1) % 2;
                 hold = false;
             }
 
             send_buffer();
-            dma_hw->intr = 1 << dma_chan[0];                                        // Clear the interrupt
         }
+    }
+
+    void __not_in_flash_func(dma_isr)() {
+        // TODO: Remove
     }
 
     void __not_in_flash_func(timer_isr)() {
