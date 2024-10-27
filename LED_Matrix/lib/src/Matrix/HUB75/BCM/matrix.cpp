@@ -191,7 +191,7 @@ namespace Matrix {
         static uint32_t rows = 0;
 
         if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
-            switch(state) {
+            switch (state) {
                 case 0:
                     gpio_set_mask(1 << Matrix::HUB75::HUB75_OE);                            // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
                     timer_hw->alarm[timer] = time_us_32() + BLANK_TIME + 1;                 // Load timer (We don't care if it rolls over!)
@@ -212,12 +212,14 @@ namespace Matrix {
                                                                                             //      This may reduce brightness, and this is not factored into the calculator
                     state++;
                     break;
+
                 case 1:
                     gpio_clr_mask(1 << Matrix::HUB75::HUB75_OE);                    // Turn on the panel (Note software controls PWM/BCM)
                     send_line();                                                    // Kick off hardware
                     state++;
                     timer_hw->intr = 1 << timer;                                    // Clear the interrupt
                     break;
+                    
                 default:
                     timer_hw->intr = 1 << timer;                                    // Clear the interrupt
                     break;

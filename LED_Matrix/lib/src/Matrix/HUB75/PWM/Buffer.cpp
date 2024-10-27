@@ -17,6 +17,9 @@ namespace Matrix {
         memset(buf, COLUMNS - 1, sizeof(buf));
     }
 
+    // TODO: Add verification for external generation
+    //  Currently this only works for worker
+
     void __not_in_flash_func(Buffer::set_value)(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value) {
         uint32_t i = multiplex * (1 << PWM_bits) * (COLUMNS + 1);
         i += index * (COLUMNS + 1);

@@ -72,7 +72,7 @@ namespace Matrix::Calculator {
         is_blank_time_valid();
 
         // This could be 8 or 16 depending on panel. (Kind of random.)
-        static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
+        static_assert(COLUMNS >= columns_per_driver, "COLUMNS less than 8 is not recommended");
 
         // This is depends on panel implementation however the fanout and par cap in matrix limit the max size.
         //  Technically capable of more pixels with multiplexing, if we reduce refresh and contrast.
