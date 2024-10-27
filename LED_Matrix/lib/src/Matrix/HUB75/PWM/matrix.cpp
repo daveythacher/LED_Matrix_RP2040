@@ -19,12 +19,16 @@
 #include "Serial/config.h"
 #include "Matrix/HUB75/hw_config.h"
 
+namespace Matrix::Worker {
+    extern Matrix::Buffer buf[Serial::num_framebuffers];
+};
+
 namespace Matrix {
     static Buffer *buffer = nullptr;
     static volatile uint8_t state = 0;
     static int dma_chan[2];
     volatile int timer;
-    static uint8_t bank = 0;
+    static uint8_t bank;
 
     // PIO Protocol
     //  There are 2^PWM_bits shifts per period.
@@ -35,11 +39,10 @@ namespace Matrix {
     //  There are 2^PWM_bits plus two transfers.
     //      The second to last transfer turns the columns off before multiplexing. (Standard shift)
     //      The last transfer stops the DMA and fires an interrupt.
-    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[2][MULTIPLEX * ((1 << PWM_bits) + 2)];
+    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[Serial::num_framebuffers][MULTIPLEX * ((1 << PWM_bits) + 2)];
     static volatile uint8_t null_table[COLUMNS + 1];
 
     static void send_line(uint32_t row);
-    static void load_lines();
 
     void start() {
         // Init Matrix hardware
@@ -63,12 +66,14 @@ namespace Matrix {
         { // Keep stack and variable scope clean
             uint32_t y;
 
-            for (uint8_t b = 0; b < 2; b++) {
+            for (uint8_t b = 0; b < Serial::num_framebuffers; b++) {
                 for (uint32_t x = 0; x < MULTIPLEX; x++) {
                     y = x * ((1 << PWM_bits) + 2);
 
-                    for (uint32_t i = 0; i < (1 << PWM_bits); i++)
+                    for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
+                        address_table[b][y + i].data = Matrix::Worker::buf[b].get_line(x, i);
                         address_table[b][y + i].len = Buffer::get_line_length();
+                    }
                     
                     y += 1 << PWM_bits;
                     address_table[b][y].data = null_table;
@@ -162,10 +167,9 @@ namespace Matrix {
         timer_hw->inte |= 1 << timer;
 
         do {
-            buffer = Worker::get_front_buffer();
+            buffer = Worker::get_front_buffer(&bank);
         } while (buffer == nullptr);
         
-        load_lines();
         send_line(0);
     }
 
@@ -176,18 +180,6 @@ namespace Matrix {
 
         // TODO: Swap bank here?
         //  Stay friendly (you got dual tables so use them, let the isr wrap around if nothing else)
-    }
-
-    // This is done to reduce interrupt rate. Use DMA to automate the PWM bitplanes instead of CPU.
-    //  This is possible due to PIO state machine.
-    void __not_in_flash_func(load_lines)() {
-        // TODO:
-        /*for (uint32_t i = 0; i < (1 << PWM_bits); i++)
-            address_table[bank][i].data = buffer->get_line(rows, i);*/
-            
-            // Note this is a fairly expensive operation. This is done in parallel with blank time.
-            //  If this creates a delay, the display will stay off during this time.
-            //      This may reduce brightness, and this is not factored into the calculator
     }
 
     void __not_in_flash_func(dma_isr)() {
@@ -216,7 +208,7 @@ namespace Matrix {
                     timer_hw->intr = 1 << timer;                                            // Clear the interrupt
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
-                        Buffer *p = Worker::get_front_buffer();
+                        Buffer *p = Worker::get_front_buffer(&bank);
                         rows = 0;
 
                         if (p != nullptr)
