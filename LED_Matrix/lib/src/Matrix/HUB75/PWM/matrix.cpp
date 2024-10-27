@@ -208,11 +208,14 @@ namespace Matrix {
                     timer_hw->intr = 1 << timer;                                            // Clear the interrupt
                     
                     if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
-                        Buffer *p = Worker::get_front_buffer(&bank);
+                        uint8_t temp;
+                        Buffer *p = Worker::get_front_buffer(&temp);
                         rows = 0;
 
-                        if (p != nullptr)
+                        if (p != nullptr) {
                             buffer = p;
+                            bank = temp;
+                        }
                     }
 
                     Multiplex::SetRow(rows);
