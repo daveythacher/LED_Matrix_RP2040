@@ -72,7 +72,7 @@ namespace Matrix::Calculator {
         is_blank_time_valid();
         
         static_assert(COLUMNS >= columns_per_driver, "COLUMNS less than 8 is not recommended");
-        static_assert(COLUMNS <= 256, "COLUMNS more than 1024 is not recommended, but we only support up to 256");
+        static_assert(COLUMNS <= 255, "COLUMNS more than 1024 is not recommended, but we only support up to 255");
         static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
         static_assert((2 * MULTIPLEX * COLUMNS * sizeof(Serial::DEFINE_SERIAL_RGB_TYPE)) <= Serial::payload_size, "The current frame size is not supported");
         static_assert((MULTIPLEX * COLUMNS * (PWM_bits)) <= Serial::max_framebuffer_size, "The current buffer size is not supported");
