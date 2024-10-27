@@ -34,7 +34,7 @@ namespace Matrix::Calculator {
         constexpr uint64_t temp = (COLUMNS / columns_per_driver) * max_impedance * fanout_per_clk * min_harmonics * max_par_cap_pf;
         constexpr double hz_limit = BYPASS_FANOUT ? max_clk_mhz * 1000000.0 : 
             std::min(max_clk_mhz, (double) (1000000.0 / (temp * 1.0))) * 1000000.0;
-        constexpr double clk_hz = hz_limit / (MIN_REFRESH * get_refresh_overhead() * COLUMNS * MULTIPLEX * (1 << PWM_bits));
+        constexpr double clk_hz = hz_limit / (MIN_REFRESH * get_refresh_overhead() * COLUMNS * MULTIPLEX * ((1 << PWM_bits) + 1));
         
         static_assert(SERIAL_CLOCK <= hz_limit, "Serial clock is too high");
         static_assert(clk_hz >= 1.0, "Configuration is not possible");
