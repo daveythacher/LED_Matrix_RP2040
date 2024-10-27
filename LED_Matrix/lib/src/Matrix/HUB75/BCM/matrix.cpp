@@ -19,6 +19,14 @@
 #include "Serial/config.h"
 #include "Matrix/HUB75/hw_config.h"
 
+namespace Matrix::Worker {
+    extern Matrix::Buffer *get_front_buffer();
+};
+
+namespace Matrix::Calculator {
+    extern void verify_configuration();
+};
+
 namespace Matrix {
     static Buffer *buffer = nullptr;
     static volatile uint8_t state = 0;

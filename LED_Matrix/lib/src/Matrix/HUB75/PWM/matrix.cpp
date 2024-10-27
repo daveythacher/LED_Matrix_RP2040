@@ -21,6 +21,12 @@
 
 namespace Matrix::Worker {
     extern Matrix::Buffer buf[Serial::num_framebuffers];
+
+    extern Matrix::Buffer *get_front_buffer(uint8_t *id);
+};
+
+namespace Matrix::Calculator {
+    extern void verify_configuration();
 };
 
 namespace Matrix {
