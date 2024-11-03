@@ -12,21 +12,33 @@
 
 // This can be rendered into coprocessor.
 namespace TCAM {
-    // Future: Add banks
-    constexpr uint8_t num_rules = 4;
-    constexpr uint8_t num_longs = sizeof(SIMD::SIMD_SINGLE<uint32_t>) / sizeof(uint32_t);
-
-    union TCAM_entry {
-        uint8_t bytes[num_longs * 4];
-        uint16_t shorts[num_longs * 2];
-        uint32_t data[num_longs];
-        SIMD::SIMD_SINGLE<uint32_t> vec;
+    class Handler {
+        public:
+            virtual void callback() = 0;
     };
 
-    // Only the highest priority rule match runs
+    template <typename T> class Table {
+        public:
+            // Only the highest priority rule match runs
+            bool TCAM_rule(uint8_t priority, T key, T enable, Handler *callback);
+            void TCAM_process(const T *data);
+        
+        private:
+            // Future: Add banks (Probably not really a good idea anymore)
+            static const uint8_t num_rules = 4;
 
-    bool TCAM_rule(uint8_t priority, TCAM_entry key, TCAM_entry enable, void (*func)());
-    void TCAM_process(const TCAM_entry *data);
+            T masks[num_rules];
+            T values[num_rules];
+            Handler *callbacks[num_rules];
+    };
+
+    class Bank {
+        public:
+            // TODO:
+
+        private:
+            Table<SIMD::SIMD_SINGLE<uint32_t>> banks[2];
+    };
 }
 
 #endif
