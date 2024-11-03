@@ -28,7 +28,7 @@ namespace Serial::Protocol::DATA_NODE {
     void __not_in_flash_func(Test::process_frame_internal)() {
         // TODO: Get data?
 
-        if (ntohl(data.data[0]) == ~checksum) {
+        if (ntohl(data.l[0]) == ~checksum) {
             // TODO: Fill in the response packet
             state_data = DATA_STATES::READY_RESPONSE;
             status = Serial::Protocol::internal::STATUS::READY;

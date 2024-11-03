@@ -32,7 +32,7 @@ namespace Serial::Protocol::DATA_NODE {
 
     void __not_in_flash_func(Data::process_frame_internal)() {
         // Future: Look into parity
-        if (ntohl(data.data[0]) == ~checksum) {
+        if (ntohl(data.l[0]) == ~checksum) {
             state_data = DATA_STATES::READY;
             time = time_us_64();
             status = Serial::Protocol::internal::STATUS::READY;

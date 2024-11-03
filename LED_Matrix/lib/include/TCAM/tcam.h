@@ -19,10 +19,15 @@ namespace TCAM {
 
     template <typename T> class Table {
         public:
+            Table();
+
             // Only the highest priority rule match runs
             bool TCAM_rule(uint8_t priority, T key, T enable, Handler *callback);
             void TCAM_process(const T *data);
         
+        protected:
+            bool TCAM_search(const T *data, const T *key, const T *enable);
+
         private:
             // Future: Add banks (Probably not really a good idea anymore)
             static const uint8_t num_rules = 4;

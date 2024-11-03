@@ -5,5 +5,4 @@ add_library(serial_protocol_serial_command INTERFACE)
 
 target_sources(serial_protocol_serial_command INTERFACE
     Command.cpp
-    filter.cpp
 )

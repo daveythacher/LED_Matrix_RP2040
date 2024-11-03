@@ -2,55 +2,50 @@
 #include "TCAM/tcam.h"
 
 namespace TCAM {
-    struct TCAM_record {
-        TCAM_record() {
-            claim = false;
-            key = { 0 };
-            enable = { 0 };
+    template <typename T> Table<T>::Table() {
+        for (uint8_t i = 0; i < num_rules; i++) {
+            callbacks[i] = nullptr;
         }
+    }
 
-        TCAM_entry key;
-        TCAM_entry enable;
-        void (*func)();
-        bool claim;
-    };
-
-    // Only high priority (0) rule wins
-    static TCAM_record TCAM_table[num_rules];
-
-    static bool __not_in_flash_func(TCAM_search)(const TCAM_entry *data, const TCAM_entry *key, const TCAM_entry *enable) {
-        SIMD::SIMD_SINGLE<uint32_t> d = data->vec & enable->vec;
-        SIMD::SIMD_SINGLE<uint32_t> k = key->vec & enable->vec;
+    template <typename T> bool __not_in_flash_func(Table<T>::TCAM_search)(const T *data, const T *key, const T *enable) {
+        T d = *data & *enable;
+        T k = *key & *enable;
         return d == k;
     }
 
-    bool TCAM_rule(uint8_t priority, TCAM_entry key, TCAM_entry enable, void (*func)()) {
+    template <typename T> bool Table<T>::TCAM_rule(uint8_t priority, T key, T enable, Handler *callback) {
         if (priority >= num_rules)
             return false;
 
-        if (TCAM_table[priority].claim)
+        if (callbacks[priority] == nullptr)
+            return false;
+
+        if (callback == nullptr)
             return false;
         
-        TCAM_table[priority].key = key;
-        TCAM_table[priority].enable = enable;
-        TCAM_table[priority].func = func;
-        TCAM_table[priority].claim = true;
+        masks[priority] = key;
+        values[priority] = enable;
+        callbacks[priority] = callback;
+
         return true;
     }
 
-    void __not_in_flash_func(TCAM_process)(const TCAM_entry *data) {
-        bool results[sizeof(TCAM_table) / sizeof(TCAM_record)];
+    template <typename T> void __not_in_flash_func(Table<T>::TCAM_process)(const T *data) {
+        bool results[num_rules];
 
-        for (uint8_t i = 0; i < sizeof(TCAM_table) / sizeof(TCAM_record); i++)
-            results[i] = TCAM_search(data, &TCAM_table[i].key, &TCAM_table[i].enable);
+        for (uint8_t i = 0; i < num_rules; i++)
+            results[i] = TCAM_search(data, &masks[i], &values[i]);
 
         // Future: We need compiler and CPU barrier
 
-        for (uint8_t i = 0; i < sizeof(TCAM_table) / sizeof(TCAM_record); i++) {
+        for (uint8_t i = 0; i < num_rules; i++) {
             if (results[i]) {
-                TCAM_table[i].func();
+                callbacks[i]->callback();
                 break;
             }
         }
     }
+
+    template class Table<SIMD::SIMD_SINGLE<uint32_t>>;
 }

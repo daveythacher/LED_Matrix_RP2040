@@ -11,12 +11,16 @@
 using Serial::Protocol::internal::STATUS;
 
 namespace Serial::Protocol::DATA_NODE {
+    extern TCAM::Table<SIMD::SIMD_SINGLE<uint32_t>> data_filter;
+}
+
+namespace Serial::Protocol::DATA_NODE {
     Serial::packet *Command::buf = 0;
     uint16_t Command::len = 0;
     Command::DATA_STATES Command::state_data = DATA_STATES::SETUP;
     uint8_t Command::idle_num = 0;
     uint32_t Command::index;
-    TCAM::TCAM_entry Command::data;
+    SIMD::SIMD_SINGLE<uint32_t> Command::data;
     uint32_t Command::checksum;
     STATUS Command::status;
     bool Command::trigger;
@@ -55,7 +59,7 @@ namespace Serial::Protocol::DATA_NODE {
                     // This is protected by the reset timer, but mistakes can lead to high error rates
                     switch (state) {
                         case 0: // Grab the header
-                            get_data(data.bytes, 12, true);
+                            get_data(data.b, 12, true);
 
                             if (index == 12) {
                                 index = 0;
@@ -76,7 +80,7 @@ namespace Serial::Protocol::DATA_NODE {
                                     checksum = 0xFFFFFFFF;
                                         
                                     // This calls process_command_internal
-                                    TCAM::TCAM_process(&data);  // Advances state (global)
+                                    data_filter.TCAM_process(&data);  // Advances state (global)
 
                                     if (ptr == nullptr) {
                                         state = 2;              // Advances state (local)
@@ -113,12 +117,12 @@ namespace Serial::Protocol::DATA_NODE {
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:           // Host should see ACTIVE_1 to IDLE_1/0 or READY
-                get_data(data.bytes, 8, false);
+                get_data(data.b, 8, false);
 
                 if (index == 8) {
                     index = 0;
                             
-                    if (ntohl(data.data[1]) == 0xAEAEAEAE) {
+                    if (ntohl(data.l[1]) == 0xAEAEAEAE) {
                         if (ptr != nullptr) {
                             ptr->process_frame_internal();      // Advances state
                         }
@@ -214,5 +218,9 @@ namespace Serial::Protocol::DATA_NODE {
             else
                 break;
         }
+    }
+
+    void __not_in_flash_func(Command::callback)() {
+        process_command_internal();
     }
 }
