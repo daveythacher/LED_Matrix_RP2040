@@ -8,7 +8,7 @@
 #define TCAM_H
 
 #include <stdint.h>
-#include "SIMD/SIMD.h"
+#include "SIMD/SIMD_SINGLE.h"
 
 // This can be rendered into coprocessor.
 namespace TCAM {

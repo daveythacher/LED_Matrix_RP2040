@@ -1,4 +1,4 @@
-#include "SIMD/SIMD.h"
+#include "SIMD/SIMD_QUARTER.h"
 
 namespace SIMD {
     template <typename T> const SIMD_QUARTER<T> SIMD_QUARTER<T>::operator|(SIMD_QUARTER<T> const& arg) const {

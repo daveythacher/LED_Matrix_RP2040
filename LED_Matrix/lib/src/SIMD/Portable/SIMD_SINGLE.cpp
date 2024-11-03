@@ -1,4 +1,4 @@
-#include "SIMD/SIMD.h"
+#include "SIMD/SIMD_SINGLE.h"
 
 namespace SIMD {
     template <typename T> const SIMD_SINGLE<T> SIMD_SINGLE<T>::operator|(SIMD_SINGLE<T> const& arg) const {
