@@ -25,7 +25,7 @@ namespace TCAM {
 
     template <typename T> void __not_in_flash_func(Table<T>::TCAM_process)(const T *data) {
         for (uint8_t i = 0; i < num_rules; i++) {
-            if (TCAM_search(data, &masks[i], &values[i])) {
+            if (callbacks[i] != nullptr && TCAM_search(data, &masks[i], &values[i])) {
                 callbacks[i]->callback();
                 break;
             }
