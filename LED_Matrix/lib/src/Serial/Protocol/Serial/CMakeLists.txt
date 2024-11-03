@@ -7,8 +7,7 @@ target_sources(serial_protocol_serial INTERFACE
     internal.cpp
     Status_Message.cpp
     serial.cpp
-    Command/Command.cpp
-    Command/filter.cpp
+    filter.cpp
 )
 
 # Use caution here!

@@ -8,7 +8,7 @@
 #include "Serial/Protocol/serial.h"
 #include "Serial/Protocol/Serial/internal.h"
 #include "Serial/Protocol/Serial/Command/Command.h"
-#include "Serial/Protocol/Serial/Command/filter.h"
+#include "Serial/Protocol/Serial/filter.h"
 #include "Serial/Protocol/Serial/control_node.h"
 #include "Serial/Node/data.h"
 

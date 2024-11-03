@@ -8,17 +8,18 @@
 #define SERIAL_PROTOCOL_SERIAL_COMMAND_H
 
 #include "Serial/Protocol/Serial/internal.h"
-#include "Serial/Protocol/Serial/Command/filter.h"
 #include "Serial/config.h"
 #include "TCAM/tcam.h"
 
 namespace Serial::Protocol::DATA_NODE {
-    class Command {
+    class Command : public TCAM::Handler {
         public:
             static Serial::Protocol::internal::STATUS data_node();
             static void trigger_processing();
             static void acknowledge_query();
             static void reset();
+
+            virtual void callback();
 
         protected:
             static void get_data(uint8_t *buf, uint16_t len, bool checksum);
@@ -44,7 +45,7 @@ namespace Serial::Protocol::DATA_NODE {
             static DATA_STATES state_data;
             static uint8_t idle_num;
             static uint32_t index;
-            static TCAM::TCAM_entry data;
+            static SIMD::SIMD_SINGLE<uint32_t> data;
             static uint32_t checksum;
             static Serial::Protocol::internal::STATUS status;
             static bool trigger;
