@@ -20,6 +20,7 @@
 #include "Matrix/HUB75/hw_config.h"
 
 namespace Matrix::Worker {
+    extern volatile bool vsync;
     extern Matrix::Buffer buf[Serial::num_framebuffers];
 
     extern Matrix::Buffer *get_front_buffer(uint8_t *id);
