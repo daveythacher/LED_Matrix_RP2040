@@ -221,6 +221,7 @@ namespace Serial::Protocol::DATA_NODE {
     }
 
     void __not_in_flash_func(Command::callback)() {
+        ptr = this;
         process_command_internal();
     }
 }
