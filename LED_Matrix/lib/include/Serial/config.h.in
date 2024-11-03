@@ -28,10 +28,10 @@ namespace Serial {
     };
 
     const uint32_t range_high = DEFINE_SERIAL_RGB_TYPE::range_high;
-    constexpr uint8_t num_framebuffers = 1 + 1 + 1;
+    constexpr uint8_t num_framebuffers = 1 + 1 + 1;                 // Two for drawing and one for background
     constexpr uint32_t max_framebuffer_size = 16 * 1024;
     constexpr uint32_t payload_size = 8 * 1024;
-    constexpr uint8_t num_packets = 4 + 2;
+    constexpr uint8_t num_packets = 4 + 2;                          // Max depth of the SIO FIFO plus two
 }
 
 #endif

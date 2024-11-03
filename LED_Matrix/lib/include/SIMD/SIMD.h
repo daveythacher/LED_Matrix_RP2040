@@ -17,6 +17,8 @@ namespace SIMD {
             const bool operator==(SIMD_QUARTER<T> const& arg) const;
 
             static constexpr uint32_t size() {
+                static_assert(sizeof(T) * 8 <= 32, "SIMD Quarter is limited to arguments less than 32-bits.");
+
                 return 32 / (sizeof(T) * 8);
             }
 
@@ -35,6 +37,8 @@ namespace SIMD {
             const bool operator==(SIMD_SINGLE<T> const& arg) const;
 
             static constexpr uint32_t size() {
+                static_assert(sizeof(T) * 8 <= 128, "SIMD Single is limited to arguments less than 128-bits.");
+
                 return 128 / (sizeof(T) * 8);
             }
 
