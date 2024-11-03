@@ -13,7 +13,7 @@ namespace TCAM {
     }
 
     template <typename T> bool Table<T>::TCAM_rule(uint8_t priority, T key, T enable, Handler *callback) {
-        if ((priority >= num_rules) || (callbacks[priority] == nullptr) || (callback == nullptr))
+        if ((priority >= num_rules) || (callbacks[priority] != nullptr) || (callback == nullptr))
             return false;
         
         masks[priority] = key;
