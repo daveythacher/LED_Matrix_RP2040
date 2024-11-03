@@ -43,6 +43,7 @@ namespace Serial::Protocol {
         //              I have to manage that ISR manually or clock it to the speed of light.
         //              Just to attempt to clarify this: (From a memory point of view)
         //                  Thread 0: IO serial protocol pollers (These run off core 0 and can have some DMA offload)
+        //                      This thread can be removed also, but that is not fully supported right now.
         //                  Thread 1: Compute thread (This can be low priority on core 0)
         //                  Thread 2: Multiplexing thread (This pretty much has to run on core 1 at high priority)
         //                      This thread can be removed and replaced by a poller with PIO in theory.
