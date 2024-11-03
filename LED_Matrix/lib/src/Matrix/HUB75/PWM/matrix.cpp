@@ -20,7 +20,6 @@
 #include "Matrix/HUB75/hw_config.h"
 
 namespace Matrix::Worker {
-    extern volatile bool vsync;
     extern Matrix::Buffer buf[Serial::num_framebuffers];
 
     extern Matrix::Buffer *get_front_buffer(uint8_t *id);
@@ -184,9 +183,6 @@ namespace Matrix {
         dma_hw->ints0 = 1 << dma_chan[0];
         pio_sm_put(pio0, 0, 1 << PWM_bits);
         dma_channel_set_read_addr(dma_chan[1], &address_table[bank][row * ((1 << PWM_bits) + 2)], true);
-
-        // TODO: Swap bank here?
-        //  Stay friendly (you got dual tables so use them, let the isr wrap around if nothing else)
     }
 
     void __not_in_flash_func(dma_isr)() {

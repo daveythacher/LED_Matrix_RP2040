@@ -28,7 +28,6 @@ namespace Matrix::Calculator {
 };
 
 namespace Matrix::Worker {
-    extern volatile bool vsync;
     extern Matrix::Buffer buf[Serial::num_framebuffers];
 
     extern Matrix::Buffer *get_front_buffer(uint8_t *id);
@@ -81,6 +80,7 @@ namespace Matrix {
             for (uint8_t b = 0; b < Serial::num_framebuffers; b++) {
                 for (uint32_t x = 0; x < MULTIPLEX; x++) {
                     y = x * ((1 << PWM_bits) + 2);
+
                     for (uint32_t i = 0; i < PWM_bits; i++) {
                         for (uint32_t k = 0; k < (uint32_t) (1 << i); k++) {
                             address_table[b][y + (1 << i) + k - 1].data = buffer->get_line(x, k);
@@ -191,9 +191,6 @@ namespace Matrix {
         dma_hw->ints0 = 1 << dma_chan[0];
         pio_sm_put(pio0, 0, (1 << PWM_bits) - 1);
         dma_channel_set_read_addr(dma_chan[1], &address_table[bank][row * ((1 << PWM_bits) + 2)], true);
-
-        // TODO: Swap bank here?
-        //  Stay friendly (you got dual tables so use them, let the isr wrap around if nothing else)
     }
 
     void __not_in_flash_func(dma_isr)() {
