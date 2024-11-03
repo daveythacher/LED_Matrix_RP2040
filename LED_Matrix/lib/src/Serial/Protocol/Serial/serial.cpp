@@ -45,6 +45,7 @@ namespace Serial::Protocol {
         //                  Thread 0: IO serial protocol pollers (These run off core 0 and can have some DMA offload)
         //                  Thread 1: Compute thread (This can be low priority on core 0)
         //                  Thread 2: Multiplexing thread (This pretty much has to run on core 1 at high priority)
+        //                      This thread can be removed and replaced by a poller with PIO in theory.
         //                  Thread 3: DMA IO operations
         Serial::Protocol::CONTROL_NODE::control_node();
         status = Serial::Protocol::DATA_NODE::Command::data_node();
