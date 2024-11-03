@@ -34,7 +34,7 @@ namespace Matrix::Calculator {
         constexpr uint64_t temp = (COLUMNS / columns_per_driver) * (max_impedance * fanout_per_clk * min_harmonics * max_par_cap_pf);
         constexpr double hz_limit = BYPASS_FANOUT ? max_clk_mhz * 1000000.0 : 
             std::min(max_clk_mhz, (double) (1000000.0 / (temp * 1.0))) * 1000000.0;
-        constexpr double clk_hz = hz_limit / (MIN_REFRESH * get_refresh_overhead() * COLUMNS * MULTIPLEX * (1 << PWM_bits));
+        constexpr double clk_hz = hz_limit / (MIN_REFRESH * get_refresh_overhead() * COLUMNS * MULTIPLEX * ((1 << PWM_bits) + 1));
 
         static_assert(SERIAL_CLOCK <= hz_limit, "Serial clock is too high");
         static_assert(clk_hz >= 1.0, "Configuration is not possible");
@@ -71,8 +71,8 @@ namespace Matrix::Calculator {
         is_clk_valid();
         is_blank_time_valid();
         
-        static_assert(COLUMNS >= 8, "COLUMNS less than 8 is not recommended");
-        static_assert(COLUMNS <= 256, "COLUMNS more than 1024 is not recommended, but we only support up to 256");
+        static_assert(COLUMNS >= columns_per_driver, "COLUMNS less than 8 is not recommended");
+        static_assert(COLUMNS <= 255, "COLUMNS more than 1024 is not recommended, but we only support up to 255");
         static_assert((2 * MULTIPLEX * COLUMNS) <= 8192, "More than 8192 pixels is not recommended");
         static_assert((2 * MULTIPLEX * COLUMNS * sizeof(Serial::DEFINE_SERIAL_RGB_TYPE)) <= Serial::payload_size, "The current frame size is not supported");
         static_assert((MULTIPLEX * COLUMNS * (PWM_bits)) <= Serial::max_framebuffer_size, "The current buffer size is not supported");

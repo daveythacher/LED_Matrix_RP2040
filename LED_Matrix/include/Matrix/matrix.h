@@ -58,22 +58,6 @@ namespace Matrix {
          *  @details Buffer is copied into back buffer. (Do not use front or back buffer(s).)
          */
         void process(Matrix::Buffer *buffer);
-
-        /**
-         *  @brief Function used to grab the front buffer
-         *  @details Pulls from FIFO when processing has finished.
-         *  @details Implemented in Matrix/<implementation>/worker.cpp
-         *  @return Raw memory pointer to front buffer, no type is known by API. (Not very classy)
-         */
-        Matrix::Buffer *get_front_buffer();
-    }
-
-    namespace Calculator {
-        /**
-         *  @brief Function used to verify configuration
-         *  @details Implemented in Matrix/<implementation>/matrix.cpp
-         */
-        void verify_configuration();
     }
 }
 

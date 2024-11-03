@@ -158,4 +158,17 @@ namespace Matrix::Worker {
 
         return result;
     }
+
+    Matrix::Buffer *__not_in_flash_func(get_front_buffer)(uint8_t *id) {
+        Matrix::Buffer *result = nullptr;
+
+        if (id != nullptr && vsync) {
+            result = &buf[bank_vsync];
+            *id = bank_vsync;
+            bank_vsync = (bank_vsync + 1) % Serial::num_framebuffers;
+            vsync = false;
+        }
+
+        return result;
+    }
 }

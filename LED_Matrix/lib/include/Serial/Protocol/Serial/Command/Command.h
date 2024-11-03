@@ -22,6 +22,7 @@ namespace Serial::Protocol::DATA_NODE {
 
         protected:
             static void get_data(uint8_t *buf, uint16_t len, bool checksum);
+            static void error();
 
             virtual void process_frame_internal() = 0;
             virtual void process_command_internal() = 0;
@@ -34,7 +35,8 @@ namespace Serial::Protocol::DATA_NODE {
                 PAYLOAD,
                 CHECKSUM_DELIMITER_PROCESS,
                 READY,
-                READY_RESPONSE
+                READY_RESPONSE,
+                ERROR
             };
 
             static Serial::packet *buf;
