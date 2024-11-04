@@ -33,7 +33,7 @@ namespace Matrix::Worker {
         build_index_table();
     }
 
-    template <typename T> inline SIMD::SIMD_QUARTER<T> *__not_in_flash_func(PWM_worker<T>::get_table)(uint16_t v, uint8_t i) {
+    template <typename T> inline SIMD::SIMD_QUARTER<T> *PWM_worker<T>::get_table(uint16_t v, uint8_t i) {
         constexpr uint32_t div = std::max((uint32_t) Serial::range_high / 1 << PWM_bits, (uint32_t) 1);
         constexpr uint32_t mul = std::max((uint32_t) 1 << PWM_bits / Serial::range_high, (uint32_t) 1);
 
@@ -49,7 +49,7 @@ namespace Matrix::Worker {
     //      2.2 Matrix operations may help
     //  3. Remove if with LUT (needs good cache)
     //      3.1 Matrix operations may help
-    template <typename T> inline void __not_in_flash_func(PWM_worker<T>::set_pixel)(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
+    template <typename T> inline void PWM_worker<T>::set_pixel(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
         SIMD::SIMD_QUARTER<T> *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
     
         for (uint32_t i = 0; i < (1 << PWM_bits); i += SIMD::SIMD_QUARTER<T>::size()) {
@@ -74,7 +74,7 @@ namespace Matrix::Worker {
         }
     }
 
-    template <typename T> inline void __not_in_flash_func(PWM_worker<T>::process_packet)(Serial::packet *p) {
+    template <typename T> inline void PWM_worker<T>::process_packet(Serial::packet *p) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint16_t x = 0; x < COLUMNS; x++) {
                     set_pixel(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
@@ -89,7 +89,7 @@ namespace Matrix::Worker {
         bank = (bank + 1) % Serial::num_framebuffers;
     }   
 
-    template <typename T> inline void __not_in_flash_func(PWM_worker<T>::save_buffer)(Matrix::Buffer *p) {
+    template <typename T> inline void PWM_worker<T>::save_buffer(Matrix::Buffer *p) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
                 uint8_t *p0 = buf[bank].get_line(y, i);
@@ -109,7 +109,7 @@ namespace Matrix::Worker {
         bank = (bank + 1) % Serial::num_framebuffers;
     }    
     
-    template <typename T> inline static void __not_in_flash_func(worker_internal)() {
+    template <typename T> inline static void worker_internal() {
         static PWM_worker<T> w;
         
         while(1) {
@@ -132,7 +132,7 @@ namespace Matrix::Worker {
         }
     }
 
-    void __not_in_flash_func(work)() {
+    void work() {
         // Currently we only support 8-bit port
         worker_internal<uint8_t>();
     }
