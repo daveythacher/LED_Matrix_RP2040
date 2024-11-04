@@ -67,6 +67,15 @@ namespace Matrix {
         gpio_clr_mask(0x40FF00);
 
         Multiplex::init(MULTIPLEX);
+
+        // Promote the CPUs
+        //  CPUs now have 50 percent chance of winning.
+        //      They now have 1 turn loss max penalty. 
+        //      Performance is 0.5 to hit_rate
+        //  DMA now has 50 percent chance of losing.
+        //      They now have 3 turn loss max penalty. 
+        //      Performance is 0.25 to hit_rate
+        bus_ctrl_hw->priority = (1 << 4) | (1 << 0);
        
         // Do not connect the dots (LEDs), charge the low side before scanning (This will turn the LEDs off)
         //  Do use Dot correction though, which is above this implementation layer
@@ -156,7 +165,6 @@ namespace Matrix {
         pio_sm_claim(pio0, 0);
         
         // DMA
-        bus_ctrl_hw->priority = (1 << 12) | (1 << 8);
         dma_chan[0] = dma_claim_unused_channel(true);
         dma_chan[1] = dma_claim_unused_channel(true);
         dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);
