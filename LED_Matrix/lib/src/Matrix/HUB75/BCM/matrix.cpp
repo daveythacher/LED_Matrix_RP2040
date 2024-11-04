@@ -73,8 +73,8 @@ namespace Matrix {
         //      They now have 1 turn loss max penalty. 
         //      Performance is 0.5 to hit_rate
         //  DMA now has 50 percent chance of losing.
-        //      They now have 3 turn loss max penalty. 
-        //      Performance is 0.25 to hit_rate
+        //      They now have 3+ turn loss max penalty. 
+        //      Performance is <0.25 to hit_rate
         bus_ctrl_hw->priority = (1 << 4) | (1 << 0);
        
         // Do not connect the dots (LEDs), charge the low side before scanning (This will turn the LEDs off)
