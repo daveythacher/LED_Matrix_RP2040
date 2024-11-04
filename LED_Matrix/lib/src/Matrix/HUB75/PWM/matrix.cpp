@@ -64,7 +64,7 @@ namespace Matrix {
 
         Multiplex::init(MULTIPLEX);
         
-        // Promote the CPUs
+        // Promote the CPUs (Branches break sequential/stripping pattern)
         //  CPUs now have 50 percent chance of winning.
         //      They now have 1 turn loss max penalty. 
         //      Performance is 0.5 to 1
