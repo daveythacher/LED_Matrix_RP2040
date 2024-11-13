@@ -52,8 +52,6 @@ namespace Serial::Protocol::DATA_NODE {
             static bool acknowledge;
             static uint64_t time;
             static Command *ptr;
-
-            friend class filter;
     };
 }
 
