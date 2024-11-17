@@ -77,8 +77,8 @@ namespace Matrix::Worker {
     template <typename T> inline void PWM_worker<T>::process_packet(Serial::packet *p) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint16_t x = 0; x < COLUMNS; x++) {
-                    set_pixel(x, y, p->data[y][x].red, p->data[y][x].green, p->data[y][x].blue, p->data[y + MULTIPLEX][x].red, p->data[y + MULTIPLEX][x].green, p->data[y + MULTIPLEX][x].blue);
-            }
+                set_pixel(x, y, p->data[y][x].get_red(), p->data[y][x].get_green(), p->data[y][x].get_blue(), 
+                    p->data[y + MULTIPLEX][x].get_red(), p->data[y + MULTIPLEX][x].get_green(), p->data[y + MULTIPLEX][x].get_blue());            }
         }
 
         while (vsync) {

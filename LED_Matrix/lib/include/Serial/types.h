@@ -11,39 +11,97 @@
 
 namespace Serial {
     struct RGB24 {
-        volatile uint8_t red;
-        volatile uint8_t green;
-        volatile uint8_t blue;
+        public:
+            uint8_t get_red() { return red; }
+            uint8_t get_green() { return green; }
+            uint8_t get_blue() { return blue; }
+            void set_red(uint16_t v) { red = v & 0xFF; }
+            void set_green(uint16_t v) { green = v & 0xFF; }
+            void set_blue(uint16_t v) { blue = v & 0xFF; }
 
-        static constexpr uint32_t range_high = 1 << 8;
-        static constexpr uint8_t id = 0;
+            static constexpr uint32_t range_high = 1 << 8;
+            static constexpr uint8_t id = 0;
+
+        private:
+            volatile uint8_t red;
+            volatile uint8_t green;
+            volatile uint8_t blue;
     };
 
     struct RGB48 {
-        volatile uint16_t red;
-        volatile uint16_t green;
-        volatile uint16_t blue;
+        public:
+            uint16_t get_red() { return red; }
+            uint16_t get_green() { return green; }
+            uint16_t get_blue() { return blue; }
+            void set_red(uint16_t v) { red = v; }
+            void set_green(uint16_t v) { green = v; }
+            void set_blue(uint16_t v) { blue = v; }
 
-        static constexpr uint32_t range_high = 1 << 16;
-        static constexpr uint8_t id = 1;
+
+            static constexpr uint32_t range_high = 1 << 16;
+            static constexpr uint8_t id = 1;
+
+        private:
+            volatile uint16_t red;
+            volatile uint16_t green;
+            volatile uint16_t blue;
     };
 
     struct RGB_222 {
-        volatile uint8_t red : 2;
-        volatile uint8_t green : 2;
-        volatile uint8_t blue : 2;
+        public:
+            uint8_t get_red() { return val & 0x3; }
+            uint8_t get_green() { return (val >> 2) & 0x3; }
+            uint8_t get_blue() { return (val >> 4) & 0x3; }
 
-        static constexpr uint32_t range_high = 1 << 2;
-        static constexpr uint8_t id = 3;
+            void set_red(uint16_t v) { 
+                val &= ~0x3;
+                val |= v & 0x3; 
+            }
+
+            void set_green(uint16_t v) { 
+                val &= ~(0x3 << 2);
+                val |= (v & 0x3) << 2; 
+            }
+
+            void set_blue(uint16_t v) { 
+                val &= ~(0x3 << 4);
+                val |= (v & 0x3) << 4; 
+            }
+
+
+            static constexpr uint32_t range_high = 1 << 2;
+            static constexpr uint8_t id = 3;
+        
+        private:
+            uint8_t val;
     };
 
     struct RGB_555 {
-        volatile uint16_t red : 5;
-        volatile uint16_t green : 5;
-        volatile uint16_t blue : 5;
+        public:
+            uint8_t get_red() { return val & 0x1F; }
+            uint8_t get_green() { return (val >> 5) & 0x1F; }
+            uint8_t get_blue() { return (val >> 10) & 0x1F; }
 
-        static constexpr uint32_t range_high = 1 << 5;
-        static constexpr uint8_t id = 2;
+            void set_red(uint16_t v) { 
+                val &= ~0x1F;
+                val |= v & 0x1F; 
+            }
+
+            void set_green(uint16_t v) { 
+                val &= ~(0x1F << 5);
+                val |= (v & 0x1F) << 5; 
+            }
+
+            void set_blue(uint16_t v) { 
+                val &= ~(0x1F << 10);
+                val |= (v & 0x1F) << 10; 
+            }
+
+            static constexpr uint32_t range_high = 1 << 5;
+            static constexpr uint8_t id = 2;
+        
+        private:
+            uint16_t val;
     };
 }
 

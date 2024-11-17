@@ -18,14 +18,14 @@ namespace Serial::Node::Data {
         for (uint16_t x = 0; x < Matrix::COLUMNS; x++) {
             for (uint8_t y = 0; y < (2 * Matrix::MULTIPLEX); y++) {
                 if ((x % (2 * Matrix::MULTIPLEX)) == y) {
-                    buffers[buffer].data[y][x].red = 0;
-                    buffers[buffer].data[y][x].green = 0;
-                    buffers[buffer].data[y][x].blue = 0;
+                    buffers[buffer].data[y][x].set_red(0);
+                    buffers[buffer].data[y][x].set_green(0);
+                    buffers[buffer].data[y][x].set_blue(0);
                 }
                 else {
-                    buffers[buffer].data[y][x].red = 0xFF;
-                    buffers[buffer].data[y][x].green = 0xFF;
-                    buffers[buffer].data[y][x].blue = 0xFF;
+                    buffers[buffer].data[y][x].set_red(0xFF);
+                    buffers[buffer].data[y][x].set_green(0xFF);
+                    buffers[buffer].data[y][x].set_blue(0xFF);
                 }
             }
         }
@@ -61,5 +61,4 @@ namespace Serial::Node::Data {
     uint32_t __not_in_flash_func(get_packet_time_us)(uint16_t packet_size) {
         return 0;
     }
-}
 }
