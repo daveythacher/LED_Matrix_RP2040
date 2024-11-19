@@ -95,7 +95,7 @@ namespace Matrix::Worker {
                 uint8_t *p0 = buf[bank].get_line(y, i);
                 uint8_t *p1 = p->raw + (((y * (1 << PWM_bits)) + i) * Matrix::Buffer::get_line_length());
 
-                for (uint8_t x = 0; x < Matrix::Buffer::get_line_length(); x++) {
+                for (uint8_t x = 1; x < Matrix::Buffer::get_line_length(); x++) {
                     p0[x] = p1[x];
                 }
             }
@@ -115,7 +115,7 @@ namespace Matrix::Worker {
                 uint8_t *p0 = buf[bank].get_line(y, i);
                 uint8_t *p1 = p->get_line(y, i);
 
-                for (uint8_t x = 0; x < Matrix::Buffer::get_line_length(); x++) {
+                for (uint8_t x = 1; x < Matrix::Buffer::get_line_length(); x++) {
                     p0[x] = p1[x];
                 }
             }
