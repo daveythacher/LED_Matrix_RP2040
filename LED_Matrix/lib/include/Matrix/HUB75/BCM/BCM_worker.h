@@ -16,6 +16,7 @@ namespace Matrix::Worker {
             BCM_worker();
             void process_packet(Serial::packet *p);
             void save_buffer(Matrix::Buffer *p);
+            void save_buffer(Serial::packet *p);
 
         private:
             void build_index_table();

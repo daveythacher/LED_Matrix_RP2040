@@ -38,7 +38,7 @@ namespace Serial::Protocol::internal {
             uint32_t compute_checksum();
     };
 
-    void process(Serial::packet *buf, uint16_t len);
+    void process(Serial::packet *buf, uint16_t len, bool isBuffer = false);
     void send_status(STATUS status);
     void send_message(Status_Message *message);
 }

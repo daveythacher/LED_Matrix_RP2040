@@ -11,7 +11,7 @@
 #include "Matrix/matrix.h"
 
 namespace Serial::Protocol::internal {
-    void __not_in_flash_func(process)(Serial::packet *p, uint16_t len) {
+    void __not_in_flash_func(process)(Serial::packet *p, uint16_t len, bool isBuffer) {
         switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
             case 2:
             case 6:
@@ -22,7 +22,7 @@ namespace Serial::Protocol::internal {
                 break;
         }
 
-        Matrix::Worker::process(p);
+        Matrix::Worker::process(p, isBuffer);
     }
 
     void __not_in_flash_func(send_status)(STATUS status) {

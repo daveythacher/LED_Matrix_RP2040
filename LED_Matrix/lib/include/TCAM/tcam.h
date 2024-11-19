@@ -30,7 +30,7 @@ namespace TCAM {
 
         private:
             // Future: Add banks (Probably not really a good idea anymore)
-            static const uint8_t num_rules = 4;
+            static const uint8_t num_rules = 8;
 
             T masks[num_rules];
             T values[num_rules];

@@ -6,6 +6,7 @@
 
 #include "Serial/Protocol/Serial/filter.h"
 #include "Serial/Protocol/Serial/Command/Data/Data/Data.h"
+#include "Serial/Protocol/Serial/Command/Data/Buffer/Buffer.h"
 #include "Serial/Protocol/Serial/Command/Data/Raw_Data/Raw_Data.h"
 #include "Serial/Protocol/Serial/Command/Data/ID/ID.h"
 #include "Serial/Protocol/Serial/Command/Query/Test/Test.h"
@@ -21,6 +22,7 @@ namespace Serial::Protocol::DATA_NODE {
         static Raw_Data raw;
         static Test test;
         static ID id;
+        static Buffer buf;
 
         SIMD::SIMD_SINGLE<uint32_t> key;
         SIMD::SIMD_SINGLE<uint32_t> enable;
@@ -44,6 +46,8 @@ namespace Serial::Protocol::DATA_NODE {
         key.b[4] = 'r';
         while (!data_filter.TCAM_rule(1, key, enable, &raw));
 
+        key.b[4] = 'b';
+        while (!data_filter.TCAM_rule(4, key, enable, &buf));
 
         enable.l[2] = 0;
         key.s[3] = 1;
@@ -51,11 +55,12 @@ namespace Serial::Protocol::DATA_NODE {
         key.b[4] = 'i';
         while (!data_filter.TCAM_rule(2, key, enable, &id));
 
-
         // TODO: Update
         enable.s[3] = 0;
         key.b[5] = 'q';
         key.b[4] = 't';
         while (!data_filter.TCAM_rule(3, key, enable, &test));
+
+        // TODO: Create null filter?
     }
 }

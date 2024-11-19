@@ -20,7 +20,7 @@ namespace Matrix::Worker {
         }
     }
 
-    void __not_in_flash_func(process)(void *arg) {
+    void __not_in_flash_func(process)(void *arg, bool) {
         APP::multicore_fifo_push_blocking_inline((uint32_t) arg);
     }
 }

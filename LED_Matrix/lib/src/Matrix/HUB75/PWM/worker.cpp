@@ -89,6 +89,26 @@ namespace Matrix::Worker {
         bank = (bank + 1) % Serial::num_framebuffers;
     }   
 
+    template <typename T> inline void PWM_worker<T>::save_buffer(Serial::packet *p) {
+        for (uint8_t y = 0; y < MULTIPLEX; y++) {
+            for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
+                uint8_t *p0 = buf[bank].get_line(y, i);
+                uint8_t *p1 = p->raw + (((y * (1 << PWM_bits)) + i) * Matrix::Buffer::get_line_length());
+
+                for (uint8_t x = 0; x < Matrix::Buffer::get_line_length(); x++) {
+                    p0[x] = p1[x];
+                }
+            }
+        }
+
+        while (vsync) {
+            // Block
+        }
+
+        vsync = true;
+        bank = (bank + 1) % Serial::num_framebuffers;
+    }   
+
     template <typename T> inline void PWM_worker<T>::save_buffer(Matrix::Buffer *p) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
@@ -107,7 +127,7 @@ namespace Matrix::Worker {
 
         vsync = true;
         bank = (bank + 1) % Serial::num_framebuffers;
-    }    
+    }  
     
     template <typename T> inline static void worker_internal() {
         static PWM_worker<T> w;
@@ -121,6 +141,12 @@ namespace Matrix::Worker {
                     }
                     break;
                 case 1:
+                    {
+                        Serial::packet *p = (Serial::packet *) APP::multicore_fifo_pop_blocking_inline();
+                        w.save_buffer(p);
+                    }
+                    break;
+                case 2:
                     {
                         Matrix::Buffer *p = (Matrix::Buffer *) APP::multicore_fifo_pop_blocking_inline();
                         w.save_buffer(p);
@@ -137,9 +163,15 @@ namespace Matrix::Worker {
         worker_internal<uint8_t>();
     }
 
-    void __not_in_flash_func(process)(Serial::packet *buffer) {
-        APP::multicore_fifo_push_blocking_inline(0);
-        APP::multicore_fifo_push_blocking_inline((uint32_t) buffer);
+    void __not_in_flash_func(process)(Serial::packet *buffer, bool isBuffer) {
+        if (!isBuffer) {
+            APP::multicore_fifo_push_blocking_inline(0);
+            APP::multicore_fifo_push_blocking_inline((uint32_t) buffer);
+        }
+        else {
+            APP::multicore_fifo_push_blocking_inline(1);
+            APP::multicore_fifo_push_blocking_inline((uint32_t) buffer);
+        }
     }
 
     void __not_in_flash_func(process)(Matrix::Buffer *buffer) {
