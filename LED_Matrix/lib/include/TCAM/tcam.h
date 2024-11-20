@@ -42,6 +42,8 @@ namespace TCAM {
             // TODO:
 
         private:
+            // TODO: Add multiple sizes?
+            //  TODO: Create larger sizes with smaller ones?
             Table<SIMD::SIMD_SINGLE<uint32_t>> banks[2];
     };
 }
