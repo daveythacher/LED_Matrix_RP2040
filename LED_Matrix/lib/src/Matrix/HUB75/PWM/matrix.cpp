@@ -131,6 +131,16 @@ namespace Matrix {
             (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
             (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
             (uint16_t) (pio_encode_jmp_x_dec(2) | pio_encode_sideset(2, 0)),
+            // Raise the signal to the ghosting program
+            //  Ghost wait for PMP
+            //  Ghost call CPU
+            //  Ghost hold off for the FIFO purge
+            //  Ghost turn off OE
+            //  Ghost call address program
+            //  Ghost delay for blank delay
+            //  Ghost wait for address program
+            //  Ghost turn on OE
+            // Wait for ghost program
             (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(2, 0))
         };
         static const struct pio_program pio_programs = {
