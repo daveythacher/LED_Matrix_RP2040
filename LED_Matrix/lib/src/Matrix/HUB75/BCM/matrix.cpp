@@ -146,8 +146,8 @@ namespace Matrix {
             //  Ghost hold off for the FIFO purge
             //  Ghost turn off OE
             //  Ghost call address program
-                // Address pull and write
-                // Address wrap
+            //      Address pull and write
+            //      Address wrap
             //  Ghost delay for blank delay
             //  Ghost wait for address program
             //  Ghost turn on OE
