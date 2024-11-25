@@ -19,9 +19,11 @@ namespace Multiplex {
     static constexpr int ADDR_D = Multiplex::HUB75::HUB75_ADDR_BASE + 3;
     static constexpr int ADDR_E = Multiplex::HUB75::HUB75_ADDR_BASE + 4;
 
-    void init(int rows) {
+    void init(int rows, int start_flag, int signal_flag) {
         int clk, data, lat;
         uint8_t type = 0;
+
+        // TODO: Upgrade to new format
 
         for (int i = 0; i < Multiplex::HUB75::HUB75_ADDR_LEN; i++) {
             gpio_init(i + Multiplex::HUB75::HUB75_ADDR_BASE);
@@ -247,21 +249,6 @@ namespace Multiplex {
                     pio_sm_claim(pio1, 0);
                 }
                 break;
-            default:
-                break;
-        }
-    }
-    
-    void __not_in_flash_func(SetRow)(int row) {
-        switch (multiplex_type) {
-            case 1:
-                // TODO:
-            case 2:
-                // TODO
-            case 3:
-                // TODO:
-            case 0:
-                // Do not use!
             default:
                 break;
         }

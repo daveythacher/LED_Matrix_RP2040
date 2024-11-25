@@ -18,6 +18,7 @@
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
 #include "Matrix/HUB75/hw_config.h"
+#include "Matrix/HUB75/BCM/Programs.h"
 
 namespace Matrix::Worker {
     extern Matrix::Buffer *get_front_buffer();
@@ -36,7 +37,7 @@ namespace Matrix::Worker {
 namespace Matrix {
     static Buffer *buffer = nullptr;
     static volatile uint8_t state = 0;
-    static int dma_chan[2];
+    static int dma_chan[3];
     volatile int timer;
     static uint8_t bank;
 
@@ -66,7 +67,7 @@ namespace Matrix {
         gpio_set_dir(Matrix::HUB75::HUB75_OE, GPIO_OUT);
         gpio_clr_mask(0x40FF00);
 
-        Multiplex::init(MULTIPLEX);
+        Multiplex::init(MULTIPLEX, Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);
 
         // Promote the CPUs (Branches break sequential/stripping pattern)
         //  CPUs now have 50 percent chance of winning.
@@ -109,8 +110,7 @@ namespace Matrix {
 
         {   // We use a decent amount of stack here (The compiler should figure it out)
             uint16_t instructions[32];
-            extern uint8_t get_pmp_program(uint16_t *instructions, uint8_t len);
-            uint8_t length = get_pmp_program(instructions, 32);
+            uint8_t length = Programs::get_pmp_program(instructions, 32);
 
             static const struct pio_program pio_programs = {
                 .instructions = instructions,
@@ -120,6 +120,8 @@ namespace Matrix {
             pio_add_program(pio0, &pio_programs);
             pio_sm_set_consecutive_pindirs(pio0, 0, Matrix::HUB75::HUB75_DATA_BASE, Matrix::HUB75::HUB75_DATA_LEN, true);
         }
+
+        // TODO: Ghosting program
         
         // Verify Serial Clock
         constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);     // Someday this two will be a four.
@@ -209,7 +211,7 @@ namespace Matrix {
                         }
                     }
                     
-                    Multiplex::SetRow(rows);
+                    //TODO: Multiplex::SetRow(rows);
                     state++;
                     break;
 
@@ -224,6 +226,13 @@ namespace Matrix {
                     timer_hw->intr = 1 << timer;                                    // Clear the interrupt
                     break;
             }
+        }
+    }
+
+    void __not_in_flash_func(task)() {
+        while (1) {
+            dma_isr();
+            timer_isr();
         }
     }
 }

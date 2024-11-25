@@ -1,17 +1,20 @@
 #include <algorithm>
+#include "Matrix/HUB75/BCM/Programs.h"
 #include "PIO/Program.h"
 #include "PIO/ASM/NOP/NOP.h"
 #include "PIO/ASM/OUT/OUT.h"
 #include "PIO/ASM/PULL/PULL.h"
 #include "PIO/ASM/JMP/JMP.h"
+#include "PIO/ASM/IRQ/IRQ.h"
 using namespace PIO;
-const auto X = Registers::X;
-const auto Y = Registers::Y;
-const auto PINS = Registers::PINS;
-const auto X_DEC = Conditions::X_DEC;
-const auto Y_DEC = Conditions::Y_DEC;
 
 namespace Matrix {
+    const auto X = Registers::X;
+    const auto Y = Registers::Y;
+    const auto PINS = Registers::PINS;
+    const auto X_DEC = Conditions::X_DEC;
+    const auto Y_DEC = Conditions::Y_DEC;
+    
     // Hack to lower the ISR tick rate, accelerates by 2^PWM_bits (Improves refresh performance)
     //  Automates CLK and LAT signals with DMA and PIO to handle Software PWM of entire row
     //      Works like Hardware PWM without the high refresh
@@ -32,7 +35,7 @@ namespace Matrix {
     //          LAT = 0;
     //      } while (counter2-- > 0);
     //  }
-    uint8_t get_pmp_program(uint16_t *instructions, uint8_t len) {
+    uint8_t Programs::get_pmp_program(uint16_t *instructions, uint8_t len) {
         uint8_t CLK = 1 << 0;
         uint8_t LAT = 1 << 1;
         uint8_t size;
@@ -47,6 +50,8 @@ namespace Matrix {
             NOP().sideset(LAT),
             NOP(),
             JMP(X_DEC, 2),
+            IRQ(true, WAKE_GHOST),
+            IRQ(false, WAKE_PMP),
             JMP(0)
         };
 
@@ -70,8 +75,6 @@ namespace Matrix {
             // Raise the signal to the ghosting program
             //  Ghost load scan register
             //  Ghost wait for PMP program
-            //  Ghost call CPU, if scan == 0
-            //  Ghost hold off for the FIFO purge
             //  Ghost turn off OE
             //  Ghost call address program
             //      Address pull and write
@@ -80,9 +83,54 @@ namespace Matrix {
             //  Ghost wait for address program
             //  Ghost turn on OE
             //  Ghost return to loop
+            //  Ghost call CPU, if scan == 0
             //  Ghost wrap
             // Wait for ghost program
             (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(2, 0))
         };*/
+    }
+
+    uint8_t Programs::get_ghost_program(uint16_t *instructions, uint8_t len) {
+        uint8_t OE = 1 << 0;
+        uint8_t size;
+        Program PMP(2);     // Warning not all behavior is supported
+        ASM program[] = {   // Sidesets are cleared by default
+            PULL(true).sideset(OE),
+            OUT(X, 8).sideset(OE),
+            IRQ(false, WAKE_GHOST).sideset(OE),
+            IRQ(true, WAKE_MULTIPLEX),
+            PULL(true),
+            OUT(Y, 8),
+            NOP(),
+            JMP(Y_DEC, 7),
+            IRQ(false, WAKE_GHOST).sideset(OE),
+            JMP(X_DEC, 2).sideset(OE),
+            IRQ(true, WAKE_PMP).sideset(OE),
+            JMP(0).sideset(OE)
+        };
+
+        size = sizeof(program) / sizeof(ASM);
+        size = std::min(len, size);
+        PMP.replace(program, 0, size);
+        PMP.translate(0, instructions, size);
+        return size;        
+    }
+
+    uint8_t Programs::get_address_program(uint16_t *instructions, uint8_t len) {
+        uint8_t size;
+        Program PMP(2);     // Warning not all behavior is supported
+        ASM program[] = {   // Sidesets are cleared by default
+            PULL(true),
+            IRQ(false, WAKE_MULTIPLEX),
+            OUT(PINS, 5),
+            IRQ(true, WAKE_GHOST),
+            JMP(0)
+        };
+
+        size = sizeof(program) / sizeof(ASM);
+        size = std::min(len, size);
+        PMP.replace(program, 0, size);
+        PMP.translate(0, instructions, size);
+        return size;
     }
 }

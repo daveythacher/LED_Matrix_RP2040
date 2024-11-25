@@ -9,4 +9,5 @@ target_sources(led_PIO INTERFACE
     ASM/OUT/OUT.cpp
     ASM/PULL/PULL.cpp
     ASM/JMP/JMP.cpp
+    ASM/IRQ/IRQ.cpp
 )

@@ -8,7 +8,7 @@ target_sources(led_HUB75_BCM INTERFACE
     worker.cpp
     Buffer.cpp
     calculator.cpp
-    PMP.cpp
+    Programs.cpp
 )
 
 target_link_libraries(led_HUB75_BCM INTERFACE
