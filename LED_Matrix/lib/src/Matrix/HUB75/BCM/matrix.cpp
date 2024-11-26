@@ -228,11 +228,4 @@ namespace Matrix {
             }
         }
     }
-
-    void __not_in_flash_func(task)() {
-        while (1) {
-            dma_isr();
-            timer_isr();
-        }
-    }
 }
