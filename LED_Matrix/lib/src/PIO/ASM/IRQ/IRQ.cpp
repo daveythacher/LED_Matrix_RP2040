@@ -12,7 +12,7 @@ namespace PIO {
         if (set)
             val = pio_encode_irq_set(false, num);
         else
-            val = pio_encode_irq_wait(false, num);
+            val = pio_encode_irq_clear(false, num);
         
         set_instruction(val);
     }

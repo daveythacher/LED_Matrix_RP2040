@@ -6,6 +6,7 @@
 #include "PIO/ASM/PULL/PULL.h"
 #include "PIO/ASM/JMP/JMP.h"
 #include "PIO/ASM/IRQ/IRQ.h"
+#include "PIO/ASM/WAIT/WAIT.h"
 using namespace PIO;
 
 namespace Matrix {
@@ -50,8 +51,8 @@ namespace Matrix {
             NOP().sideset(LAT),
             NOP(),
             JMP(X_DEC, 2),
-            IRQ(true, WAKE_GHOST),
-            IRQ(false, WAKE_PMP),
+            IRQ(true, WAKE_GHOST),                              // Call Ghost - single threaded
+            WAIT(Flags::IRQ, true, WAKE_PMP),                   // Wait till we are called (by Ghost) - multi-threaded
             JMP(0)
         };
 
@@ -97,15 +98,15 @@ namespace Matrix {
         ASM program[] = {   // Sidesets are cleared by default
             PULL(true).sideset(OE),
             OUT(X, 8).sideset(OE),
-            IRQ(false, WAKE_GHOST).sideset(OE),
-            IRQ(true, WAKE_MULTIPLEX),
+            WAIT(Flags::IRQ, true, WAKE_GHOST).sideset(OE),     // Wait till we are called (by PMP) - multi-threaded
+            IRQ(true, WAKE_MULTIPLEX),                          // Call Multiplex - multi-threaded
             PULL(true),
             OUT(Y, 8),
             NOP(),
             JMP(Y_DEC, 7),
-            IRQ(false, WAKE_GHOST).sideset(OE),
+            WAIT(Flags::IRQ, true, WAKE_GHOST).sideset(OE),     // Wait till we are called (by Multiplex) - single threaded
             JMP(X_DEC, 2).sideset(OE),
-            IRQ(true, WAKE_PMP).sideset(OE),
+            IRQ(true, WAKE_PMP).sideset(OE),                    // Call PMP - multi-threaded
             JMP(0).sideset(OE)
         };
 
@@ -121,9 +122,9 @@ namespace Matrix {
         Program PMP(2);     // Warning not all behavior is supported
         ASM program[] = {   // Sidesets are cleared by default
             PULL(true),
-            IRQ(false, WAKE_MULTIPLEX),
+            WAIT(Flags::IRQ, true, WAKE_MULTIPLEX),             // Wait till we are called (by Ghost) - single threaded
             OUT(PINS, 5),
-            IRQ(true, WAKE_GHOST),
+            IRQ(true, WAKE_GHOST),                              // Call Ghost - multi-threaded
             JMP(0)
         };
 
