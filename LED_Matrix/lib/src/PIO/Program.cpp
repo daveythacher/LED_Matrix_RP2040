@@ -4,11 +4,29 @@
 namespace PIO {
     Program::Program() {}
 
-    Program::Program(uint8_t sideset) {
+    Program::Program(uint8_t sideset, uint8_t delay, bool enable) {
         _sideset = 0;
+        _delay = 0;
+        _enable = enable;
 
-        if (sideset > 0 && sideset < 6)
-            _sideset = sideset;
+        if (_enable) {
+            if (delay > 0 && delay < 5) {
+                _delay = delay;
+            }
+
+            if (sideset > 0 && sideset < (5 - _delay)) {
+                _sideset = sideset;
+            }
+        }
+        else {
+            if (delay > 0 && delay < 6) {
+                _delay = delay;
+            }
+
+            if (sideset > 0 && sideset < (6 - _delay)) {
+                _sideset = sideset;
+            }
+        }
 
         for (uint8_t i = 0; i < 32; i++)
             _instructions[i] = NOP();
@@ -16,6 +34,14 @@ namespace PIO {
 
     uint8_t Program::get_sideset_bits() {
         return _sideset;
+    }
+
+    uint8_t Program::get_delay_bits() {
+        return _delay;
+    }
+
+    bool Program::enable_sideset() {
+        return _enable;
     }
 
     void Program::replace(ASM *instructions, uint8_t index, uint8_t len) {

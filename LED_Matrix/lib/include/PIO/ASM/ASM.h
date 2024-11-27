@@ -30,6 +30,7 @@ namespace PIO {
 
             // You know copy constructors are amazing
             ASM sideset(uint8_t sideset);
+            ASM delay(uint8_t delay);
             uint16_t translate(Program *program);
         
         protected:
@@ -37,6 +38,7 @@ namespace PIO {
 
         private:
             uint8_t _sideset;
+            uint8_t _delay;
             uint16_t _instruction;
     };
 }
