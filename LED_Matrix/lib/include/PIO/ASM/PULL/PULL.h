@@ -12,6 +12,7 @@
 namespace PIO {
     class PULL : public ASM {
         public:
+            // Future: Does not support IfEmpty
             PULL(bool block);
 
         protected:

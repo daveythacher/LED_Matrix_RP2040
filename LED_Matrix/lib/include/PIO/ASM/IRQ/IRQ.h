@@ -12,6 +12,7 @@
 namespace PIO {
     class IRQ : public ASM {
         public:
+            // Future: Does not support wait
             IRQ(bool set, uint8_t num);
 
         protected:
