@@ -24,7 +24,7 @@ namespace PIO {
         PINDIRS
     };
 
-    // Missing support for IN, PUSH, MOV and SET
+    // Future: Missing support for IN, PUSH, MOV and SET
     class ASM {
         public:
             ASM();
