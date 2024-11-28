@@ -1,3 +1,9 @@
+/* 
+ * File:   SIMD_QUARTER.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include "SIMD/SIMD_QUARTER.h"
 
 namespace SIMD {

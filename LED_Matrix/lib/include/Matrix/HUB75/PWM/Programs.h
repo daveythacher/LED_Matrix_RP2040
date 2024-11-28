@@ -8,7 +8,7 @@
 #define BCM_PROGRAMS_H
 
 #include <stdint.h>
-#include "Matrix/HUB75/BCM/memory_format.h"
+#include "Matrix/HUB75/PWM/memory_format.h"
 
 namespace Matrix {
     class Programs {

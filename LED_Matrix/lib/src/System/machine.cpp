@@ -1,3 +1,9 @@
+/* 
+ * File:   machine.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include <machine/endian.h>
 #include "System/machine.h"
 

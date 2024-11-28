@@ -1,3 +1,9 @@
+/* 
+ * File:   OUT.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include "hardware/pio_instructions.h"
 #include "PIO/ASM/OUT/OUT.h"
 

@@ -95,6 +95,7 @@ namespace Matrix::Calculator {
         static_assert((2 * MULTIPLEX * COLUMNS * sizeof(Serial::DEFINE_SERIAL_RGB_TYPE)) <= Serial::payload_size, "The current frame size is not supported");
         static_assert((MULTIPLEX * COLUMNS * (1 << PWM_bits)) <= Serial::max_framebuffer_size, "The current buffer size is not supported");
         static_assert(MIN_REFRESH > 2 * FPS, "Refresh rate must be higher than twice the number of frames per second");
+        static_assert(Serial::num_framebuffers > 2, "Must have at least three framebuffers");
 
         // Qualify Worker Performance
         static_assert(((2 * MULTIPLEX * COLUMNS * 3 * 2 * FPS * (1 << PWM_bits)) / 1000000.0) <= 1.5, "CPU is only capable of so many operations per second.");

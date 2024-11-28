@@ -67,7 +67,7 @@ namespace Matrix {
         gpio_set_dir(Matrix::HUB75::HUB75_OE, GPIO_OUT);
         gpio_clr_mask(0x40FF00);
 
-        Multiplex::init(MULTIPLEX, Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);
+        Multiplex::init(Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);
 
         // Promote the CPUs (Branches break sequential/stripping pattern)
         //  CPUs now have 50 percent chance of winning.
@@ -119,6 +119,19 @@ namespace Matrix {
             };
             pio_add_program(pio0, &pio_programs);
             pio_sm_set_consecutive_pindirs(pio0, 0, Matrix::HUB75::HUB75_DATA_BASE, Matrix::HUB75::HUB75_DATA_LEN, true);
+        }
+
+        {   // We use a decent amount of stack here (The compiler should figure it out)
+            uint16_t instructions[32];
+            uint8_t length = Programs::get_ghost_program(instructions, 32);
+
+            static const struct pio_program pio_programs = {
+                .instructions = instructions,
+                .length = length,
+                .origin = 0,
+            };
+            pio_add_program(pio0, &pio_programs);
+            // TODO: Finish
         }
 
         // TODO: Ghosting program

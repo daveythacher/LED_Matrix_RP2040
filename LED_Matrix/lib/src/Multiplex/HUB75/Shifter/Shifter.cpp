@@ -19,7 +19,7 @@ namespace Multiplex {
     static constexpr int ADDR_D = Multiplex::HUB75::HUB75_ADDR_BASE + 3;
     static constexpr int ADDR_E = Multiplex::HUB75::HUB75_ADDR_BASE + 4;
 
-    void init(int rows, int start_flag, int signal_flag) {
+    void init(int start_flag, int signal_flag) {
         int clk, data, lat;
         uint8_t type = 0;
 

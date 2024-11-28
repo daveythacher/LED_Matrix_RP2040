@@ -1,3 +1,9 @@
+/* 
+ * File:   SIMD_SINGLE.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include "SIMD/SIMD_SINGLE.h"
 #include "pico/multicore.h"
 

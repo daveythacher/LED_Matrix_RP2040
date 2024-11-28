@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <stdint.h>
 #include "Serial/config.h"
-#include "SIMD/SIMD.h"
+#include "SIMD/SIMD_QUARTER.h"
 
 namespace Matrix::Worker {
     template <typename T> struct PWM_worker {

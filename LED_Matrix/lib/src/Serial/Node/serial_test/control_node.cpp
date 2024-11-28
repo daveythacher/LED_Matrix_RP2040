@@ -1,5 +1,5 @@
 /* 
- * File:   serial.cpp
+ * File:   control_node.cpp
  * Author: David Thacher
  * License: GPL 3.0
  */
