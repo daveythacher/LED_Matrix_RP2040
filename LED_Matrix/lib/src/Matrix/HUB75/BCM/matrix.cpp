@@ -37,9 +37,10 @@ namespace Matrix::Worker {
 namespace Matrix {
     static Buffer *buffer = nullptr;
     static volatile uint8_t state = 0;
-    static int dma_chan[3];
+    static int dma_chan[4];
     volatile int timer;
     static uint8_t bank;
+    static Programs::Ghost_Packet ghost_packet;
 
     // PIO Protocol
     //  There are 2^PWM_bits shifts per period.
@@ -154,6 +155,8 @@ namespace Matrix {
         // DMA
         dma_chan[0] = dma_claim_unused_channel(true);
         dma_chan[1] = dma_claim_unused_channel(true);
+        dma_chan[2] = dma_claim_unused_channel(true);
+        dma_chan[3] = dma_claim_unused_channel(true);
         dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);
         channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
         channel_config_set_read_increment(&c, true);
@@ -171,6 +174,24 @@ namespace Matrix {
         channel_config_set_high_priority(&c, true);
         channel_config_set_ring(&c, true, 3);                                       // 1 << 3 byte boundary on write ptr
         dma_channel_configure(dma_chan[1], &c, &dma_hw->ch[dma_chan[0]].al3_transfer_count, &address_table[bank][0], 2, false);
+        
+        c = dma_channel_get_default_config(dma_chan[2]);
+        channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+        channel_config_set_read_increment(&c, true);
+        channel_config_set_write_increment(&c, false);
+        channel_config_set_high_priority(&c, false);   
+        channel_config_set_dreq(&c, DREQ_PIO0_TX1); 
+        channel_config_set_chain_to(&c, dma_chan[3]);
+        dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[1], &ghost_packet, 2, false);
+
+        c = dma_channel_get_default_config(dma_chan[3]);
+        channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+        channel_config_set_read_increment(&c, true);
+        channel_config_set_write_increment(&c, false);
+        channel_config_set_high_priority(&c, false);   
+        channel_config_set_dreq(&c, DREQ_PIO0_TX1); 
+        channel_config_set_chain_to(&c, dma_chan[2]);
+        dma_channel_configure(dma_chan[3], &c, &pio0_hw->txf[1], &ghost_packet, 2, false);
 
         timer = hardware_alarm_claim_unused(true);
         timer_hw->inte |= 1 << timer;

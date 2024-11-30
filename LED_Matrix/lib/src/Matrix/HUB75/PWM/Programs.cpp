@@ -67,34 +67,6 @@ namespace Matrix {
         PMP.replace(program, 0, size);
         PMP.translate(0, instructions, size);
         return size;
-        
-        // PIO
-        /*const uint16_t instructions[] = {
-            (uint16_t) (pio_encode_pull(false, true) | pio_encode_sideset(2, 0)),   // PIO SM
-            (uint16_t) (pio_encode_out(pio_x, 8) | pio_encode_sideset(2, 0)),
-            (uint16_t) (pio_encode_out(pio_y, 8) | pio_encode_sideset(2, 0)),
-            (uint16_t) (pio_encode_out(pio_pins, 6) | pio_encode_sideset(2, 0)),    // PMP Program
-            (uint16_t) (pio_encode_jmp_y_dec(3) | pio_encode_sideset(2, 1)),
-            (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-            (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 2)),
-            (uint16_t) (pio_encode_nop() | pio_encode_sideset(2, 0)),
-            (uint16_t) (pio_encode_jmp_x_dec(2) | pio_encode_sideset(2, 0)),
-            // Raise the signal to the ghosting program
-            //  Ghost load scan register
-            //  Ghost wait for PMP program
-            //  Ghost turn off OE
-            //  Ghost call address program
-            //      Address pull and write
-            //      Address wrap
-            //  Ghost delay for blank delay
-            //  Ghost wait for address program
-            //  Ghost turn on OE
-            //  Ghost return to loop
-            //  Ghost call CPU, if scan == 0
-            //  Ghost wrap
-            // Wait for ghost program
-            (uint16_t) (pio_encode_jmp(0) | pio_encode_sideset(2, 0))
-        };*/
     }
 
     uint8_t Programs::get_ghost_program(uint16_t *instructions, uint8_t len) {
