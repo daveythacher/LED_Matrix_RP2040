@@ -10,7 +10,6 @@
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
-#include "hardware/timer.h"
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/config.h"
 #include "Matrix/matrix.h"
