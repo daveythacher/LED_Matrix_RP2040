@@ -23,20 +23,6 @@ namespace Matrix {
      */
     void dma_isr();
     
-    /**
-     *  @brief Matrix ISR from Blank time.
-     *  @details Mapped to ISR in src/<app>/isr.cpp
-     *  @details Implemented in Matrix/<implementation>/matrix.cpp
-     *  @details This may be capable of being rendered into a coprocessor. (Currently just interrupts core 0.)
-     */
-    void timer_isr();
-
-    /**
-     *  @brief Variable used to capture timer/alarm index
-     *  @details Implemented in Matrix/<implementation>/matrix.cpp
-     */
-    extern volatile int timer;
-    
     // This can be rendered into coprocessor. (Currently this is done via super loop on core 1.)
     namespace Worker {
         /**

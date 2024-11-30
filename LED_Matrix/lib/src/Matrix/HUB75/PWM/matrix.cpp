@@ -32,9 +32,7 @@ namespace Matrix::Calculator {
 
 namespace Matrix {
     static Buffer *buffer = nullptr;
-    static volatile uint8_t state = 0;
     static int dma_chan[4];
-    volatile int timer;
     static uint8_t bank;
     static Programs::Ghost_Packet ghost_packet;
 
@@ -50,7 +48,7 @@ namespace Matrix {
     static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[Serial::num_framebuffers][MULTIPLEX * ((1 << PWM_bits) + 2)];
     static volatile uint8_t null_table[COLUMNS + 1];
 
-    static void send_line(uint32_t row);
+    static void send_buffer();
 
     void start() {
         // Init Matrix hardware
@@ -185,73 +183,31 @@ namespace Matrix {
         channel_config_set_chain_to(&c, dma_chan[2]);
         dma_channel_configure(dma_chan[3], &c, &pio0_hw->txf[1], &ghost_packet, 2, false);
 
-        timer = hardware_alarm_claim_unused(true);
-        timer_hw->inte |= 1 << timer;
-
         do {
             buffer = Worker::get_front_buffer(&bank);
         } while (buffer == nullptr);
         
-        send_line(0);
+        send_buffer();
     }
 
-    void __not_in_flash_func(send_line)(uint32_t row) {
+    // TODO: Fix:
+    void __not_in_flash_func(send_line)() {
         dma_hw->ints0 = 1 << dma_chan[0];
         pio_sm_put(pio0, 0, 1 << PWM_bits);
-        dma_channel_set_read_addr(dma_chan[1], &address_table[bank][row * ((1 << PWM_bits) + 2)], true);
+        dma_channel_set_read_addr(dma_chan[1], address_table[bank], true);
     }
 
     void __not_in_flash_func(dma_isr)() {
-        if (dma_channel_get_irq0_status(dma_chan[0])) {      
-            // Make sure the FIFO is empty 
-            //  We will have up to 1uS of delay at the end of every row. 
-            //      Display will be off during this time, which may reduce brightness.
-            //      Not factored into calculator!
-            constexpr uint32_t FIFO_delay = (uint32_t) 4000000U / ((uint32_t) round(SERIAL_CLOCK));
-            timer_hw->alarm[timer] = time_us_32() + FIFO_delay + 1;                 // Load timer
-            timer_hw->armed = 1 << timer;                                           // Kick off timer
-            state = 0;
-            dma_hw->intr = 1 << dma_chan[0];                                        // Clear the interrupt
-        }
-    }
+        if (dma_channel_get_irq0_status(dma_chan[0])) {
+            uint8_t temp;
+            Buffer *p = Worker::get_front_buffer(&temp);
 
-    void __not_in_flash_func(timer_isr)() {
-        static uint32_t rows = 0;
-
-        if (timer_hw->ints & (1 << timer)) {                                        // Verify who called this
-            switch (state) {
-                case 0:
-                    gpio_set_mask(1 << Matrix::HUB75::HUB75_OE);                            // Turn off the panel (For MBI5124 this activates the low side anti-ghosting)
-                    timer_hw->alarm[timer] = time_us_32() + BLANK_TIME + 1;                 // Load timer (We don't care if it rolls over!)
-                    timer_hw->armed = 1 << timer;                                           // Kick off timer
-                    timer_hw->intr = 1 << timer;                                            // Clear the interrupt
-                    
-                    if (++rows >= MULTIPLEX) {                                              // Fire rate: MULTIPLEX * REFRESH (Note we now call 3 ISRs per fire)
-                        uint8_t temp;
-                        Buffer *p = Worker::get_front_buffer(&temp);
-                        rows = 0;
-
-                        if (p != nullptr) {
-                            buffer = p;
-                            bank = temp;
-                        }
-                    }
-
-                    //TODO: Multiplex::SetRow(rows);
-                    state++;
-                    break;
-
-                case 1:
-                    gpio_clr_mask(1 << Matrix::HUB75::HUB75_OE);                    // Turn on the panel (Note software controls PWM/BCM)
-                    send_line(rows);                                                // Kick off hardware
-                    state++;
-                    timer_hw->intr = 1 << timer;                                    // Clear the interrupt
-                    break;
-                    
-                default:
-                    timer_hw->intr = 1 << timer;                                    // Clear the interrupt
-                    break;
+            if (p != nullptr) {
+                buffer = p;
+                bank = temp;
             }
+
+            send_buffer();                                                          // Kick off hardware
         }
     }
 }
