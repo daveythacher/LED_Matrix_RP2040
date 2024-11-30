@@ -4,11 +4,16 @@
  * License: GPL 3.0
  */
 
+#include "hardware/gpio.h"
+#include "hardware/pio.h"
 #include "Multiplex/Multiplex.h"
 #include "Multiplex/HUB75/hw_config.h"
-#include "hardware/gpio.h"
+#include "Multiplex/Programs.h"
+#include "Multiplex/Mapper/Mapper.h"
 
 namespace Multiplex {
+    static Multiplex_Packet mapper;
+
     void init(int start_flag, int signal_flag) {
         for (int i = 0; i < Multiplex::HUB75::HUB75_ADDR_LEN; i++) {
             gpio_init(i + Multiplex::HUB75::HUB75_ADDR_BASE);
@@ -16,24 +21,25 @@ namespace Multiplex {
         }
         gpio_clr_mask(0x1F0000);
 
+        mapper = map();
+
+        for (uint8_t i = 0; i < mapper.length; i++) {
+            mapper.buffer[i] = 1 << (mapper.buffer[i] % 5);
+        }
+
+        {   // We use a decent amount of stack here (The compiler should figure it out)
+            uint16_t instructions[32];
+            uint8_t length = Programs::get_address_program(instructions, 32);
+
+            static const struct pio_program pio_programs = {
+                .instructions = instructions,
+                .length = length,
+                .origin = 0,
+            };
+            pio_add_program(pio0, &pio_programs);
+            // TODO: Finish
+        }
+
         // TODO:
-    }
-
-    uint8_t Programs::get_address_program(uint16_t *instructions, uint8_t len) {
-        uint8_t size;
-        Program PMP(2);     // Warning not all behavior is supported
-        ASM program[] = {   // Sidesets are cleared by default
-            PULL(true),
-            WAIT(Flags::IRQ, true, WAKE_MULTIPLEX),             // Wait till we are called (by Ghost) - single threaded
-            OUT(PINS, 5),
-            IRQ(true, WAKE_GHOST),                              // Call Ghost - multi-threaded
-            JMP(0)
-        };
-
-        size = sizeof(program) / sizeof(ASM);
-        size = std::min(len, size);
-        PMP.replace(program, 0, size);
-        PMP.translate(0, instructions, size);
-        return size;
     }
 }
