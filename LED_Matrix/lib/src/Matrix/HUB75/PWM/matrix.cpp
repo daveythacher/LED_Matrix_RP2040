@@ -45,8 +45,9 @@ namespace Matrix {
     //  There are 2^PWM_bits plus two transfers.
     //      The second to last transfer turns the columns off before multiplexing. (Standard shift)
     //      The last transfer stops the DMA and fires an interrupt.
-    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[Serial::num_framebuffers][MULTIPLEX * ((1 << PWM_bits) + 2)];
+    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[Serial::num_framebuffers][(MULTIPLEX * ((1 << PWM_bits) + 2)) + 1];
     static volatile uint8_t null_table[COLUMNS + 1];
+    static uint8_t header = 1 << PWM_bits;              // This needs to be one less than (n + 1)
 
     static void send_buffer();
 
@@ -84,6 +85,9 @@ namespace Matrix {
             for (uint8_t b = 0; b < Serial::num_framebuffers; b++) {
                 for (uint32_t x = 0; x < MULTIPLEX; x++) {
                     y = x * ((1 << PWM_bits) + 2);
+                    address_table[b][y].data = &header;
+                    address_table[b][y].len = 1;
+                    y += 1;
 
                     for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
                         address_table[b][y + i].data = Matrix::Worker::buf[b].get_line(x, i);
@@ -93,9 +97,11 @@ namespace Matrix {
                     y += 1 << PWM_bits;
                     address_table[b][y].data = null_table;
                     address_table[b][y].len = COLUMNS + 1;
-                    address_table[b][y + 1].data = NULL;
-                    address_table[b][y + 1].len = 0;
                 }
+
+                y += 1;
+                address_table[b][y + 1].data = NULL;
+                address_table[b][y + 1].len = 0;
             }
         }
 
@@ -190,10 +196,8 @@ namespace Matrix {
         send_buffer();
     }
 
-    // TODO: Fix:
     void __not_in_flash_func(send_line)() {
         dma_hw->ints0 = 1 << dma_chan[0];
-        pio_sm_put(pio0, 0, 1 << PWM_bits);
         dma_channel_set_read_addr(dma_chan[1], address_table[bank], true);
     }
 
