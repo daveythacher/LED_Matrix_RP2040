@@ -1,8 +1,8 @@
 # This could possibly be a static library
-add_library(led_PIO INTERFACE)
+add_library(led_PIO_Program INTERFACE)
 
 # TODO: Clean this up
-target_sources(led_PIO INTERFACE
+target_sources(led_PIO_Program INTERFACE
     Program.cpp
     ASM/ASM.cpp
     ASM/NOP/NOP.cpp
