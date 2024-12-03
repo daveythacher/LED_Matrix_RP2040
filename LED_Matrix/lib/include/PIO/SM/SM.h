@@ -15,10 +15,12 @@ namespace IO {
     class SM {
         public:
             SM(int pio);
+            ~SM();
 
             bool set_program(Program *p);
             void set_clock(uint16_t integer, uint16_t fraction);
             void enable(bool enable);
+            void initialize_pin(uint8_t num, bool output);
 
 
         protected:
