@@ -7,7 +7,7 @@
 #include "PIO/Program/Program.h"
 #include "PIO/Program/ASM/NOP/NOP.h"
 
-namespace PIO {
+namespace IO {
     Program::Program() {}
 
     Program::Program(uint8_t sideset, uint8_t delay, bool enable) {

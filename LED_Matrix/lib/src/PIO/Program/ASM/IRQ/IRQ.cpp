@@ -7,7 +7,7 @@
 #include "hardware/pio_instructions.h"
 #include "PIO/Program/ASM/IRQ/IRQ.h"
 
-namespace PIO {
+namespace IO {
     IRQ::IRQ() {}
 
     IRQ::IRQ(bool set, uint8_t num) {

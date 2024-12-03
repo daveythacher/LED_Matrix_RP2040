@@ -9,7 +9,7 @@
 
 #include "PIO/Program/ASM/ASM.h"
 
-namespace PIO {
+namespace IO {
     class NOP : public ASM {
         public:
             NOP();

@@ -7,7 +7,7 @@
 #include "hardware/pio_instructions.h"
 #include "PIO/Program/ASM/OUT/OUT.h"
 
-namespace PIO {
+namespace IO {
     OUT::OUT() {}
 
     OUT::OUT(Registers reg, uint8_t count) {

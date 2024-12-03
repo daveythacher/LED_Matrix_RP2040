@@ -9,7 +9,7 @@
 
 #include "PIO/Program/ASM/ASM.h"
 
-namespace PIO {
+namespace IO {
     class PULL : public ASM {
         public:
             // Future: Does not support IfEmpty

@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-namespace PIO {
+namespace IO {
     class Program;
 
     enum class Registers {

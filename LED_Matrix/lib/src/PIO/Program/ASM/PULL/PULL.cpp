@@ -7,7 +7,7 @@
 #include "hardware/pio_instructions.h"
 #include "PIO/Program/ASM/PULL/PULL.h"
 
-namespace PIO {
+namespace IO {
     PULL::PULL() {}
 
     PULL::PULL(bool block) {

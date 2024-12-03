@@ -9,7 +9,7 @@
 
 #include "PIO/Program/ASM/ASM.h"
 
-namespace PIO {
+namespace IO {
     class Program {
         public:
             Program(uint8_t sideset, uint8_t delay = 0, bool enable = false);

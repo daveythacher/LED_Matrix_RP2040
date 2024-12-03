@@ -9,7 +9,7 @@
 
 #include "PIO/Program/ASM/ASM.h"
 
-namespace PIO {
+namespace IO {
     class OUT : public ASM {
         public:
             OUT(Registers reg, uint8_t count);

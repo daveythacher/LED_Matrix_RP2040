@@ -13,7 +13,7 @@
 #include "PIO/Program/ASM/JMP/JMP.h"
 #include "PIO/Program/ASM/IRQ/IRQ.h"
 #include "PIO/Program/ASM/WAIT/WAIT.h"
-using namespace PIO;
+using namespace IO;
 
 namespace Multiplex {
     const auto X = Registers::X;

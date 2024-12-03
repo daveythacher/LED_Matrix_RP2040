@@ -7,7 +7,7 @@
 #include "hardware/pio_instructions.h"
 #include "PIO/Program/ASM/WAIT/WAIT.h"
 
-namespace PIO {
+namespace IO {
     WAIT::WAIT() {}
 
     WAIT::WAIT(Flags flag, bool set, uint8_t num) {

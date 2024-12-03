@@ -9,7 +9,7 @@
 
 #include "PIO/Program/ASM/ASM.h"
 
-namespace PIO {
+namespace IO {
     enum class Flags {
         GPIO,
         IRQ,

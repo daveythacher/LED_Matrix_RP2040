@@ -8,7 +8,7 @@
 #include "PIO/Program/ASM/ASM.h"
 #include "PIO/Program/Program.h"
 
-namespace PIO {
+namespace IO {
     ASM::ASM() {
         _sideset = 0;
         _delay = 0;

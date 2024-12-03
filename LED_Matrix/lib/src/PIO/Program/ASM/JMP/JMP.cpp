@@ -7,7 +7,7 @@
 #include "hardware/pio_instructions.h"
 #include "PIO/Program/ASM/JMP/JMP.h"
 
-namespace PIO {
+namespace IO {
     JMP::JMP() {}
 
     JMP::JMP(uint8_t addr) {

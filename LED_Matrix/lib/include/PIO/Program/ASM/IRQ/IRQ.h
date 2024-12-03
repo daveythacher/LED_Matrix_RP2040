@@ -9,7 +9,7 @@
 
 #include "PIO/Program/ASM/ASM.h"
 
-namespace PIO {
+namespace IO {
     class IRQ : public ASM {
         public:
             // Future: Does not support wait
