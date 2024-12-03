@@ -44,6 +44,15 @@ namespace Multiplex {
 
         // TODO:
 
+        // PMP / SM
+        pio0->sm[0].clkdiv = (1 << PIO_SM0_CLKDIV_INT_LSB) | (0 << PIO_SM0_CLKDIV_FRAC_LSB);
+        pio0->sm[0].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | ((Matrix::HUB75::HUB75_DATA_BASE + 6) << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+        pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
+        pio0->sm[0].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
+        pio0->sm[0].instr = pio_encode_jmp(0);
+        hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
+        pio_sm_claim(pio0, 0);
+
         // DMA
         dma_chan[0] = dma_claim_unused_channel(true);
         dma_chan[1] = dma_claim_unused_channel(true);

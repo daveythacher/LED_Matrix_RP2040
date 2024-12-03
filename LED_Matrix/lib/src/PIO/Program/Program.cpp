@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
 
-#include "PIO/Program.h"
-#include "PIO/ASM/NOP/NOP.h"
+#include "PIO/Program/Program.h"
+#include "PIO/Program/ASM/NOP/NOP.h"
 
 namespace PIO {
     Program::Program() {}

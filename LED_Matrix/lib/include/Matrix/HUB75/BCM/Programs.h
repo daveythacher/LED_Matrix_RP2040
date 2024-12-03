@@ -22,7 +22,7 @@ namespace Matrix {
 
             struct Ghost_Packet {
                 const uint8_t scan = MULTIPLEX;
-                const uint8_t delay = (125 / BLANK_TIME) + 1;
+                const uint8_t delay = (125 / (2 * BLANK_TIME)) + 1;
             };
     };
 }

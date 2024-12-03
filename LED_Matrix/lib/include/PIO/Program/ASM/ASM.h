@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
 
-#ifndef PIO_ASM_H
-#define PIO_ASM_H
+#ifndef PIO_PROGRAM_ASM_H
+#define PIO_PROGRAM_ASM_H
 
 #include <stdint.h>
 

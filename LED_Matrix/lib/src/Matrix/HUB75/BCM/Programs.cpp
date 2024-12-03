@@ -6,13 +6,13 @@
 
 #include <algorithm>
 #include "Matrix/HUB75/BCM/Programs.h"
-#include "PIO/Program.h"
-#include "PIO/ASM/NOP/NOP.h"
-#include "PIO/ASM/OUT/OUT.h"
-#include "PIO/ASM/PULL/PULL.h"
-#include "PIO/ASM/JMP/JMP.h"
-#include "PIO/ASM/IRQ/IRQ.h"
-#include "PIO/ASM/WAIT/WAIT.h"
+#include "PIO/Program/Program.h"
+#include "PIO/Program/ASM/NOP/NOP.h"
+#include "PIO/Program/ASM/OUT/OUT.h"
+#include "PIO/Program/ASM/PULL/PULL.h"
+#include "PIO/Program/ASM/JMP/JMP.h"
+#include "PIO/Program/ASM/IRQ/IRQ.h"
+#include "PIO/Program/ASM/WAIT/WAIT.h"
 using namespace PIO;
 
 namespace Matrix {
@@ -72,7 +72,7 @@ namespace Matrix {
     uint8_t Programs::get_ghost_program(uint16_t *instructions, uint8_t len) {
         uint8_t OE = 1 << 0;
         uint8_t size;
-        Program PMP(2);     // Warning not all behavior is supported
+        Program PMP(1);     // Warning not all behavior is supported
         ASM program[] = {   // Sidesets are cleared by default
             PULL(true).sideset(OE),
             OUT(X, 8).sideset(OE),

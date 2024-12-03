@@ -5,7 +5,7 @@
  */
 
 #include "hardware/pio_instructions.h"
-#include "PIO/ASM/IRQ/IRQ.h"
+#include "PIO/Program/ASM/IRQ/IRQ.h"
 
 namespace PIO {
     IRQ::IRQ() {}

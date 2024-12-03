@@ -5,7 +5,7 @@
  */
 
 #include "hardware/pio_instructions.h"
-#include "PIO/ASM/JMP/JMP.h"
+#include "PIO/Program/ASM/JMP/JMP.h"
 
 namespace PIO {
     JMP::JMP() {}

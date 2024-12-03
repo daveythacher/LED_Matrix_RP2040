@@ -4,10 +4,10 @@
  * License: GPL 3.0
  */
 
-#ifndef PIO_ASM_OUT_H
-#define PIO_ASM_OUT_H
+#ifndef PIO_PROGRAM_ASM_OUT_H
+#define PIO_PROGRAM_ASM_OUT_H
 
-#include "PIO/ASM/ASM.h"
+#include "PIO/Program/ASM/ASM.h"
 
 namespace PIO {
     class OUT : public ASM {

@@ -5,7 +5,7 @@
  */
 
 #include "hardware/pio_instructions.h"
-#include "PIO/ASM/NOP/NOP.h"
+#include "PIO/Program/ASM/NOP/NOP.h"
 
 namespace PIO {
     NOP::NOP() {

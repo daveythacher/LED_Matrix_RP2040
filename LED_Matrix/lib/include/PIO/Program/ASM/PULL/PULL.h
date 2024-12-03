@@ -4,10 +4,10 @@
  * License: GPL 3.0
  */
 
-#ifndef PIO_ASM_PULL_H
-#define PIO_ASM_PULL_H
+#ifndef PIO_PROGRAM_ASM_PULL_H
+#define PIO_PROGRAM_ASM_PULL_H
 
-#include "PIO/ASM/ASM.h"
+#include "PIO/Program/ASM/ASM.h"
 
 namespace PIO {
     class PULL : public ASM {

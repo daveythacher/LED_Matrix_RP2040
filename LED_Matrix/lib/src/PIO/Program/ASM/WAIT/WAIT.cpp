@@ -5,7 +5,7 @@
  */
 
 #include "hardware/pio_instructions.h"
-#include "PIO/ASM/WAIT/WAIT.h"
+#include "PIO/Program/ASM/WAIT/WAIT.h"
 
 namespace PIO {
     WAIT::WAIT() {}

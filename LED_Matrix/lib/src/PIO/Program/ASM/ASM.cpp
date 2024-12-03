@@ -5,8 +5,8 @@
  */
 
 #include "hardware/pio_instructions.h"
-#include "PIO/ASM/ASM.h"
-#include "PIO/Program.h"
+#include "PIO/Program/ASM/ASM.h"
+#include "PIO/Program/Program.h"
 
 namespace PIO {
     ASM::ASM() {

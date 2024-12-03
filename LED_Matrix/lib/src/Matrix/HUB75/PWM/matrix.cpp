@@ -140,7 +140,7 @@ namespace Matrix {
 
         // PMP / SM
         pio0->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
-        pio0->sm[0].pinctrl = (2 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | (14 << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | (Matrix::HUB75::HUB75_DATA_BASE << PIO_SM0_PINCTRL_OUT_BASE_LSB);
+        pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | ((Matrix::HUB75::HUB75_DATA_BASE + 6) << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | (Matrix::HUB75::HUB75_DATA_BASE << PIO_SM0_PINCTRL_OUT_BASE_LSB);
         pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
         pio0->sm[0].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
         pio0->sm[0].instr = pio_encode_jmp(0);
@@ -177,7 +177,6 @@ namespace Matrix {
         channel_config_set_high_priority(&c, false);   
         channel_config_set_dreq(&c, DREQ_PIO0_TX1); 
         channel_config_set_chain_to(&c, dma_chan[3]);
-        dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[1], &ghost_packet, 2, false);
 
         c = dma_channel_get_default_config(dma_chan[3]);
         channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
@@ -193,6 +192,7 @@ namespace Matrix {
         } while (buffer == nullptr);
         
         send_buffer();
+        dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[1], &ghost_packet, 2, true);
     }
 
     void __not_in_flash_func(send_line)() {

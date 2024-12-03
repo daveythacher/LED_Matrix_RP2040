@@ -7,7 +7,7 @@
 #ifndef PIO_PROGRAM_H
 #define PIO_PROGRAM_H
 
-#include "PIO/ASM/ASM.h"
+#include "PIO/Program/ASM/ASM.h"
 
 namespace PIO {
     class Program {
