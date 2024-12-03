@@ -23,6 +23,7 @@ namespace IO {
         private:
             Program();
 
+            // TODO: Replace with uint16_t bit fields
             uint8_t _sideset;
             uint8_t _delay;
             bool _enable;

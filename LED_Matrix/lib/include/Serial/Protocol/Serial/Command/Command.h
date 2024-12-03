@@ -12,6 +12,7 @@
 #include "TCAM/tcam.h"
 
 namespace Serial::Protocol::DATA_NODE {
+    // TODO: Clean up this mess
     class Command : public TCAM::Handler {
         public:
             static Serial::Protocol::internal::STATUS data_node();
