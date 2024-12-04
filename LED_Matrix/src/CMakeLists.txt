@@ -5,6 +5,7 @@ add_executable(led_${DEFINE_APP}
 target_include_directories(led_${DEFINE_APP} PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/../include
     ${CMAKE_CURRENT_BINARY_DIR}/../lib/include
+    ${CMAKE_CURRENT_BINARY_DIR}/../lib/include/FreeRTOS
     ../include
     ../lib/include
 )
@@ -39,6 +40,8 @@ target_link_libraries(led_${DEFINE_APP}
     pico_stdio_usb
     pico_runtime
     pico_multicore
+    FreeRTOS-Kernel
+    #FreeRTOS-Kernel-Heap1
     led_${DEFINE_MATRIX_FOLDER}_${DEFINE_MATRIX_ALGORITHM}
     serial_node_${DEFINE_SERIAL_NODE}
     serial_protocol_${DEFINE_SERIAL_PROTOCOL}
