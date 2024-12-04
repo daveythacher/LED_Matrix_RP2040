@@ -11,4 +11,5 @@ target_link_libraries(serial_node_uart INTERFACE
     hardware_irq
     hardware_gpio
     hardware_uart
+    led_GPIO
 )
