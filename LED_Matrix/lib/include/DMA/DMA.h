@@ -14,18 +14,24 @@ namespace IO {
     // Abstract interface for transfers
     // T must be uint8_t, uint16_t or uint32_t
     template <typename T> class Target {
+        public:
+            Target();
 
     };
 
     // Abstract interface for Memory
     // T must be uint8_t, uint16_t or uint32_t
-    template <typename T> class Memory_Target : public Target {
+    template <typename T> class Memory_Target : public Target<T> {
+        public:
+            Memory_Target();
 
     };
 
     // Abstract interface for IO
     // T must be uint8_t, uint16_t or uint32_t
-    template <typename T> class IO_Target : public Target {
+    template <typename T> class IO_Target : public Target<T> {
+        public:
+            IO_Target();
 
     };
 
@@ -33,17 +39,11 @@ namespace IO {
     template <typename T> class DMA {
         public:
             DMA();
-
-        private:
-            DMA();
     };
 
     // T must be uint32_t, uint64_t or uint128_t
     template <typename T> class SCATTER_GATHER_DMA {
         public:
-            SCATTER_GATHER_DMA();
-
-        private:
             SCATTER_GATHER_DMA();
     };
 
