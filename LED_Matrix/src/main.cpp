@@ -13,12 +13,19 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-static StaticTask_t xIO_ThreadBuffer;
-static StaticTask_t xWorker_ThreadBuffer;
-static StaticTask_t xMultiplex_ThreadBuffer;
-static StackType_t xIO_THREAD_STACK[configMINIMAL_STACK_SIZE];
-static StackType_t xWORKER_THREAD_STACK[configMINIMAL_STACK_SIZE];
-static StackType_t xMULTIPLEX_THREAD_STACK[configMINIMAL_STACK_SIZE];
+// Future: Tune
+static const uint16_t default_stack_size = 4 * 1024;
+
+static StaticTask_t xIO_Thread_Buffer;
+static StaticTask_t xWorker_Thread_Buffer;
+static StaticTask_t xMultiplex_Thread_Buffer;
+static StackType_t xIO_THREAD_STACK[default_stack_size];
+static StackType_t xWORKER_THREAD_STACK[default_stack_size];
+static StackType_t xMULTIPLEX_THREAD_STACK[default_stack_size];
+static UBaseType_t xIO_Thread_Priority = tskIDLE_PRIORITY + 5;
+static UBaseType_t xWorker_Thread_Priority = tskIDLE_PRIORITY + 1;
+static UBaseType_t xMultiplex_Thread_Priority = tskIDLE_PRIORITY + 10;
+
 
 static void __not_in_flash_func(io_thread)(void *) {
     while (1) {
@@ -27,7 +34,7 @@ static void __not_in_flash_func(io_thread)(void *) {
         Serial::Node::Data::task();
         Serial::Protocol::task();
 
-        watchdog_update();          // We are only interested in protecting core 0
+        watchdog_update();
     }
 }
 
@@ -51,9 +58,9 @@ int main() {
     Serial::Protocol::start();
     Matrix::start();
 
-    xTaskCreateStatic(io_thread, "IO", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xIO_THREAD_STACK, &xIO_ThreadBuffer);
-    xTaskCreateStatic(worker_thread, "Work", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xWORKER_THREAD_STACK, &xWorker_ThreadBuffer);
-    xTaskCreateStatic(multiplex_thread, "Multiplex", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xMULTIPLEX_THREAD_STACK, &xMultiplex_ThreadBuffer);
+    xTaskCreateStatic(io_thread, "Serial", sizeof(xIO_THREAD_STACK) / sizeof(StackType_t), NULL, xIO_Thread_Priority, xIO_THREAD_STACK, &xIO_Thread_Buffer);
+    xTaskCreateStatic(worker_thread, "Matrix_Worker", sizeof(xWORKER_THREAD_STACK) / sizeof(StackType_t), NULL, xWorker_Thread_Priority, xWORKER_THREAD_STACK, &xWorker_Thread_Buffer);
+    xTaskCreateStatic(multiplex_thread, "Matrix_Multiplex", sizeof(xMULTIPLEX_THREAD_STACK) / sizeof(StackType_t), NULL, xMultiplex_Thread_Priority, xMULTIPLEX_THREAD_STACK, &xMultiplex_Thread_Buffer);
 	xPortStartScheduler();
 }
 
