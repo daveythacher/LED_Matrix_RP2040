@@ -10,16 +10,17 @@
 #include "Serial/Node/Control/serial.h"
 #include "Serial/Node/Data/serial.h"
 #include "Serial/Protocol/serial.h"
-#include "ISR/isr.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
-static StaticTask_t xLOOP_CORE0Buffer;
-static StaticTask_t xLOOP_CORE1Buffer;
-static StackType_t xLOOP_CORE0_STACK[configMINIMAL_STACK_SIZE];
-static StackType_t xLOOP_CORE1_STACK[configMINIMAL_STACK_SIZE];
+static StaticTask_t xIO_ThreadBuffer;
+static StaticTask_t xWorker_ThreadBuffer;
+static StaticTask_t xMultiplex_ThreadBuffer;
+static StackType_t xIO_THREAD_STACK[configMINIMAL_STACK_SIZE];
+static StackType_t xWORKER_THREAD_STACK[configMINIMAL_STACK_SIZE];
+static StackType_t xMULTIPLEX_THREAD_STACK[configMINIMAL_STACK_SIZE];
 
-static void __not_in_flash_func(loop_core0)(void *args) {
+static void __not_in_flash_func(io_thread)(void *) {
     while (1) {
         // Uses blocking pushes to FIFO.
         Serial::Node::Control::task();
@@ -30,12 +31,15 @@ static void __not_in_flash_func(loop_core0)(void *args) {
     }
 }
 
-static void __not_in_flash_func(loop_core1)(void *args) {
-    Matrix::start();                // Note ISR logic should be detected by watchdog. (FIFO will fill up and Matrix::Worker::work will stall.)
-    APP::isr_start_core1();         // Matrix ISRs are allocated to this core. (These will slow the FIFO consumption rate.)
-
+static void __not_in_flash_func(worker_thread)(void *) {
     while (1) {
         Matrix::Worker::work();     // Note is capable of stalling the watchdog via FIFO consumption rate. (Reduce OPs if need be.)
+    }
+}
+
+static void __not_in_flash_func(multiplex_thread)(void *) {
+    while (1) {
+        Matrix::dma_isr();
     }
 }
 
@@ -45,23 +49,15 @@ int main() {
     Serial::Node::Control::start();
     Serial::Node::Data::start();
     Serial::Protocol::start();
-    //multicore_launch_core1(loop_core1);
-    //loop_core0();
+    Matrix::start();
 
-    xTaskCreateStatic(loop_core0, "core0", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xLOOP_CORE0_STACK, &xLOOP_CORE0Buffer);
-    xTaskCreateStatic(loop_core1, "core1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xLOOP_CORE1_STACK, &xLOOP_CORE1Buffer);
+    xTaskCreateStatic(io_thread, "IO", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xIO_THREAD_STACK, &xIO_ThreadBuffer);
+    xTaskCreateStatic(worker_thread, "Work", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xWORKER_THREAD_STACK, &xWorker_ThreadBuffer);
+    xTaskCreateStatic(multiplex_thread, "Multiplex", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, xMULTIPLEX_THREAD_STACK, &xMultiplex_ThreadBuffer);
 	xPortStartScheduler();
 }
 
-// TODO: Sort this out
 void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName ) {
-    ( void ) pcTaskName;
-    ( void ) pxTask;
-
-    /* Run time stack overflow checking is performed if
-    configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
-    function is called if a stack overflow is detected. */
-
     /* Force an assert. */
     configASSERT( ( volatile void * ) NULL );
 }
