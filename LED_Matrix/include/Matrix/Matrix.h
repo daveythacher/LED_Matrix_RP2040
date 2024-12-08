@@ -12,6 +12,7 @@
 namespace Matrix {
     class Matrix {
         public:
+            // Future: Configuration Structure?
             static Matrix *get_matrix();
 
             virtual void show(Serial::packet *buffer, bool isBuffer = false) = 0;   // Future: No FPS limiter
