@@ -20,6 +20,7 @@ namespace TCAM {
     template <typename T> class Table {
         public:
             Table(uint8_t size);
+            ~Table();
 
             // Only the highest priority rule match runs
             bool TCAM_rule(uint8_t priority, T key, T enable, Handler *callback);

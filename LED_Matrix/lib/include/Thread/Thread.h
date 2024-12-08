@@ -13,6 +13,7 @@ namespace Thread {
     class Thread {
         public:
             Thread(void (*func)(void *), uint32_t stack_len, uint8_t priority);
+            // Future: Destructor
 
         private:
             Thread();

@@ -21,6 +21,12 @@ namespace TCAM {
         }
     }
 
+    template <typename T> Table<T>::~Table() {
+        delete callbacks;
+        delete masks;
+        delete values;
+    }
+
     template <typename T> bool __not_in_flash_func(Table<T>::TCAM_search)(const T *data, const T *key, const T *enable) {
         return (*data & *enable) == (*key & *enable);
     }

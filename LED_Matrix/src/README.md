@@ -6,3 +6,10 @@ This calls the setup routines for interrupts, serial algorithms and matrix algor
 
 Note to self:
 Gave RTOS both scratch banks. IO can compete against Multiplex. DMA should be promoted to allow PIO to move. DMA is IO singleton. Manage priority within DMA. CPU performance may be improved or degraded by RTOS. (Utilization vs bus contention.)
+
+Works in progress:
+* Matrix
+* Serial
+* Multiplex
+* PIO
+* DMA
