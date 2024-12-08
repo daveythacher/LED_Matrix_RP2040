@@ -26,7 +26,10 @@ namespace SIMD {
             void set(T val, uint8_t index);
 
         private:
-            T v[SIMD_QUARTER<T>::size()];
+            union {
+                T v[SIMD_QUARTER<T>::size()];
+                uint32_t l;
+            };
     };
 }
 
