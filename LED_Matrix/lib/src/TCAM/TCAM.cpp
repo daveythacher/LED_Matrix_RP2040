@@ -5,10 +5,17 @@
  */
 
 #include "pico/multicore.h"
-#include "TCAM/tcam.h"
+#include "TCAM/TCAM.h"
 
 namespace TCAM {
-    template <typename T> Table<T>::Table() {
+    template <typename T> Table<T>::Table() {}
+
+    template <typename T> Table<T>::Table(uint8_t size) {
+        num_rules = size;
+        callbacks = new Handler *[num_rules];
+        masks = new T[num_rules];
+        values = new T[num_rules];
+
         for (uint8_t i = 0; i < num_rules; i++) {
             callbacks[i] = nullptr;
         }
@@ -38,5 +45,5 @@ namespace TCAM {
         }
     }
 
-    template class Table<SIMD::SIMD_SINGLE<uint32_t>>;
+    template class Table<SIMD::SIMD_SINGLE<uint8_t>>;
 }

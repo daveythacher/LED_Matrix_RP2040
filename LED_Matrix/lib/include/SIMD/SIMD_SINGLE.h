@@ -23,13 +23,11 @@ namespace SIMD {
                 return 128 / (sizeof(T) * 8);
             }
 
-            union {
-                T v[SIMD_QUARTER<T>::size()];
-                uint8_t  b[16];
-                uint16_t s[8];
-                uint32_t l[4];
-                uint64_t ll[2];
-            };
+            T get(uint8_t index);
+            void set(T val, uint8_t index);
+        
+        private:
+            T v[SIMD_QUARTER<T>::size()];
     };
 }
 

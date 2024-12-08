@@ -19,8 +19,8 @@ namespace Serial::Node::Data {
         gpio_set_dir(0, GPIO_OUT);
         gpio_set_function(0, GPIO_FUNC_UART);
         gpio_set_function(1, GPIO_FUNC_UART);
-        IO::claim(0);
-        IO::claim(1);
+        IO::GPIO::claim(0);
+        IO::GPIO::claim(1);
 
         // UART
         static_assert(Serial::UART::SERIAL_UART_BAUD <= 7800000, "Baud rate must be less than 7.8MBaud");

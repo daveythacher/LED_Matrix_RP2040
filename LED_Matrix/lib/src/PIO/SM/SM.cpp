@@ -27,7 +27,7 @@ namespace IO {
         uint32_t val = output ? 1 : 0;
         pin %= 30;
 
-        claim(pin);
+        GPIO::claim(pin);
         gpio_init(pin);
         gpio_set_dir(pin, output);
 

@@ -7,12 +7,16 @@
 #ifndef GPIO_H
 #define GPIO_H
 
+#include <stdint.h>
+
 namespace IO {
-    /**
-     *  @brief Claim a pin forever
-     *  @details Implemented in GPIO/GPIO.cpp
-     */
-    void claim(unsigned int pin);
+    class GPIO {
+        public:
+            static void claim(unsigned int pin);
+
+        private:
+            static uint32_t claimed;
+    };
 }
     
 #endif

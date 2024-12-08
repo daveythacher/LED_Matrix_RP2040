@@ -22,4 +22,6 @@ target_link_libraries(serial_protocol_serial INTERFACE
     led_SIMD
     led_TCAM 
     led_system
+    led_Matrix
+    serial_node_${DEFINE_SERIAL_NODE}
 )

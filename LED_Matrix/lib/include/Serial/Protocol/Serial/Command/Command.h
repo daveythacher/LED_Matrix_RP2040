@@ -9,7 +9,7 @@
 
 #include "Serial/Protocol/Serial/internal.h"
 #include "Serial/config.h"
-#include "TCAM/tcam.h"
+#include "TCAM/TCAM.h"
 
 namespace Serial::Protocol::DATA_NODE {
     // TODO: Clean up this mess

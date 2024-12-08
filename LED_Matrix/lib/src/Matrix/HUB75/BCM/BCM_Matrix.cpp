@@ -12,7 +12,7 @@
 #include "hardware/dma.h"
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/config.h"
-#include "Matrix/matrix.h"
+#include "Matrix/HUB75/BCM/BCM_Matrix.h"
 #include "Matrix/HUB75/BCM/memory_format.h"
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
@@ -28,13 +28,10 @@ namespace Matrix::Calculator {
 };
 
 namespace Matrix::Worker {
-    extern Matrix::Buffer buf[Serial::num_framebuffers];
-
     extern Matrix::Buffer *get_front_buffer(uint8_t *id);
 };
 
 namespace Matrix {
-    static Buffer *buffer = nullptr;
     static int dma_chan[4];
     static uint8_t bank;
     static Programs::Ghost_Packet ghost_packet;
@@ -52,9 +49,7 @@ namespace Matrix {
     static volatile uint8_t null_table[COLUMNS + 1];
     static uint8_t header = 1 << PWM_bits;              // This needs to be one less than (n + 1)
 
-    static void send_buffer();
-
-    void start() {
+    BCM_Matrix::BCM_Matrix() {
         // Init Matrix hardware
         // IO
         for (int i = 0; i < Matrix::HUB75::HUB75_DATA_LEN; i++) {
@@ -203,12 +198,12 @@ namespace Matrix {
         dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[1], &ghost_packet, 2, true);
     }
 
-    void __not_in_flash_func(send_buffer)() {
+    void __not_in_flash_func(BCM_Matrix::send_buffer)() {
         dma_hw->ints0 = 1 << dma_chan[0];
         dma_channel_set_read_addr(dma_chan[1], address_table[bank], true);
     }
 
-    void __not_in_flash_func(dma_isr)() {
+    void __not_in_flash_func(BCM_Matrix::dma_isr)() {
         if (dma_channel_get_irq0_status(dma_chan[0])) {
             uint8_t temp;
             Buffer *p = Worker::get_front_buffer(&temp);
@@ -220,5 +215,13 @@ namespace Matrix {
 
             send_buffer();                                                          // Kick off hardware
         }
+    }
+
+    void BCM_Matrix::show(Serial::packet *buffer, bool isBuffer) {
+
+    }
+
+    uint32_t BCM_Matrix::size() {
+        return sizeof(BCM_Matrix);
     }
 }

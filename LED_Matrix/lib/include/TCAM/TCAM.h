@@ -19,32 +19,21 @@ namespace TCAM {
 
     template <typename T> class Table {
         public:
-            Table();
+            Table(uint8_t size);
 
             // Only the highest priority rule match runs
             bool TCAM_rule(uint8_t priority, T key, T enable, Handler *callback);
             void TCAM_process(const T *data);
         
         protected:
+            Table();
             bool TCAM_search(const T *data, const T *key, const T *enable);
 
         private:
-            // Future: Add banks (Probably not really a good idea anymore)
-            static const uint8_t num_rules = 8;
-
-            T masks[num_rules];
-            T values[num_rules];
-            Handler *callbacks[num_rules];
-    };
-
-    class Bank {
-        public:
-            // TODO:
-
-        private:
-            // TODO: Add multiple sizes?
-            //  TODO: Create larger sizes with smaller ones?
-            Table<SIMD::SIMD_SINGLE<uint32_t>> banks[2];
+            uint8_t num_rules;
+            T *masks;
+            T *values;
+            Handler **callbacks;
     };
 }
 

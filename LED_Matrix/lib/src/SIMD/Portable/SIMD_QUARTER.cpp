@@ -29,5 +29,13 @@ namespace SIMD {
         return result;
     }
 
+    template <typename T> T __not_in_flash_func(SIMD_QUARTER<T>::get)(uint8_t index) {
+        return v[index % size()];
+    }
+
+    template <typename T> void __not_in_flash_func(SIMD_QUARTER<T>::set)(T val, uint8_t index) {
+        v[index % size()] = val;
+    }
+
     template class SIMD_QUARTER<uint8_t>;
 }

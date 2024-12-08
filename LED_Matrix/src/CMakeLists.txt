@@ -24,7 +24,7 @@ target_compile_options(led_${DEFINE_APP} PRIVATE
 )
 
 target_compile_definitions(led_${DEFINE_APP} PRIVATE 
-    PICO_HEAP_SIZE=2048
+    PICO_HEAP_SIZE=196608
     PICO_STACK_SIZE=4096
     PICO_CORE1_STACK_SIZE=4096
     PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64
@@ -41,9 +41,6 @@ target_link_libraries(led_${DEFINE_APP}
     pico_runtime
     pico_multicore
     FreeRTOS-Kernel
-    #FreeRTOS-Kernel-Heap1
-    led_${DEFINE_MATRIX_FOLDER}_${DEFINE_MATRIX_ALGORITHM}
-    serial_node_${DEFINE_SERIAL_NODE}
     serial_protocol_${DEFINE_SERIAL_PROTOCOL}
 )
 

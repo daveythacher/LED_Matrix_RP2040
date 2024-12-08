@@ -1,24 +1,21 @@
 /* 
- * File:   Buffer.h
+ * File:   BCM_Buffer.h
  * Author: David Thacher
  * License: GPL 3.0
  */
  
-#ifndef MATRIX_BUFFER_H
-#define MATRIX_BUFFER_H
+#ifndef MATRIX_BCM_BUFFER_H
+#define MATRIX_BCM_BUFFER_H
 
-#include <stdint.h>
 #include "Serial/config.h"
 
 namespace Matrix {
-    // Currently we only support 8-bit port
-    struct Buffer {
+    class BCM_Buffer {
         public:
-            Buffer();
+            BCM_Buffer();
 
             void set_value(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value);
             uint8_t *get_line(uint8_t multiplex, uint16_t index);
-            
             static uint8_t get_line_length();
 
         private:

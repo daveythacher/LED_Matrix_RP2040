@@ -8,7 +8,7 @@
 #include "Serial/Protocol/Serial/internal.h"
 #include "Serial/Node/data.h"
 #include "System/machine.h"
-#include "Matrix/matrix.h"
+#include "Matrix/Matrix.h"
 
 namespace Serial::Protocol::internal {
     void __not_in_flash_func(process)(Serial::packet *p, uint16_t len, bool isBuffer) {
@@ -22,7 +22,7 @@ namespace Serial::Protocol::internal {
                 break;
         }
 
-        Matrix::Worker::process(p, isBuffer);
+        Matrix::Matrix::get_matrix()->show(p, isBuffer);
     }
 
     void __not_in_flash_func(send_status)(STATUS status) {
