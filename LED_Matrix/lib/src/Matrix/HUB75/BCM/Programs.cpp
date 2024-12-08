@@ -13,7 +13,17 @@
 #include "PIO/Program/ASM/JMP/JMP.h"
 #include "PIO/Program/ASM/IRQ/IRQ.h"
 #include "PIO/Program/ASM/WAIT/WAIT.h"
-using namespace IO;
+using IO::Registers;
+using IO::Conditions;
+using IO::Flags;
+using IO::ASM;
+using IO::Program;
+using IO::OUT;
+using IO::PULL;
+using IO::NOP;
+using IO::IRQ;
+using IO::WAIT;
+using IO::JMP;
 
 namespace Matrix {
     const auto X = Registers::X;

@@ -7,13 +7,21 @@
 #include <algorithm>
 #include "Multiplex/Programs.h"
 #include "PIO/Program/Program.h"
-#include "PIO/Program/ASM/NOP/NOP.h"
 #include "PIO/Program/ASM/OUT/OUT.h"
 #include "PIO/Program/ASM/PULL/PULL.h"
 #include "PIO/Program/ASM/JMP/JMP.h"
 #include "PIO/Program/ASM/IRQ/IRQ.h"
 #include "PIO/Program/ASM/WAIT/WAIT.h"
-using namespace IO;
+using IO::Registers;
+using IO::Conditions;
+using IO::Flags;
+using IO::ASM;
+using IO::Program;
+using IO::OUT;
+using IO::PULL;
+using IO::IRQ;
+using IO::WAIT;
+using IO::JMP;
 
 namespace Multiplex {
     const auto X = Registers::X;
