@@ -12,17 +12,16 @@
 #include "Serial/Protocol/Serial/Command/Query/Test/Test.h"
 #include "Serial/Node/data.h"
 #include "System/machine.h"
-#include "TCAM/TCAM.h"
 
 namespace Serial::Protocol::DATA_NODE {
-    TCAM::Table<SIMD::SIMD_SINGLE<uint8_t>> data_filter;
+    TCAM::Table<SIMD::SIMD_SINGLE<uint8_t>> filter::data_filter;
 
     void filter::filter_setup() {
-        static Data data;
-        static Raw_Data raw;
-        static Test test;
-        static ID id;
-        static Buffer buf;
+        Data *data = new Data();
+        Raw_Data *raw = new Raw_Data();
+        Test *test = new Test();
+        ID *id = new ID();
+        Buffer *buf = new Buffer();
 
         SIMD::SIMD_SINGLE<uint8_t> key;
         SIMD::SIMD_SINGLE<uint8_t> enable;
@@ -43,13 +42,13 @@ namespace Serial::Protocol::DATA_NODE {
         key.set(Matrix::MULTIPLEX, 9);
         key.set(Matrix::COLUMNS, 10);
         key.set(DEFINE_SERIAL_RGB_TYPE::id, 11);
-        while (!data_filter.TCAM_rule(0, key, enable, &data));
+        while (!data_filter.TCAM_rule(0, key, enable, data));
 
         key.set('r', 5);
-        while (!data_filter.TCAM_rule(1, key, enable, &raw));
+        while (!data_filter.TCAM_rule(1, key, enable, raw));
 
         key.set('b', 5);
-        while (!data_filter.TCAM_rule(4, key, enable, &buf));
+        while (!data_filter.TCAM_rule(4, key, enable, buf));
 
         enable.set(0, 8);
         enable.set(0, 9);
@@ -59,14 +58,14 @@ namespace Serial::Protocol::DATA_NODE {
         key.set(1, 7);
         key.set('c', 4);
         key.set('i', 5);
-        while (!data_filter.TCAM_rule(2, key, enable, &id));
+        while (!data_filter.TCAM_rule(2, key, enable, id));
 
         // TODO: Update
         enable.set(0, 6);
         enable.set(0, 7);
         key.set('q', 4);
         key.set('t', 5);
-        while (!data_filter.TCAM_rule(3, key, enable, &test));
+        while (!data_filter.TCAM_rule(3, key, enable, test));
 
         // TODO: Create null filter?
     }

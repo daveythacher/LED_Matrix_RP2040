@@ -1,28 +1,28 @@
 /* 
- * File:   BCM_Matrix.h
+ * File:   PWM_Matrix.h
  * Author: David Thacher
  * License: GPL 3.0
  */
  
-#ifndef MATRIX_BCM_MATRIX_H
-#define MATRIX_BCM_MATRIX_H
+#ifndef MATRIX_PWM_MATRIX_H
+#define MATRIX_PWM_MATRIX_H
 
 #include "Matrix/Matrix.h"
-#include "Matrix/HUB75/BCM/BCM_Buffer.h"
-#include "Matrix/HUB75/BCM/BCM_Worker.h"
+#include "Matrix/HUB75/PWM/PWM_Buffer.h"
+#include "Matrix/HUB75/PWM/PWM_Worker.h"
 
 namespace Matrix {
-    template <typename T> class BCM_Matrix : public Matrix {
+    template <typename T> class PWM_Matrix : public Matrix {
         public:
-            BCM_Matrix();
+            PWM_Matrix();
 
             void show(Serial::Protocol::Packet *buffer);
             void show(Packet *buffer);
 
         private:
-            BCM_Buffer buf[Serial::num_framebuffers];
-            BCM_Worker<T> worker;
-            BCM_Buffer *buffer;
+            PWM_Buffer buf[Serial::num_framebuffers];
+            PWM_Worker<T> worker;
+            PWM_Buffer *buffer;
             uint8_t bank;
             uint8_t bank_vsync;
             bool vsync;

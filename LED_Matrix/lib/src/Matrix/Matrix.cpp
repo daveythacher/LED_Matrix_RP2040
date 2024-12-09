@@ -5,6 +5,8 @@
  */
 
 #include "Matrix/Matrix.h"
+#include "Matrix/HUB75/BCM/BCM_Matrix.h"
+#include "Matrix/HUB75/PWM/PWM_Matrix.h"
 
 namespace Matrix {
     Matrix *Matrix::ptr = nullptr;

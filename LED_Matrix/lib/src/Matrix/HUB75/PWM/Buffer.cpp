@@ -6,7 +6,7 @@
 
 #include <string.h>
 #include "pico/multicore.h"
-#include "Matrix/Buffer.h"
+#include "Matrix/HUB75/PWM/PWM_Buffer"
 #include "Matrix/HUB75/PWM/memory_format.h"
 
 // Every line starts with a counter variable indexed from zero instead of one

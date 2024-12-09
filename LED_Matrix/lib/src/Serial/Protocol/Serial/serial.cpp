@@ -58,5 +58,7 @@ namespace Serial::Protocol {
             Serial::Protocol::internal::send_status(status);
             time = time_us_64();
         }
+
+        watchdog_update();
     }
 }

@@ -12,14 +12,14 @@
 #include "Matrix/HUB75/BCM/BCM_Worker.h"
 
 namespace Matrix {
-    template <typename T> class BCM_Matrix : public Matrix {
+    template <typename T> class BCM_Multiplex {
         public:
-            BCM_Matrix();
-
-            void show(Serial::Protocol::Packet *buffer);
-            void show(Packet *buffer);
+            BCM_Multiplex();
 
         private:
+            void send_buffer();
+            BCM_Buffer *get_front_buffer();
+
             BCM_Buffer buf[Serial::num_framebuffers];
             BCM_Worker<T> worker;
             BCM_Buffer *buffer;

@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
  
-#ifndef BCM_PROGRAMS_H
-#define BCM_PROGRAMS_H
+#ifndef PWM_PROGRAMS_H
+#define PWM_PROGRAMS_H
 
 #include <stdint.h>
 #include "Matrix/HUB75/PWM/memory_format.h"

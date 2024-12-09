@@ -1,18 +1,18 @@
 /* 
- * File:   BCM_Buffer.h
+ * File:   PWM_Buffer.h
  * Author: David Thacher
  * License: GPL 3.0
  */
  
-#ifndef MATRIX_BCM_BUFFER_H
-#define MATRIX_BCM_BUFFER_H
+#ifndef MATRIX_PWM_BUFFER_H
+#define MATRIX_PWM_BUFFER_H
 
 #include "Serial/config.h"
 
 namespace Matrix {
-    class BCM_Buffer {
+    class PWM_Buffer {
         public:
-            BCM_Buffer();
+            PWM_Buffer();
 
             void set_value(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value);
             uint8_t *get_line(uint8_t multiplex, uint16_t index);

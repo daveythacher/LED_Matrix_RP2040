@@ -8,17 +8,16 @@
 #define SERIAL_NODE_CONTROL_SERIAL_H
 
 namespace Serial::Node::Control {
-    /**
-     *  @brief Starts Serial state machine
-     *  @details Implemented in src/<app>/serial.cpp
-     */
-    void start();
-    
-    /**
-     *  @brief Callback for Serial state machine
-     *  @details Implemented in src/<app>/serial.cpp
-     */
-    void task();
+    class Control {
+        public:
+            static Control *get_control_node();
+
+        protected:
+            Control();
+
+        private:
+            static Control *ptr;
+    };
 }
 
 #endif
