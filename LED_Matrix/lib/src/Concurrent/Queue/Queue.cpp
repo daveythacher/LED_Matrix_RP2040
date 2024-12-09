@@ -30,4 +30,5 @@ namespace Concurrent {
     }
 
     template class Queue<Serial::packet *>;
+    template class Queue<uint8_t **>;
 }
