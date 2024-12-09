@@ -13,7 +13,7 @@ namespace Concurrent {
     template <typename T> class Queue {
         public:
             Queue(uint8_t depth);
-            // Future: Destructor
+            ~Queue();
 
             void push(T *val);
             T pop();
@@ -22,6 +22,8 @@ namespace Concurrent {
             Queue();
 
             void *handle;
+            void *area;
+            void *queue;
     };
 }
 

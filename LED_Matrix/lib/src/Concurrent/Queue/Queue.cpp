@@ -19,6 +19,10 @@ namespace Concurrent {
         handle = xQueueCreateStatic(depth, sizeof(T), area, queue)
     }
 
+    template <typename T> Queue<T>::~Queue() {
+        // TODO:
+    }
+
     template <typename T> void Queue<T>::push(T *val) {
         while (xQueueSend(handle, val, 1) != pdTRUE);
     }
@@ -29,6 +33,5 @@ namespace Concurrent {
         return val;
     }
 
-    template class Queue<Serial::packet *>;
     template class Queue<uint8_t **>;
 }

@@ -13,10 +13,14 @@ namespace Concurrent {
     class Thread {
         public:
             Thread(void (*func)(void *), uint32_t stack_len, uint8_t priority);
-            // Future: Destructor
+            ~Thread();
 
         private:
             Thread();
+
+            void *handle;
+            void *stack;
+            void *buffer;
     };
 }
 

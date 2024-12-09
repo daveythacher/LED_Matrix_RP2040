@@ -18,4 +18,8 @@ namespace Concurrent {
 
         xTaskCreateStatic(func, "", stack_len / sizeof(StackType_t), NULL, priority / configMAX_PRIORITIES, stack, buffer);
     }
+
+    Thread::~Thread() {
+        // TODO:
+    }
 }
