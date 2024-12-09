@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-namespace Thread {
+namespace Concurrent {
     class Thread {
         public:
             Thread(void (*func)(void *), uint32_t stack_len, uint8_t priority);

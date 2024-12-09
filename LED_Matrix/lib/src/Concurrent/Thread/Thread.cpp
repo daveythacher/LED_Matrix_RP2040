@@ -4,12 +4,12 @@
  * License: GPL 3.0
  */
 
-#include "Thread/Thread.h"
+#include "Concurrent/Thread/Thread.h"
 #include "FreeRTOS/FreeRTOSConfig.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
-namespace Thread {
+namespace Concurrent {
     Thread::Thread() {}
 
     Thread::Thread(void (*func)(void *), uint32_t stack_len, uint8_t priority) {
