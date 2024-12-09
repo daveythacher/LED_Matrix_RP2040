@@ -29,5 +29,5 @@ namespace Concurrent {
         return val;
     }
 
-    template class Queue<Serial::packet>;
+    template class Queue<Serial::packet *>;
 }
