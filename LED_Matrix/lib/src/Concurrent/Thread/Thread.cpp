@@ -22,4 +22,8 @@ namespace Concurrent {
             vTaskDelete(handle);
         }
     }
+
+    void Thread::Yield() {
+        taskYIELD();
+    }
 }

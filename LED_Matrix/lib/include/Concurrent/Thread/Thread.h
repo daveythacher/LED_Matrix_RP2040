@@ -15,6 +15,8 @@ namespace Concurrent {
             Thread(void (*func)(void *), uint32_t stack_len, uint8_t priority);
             ~Thread();
 
+            static void Yield();
+
         private:
             Thread();
 
