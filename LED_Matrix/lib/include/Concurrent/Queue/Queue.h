@@ -22,8 +22,6 @@ namespace Concurrent {
             Queue();
 
             void *handle;
-            void *area;
-            void *queue;
     };
 }
 

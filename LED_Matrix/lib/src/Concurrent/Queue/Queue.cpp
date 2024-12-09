@@ -14,13 +14,13 @@ namespace Concurrent {
     template <typename T> Queue<T>::Queue() {}
 
     template <typename T> Queue<T>::Queue(uint8_t depth) {
-        uint8_t *stack = new uint8_t[depth * sizeof(T)];
-        StaticQueue_t *queue = new StaticQueue_t;
-        handle = xQueueCreateStatic(depth, sizeof(T), area, queue)
+        handle = xQueueCreate(depth, sizeof(T))
     }
 
     template <typename T> Queue<T>::~Queue() {
-        // TODO:
+        if (handle != NULL) {
+            vQueueDelete(handle);
+        }
     }
 
     template <typename T> void Queue<T>::push(T *val) {

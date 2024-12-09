@@ -19,8 +19,6 @@ namespace Concurrent {
             Thread();
 
             void *handle;
-            void *stack;
-            void *buffer;
     };
 }
 

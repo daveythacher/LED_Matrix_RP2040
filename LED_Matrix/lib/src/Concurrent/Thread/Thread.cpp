@@ -13,13 +13,13 @@ namespace Concurrent {
     Thread::Thread() {}
 
     Thread::Thread(void (*func)(void *), uint32_t stack_len, uint8_t priority) {
-        StackType_t *stack = new StackType_t[stack_len / sizeof(StackType_t)];
-        StaticTask_t *buffer = new StaticTask_t;
-
-        xTaskCreateStatic(func, "", stack_len / sizeof(StackType_t), NULL, priority / configMAX_PRIORITIES, stack, buffer);
+        handle = NULL;
+        xTaskCreate(func, NULL, stack_len / sizeof(StackType_t), NULL, priority / configMAX_PRIORITIES, handle) != pdTRUE;
     }
 
     Thread::~Thread() {
-        // TODO:
+        if (handle != NULL) {
+            vTaskDelete(handle);
+        }
     }
 }

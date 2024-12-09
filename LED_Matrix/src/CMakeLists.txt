@@ -41,6 +41,7 @@ target_link_libraries(led_${DEFINE_APP}
     pico_runtime
     pico_multicore
     FreeRTOS-Kernel
+    FreeRTOS-Kernel-Heap3
     serial_protocol_${DEFINE_SERIAL_PROTOCOL}
 )
 
