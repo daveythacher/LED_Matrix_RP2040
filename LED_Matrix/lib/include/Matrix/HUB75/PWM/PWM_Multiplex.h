@@ -15,6 +15,7 @@ namespace Matrix {
     class PWM_Multiplex {
         public:
             PWM_Multiplex();
+            ~PWM_Multiplex();
 
             void show(PWM_Buffer *buffer);
 
@@ -22,6 +23,7 @@ namespace Matrix {
             void work(void *args);
             void send_buffer();
 
+            PWM_Buffer *bufs[2];
             Concurrent::Thread *thread;
             Concurrent::Queue<uint8_t **> *queue;
     };
