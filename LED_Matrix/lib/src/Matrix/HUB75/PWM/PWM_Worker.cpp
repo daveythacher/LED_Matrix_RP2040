@@ -10,21 +10,20 @@
 #include <math.h>
 #include "pico/multicore.h"
 #include "Serial/config.h"
-#include "Matrix/matrix.h"
 #include "Matrix/HUB75/PWM/memory_format.h"
 #include "Matrix/helper.h"
-#include "Matrix/HUB75/PWM/PWM_worker.h"
+#include "Matrix/HUB75/PWM/PWM_Worker.h"
 
-namespace Matrix::Worker {
+namespace Matrix {
     Matrix::Buffer buf[Serial::num_framebuffers];
     static uint8_t bank = 0;
     static volatile uint8_t bank_vsync = 0;
     static volatile bool vsync = false;
 
-    template <typename T> PWM_worker<T>::PWM_worker() {
+    template <typename T> PWM_Worker<T>::PWM_Worker() {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
             for (uint32_t j = 0; j < 6; j++) {
-                for (uint32_t k = 0; k < PWM_worker::size; k++) {
+                for (uint32_t k = 0; k < PWM_Worker::size; k++) {
                     index_table[i][j][k].l = 0;
                 }
             }
@@ -33,7 +32,7 @@ namespace Matrix::Worker {
         build_index_table();
     }
 
-    template <typename T> inline SIMD::SIMD_QUARTER<T> *PWM_worker<T>::get_table(uint16_t v, uint8_t i) {
+    template <typename T> inline SIMD::SIMD_QUARTER<T> *PWM_Worker<T>::get_table(uint16_t v, uint8_t i) {
         constexpr uint32_t div = std::max((uint32_t) Serial::range_high / 1 << PWM_bits, (uint32_t) 1);
         constexpr uint32_t mul = std::max((uint32_t) 1 << PWM_bits / Serial::range_high, (uint32_t) 1);
 
@@ -49,7 +48,7 @@ namespace Matrix::Worker {
     //      2.2 Matrix operations may help
     //  3. Remove if with LUT (needs good cache)
     //      3.1 Matrix operations may help
-    template <typename T> inline void PWM_worker<T>::set_pixel(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
+    template <typename T> inline void PWM_Worker<T>::set_pixel(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
         SIMD::SIMD_QUARTER<T> *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
     
         for (uint32_t i = 0; i < (1 << PWM_bits); i += SIMD::SIMD_QUARTER<T>::size()) {
@@ -66,7 +65,7 @@ namespace Matrix::Worker {
         }
     }
 
-    template <typename T> inline void PWM_worker<T>::build_index_table() {
+    template <typename T> inline void PWM_Worker<T>::build_index_table() {
         for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
             for (uint32_t j = 0; j < i; j++)
                 for (uint8_t k = 0; k < 6; k++)
@@ -74,7 +73,7 @@ namespace Matrix::Worker {
         }
     }
 
-    template <typename T> inline void PWM_worker<T>::process_packet(Serial::packet *p) {
+    template <typename T> inline void PWM_Worker<T>::process_packet(Serial::packet *p) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint16_t x = 0; x < COLUMNS; x++) {
                 set_pixel(x, y, p->data[y][x].get_red(), p->data[y][x].get_green(), p->data[y][x].get_blue(), 
@@ -89,7 +88,7 @@ namespace Matrix::Worker {
         bank = (bank + 1) % Serial::num_framebuffers;
     }   
 
-    template <typename T> inline void PWM_worker<T>::save_buffer(Serial::packet *p) {
+    template <typename T> inline void PWM_Worker<T>::save_buffer(Serial::packet *p) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
                 uint8_t *p0 = buf[bank].get_line(y, i);
@@ -109,7 +108,7 @@ namespace Matrix::Worker {
         bank = (bank + 1) % Serial::num_framebuffers;
     }   
 
-    template <typename T> inline void PWM_worker<T>::save_buffer(Matrix::Buffer *p) {
+    template <typename T> inline void PWM_Worker<T>::save_buffer(Matrix::Buffer *p) {
         for (uint8_t y = 0; y < MULTIPLEX; y++) {
             for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
                 uint8_t *p0 = buf[bank].get_line(y, i);
@@ -130,7 +129,7 @@ namespace Matrix::Worker {
     }  
     
     template <typename T> inline static void worker_internal() {
-        static PWM_worker<T> w;
+        static PWM_Worker<T> w;
         
         while(1) {
             switch (APP::multicore_fifo_pop_blocking_inline()) {

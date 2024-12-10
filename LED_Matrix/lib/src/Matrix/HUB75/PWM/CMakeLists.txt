@@ -5,7 +5,7 @@ add_library(led_HUB75_PWM INTERFACE)
 
 target_sources(led_HUB75_PWM INTERFACE
     matrix.cpp
-    worker.cpp
+    PWM_Worker.cpp
     Buffer.cpp
     calculator.cpp
     Programs.cpp

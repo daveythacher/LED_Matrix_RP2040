@@ -1,34 +1,29 @@
 /* 
- * File:   PWM_Matrix.h
+ * File:   PWM_Multiplex.h
  * Author: David Thacher
  * License: GPL 3.0
  */
  
-#ifndef MATRIX_PWM_MATRIX_H
-#define MATRIX_PWM_MATRIX_H
+#ifndef MATRIX_PWM_MULTIPLEX_H
+#define MATRIX_PWM_MULTIPLEX_H
 
 #include "Matrix/Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Buffer.h"
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
 
 namespace Matrix {
-    template <typename T> class PWM_Multiplex {
+    class PWM_Multiplex {
         public:
             PWM_Multiplex();
 
+            void show(PWM_Buffer *buffer);
+
         private:
+            void work(void *args);
             void send_buffer();
-            PWM_Buffer *get_front_buffer();
 
-            PWM_Buffer buf[Serial::num_framebuffers];
-            PWM_Worker<T> worker;
-            PWM_Buffer *buffer;
-            uint8_t bank;
-            uint8_t bank_vsync;
-            bool vsync;
-
-            uint32_t multiplex_stack[1024];
-            uint32_t worker_stack[1024];
+            Concurrent::Thread *thread;
+            Concurrent::Queue<uint8_t **> *queue;
     };
 }
 
