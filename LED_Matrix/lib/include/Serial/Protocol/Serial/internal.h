@@ -9,7 +9,8 @@
     
 #include <stdint.h>
 #include "pico/multicore.h"
-#include "Serial/config.h"
+#include "Matrix/Buffer.h"
+#include "Matrix/Packet.h"
 
 namespace Serial::Protocol::internal {
     enum class STATUS {
@@ -38,7 +39,8 @@ namespace Serial::Protocol::internal {
             uint32_t compute_checksum();
     };
 
-    void process(Serial::packet *buf, uint16_t len, bool isBuffer = false);
+    template <typename T> void process(Matrix::Buffer<T> *buf);
+    void process(Matrix::Packet *buf);
     void send_status(STATUS status);
     void send_message(Status_Message *message);
 }

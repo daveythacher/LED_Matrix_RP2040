@@ -15,12 +15,12 @@ namespace Serial::Protocol::DATA_NODE {
 }
 
 namespace Serial::Protocol::DATA_NODE {
-    Serial::packet *Command::buf = 0;
+    uint8_t *Command::buf = 0;
     uint16_t Command::len = 0;
     Command::DATA_STATES Command::state_data = DATA_STATES::SETUP;
     uint8_t Command::idle_num = 0;
     uint32_t Command::index;
-    SIMD::SIMD_SINGLE<uint32_t> Command::data;
+    Command::uint128_t Command::data;
     uint32_t Command::checksum;
     STATUS Command::status;
     bool Command::trigger;
@@ -78,9 +78,13 @@ namespace Serial::Protocol::DATA_NODE {
                                     ptr = nullptr;
                                     state = 0;                  // Assume local will advance (reset for next iteration of global)
                                     checksum = 0xFFFFFFFF;
+                                    SIMD::SIMD_SINGLE<uint32_t> temp;
+
+                                    for (uint8_t index = 0; index < 4; index++)
+                                        temp.set(data.l[index], index);
                                         
                                     // This calls process_command_internal
-                                    data_filter.TCAM_process(&data);  // Advances state (global)
+                                    data_filter.TCAM_process(&temp);  // Advances state (global)
 
                                     if (ptr == nullptr) {
                                         state = 2;              // Advances state (local)

@@ -18,7 +18,7 @@ namespace Serial::Protocol::DATA_NODE {
     }
 
     void __not_in_flash_func(Buffer::process_payload_internal)() {
-        get_data(buf->raw, len, true);
+        get_data(buf, len, true);
 
         if (len == index) {
             state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
@@ -41,6 +41,7 @@ namespace Serial::Protocol::DATA_NODE {
     }
 
     void __not_in_flash_func(Buffer::process_internal)(Serial::packet *buf, uint16_t len) {
-        Serial::Protocol::internal::process(buf, len, true);
+        Matrix::Packet *p = new Matrix::Packet();
+        Serial::Protocol::internal::process(p);
     }
 }

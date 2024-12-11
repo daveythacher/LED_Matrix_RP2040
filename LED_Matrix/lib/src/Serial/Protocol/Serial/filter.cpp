@@ -14,7 +14,7 @@
 #include "System/machine.h"
 
 namespace Serial::Protocol::DATA_NODE {
-    TCAM::Table<SIMD::SIMD_SINGLE<uint8_t>> filter::data_filter;
+    TCAM::Table<SIMD::SIMD_SINGLE<uint8_t>> filter::data_filter(5);
 
     void filter::filter_setup() {
         Data *data = new Data();

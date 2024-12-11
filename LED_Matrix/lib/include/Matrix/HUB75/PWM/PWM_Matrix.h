@@ -16,7 +16,7 @@ namespace Matrix {
             PWM_Matrix();
             ~PWM_Matrix();
 
-            void show(Serial::Protocol::Packet *buffer);
+            void show(Buffer *buffer);
             void show(Packet *buffer);
 
         private:

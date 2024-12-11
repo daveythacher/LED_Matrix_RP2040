@@ -6,6 +6,8 @@
 
 #include "pico/platform.h"
 #include "Serial/Protocol/Serial/Command/Data/Raw_Data/Raw_Data.h"
+#include "Matrix/Buffer.h"
+#include "Matrix/Types.h"
 
 namespace Serial::Protocol::DATA_NODE {
     void __not_in_flash_func(Raw_Data::process_command_internal)() {
@@ -17,7 +19,7 @@ namespace Serial::Protocol::DATA_NODE {
     }
 
     void __not_in_flash_func(Raw_Data::process_payload_internal)() {
-        get_data(buf->raw, len, false);
+        get_data(buf, len, false);
 
         if (len == index) {
             state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
@@ -36,6 +38,7 @@ namespace Serial::Protocol::DATA_NODE {
     }
 
     void __not_in_flash_func(Raw_Data::process_internal)(Serial::packet *buf, uint16_t len) {
-        Serial::Protocol::internal::process(buf, len);
+        Matrix::Buffer<Matrix::RGB24> *b = new Matrix::Buffer<Matrix::RGB24>();
+        Serial::Protocol::internal::process(b);
     }
 }

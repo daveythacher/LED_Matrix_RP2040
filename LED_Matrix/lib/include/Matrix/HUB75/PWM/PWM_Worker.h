@@ -24,7 +24,7 @@ namespace Matrix {
             ~PWM_Worker();
 
             void convert(Packet *buffer, bool release);
-            void convert(Serial::Protocol::Packet *buffer, bool release);
+            void convert(Buffer *buffer, bool release);
 
         private:
             void work(void *args);

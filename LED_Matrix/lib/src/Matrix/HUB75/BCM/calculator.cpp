@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <stdint.h>
 #include "Matrix/HUB75/BCM/memory_format.h"
-#include "Matrix/matrix.h"
 #include "Serial/config.h"
 
 namespace Matrix::Calculator {

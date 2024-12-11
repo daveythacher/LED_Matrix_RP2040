@@ -3,6 +3,9 @@
  * Author: David Thacher
  * License: GPL 3.0
  */
+
+
+#include "Matrix/HUB75/PWM/PWM_Multiplex.h"
  
 #include <stdint.h>
 #include <string.h>
@@ -19,22 +22,7 @@
 #include "Matrix/HUB75/hw_config.h"
 #include "Matrix/HUB75/PWM/Programs.h"
 
-namespace Matrix::Worker {
-    extern Matrix::Buffer buf[Serial::num_framebuffers];
-
-    extern Matrix::Buffer *get_front_buffer(uint8_t *id);
-};
-
-namespace Matrix::Calculator {
-    extern void verify_configuration();
-};
-
 namespace Matrix {
-    static Buffer *buffer = nullptr;
-    static int dma_chan[4];
-    static uint8_t bank;
-    static Programs::Ghost_Packet ghost_packet;
-
     // PIO Protocol
     //  There are 2^PWM_bits shifts per period.
     //      The serial protocol used by PIO is column length decremented by one followed by column values.
@@ -43,14 +31,12 @@ namespace Matrix {
     //          This is loaded by the CPU manually before starting DMA (excludes null termination transfer)
     //  There are 2^PWM_bits plus two transfers.
     //      The second to last transfer turns the columns off before multiplexing. (Standard shift)
-    //      The last transfer stops the DMA and fires an interrupt.
-    static volatile struct {volatile uint32_t len; volatile uint8_t *data;} address_table[Serial::num_framebuffers][(MULTIPLEX * ((1 << PWM_bits) + 2)) + 1];
-    static volatile uint8_t null_table[COLUMNS + 1];
-    static uint8_t header = 1 << PWM_bits;              // This needs to be one less than (n + 1)
+    //      The last transfer stops the DMA and fires an interrupt
 
-    static void send_buffer();
+    PWM_Multiplex::PWM_Multiplex() {
+         header = 1 << PWM_bits;                                // This needs to be one less than (n + 1)
 
-    void start() {
+
         // Init Matrix hardware
         // IO
         for (int i = 0; i < Matrix::HUB75::HUB75_DATA_LEN; i++) {
@@ -193,14 +179,21 @@ namespace Matrix {
         
         send_buffer();
         dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[1], &ghost_packet, 2, true);
+
+        thread = Concurrent::Thread(work, 4096, 255);
+        queue = Concurrent::Queue<uint8_t **>(2);
     }
 
-    void __not_in_flash_func(send_line)() {
+    void PWM_Multiplex::show(PWM_Buffer *buffer) {
+
+    }
+
+    void __not_in_flash_func(PWM_Multiplex::send_buffer)() {
         dma_hw->ints0 = 1 << dma_chan[0];
         dma_channel_set_read_addr(dma_chan[1], address_table[bank], true);
     }
 
-    void __not_in_flash_func(dma_isr)() {
+    void __not_in_flash_func(PWM_Multiplex::work)(void *) {
         if (dma_channel_get_irq0_status(dma_chan[0])) {
             uint8_t temp;
             Buffer *p = Worker::get_front_buffer(&temp);
