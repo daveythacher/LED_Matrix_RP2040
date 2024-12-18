@@ -36,7 +36,8 @@ namespace Serial::Node::Control {
     // Warning host is required to obey flow control and handle bus recovery
     void __not_in_flash_func(task)() {
         // Check for errors
-        if (!((uart1_hw->ris & 0x380) == 0)) {
+        if (!((uart1_hw->ris & 0x780) == 0)) {
+            uart1_hw->rsr = 0xF;
             uart1_hw->icr = 0x7FF;
         }
     }
