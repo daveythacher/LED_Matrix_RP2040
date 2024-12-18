@@ -10,7 +10,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-void crash() {
+static void crash() {
     watchdog_reboot(0, 0, 0);
 }
 

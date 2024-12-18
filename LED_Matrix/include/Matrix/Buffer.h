@@ -13,13 +13,20 @@ namespace Matrix {
     // These are used for pixel data.
     template <typename T> class Buffer {
         public:
-            Buffer();
+            ~Buffer();
+
+            static Buffer<T> *create_buffer(uint8_t scan, uint8_t columns);
 
             void set(uint8_t x, uint8_t y, T *v);
             void ntoh();
-
+        
         private:
-            uint8_t buffer[8 * 1024];
+            Buffer();
+            Buffer(uint8_t scan, uint8_t columns);
+
+            uint8_t _scan;
+            uint8_t _columns;
+            T *_buffer;
     };
 }
 

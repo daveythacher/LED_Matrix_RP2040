@@ -1,5 +1,5 @@
 /* 
- * File:   Programs.h
+ * File:   PWM_Programs.h
  * Author: David Thacher
  * License: GPL 3.0
  */
@@ -11,7 +11,7 @@
 #include "Matrix/HUB75/PWM/memory_format.h"
 
 namespace Matrix {
-    class Programs {
+    class PWM_Programs {
         public:
             static uint8_t get_pmp_program(uint16_t *instructions, uint8_t len);
             static uint8_t get_ghost_program(uint16_t *instructions, uint8_t len);

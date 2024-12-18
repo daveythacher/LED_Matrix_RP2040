@@ -10,19 +10,25 @@
 #include "Serial/config.h"
 
 namespace Matrix {
-    class PWM_Buffer {
+    // Use unique pointer due to get_line
+    template <typename T> class PWM_Buffer {
         public:
-            PWM_Buffer();
+            ~PWM_Buffer();
 
-            void set_value(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value);
-            uint8_t *get_line(uint8_t multiplex, uint16_t index);
-            static uint8_t get_line_length();
+            static PWM_Buffer<T> *create_pwm_buffer(uint8_t scan, uint16_t steps, uint8_t columns);
 
-            uint8_t *serialize();
-            void deserialize(uint8_t *buf, uint16_t len);
+            void set_value(uint8_t multiplex, uint16_t index, uint8_t column, T value);
+            T *get_line(uint8_t multiplex, uint16_t index);
+            uint16_t get_line_length();
 
         private:
-            uint8_t buf[Serial::max_framebuffer_size];
+            PWM_Buffer();
+            PWM_Buffer(uint8_t scan, uint16_t steps, uint8_t columns);
+
+            uint8_t _scan;
+            uint8_t _columns;
+            uint16_t _steps;
+            T *_buffer;
     };
 }
 

@@ -12,25 +12,23 @@
 #include "Matrix/Types.h"
 
 namespace Matrix {
-    class Matrix {
+    template <typename T> class Matrix {
         public:
+            virtual ~Matrix();
+
             // Future: Configuration Structure?
             //  Hardware definitions
-            static Matrix *get_matrix();
+            static Matrix<T> *get_matrix();
 
-            virtual void show(Buffer<RGB24> *buffer) = 0;       // Future: No FPS limiter
-            virtual void show(Buffer<RGB48> *buffer) = 0;       // Future: No FPS limiter
-            virtual void show(Buffer<RGB_222> *buffer) = 0;     // Future: No FPS limiter
-            virtual void show(Buffer<RGB_555> *buffer) = 0;     // Future: No FPS limiter
+            virtual void show(Buffer<T> *buffer) = 0;           // Future: No FPS limiter
             virtual void show(Packet *buffer) = 0;              // Future: No FPS limiter
         
         protected:
             Matrix();
         
         private:
-            static Matrix *ptr;
+            static Matrix<T> *ptr;
     };
 }
 
 #endif
-

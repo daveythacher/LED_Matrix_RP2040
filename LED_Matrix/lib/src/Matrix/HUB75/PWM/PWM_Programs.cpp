@@ -1,11 +1,11 @@
 /* 
- * File:   Programs.cpp
+ * File:   PWM_Programs.cpp
  * Author: David Thacher
  * License: GPL 3.0
  */
 
 #include <algorithm>
-#include "Matrix/HUB75/BCM/Programs.h"
+#include "Matrix/HUB75/PWM/PWM_Programs.h"
 #include "PIO/Program/Program.h"
 #include "PIO/Program/ASM/NOP/NOP.h"
 #include "PIO/Program/ASM/OUT/OUT.h"
@@ -52,7 +52,7 @@ namespace Matrix {
     //          LAT = 0;
     //      } while (counter2-- > 0);
     //  }
-    uint8_t Programs::get_pmp_program(uint16_t *instructions, uint8_t len) {
+    uint8_t PWM_Programs::get_pmp_program(uint16_t *instructions, uint8_t len) {
         uint8_t CLK = 1 << 0;
         uint8_t LAT = 1 << 1;
         uint8_t size;
@@ -79,7 +79,7 @@ namespace Matrix {
         return size;
     }
 
-    uint8_t Programs::get_ghost_program(uint16_t *instructions, uint8_t len) {
+    uint8_t PWM_Programs::get_ghost_program(uint16_t *instructions, uint8_t len) {
         uint8_t OE = 1 << 0;
         uint8_t size;
         Program PMP(1);     // Warning not all behavior is supported

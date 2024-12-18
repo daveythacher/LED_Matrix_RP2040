@@ -20,7 +20,7 @@
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
 #include "Matrix/HUB75/hw_config.h"
-#include "Matrix/HUB75/PWM/Programs.h"
+#include "Matrix/HUB75/PWM/PWM_Programs.h"
 
 namespace Matrix {
     // PIO Protocol
@@ -92,7 +92,7 @@ namespace Matrix {
 
         {   // We use a decent amount of stack here (The compiler should figure it out)
             uint16_t instructions[32];
-            uint8_t length = Programs::get_pmp_program(instructions, 32);
+            uint8_t length = PWM_Programs::get_pmp_program(instructions, 32);
 
             static const struct pio_program pio_programs = {
                 .instructions = instructions,
@@ -105,7 +105,7 @@ namespace Matrix {
 
         {   // We use a decent amount of stack here (The compiler should figure it out)
             uint16_t instructions[32];
-            uint8_t length = Programs::get_ghost_program(instructions, 32);
+            uint8_t length = PWM_Programs::get_ghost_program(instructions, 32);
 
             static const struct pio_program pio_programs = {
                 .instructions = instructions,

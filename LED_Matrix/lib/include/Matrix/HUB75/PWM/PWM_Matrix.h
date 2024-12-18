@@ -9,18 +9,25 @@
 
 #include "Matrix/Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
+#include "Matrix/HUB75/PWM/PWM_Buffer.h"
 
 namespace Matrix {
-    class PWM_Matrix : public Matrix {
+    template <typename T, typename R> class PWM_Matrix : public Matrix<T> {
         public:
-            PWM_Matrix();
             ~PWM_Matrix();
 
-            void show(Buffer *buffer);
+            static PWM_Matrix<T,R> *create_matrix(uint8_t scan, uint8_t columns);
+
+            void show(Buffer<T> *buffer);
             void show(Packet *buffer);
 
         private:
-            PWM_Worker *worker;
+            PWM_Matrix();
+            PWM_Matrix(uint8_t scan, uint8_t columns);
+
+            uint8_t _scan;
+            uint8_t _columns;
+            PWM_Worker<T, R> *_worker;
     };
 }
 

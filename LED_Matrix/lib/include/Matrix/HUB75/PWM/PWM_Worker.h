@@ -18,13 +18,13 @@
 #include "Concurrent/Queue/Queue.h"
 
 namespace Matrix {
-    class PWM_Worker {
+    template <typename T, typename R> class PWM_Worker {
         public:
             PWM_Worker();
             ~PWM_Worker();
 
             void convert(Packet *buffer, bool release);
-            void convert(Buffer *buffer, bool release);
+            void convert(Buffer<T> *buffer, bool release);
 
         private:
             void work(void *args);
