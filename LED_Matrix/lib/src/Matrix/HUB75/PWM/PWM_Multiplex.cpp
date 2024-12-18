@@ -120,9 +120,6 @@ namespace Matrix {
         
         // Verify Serial Clock
         constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);     // Someday this two will be a four.
-        static_assert(x >= 1.0, "Unabled to configure PIO for SERIAL_CLOCK");
-
-        Calculator::verify_configuration();
 
         // PMP / SM
         pio0->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);

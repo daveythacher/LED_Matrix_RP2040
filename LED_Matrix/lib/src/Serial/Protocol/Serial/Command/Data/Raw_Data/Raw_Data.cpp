@@ -38,7 +38,7 @@ namespace Serial::Protocol::DATA_NODE {
     }
 
     void __not_in_flash_func(Raw_Data::process_internal)(Serial::packet *buf, uint16_t len) {
-        Matrix::Buffer<Matrix::RGB24> *b = new Matrix::Buffer<Matrix::RGB24>();
+        Matrix::Buffer<Matrix::RGB24> *b = Matrix::Buffer<Matrix::RGB24>::create_buffer(8, 32);
         Serial::Protocol::internal::process(b);
     }
 }

@@ -5,6 +5,7 @@
  */
 
 #include "Matrix/HUB75/PWM/PWM_Matrix.h"
+#include "Matrix/HUB75/PWM/PWM_Calculator.h"
 
 namespace Matrix {
     template <typename T, typename R> PWM_Matrix<T, R>::PWM_Matrix(uint8_t scan, uint8_t columns) : Matrix() {
@@ -14,8 +15,9 @@ namespace Matrix {
     }
 
     template <typename T, typename R> PWM_Matrix<T, R> *PWM_Matrix<T, R>::create_matrix(uint8_t scan, uint8_t columns) {
-        // TODO: Singleton
-        // TODO: Calculator
+        if (verify_configuration()) {
+            // TODO: Create singleton?
+        }
     }
 
     template <typename T, typename R> PWM_Matrix<T, R>::~PWM_Matrix() {
