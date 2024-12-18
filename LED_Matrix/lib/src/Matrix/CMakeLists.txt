@@ -8,6 +8,7 @@ add_library(led_Matrix INTERFACE)
 
 target_sources(led_Matrix INTERFACE
     Matrix.cpp
+    Buffer.cpp
 )
 
 target_link_libraries(led_Matrix INTERFACE

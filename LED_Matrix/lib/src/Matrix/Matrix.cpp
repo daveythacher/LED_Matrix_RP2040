@@ -9,13 +9,22 @@
 #include "Matrix/HUB75/PWM/PWM_Matrix.h"
 
 namespace Matrix {
-    Matrix *Matrix::ptr = nullptr;
+    template <typename T> Matrix<T> *Matrix<T>::ptr = nullptr;
 
-    Matrix *Matrix::get_matrix() {
+    template <typename T> Matrix<T>::Matrix() {}
+
+    template <typename T> Matrix<T>::~Matrix() {}
+
+    template <typename T> Matrix<T> *Matrix<T>::get_matrix() {
         if (ptr == nullptr) {
             // TODO:
         }
 
         return ptr;
     }
+
+    template class Matrix<RGB24>;
+    template class Matrix<RGB48>;
+    template class Matrix<RGB_222>;
+    template class Matrix<RGB_555>;
 }
