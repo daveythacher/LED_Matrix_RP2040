@@ -5,6 +5,7 @@
  */
 
 #include "Matrix/HUB75/PWM/PWM_Matrix.h"
+#include "Matrix/HUB75/PWM/PWM_Buffer.h"
 #include "Matrix/HUB75/PWM/PWM_Calculator.h"
 
 namespace Matrix {
@@ -28,7 +29,21 @@ namespace Matrix {
         _worker->convert(buffer, true);
     }
     
-    template <typename T, typename R> void PWM_Matrix<T, R>::show(Packet *buffer) {
+    template <typename T, typename R> void PWM_Matrix<T, R>::show(Packet<R> *buffer) {
         _worker->convert(buffer, true);
+    }
+    
+    template <typename T, typename R> void PWM_Matrix<T, R>::show(Packet<R> *buffer) {
+        _worker->convert(buffer, true);
+    }
+    
+    template <typename T, typename R> unique_ptr<Buffer<T>> PWM_Matrix<T, R>::get_buffer() {
+        unique_ptr<Buffer<T>> result(nullptr);  // TODO:
+        return result;
+    }
+    
+    template <typename T, typename R> unique_ptr<Packet<R>> PWM_Matrix<T, R>::get_packet() {
+        unique_ptr<PWM_Buffer<R>> result(PWM_Buffer<R>::create_pwm_buffer(_scan, 1, _columns));
+        return result;
     }
 }

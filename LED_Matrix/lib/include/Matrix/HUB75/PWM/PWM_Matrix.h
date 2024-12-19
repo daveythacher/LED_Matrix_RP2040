@@ -9,10 +9,9 @@
 
 #include "Matrix/Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
-#include "Matrix/HUB75/PWM/PWM_Buffer.h"
 
 namespace Matrix {
-    template <typename T, typename R> class PWM_Matrix : public Matrix<T> {
+    template <typename T, typename R> class PWM_Matrix : public Matrix<T, R> {
         public:
             ~PWM_Matrix();
 
@@ -20,6 +19,8 @@ namespace Matrix {
 
             void show(Buffer<T> *buffer);
             void show(Packet<R> *buffer);
+            unique_ptr<Buffer<T>> get_buffer();
+            unique_ptr<Packet<R>> get_packet();
 
         private:
             PWM_Matrix();

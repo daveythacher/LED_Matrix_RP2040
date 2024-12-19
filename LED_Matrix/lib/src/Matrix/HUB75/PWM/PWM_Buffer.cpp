@@ -29,7 +29,7 @@ namespace Matrix {
         return new PWM_Buffer<T>(scan, steps, columns);
     }
 
-    template <typename T> void PWM_Buffer<T>::set_value(uint8_t multiplex, uint16_t index, uint8_t column, T value) {
+    template <typename T> void PWM_Buffer<T>::set(uint8_t multiplex, uint16_t index, uint8_t column, T value) {
         if (multiplex > _scan || index > _steps || column > _columns)
             return;
 
@@ -38,6 +38,17 @@ namespace Matrix {
         i += column;
 
         _buffer[i] = value;
+    }
+
+    template <typename T> T PWM_Buffer<T>::get(uint8_t multiplex, uint16_t index, uint8_t column) {
+        if (multiplex > _scan || index > _steps || column > _columns)
+            return;
+
+        uint32_t i = multiplex * _steps * (_columns + 1);
+        i += index * (_columns + 1);
+        i += column;
+
+        return _buffer[i];
     }
 
     template <typename T> T *PWM_Buffer<T>::get_line(uint8_t multiplex, uint16_t index) {
