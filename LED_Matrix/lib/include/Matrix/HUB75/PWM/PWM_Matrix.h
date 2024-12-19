@@ -11,7 +11,7 @@
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
 
 namespace Matrix {
-    template <typename T, typename R> class PWM_Matrix : public Matrix<T, R> {
+    template <typename T, typename R, typename W> class PWM_Matrix : public Matrix<T, R> {
         public:
             ~PWM_Matrix();
 
@@ -29,7 +29,7 @@ namespace Matrix {
             uint8_t _scan;
             uint8_t _pwm_bits;
             uint8_t _columns;
-            PWM_Worker<T, R> *_worker;
+            PWM_Worker<T, R, W> *_worker;
     };
 }
 

@@ -6,6 +6,7 @@
  
 #include <algorithm>
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
+#include "SIMD/SIMD_QUARTER.h"
 
 namespace Matrix {
     Matrix::Buffer buf[Serial::num_framebuffers];
@@ -13,14 +14,14 @@ namespace Matrix {
     static volatile uint8_t bank_vsync = 0;
     static volatile bool vsync = false;
 
-    template <typename T, typename R> PWM_Worker<T, R>::PWM_Worker(uint8_t scan, uint16_t steps, uint8_t columns) {
+    template <typename T, typename R, typename W> PWM_Worker<T, R, W>::PWM_Worker(uint8_t scan, uint16_t steps, uint8_t columns) {
         _scan = scan;
         _steps = steps;
         _columns = columns;
-        _width = sizeof(R) * 8;
-        _size = std::max((_steps / SIMD::SIMD_QUARTER<R>::size()), (uint32_t) 1); // TODO: Make SIMD::SIMD_QUARTER a template argument
-        _index_table = new SIMD::SIMD_QUARTER<R>[sizeof(R) * 8 * _size * _steps];
-        _multiplex = new PWM_Multiplex<T, R>();
+        _width = (sizeof(R) * 8 / 6) * 6; // TODO: HUB75 hardware configuration
+        _size = std::max((_steps / W<R>::size()), (uint32_t) 1);
+        _index_table = new W<R>[_width * _size * _steps];
+        _multiplex = new PWM_Multiplex<T, R, W>();
         _thread = new Concurrent::Thread(work, 4096, 1, this);
         _queue = nullptr; // TODO: Updates
         _mutex = new Concurrent::Mutex();
@@ -29,7 +30,7 @@ namespace Matrix {
         for (uint32_t i = 0; i < _steps; i++) {
             for (uint32_t j = 0; j < _width; j++) {
                 for (uint32_t k = 0; k < _size; k++) {
-                    for (uint32_t l = 0; l < SIMD::SIMD_QUARTER<R>::size(); l++) {
+                    for (uint32_t l = 0; l < W<R>::size(); l++) {
                         index_table[(i * (_width * _size)) + (j * _size) + k].set(0, l);
                     }
                 }
@@ -39,7 +40,7 @@ namespace Matrix {
         build_index_table();
     }
 
-    template <typename T, typename R> PWM_Worker<T, R>::~PWM_Worker() {
+    template <typename T, typename R, typename W> PWM_Worker<T, R, W>::~PWM_Worker() {
         delete[] _index_table;
         delete _multiplex;
         delete _thread;
@@ -47,7 +48,7 @@ namespace Matrix {
         delete _mutex;
     }
 
-    template <typename T, typename R> inline SIMD::SIMD_QUARTER<R> *PWM_Worker<T, R>::get_table(uint16_t v, uint8_t i) {
+    template <typename T, typename R, typename W> inline W<R> *PWM_Worker<T, R, W>::get_table(uint16_t v, uint8_t i) {
         uint32_t div = std::max((uint32_t) T::range_high / _steps, (uint32_t) 1);
         uint32_t mul = std::max((uint32_t) _steps / T::range_high, (uint32_t) 1);
 
@@ -63,14 +64,14 @@ namespace Matrix {
     //  3. Remove if with LUT (needs good cache)
     //      3.1 Matrix operations may help
     template <typename T> inline void PWM_Worker<T>::set_pixel(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
-        SIMD::SIMD_QUARTER<T> *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
+        W<T> *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
     
-        for (uint32_t i = 0; i < (1 << PWM_bits); i += SIMD::SIMD_QUARTER<T>::size()) {
+        for (uint32_t i = 0; i < (1 << PWM_bits); i += W<T>::size()) {
             // Superscalar Operation (forgive the loads)
-            SIMD::SIMD_QUARTER<T> p = *c[0] | *c[1] | *c[2] | *c[3] | *c[4] | *c[5];
+            W<T> p = *c[0] | *c[1] | *c[2] | *c[3] | *c[4] | *c[5];
 
             // Hopefully the compiler will sort this out. (Inlining set_value)
-            for (uint32_t j = 0; (j < (SIMD::SIMD_QUARTER<T>::size())) && ((i + j) < (1 << PWM_bits)); j++)
+            for (uint32_t j = 0; (j < (W<T>::size())) && ((i + j) < (1 << PWM_bits)); j++)
                 buf[bank].set_value(y, i + j, x + 1, p.v[j]);
 
             // Superscalar operation
@@ -79,8 +80,8 @@ namespace Matrix {
         }
     }
 
-    template <typename T, typename R> inline void PWM_Worker<T, R>::build_index_table() {
-        uint8_t size = SIMD::SIMD_QUARTER<R>::size();
+    template <typename T, typename R, typename W> inline void PWM_Worker<T, R, W>::build_index_table() {
+        uint8_t size = W<R>::size();
 
         for (uint32_t i = 0; i < _steps; i++) {
             for (uint32_t j = 0; j < _width; j++) {
@@ -146,16 +147,16 @@ namespace Matrix {
         bank = (bank + 1) % Serial::num_framebuffers;
     }
 
-    template <typename T, typename R> void PWM_Worker<T, R>::work(void *arg) {
-        PWM_Worker<T, R> *object = static_cast<PWM_Worker<T, R> *>(arg);
+    template <typename T, typename R, typename W> void PWM_Worker<T, R, W>::work(void *arg) {
+        PWM_Worker<T, R, W> *object = static_cast<PWM_Worker<T, R, W> *>(arg);
 
         while (1) {
             // TODO: Update
         }
     }
 
-    template class PWM_Worker<RGB24, uint8_t>;
-    template class PWM_Worker<RGB48, uint8_t>;
-    template class PWM_Worker<RGB_222, uint8_t>;
-    template class PWM_Worker<RGB_555, uint8_t>;
+    template class PWM_Worker<RGB24, uint8_t, SIMD::SIMD_QUARTER>;
+    template class PWM_Worker<RGB48, uint8_t, SIMD::SIMD_QUARTER>;
+    template class PWM_Worker<RGB_222, uint8_t, SIMD::SIMD_QUARTER>;
+    template class PWM_Worker<RGB_555, uint8_t, SIMD::SIMD_QUARTER>;
 }

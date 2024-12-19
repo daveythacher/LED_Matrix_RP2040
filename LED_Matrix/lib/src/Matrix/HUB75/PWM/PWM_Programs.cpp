@@ -25,6 +25,8 @@ using IO::IRQ;
 using IO::WAIT;
 using IO::JMP;
 
+// Future: Template PIO programs to use something other than uint6_t (uint8_t)
+
 namespace Matrix {
     const auto X = Registers::X;
     const auto Y = Registers::Y;

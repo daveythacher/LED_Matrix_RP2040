@@ -5,8 +5,7 @@
  */
 
 #include "Concurrent/Queue/Queue.h"
-#include "Serial/config.h"
-#include "FreeRTOS/FreeRTOSConfig.h"
+#include "Matrix/HUB75/PWM/PWM_Packet.h"
 #include "FreeRTOS.h"
 #include "queue.h"
 
@@ -34,8 +33,9 @@ namespace Concurrent {
     }
 
     template <typename T> bool Queue<T>::available() {
-        // TODO:
+        T item;
+        return xQueuePeek(handle, &item, 1) == pdTRUE;
     }
 
-    template class Queue<uint8_t **>;
+    template class Queue<PWM_Packet<uint8_t> *>;
 }

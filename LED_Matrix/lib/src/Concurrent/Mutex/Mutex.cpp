@@ -5,7 +5,6 @@
  */
 
 #include "Concurrent/Mutex/Mutex.h"
-#include "FreeRTOS/FreeRTOSConfig.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
 

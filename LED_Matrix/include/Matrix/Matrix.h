@@ -27,9 +27,6 @@ namespace Matrix {
             virtual unique_ptr<Buffer<T>> get_buffer() = 0;
             virtual unique_ptr<Packet<R>> get_packet() = 0;
         
-        protected:
-            Matrix();
-        
         private:
             static Matrix *ptr;
     };
