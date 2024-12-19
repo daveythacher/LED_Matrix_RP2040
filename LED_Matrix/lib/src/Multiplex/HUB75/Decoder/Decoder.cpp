@@ -10,10 +10,8 @@
 #include "Multiplex/Multiplex.h"
 #include "Multiplex/HUB75/hw_config.h"
 #include "Multiplex/Programs.h"
-#include "Multiplex/Mapper/Mapper.h"
 
 namespace Multiplex {
-    static Multiplex_Packet mapper;
     static int dma_chan[2];
 
     void init(int start_flag, int signal_flag) {
@@ -22,8 +20,6 @@ namespace Multiplex {
             gpio_set_dir(i + Multiplex::HUB75::HUB75_ADDR_BASE, GPIO_OUT);
         }
         gpio_clr_mask(0x1F0000);
-
-        mapper = map();
 
         for (uint8_t i = 0; i < mapper.length; i++) {
             mapper.buffer[i] = mapper.buffer[i] % Matrix::MULTIPLEX;

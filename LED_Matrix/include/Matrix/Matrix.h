@@ -20,6 +20,7 @@ namespace Matrix {
 
             // Future: Configuration Structure?
             //  Hardware definitions
+            //  Remote init?
             static Matrix *get_matrix();
 
             virtual void show(unique_ptr<Buffer<T>> &buffer) = 0;       // Future: No FPS limiter

@@ -5,10 +5,7 @@
  */
 
 #include <algorithm>
-#include <stdint.h>
 #include "Matrix/HUB75/PWM/PWM_Calculator.h"
-#include "Matrix/HUB75/PWM/memory_format.h"
-#include "Serial/config.h"
 
 // TODO: Sort this out
 
