@@ -5,9 +5,7 @@
  */
 
 #include <string.h>
-#include "pico/multicore.h"
 #include "Matrix/HUB75/PWM/PWM_Packet.h"
-#include "Matrix/HUB75/PWM/memory_format.h"
 
 // Every line starts with a counter variable indexed from zero instead of one
 
@@ -18,7 +16,9 @@ namespace Matrix {
         _scan = scan;
         _columns = columns;
         _steps = steps;
-        _buffer = new T[scan * steps * columns];
+        _buffer = new T[scan * steps * (columns + 1)];
+
+        memset(_buffer, COLUMNS - 1, scan * steps * columns);
     }
 
     template <typename T> PWM_Packet<T>::~PWM_Packet() {
@@ -37,7 +37,7 @@ namespace Matrix {
         i += index * (_columns + 1);
         i += column;
 
-        _buffer[i] = value;
+        _buffer[i + 1] = value;
     }
 
     template <typename T> T PWM_Packet<T>::get(uint8_t multiplex, uint16_t index, uint8_t column) {
@@ -48,7 +48,7 @@ namespace Matrix {
         i += index * (_columns + 1);
         i += column;
 
-        return _buffer[i];
+        return _buffer[i + 1];
     }
 
     template <typename T> T *PWM_Packet<T>::get_line(uint8_t multiplex, uint16_t index) {
@@ -64,4 +64,6 @@ namespace Matrix {
     template <typename T> uint16_t PWM_Packet<T>::get_line_length() {
         return _columns + 1;
     }
+
+    template class PWM_Packet<uint8_t>;
 }

@@ -8,7 +8,7 @@
 #define PWM_WORKER_H
 
 #include <stdint.h>
-#include "SIMD/SIMD_QUARTER.h"
+#include "SIMD/SIMD_QUARTER.h"  // TODO: Template this
 #include "Matrix/HUB75/PWM/PWM_Multiplex.h"
 #include "Concurrent/Thread/Thread.h"
 #include "Concurrent/Queue/Queue.h"

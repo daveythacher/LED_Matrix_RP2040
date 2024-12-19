@@ -5,10 +5,6 @@
  */
  
 #include <algorithm>
-#include <stdint.h>
-#include <string.h>
-#include <math.h>
-#include "pico/multicore.h"
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
 
 namespace Matrix {
@@ -157,4 +153,9 @@ namespace Matrix {
             // TODO: Update
         }
     }
+
+    template class PWM_Worker<RGB24, uint8_t>;
+    template class PWM_Worker<RGB48, uint8_t>;
+    template class PWM_Worker<RGB_222, uint8_t>;
+    template class PWM_Worker<RGB_555, uint8_t>;
 }

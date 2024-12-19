@@ -10,6 +10,8 @@
 #include "Matrix/HUB75/PWM/memory_format.h"
 #include "Serial/config.h"
 
+// TODO: Sort this out
+
 namespace Matrix {
     static bool result;
 
