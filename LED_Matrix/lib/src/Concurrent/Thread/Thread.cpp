@@ -12,9 +12,9 @@
 namespace Concurrent {
     Thread::Thread() {}
 
-    Thread::Thread(void (*func)(void *), uint32_t stack_len, uint8_t priority) {
+    Thread::Thread(void (*func)(void *), uint32_t stack_len, uint8_t priority, void *arg) {
         handle = NULL;
-        xTaskCreate(func, NULL, stack_len / sizeof(StackType_t), NULL, priority / configMAX_PRIORITIES, handle) != pdTRUE;
+        xTaskCreate(func, NULL, stack_len / sizeof(StackType_t), arg, priority / configMAX_PRIORITIES, handle) != pdTRUE;
     }
 
     Thread::~Thread() {

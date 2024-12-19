@@ -9,9 +9,6 @@
 #include <string.h>
 #include <math.h>
 #include "pico/multicore.h"
-#include "Serial/config.h"
-#include "Matrix/HUB75/PWM/memory_format.h"
-#include "Matrix/helper.h"
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
 
 namespace Matrix {
@@ -20,11 +17,25 @@ namespace Matrix {
     static volatile uint8_t bank_vsync = 0;
     static volatile bool vsync = false;
 
-    template <typename T> PWM_Worker<T>::PWM_Worker() {
-        for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-            for (uint32_t j = 0; j < 6; j++) {
-                for (uint32_t k = 0; k < PWM_Worker::size; k++) {
-                    index_table[i][j][k].l = 0;
+    template <typename T, typename R> PWM_Worker<T, R>::PWM_Worker(uint8_t scan, uint16_t steps, uint8_t columns) {
+        _scan = scan;
+        _steps = steps;
+        _columns = columns;
+        _width = sizeof(R) * 8;
+        _size = std::max((_steps / SIMD::SIMD_QUARTER<R>::size()), (uint32_t) 1); // TODO: Make SIMD::SIMD_QUARTER a template argument
+        _index_table = new SIMD::SIMD_QUARTER<R>[sizeof(R) * 8 * _size * _steps];
+        _multiplex = new PWM_Multiplex<T, R>();
+        _thread = new Concurrent::Thread(work, 4096, 1, this);
+        _queue = nullptr; // TODO: Updates
+        _mutex = new Concurrent::Mutex();
+        
+
+        for (uint32_t i = 0; i < _steps; i++) {
+            for (uint32_t j = 0; j < _width; j++) {
+                for (uint32_t k = 0; k < _size; k++) {
+                    for (uint32_t l = 0; l < SIMD::SIMD_QUARTER<R>::size(); l++) {
+                        index_table[(i * (_width * _size)) + (j * _size) + k].set(0, l);
+                    }
                 }
             }
         }
@@ -32,13 +43,20 @@ namespace Matrix {
         build_index_table();
     }
 
-    template <typename T> inline SIMD::SIMD_QUARTER<T> *PWM_Worker<T>::get_table(uint16_t v, uint8_t i) {
-        constexpr uint32_t div = std::max((uint32_t) Serial::range_high / 1 << PWM_bits, (uint32_t) 1);
-        constexpr uint32_t mul = std::max((uint32_t) 1 << PWM_bits / Serial::range_high, (uint32_t) 1);
+    template <typename T, typename R> PWM_Worker<T, R>::~PWM_Worker() {
+        delete[] _index_table;
+        delete _multiplex;
+        delete _thread;
+        delete _queue;
+        delete _mutex;
+    }
+
+    template <typename T, typename R> inline SIMD::SIMD_QUARTER<R> *PWM_Worker<T, R>::get_table(uint16_t v, uint8_t i) {
+        uint32_t div = std::max((uint32_t) T::range_high / _steps, (uint32_t) 1);
+        uint32_t mul = std::max((uint32_t) _steps / T::range_high, (uint32_t) 1);
 
         v = v * mul / div;
-        //v %= (1 << PWM_bits);
-        return index_table[v][i];
+        return &index_table[(v * (_width * _size)) + (i * _size)];
     }
 
     // Tricks: (Branch is index into vector via PC)
@@ -65,11 +83,15 @@ namespace Matrix {
         }
     }
 
-    template <typename T> inline void PWM_Worker<T>::build_index_table() {
-        for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-            for (uint32_t j = 0; j < i; j++)
-                for (uint8_t k = 0; k < 6; k++)
-                    index_table[i][k][j / SIMD::SIMD_QUARTER<T>::size()].v[j % SIMD::SIMD_QUARTER<T>::size()] = 1 << k;
+    template <typename T, typename R> inline void PWM_Worker<T, R>::build_index_table() {
+        uint8_t size = SIMD::SIMD_QUARTER<R>::size();
+
+        for (uint32_t i = 0; i < _steps; i++) {
+            for (uint32_t j = 0; j < _width; j++) {
+                for (uint32_t k = 0; k < i; k++) {
+                    index_table[(i * (_width * _size)) + (j * _size) + k / size].set(1 << j, k % size);
+                }
+            }
         }
     }
 
@@ -126,80 +148,13 @@ namespace Matrix {
 
         vsync = true;
         bank = (bank + 1) % Serial::num_framebuffers;
-    }  
-    
-    template <typename T> inline static void worker_internal() {
-        static PWM_Worker<T> w;
-        
-        while(1) {
-            switch (APP::multicore_fifo_pop_blocking_inline()) {
-                case 0:
-                    {
-                        Serial::packet *p = (Serial::packet *) APP::multicore_fifo_pop_blocking_inline();
-                        w.process_packet(p);
-                    }
-                    break;
-                case 1:
-                    {
-                        Serial::packet *p = (Serial::packet *) APP::multicore_fifo_pop_blocking_inline();
-                        w.save_buffer(p);
-                    }
-                    break;
-                case 2:
-                    {
-                        Matrix::Buffer *p = (Matrix::Buffer *) APP::multicore_fifo_pop_blocking_inline();
-                        w.save_buffer(p);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
-    void work() {
-        // Currently we only support 8-bit port
-        worker_internal<uint8_t>();
-    }
+    template <typename T, typename R> void PWM_Worker<T, R>::work(void *arg) {
+        PWM_Worker<T, R> *object = static_cast<PWM_Worker<T, R> *>(arg);
 
-    void __not_in_flash_func(process)(Serial::packet *buffer, bool isBuffer) {
-        if (!isBuffer) {
-            APP::multicore_fifo_push_blocking_inline(0);
-            APP::multicore_fifo_push_blocking_inline((uint32_t) buffer);
+        while (1) {
+            // TODO: Update
         }
-        else {
-            APP::multicore_fifo_push_blocking_inline(1);
-            APP::multicore_fifo_push_blocking_inline((uint32_t) buffer);
-        }
-    }
-
-    void __not_in_flash_func(process)(Matrix::Buffer *buffer) {
-        APP::multicore_fifo_push_blocking_inline(1);
-        APP::multicore_fifo_push_blocking_inline((uint32_t) buffer);
-    }
-
-    Matrix::Buffer *__not_in_flash_func(get_front_buffer)() {
-        Matrix::Buffer *result = nullptr;
-
-        if (vsync) {
-            result = &buf[bank_vsync];
-            bank_vsync = (bank_vsync + 1) % Serial::num_framebuffers;
-            vsync = false;
-        }
-
-        return result;
-    }
-
-    Matrix::Buffer *__not_in_flash_func(get_front_buffer)(uint8_t *id) {
-        Matrix::Buffer *result = nullptr;
-
-        if (id != nullptr && vsync) {
-            result = &buf[bank_vsync];
-            *id = bank_vsync;
-            bank_vsync = (bank_vsync + 1) % Serial::num_framebuffers;
-            vsync = false;
-        }
-
-        return result;
     }
 }

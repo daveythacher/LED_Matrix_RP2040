@@ -17,6 +17,7 @@ namespace Concurrent {
 
             void push(T *val);
             T pop();
+            bool available();
 
         private:
             Queue();

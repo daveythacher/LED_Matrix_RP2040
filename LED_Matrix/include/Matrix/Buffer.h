@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 namespace Matrix {
-    // These are used for pixel data.
+    // These are used for pixel data. (As sorted in hardware!)
     template <typename T> class Buffer {
         public:
             virtual void set(uint8_t row, uint8_t column, T val) = 0;

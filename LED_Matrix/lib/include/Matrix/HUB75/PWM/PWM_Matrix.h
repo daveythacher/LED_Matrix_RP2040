@@ -15,18 +15,19 @@ namespace Matrix {
         public:
             ~PWM_Matrix();
 
-            static PWM_Matrix *create_matrix(uint8_t scan, uint8_t columns);
+            static PWM_Matrix *create_matrix(uint8_t scan, uint8_t pwm_bits, uint8_t columns);
 
-            void show(Buffer<T> *buffer);
-            void show(Packet<R> *buffer);
+            void show(unique_ptr<Buffer<T>> &buffer);
+            void show(unique_ptr<Packet<R>> &packet);
             unique_ptr<Buffer<T>> get_buffer();
             unique_ptr<Packet<R>> get_packet();
 
         private:
             PWM_Matrix();
-            PWM_Matrix(uint8_t scan, uint8_t columns);
+            PWM_Matrix(uint8_t scan, uint8_t pwm_bits, uint8_t columns);
 
             uint8_t _scan;
+            uint8_t _pwm_bits;
             uint8_t _columns;
             PWM_Worker<T, R> *_worker;
     };

@@ -6,7 +6,7 @@ add_library(led_HUB75_PWM INTERFACE)
 target_sources(led_HUB75_PWM INTERFACE
     PWM_Matrix.cpp
     PWM_Worker.cpp
-    PWM_Buffer.cpp
+    PWM_Packet.cpp
     PWM_Calculator.cpp
     PWM_Programs.cpp
     PWM_Multiplex.cpp

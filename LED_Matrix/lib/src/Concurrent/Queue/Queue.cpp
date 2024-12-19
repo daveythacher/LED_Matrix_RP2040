@@ -33,5 +33,9 @@ namespace Concurrent {
         return val;
     }
 
+    template <typename T> bool Queue<T>::available() {
+        // TODO:
+    }
+
     template class Queue<uint8_t **>;
 }
