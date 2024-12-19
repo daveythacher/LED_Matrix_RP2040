@@ -8,7 +8,7 @@
 #include "Matrix/HUB75/PWM/PWM_Calculator.h"
 
 namespace Matrix {
-    template <typename T, typename R> PWM_Matrix<T, R>::PWM_Matrix(uint8_t scan, uint8_t columns) : Matrix() {
+    template <typename T, typename R> PWM_Matrix<T, R>::PWM_Matrix(uint8_t scan, uint8_t columns) : Matrix<T,R>() {
         _scan = scan;
         _columns = columns;
         _worker = new PWM_Worker<T, R>();

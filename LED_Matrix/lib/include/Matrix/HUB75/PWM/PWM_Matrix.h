@@ -16,10 +16,10 @@ namespace Matrix {
         public:
             ~PWM_Matrix();
 
-            static PWM_Matrix<T,R> *create_matrix(uint8_t scan, uint8_t columns);
+            static PWM_Matrix *create_matrix(uint8_t scan, uint8_t columns);
 
             void show(Buffer<T> *buffer);
-            void show(Packet *buffer);
+            void show(Packet<R> *buffer);
 
         private:
             PWM_Matrix();

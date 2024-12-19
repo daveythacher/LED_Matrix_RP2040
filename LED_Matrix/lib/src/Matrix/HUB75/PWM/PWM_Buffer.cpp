@@ -21,6 +21,10 @@ namespace Matrix {
         _buffer = new T[scan * steps * columns];
     }
 
+    template <typename T> PWM_Buffer<T>::~PWM_Buffer() {
+        delete[] _buffer;
+    }
+
     template <typename T> PWM_Buffer<T> *create_pwm_buffer(uint8_t scan, uint16_t steps, uint8_t columns) {
         return new PWM_Buffer<T>(scan, steps, columns);
     }

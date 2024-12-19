@@ -15,7 +15,7 @@ namespace Matrix {
         public:
             ~PWM_Buffer();
 
-            static PWM_Buffer<T> *create_pwm_buffer(uint8_t scan, uint16_t steps, uint8_t columns);
+            static PWM_Buffer *create_pwm_buffer(uint8_t scan, uint16_t steps, uint8_t columns);
 
             void set_value(uint8_t multiplex, uint16_t index, uint8_t column, T value);
             T *get_line(uint8_t multiplex, uint16_t index);

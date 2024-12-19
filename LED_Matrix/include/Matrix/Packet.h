@@ -11,14 +11,10 @@
 
 namespace Matrix {
     // These are used for raw bit data.
-    class Packet {
+    template <typename T> class Packet {
         public:
-            Packet();
-            
-            void ntoh();
-
-        private:
-            uint8_t buffer[16 * 1024];
+            virtual void set(uint8_t scan, uint16_t step, uint8_t column, T val) = 0;
+            virtual T get(uint8_t scan, uint16_t step, uint8_t column) = 0;
     };
 }
 
