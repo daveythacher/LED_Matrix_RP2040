@@ -8,17 +8,17 @@
 #define MATRIX_PWM_MULTIPLEX_H
 
 #include "Matrix/Matrix.h"
-#include "Matrix/HUB75/PWM/PWM_Buffer.h"
+#include "Matrix/HUB75/PWM/PWM_Packet.h"
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
 #include "Matrix/HUB75/PWM/PWM_Programs.h"
 
 namespace Matrix {
-    class PWM_Multiplex {
+    template <typename T> class PWM_Multiplex {
         public:
             PWM_Multiplex();
             ~PWM_Multiplex();
 
-            void show(PWM_Buffer *buffer);
+            void show(PWM_Packet<T> *buffer);
 
         private:
             void work(void *args);

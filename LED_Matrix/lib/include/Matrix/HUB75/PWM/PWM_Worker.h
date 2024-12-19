@@ -19,22 +19,23 @@ namespace Matrix {
             PWM_Worker(uint8_t scan, uint16_t steps, uint8_t columns);
             ~PWM_Worker();
 
-            void convert(Packet<R> *buffer);
+            void convert(Packet<R> *packet);
             void convert(Buffer<T> *buffer);
 
         private:
             static void work(void *args);
             void build_index_table();
             W<R> *get_table(uint16_t v, uint8_t i);
-            void set_pixel(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1);
+            void set_pixel(R *val, T *pixel, uint8_t index);
 
             uint8_t _scan;
             uint16_t _steps;
             uint8_t _columns;
             uint16_t _size;
             uint8_t _width;
+            volatile bool _idle;
             W<R> *_index_table;
-            PWM_Multiplex *_multiplex;
+            PWM_Multiplex<R> *_multiplex;
             Concurrent::Thread *_thread;
             Concurrent::Queue<uint8_t **> *_queue;
             Concurrent::Mutex *_mutex;

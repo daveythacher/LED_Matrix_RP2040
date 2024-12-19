@@ -21,7 +21,7 @@ namespace Matrix {
         _width = (sizeof(R) * 8 / 6) * 6; // TODO: HUB75 hardware configuration
         _size = std::max((_steps / W<R>::size()), (uint32_t) 1);
         _index_table = new W<R>[_width * _size * _steps];
-        _multiplex = new PWM_Multiplex<T, R, W>();
+        _multiplex = new PWM_Multiplex<R>();
         _thread = new Concurrent::Thread(work, 4096, 1, this);
         _queue = nullptr; // TODO: Updates
         _mutex = new Concurrent::Mutex();
@@ -48,6 +48,29 @@ namespace Matrix {
         delete _mutex;
     }
 
+
+    template <typename T, typename R, typename W> void PWM_Worker<T, R, W>::convert(Packet<R> *packet) {
+        _mutex->lock();
+
+        // Force a resync of order by waiting for Buffer pipeline to stall completely.
+        //  This is not the fastest way, but mixing these is not intended.
+        //  This avoids fragmentation.
+        while (_queue->available() || !_idle) { // TODO: Consider a glitch or hazard here
+            Concurrent::Thread::Yield();
+        }
+
+        _multiplex->show(packet);
+        _mutex->unlock();
+    }
+
+    template <typename T, typename R, typename W> void PWM_Worker<T, R, W>::convert(Buffer<T> *buffer) {
+        _mutex->lock();
+
+        // TODO: Push onto local queue
+
+        _mutex->unlock();
+    }
+
     template <typename T, typename R, typename W> inline W<R> *PWM_Worker<T, R, W>::get_table(uint16_t v, uint8_t i) {
         uint32_t div = std::max((uint32_t) T::range_high / _steps, (uint32_t) 1);
         uint32_t mul = std::max((uint32_t) _steps / T::range_high, (uint32_t) 1);
@@ -63,19 +86,21 @@ namespace Matrix {
     //      2.2 Matrix operations may help
     //  3. Remove if with LUT (needs good cache)
     //      3.1 Matrix operations may help
-    template <typename T> inline void PWM_Worker<T>::set_pixel(uint8_t x, uint8_t y, uint16_t r0, uint16_t g0, uint16_t b0, uint16_t r1, uint16_t g1, uint16_t b1) {    
-        W<T> *c[6] = { get_table(r0, 0), get_table(g0, 1), get_table(b0, 2), get_table(r1, 3), get_table(g1, 4), get_table(b1, 5) };
+    template <typename T, typename R, typename W> inline void PWM_Worker<T, R, W>::set_pixel(R *val, T *pixel, uint8_t index) {    
+        W<R> *c[3] = { get_table(pixel->get_red(), index + 0), get_table(pixel->get_green(), index + 1), get_table(pixel->get_blue(), index + 2) };
     
-        for (uint32_t i = 0; i < (1 << PWM_bits); i += W<T>::size()) {
+        for (uint32_t i = 0; i < _steps; i += W<R>::size()) {
             // Superscalar Operation (forgive the loads)
-            W<T> p = *c[0] | *c[1] | *c[2] | *c[3] | *c[4] | *c[5];
+            W<R> p = *c[0] | *c[1] | *c[2];
 
             // Hopefully the compiler will sort this out. (Inlining set_value)
-            for (uint32_t j = 0; (j < (W<T>::size())) && ((i + j) < (1 << PWM_bits)); j++)
-                buf[bank].set_value(y, i + j, x + 1, p.v[j]);
+            for (uint32_t j = 0; (j < W<R>::size()) && ((i + j) < _steps); j++) {
+                *val |= p.get(j);
+                val++;
+            }
 
             // Superscalar operation
-            for (uint32_t j = 0; j < 6; j++)
+            for (uint32_t j = 0; j < 3; j++)
                 ++c[j];
         }
     }
@@ -92,65 +117,11 @@ namespace Matrix {
         }
     }
 
-    template <typename T> inline void PWM_Worker<T>::process_packet(Serial::packet *p) {
-        for (uint8_t y = 0; y < MULTIPLEX; y++) {
-            for (uint16_t x = 0; x < COLUMNS; x++) {
-                set_pixel(x, y, p->data[y][x].get_red(), p->data[y][x].get_green(), p->data[y][x].get_blue(), 
-                    p->data[y + MULTIPLEX][x].get_red(), p->data[y + MULTIPLEX][x].get_green(), p->data[y + MULTIPLEX][x].get_blue());            }
-        }
-
-        while (vsync) {
-            // Block
-        }
-
-        vsync = true;
-        bank = (bank + 1) % Serial::num_framebuffers;
-    }   
-
-    template <typename T> inline void PWM_Worker<T>::save_buffer(Serial::packet *p) {
-        for (uint8_t y = 0; y < MULTIPLEX; y++) {
-            for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-                uint8_t *p0 = buf[bank].get_line(y, i);
-                uint8_t *p1 = p->raw + (((y * (1 << PWM_bits)) + i) * Matrix::Buffer::get_line_length());
-
-                for (uint8_t x = 1; x < Matrix::Buffer::get_line_length(); x++) {
-                    p0[x] = p1[x];
-                }
-            }
-        }
-
-        while (vsync) {
-            // Block
-        }
-
-        vsync = true;
-        bank = (bank + 1) % Serial::num_framebuffers;
-    }   
-
-    template <typename T> inline void PWM_Worker<T>::save_buffer(Matrix::Buffer *p) {
-        for (uint8_t y = 0; y < MULTIPLEX; y++) {
-            for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-                uint8_t *p0 = buf[bank].get_line(y, i);
-                uint8_t *p1 = p->get_line(y, i);
-
-                for (uint8_t x = 1; x < Matrix::Buffer::get_line_length(); x++) {
-                    p0[x] = p1[x];
-                }
-            }
-        }
-
-        while (vsync) {
-            // Block
-        }
-
-        vsync = true;
-        bank = (bank + 1) % Serial::num_framebuffers;
-    }
-
     template <typename T, typename R, typename W> void PWM_Worker<T, R, W>::work(void *arg) {
         PWM_Worker<T, R, W> *object = static_cast<PWM_Worker<T, R, W> *>(arg);
 
         while (1) {
+            object->_idle = true;
             // TODO: Update
         }
     }
