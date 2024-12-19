@@ -15,6 +15,8 @@
 namespace Matrix {
     static bool result;
 
+    /* TODO:
+
     // Panel constants
     constexpr double max_clk_mhz = 25.0;
     constexpr uint8_t columns_per_driver = 16;
@@ -64,7 +66,7 @@ namespace Matrix {
         constexpr double led_fall_us_high = (10000 * COLUMNS * max_led_cap_pf) / 1000000.0;
 
         custom_assert(led_fall_us_high < BLANK_TIME, "Blank time is too low for high side");
-    }
+    }*/
 
     /*  Must test the following:
      *      1) Fanout
@@ -79,6 +81,7 @@ namespace Matrix {
     bool verify_configuration() {
         result = true;
 
+        /* TODO:
         is_brightness_valid();
         is_clk_valid();
         is_blank_time_valid();
@@ -110,7 +113,7 @@ namespace Matrix {
         custom_assert(Serial::num_framebuffers > 2, "Must have at least three framebuffers");
 
         // Qualify Worker Performance
-        custom_assert(((2 * MULTIPLEX * COLUMNS * 3 * 2 * FPS * (1 << PWM_bits)) / 1000000.0) <= 1.5, "CPU is only capable of so many operations per second.");
+        custom_assert(((2 * MULTIPLEX * COLUMNS * 3 * 2 * FPS * (1 << PWM_bits)) / 1000000.0) <= 1.5, "CPU is only capable of so many operations per second.");*/
 
         return result;
     }

@@ -6,21 +6,17 @@
  
 #include <algorithm>
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
+#include "Matrix/HUB75/PWM/PWM_Multiplex.h"
 #include "SIMD/SIMD_QUARTER.h"
 
 namespace Matrix {
-    Matrix::Buffer buf[Serial::num_framebuffers];
-    static uint8_t bank = 0;
-    static volatile uint8_t bank_vsync = 0;
-    static volatile bool vsync = false;
-
     template <typename T, typename R, typename W> PWM_Worker<T, R, W>::PWM_Worker(uint8_t scan, uint16_t steps, uint8_t columns) {
         _scan = scan;
         _steps = steps;
         _columns = columns;
         _width = (sizeof(R) * 8 / 6) * 6; // TODO: HUB75 hardware configuration
-        _size = std::max((_steps / W<R>::size()), (uint32_t) 1);
-        _index_table = new W<R>[_width * _size * _steps];
+        _size = std::max((_steps / W::size()), (uint32_t) 1);
+        _index_table = new W[_width * _size * _steps];
         _multiplex = new PWM_Multiplex<R>();
         _thread = new Concurrent::Thread(work, 4096, 1, this);
         _queue = nullptr; // TODO: Updates
@@ -30,8 +26,8 @@ namespace Matrix {
         for (uint32_t i = 0; i < _steps; i++) {
             for (uint32_t j = 0; j < _width; j++) {
                 for (uint32_t k = 0; k < _size; k++) {
-                    for (uint32_t l = 0; l < W<R>::size(); l++) {
-                        index_table[(i * (_width * _size)) + (j * _size) + k].set(0, l);
+                    for (uint32_t l = 0; l < W::size(); l++) {
+                        _index_table[(i * (_width * _size)) + (j * _size) + k].set(0, l);
                     }
                 }
             }
@@ -59,7 +55,7 @@ namespace Matrix {
             Concurrent::Thread::Yield();
         }
 
-        _multiplex->show(packet);
+        _multiplex->show(static_cast<PWM_Packet<R> *>(packet));
         _mutex->unlock();
     }
 
@@ -71,12 +67,12 @@ namespace Matrix {
         _mutex->unlock();
     }
 
-    template <typename T, typename R, typename W> inline W<R> *PWM_Worker<T, R, W>::get_table(uint16_t v, uint8_t i) {
+    template <typename T, typename R, typename W> inline W *PWM_Worker<T, R, W>::get_table(uint16_t v, uint8_t i) {
         uint32_t div = std::max((uint32_t) T::range_high / _steps, (uint32_t) 1);
         uint32_t mul = std::max((uint32_t) _steps / T::range_high, (uint32_t) 1);
 
         v = v * mul / div;
-        return &index_table[(v * (_width * _size)) + (i * _size)];
+        return &_index_table[(v * (_width * _size)) + (i * _size)];
     }
 
     // Tricks: (Branch is index into vector via PC)
@@ -87,14 +83,14 @@ namespace Matrix {
     //  3. Remove if with LUT (needs good cache)
     //      3.1 Matrix operations may help
     template <typename T, typename R, typename W> inline void PWM_Worker<T, R, W>::set_pixel(R *val, T *pixel, uint8_t index) {    
-        W<R> *c[3] = { get_table(pixel->get_red(), index + 0), get_table(pixel->get_green(), index + 1), get_table(pixel->get_blue(), index + 2) };
+        W *c[3] = { get_table(pixel->get_red(), index + 0), get_table(pixel->get_green(), index + 1), get_table(pixel->get_blue(), index + 2) };
     
-        for (uint32_t i = 0; i < _steps; i += W<R>::size()) {
+        for (uint32_t i = 0; i < _steps; i += W::size()) {
             // Superscalar Operation (forgive the loads)
-            W<R> p = *c[0] | *c[1] | *c[2];
+            W p = *c[0] | *c[1] | *c[2];
 
             // Hopefully the compiler will sort this out. (Inlining set_value)
-            for (uint32_t j = 0; (j < W<R>::size()) && ((i + j) < _steps); j++) {
+            for (uint32_t j = 0; (j < W::size()) && ((i + j) < _steps); j++) {
                 *val |= p.get(j);
                 val++;
             }
@@ -106,12 +102,12 @@ namespace Matrix {
     }
 
     template <typename T, typename R, typename W> inline void PWM_Worker<T, R, W>::build_index_table() {
-        uint8_t size = W<R>::size();
+        uint8_t size = W::size();
 
         for (uint32_t i = 0; i < _steps; i++) {
             for (uint32_t j = 0; j < _width; j++) {
                 for (uint32_t k = 0; k < i; k++) {
-                    index_table[(i * (_width * _size)) + (j * _size) + k / size].set(1 << j, k % size);
+                    _index_table[(i * (_width * _size)) + (j * _size) + k / size].set(1 << j, k % size);
                 }
             }
         }
@@ -126,8 +122,8 @@ namespace Matrix {
         }
     }
 
-    template class PWM_Worker<RGB24, uint8_t, SIMD::SIMD_QUARTER>;
-    template class PWM_Worker<RGB48, uint8_t, SIMD::SIMD_QUARTER>;
-    template class PWM_Worker<RGB_222, uint8_t, SIMD::SIMD_QUARTER>;
-    template class PWM_Worker<RGB_555, uint8_t, SIMD::SIMD_QUARTER>;
+    template class PWM_Worker<RGB24, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
+    template class PWM_Worker<RGB48, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
+    template class PWM_Worker<RGB_222, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
+    template class PWM_Worker<RGB_555, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
 }

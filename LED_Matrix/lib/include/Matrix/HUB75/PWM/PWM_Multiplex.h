@@ -26,7 +26,7 @@ namespace Matrix {
 
 
             int dma_chan[4];
-            PWM_Buffer *bufs[2];
+            //PWM_Buffer *bufs[2];
             Concurrent::Thread *thread;
             Concurrent::Queue<uint8_t **> *queue;
             PWM_Programs::Ghost_Packet ghost_packet;

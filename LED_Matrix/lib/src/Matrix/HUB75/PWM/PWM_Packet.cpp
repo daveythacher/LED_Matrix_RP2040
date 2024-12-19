@@ -18,7 +18,7 @@ namespace Matrix {
         _steps = steps;
         _buffer = new T[scan * steps * (columns + 1)];
 
-        memset(_buffer, COLUMNS - 1, scan * steps * columns);
+        memset(_buffer, columns - 1, scan * steps * columns);
     }
 
     template <typename T> PWM_Packet<T>::~PWM_Packet() {
@@ -42,7 +42,7 @@ namespace Matrix {
 
     template <typename T> T PWM_Packet<T>::get(uint8_t multiplex, uint16_t index, uint8_t column) {
         if (multiplex > _scan || index > _steps || column > _columns)
-            return;
+            return _buffer[1];
 
         uint32_t i = multiplex * _steps * (_columns + 1);
         i += index * (_columns + 1);
@@ -53,7 +53,7 @@ namespace Matrix {
 
     template <typename T> T *PWM_Packet<T>::get_line(uint8_t multiplex, uint16_t index) {
         if (multiplex > _scan || index > _steps)
-            return;
+            return nullptr;
 
         uint32_t i = multiplex * _steps * (_columns + 1);
         i += index * (_columns + 1);

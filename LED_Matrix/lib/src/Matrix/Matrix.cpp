@@ -5,13 +5,11 @@
  */
 
 #include "Matrix/Matrix.h"
-#include "Matrix/HUB75/BCM/BCM_Matrix.h"
+// TODO: #include "Matrix/HUB75/BCM/BCM_Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Matrix.h"
 
 namespace Matrix {
     template <typename T, typename R> Matrix<T, R> *Matrix<T, R>::ptr = nullptr;
-
-    template <typename T, typename R> Matrix<T, R>::Matrix() {}
 
     template <typename T, typename R> Matrix<T, R>::~Matrix() {}
 

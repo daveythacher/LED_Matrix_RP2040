@@ -4,16 +4,19 @@
  * License: GPL 3.0
  */
  
-#ifndef PWM_WORKER_H
-#define PWM_WORKER_H
+#ifndef MATRIX_PWM_WORKER_H
+#define MATRIX_PWM_WORKER_H
 
 #include <stdint.h>
-#include "Matrix/HUB75/PWM/PWM_Multiplex.h"
+#include "Matrix/Buffer.h"
+#include "Matrix/Packet.h"
 #include "Concurrent/Thread/Thread.h"
 #include "Concurrent/Queue/Queue.h"
 #include "Concurrent/Mutex/Mutex.h"
 
 namespace Matrix {
+    template <typename R> class PWM_Multiplex;
+
     template <typename T, typename R, typename W> class PWM_Worker {
         public:
             PWM_Worker(uint8_t scan, uint16_t steps, uint8_t columns);
@@ -25,7 +28,7 @@ namespace Matrix {
         private:
             static void work(void *args);
             void build_index_table();
-            W<R> *get_table(uint16_t v, uint8_t i);
+            W *get_table(uint16_t v, uint8_t i);
             void set_pixel(R *val, T *pixel, uint8_t index);
 
             uint8_t _scan;
@@ -34,7 +37,7 @@ namespace Matrix {
             uint16_t _size;
             uint8_t _width;
             volatile bool _idle;
-            W<R> *_index_table;
+            W *_index_table;
             PWM_Multiplex<R> *_multiplex;
             Concurrent::Thread *_thread;
             Concurrent::Queue<uint8_t **> *_queue;

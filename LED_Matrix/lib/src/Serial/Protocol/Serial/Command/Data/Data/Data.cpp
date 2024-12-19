@@ -7,7 +7,7 @@
 #include "pico/platform.h"
 #include "Serial/Protocol/Serial/Command/Data/Data/Data.h"
 #include "System/machine.h"
-#include "Matrix/Buffer.h"
+#include "Matrix/Matrix.h"
 #include "Matrix/Types.h"
 
 namespace Serial::Protocol::DATA_NODE {
@@ -42,8 +42,9 @@ namespace Serial::Protocol::DATA_NODE {
         }
     }
 
-    void __not_in_flash_func(Data::process_internal)(Serial::packet *buf, uint16_t len) {
-        Matrix::Buffer<Matrix::RGB24> *b = Matrix::Buffer<Matrix::RGB24>::create_buffer(8, 32);
-        Serial::Protocol::internal::process(b);
+    void __not_in_flash_func(Data::process_internal)(uint8_t *buf, uint16_t len) {
+        // TODO:
+        //Matrix::Buffer<Matrix::RGB24> *b = Matrix::Buffer<Matrix::RGB24>::create_buffer(8, 32);
+        //Serial::Protocol::internal::process(Matrix::Matrix::get_buffer());
     }
 }

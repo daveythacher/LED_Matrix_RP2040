@@ -15,7 +15,7 @@ namespace Serial::Protocol::DATA_NODE {
             void process_frame_internal();
             void process_command_internal();
             void process_payload_internal();
-            void process_internal(Serial::packet *buf, uint16_t len);
+            void process_internal(uint8_t *buf, uint16_t len);
     };
 }
 

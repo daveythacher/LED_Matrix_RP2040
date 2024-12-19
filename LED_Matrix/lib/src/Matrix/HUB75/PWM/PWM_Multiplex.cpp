@@ -15,7 +15,6 @@
 #include "hardware/dma.h"
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/config.h"
-#include "Matrix/matrix.h"
 #include "Matrix/HUB75/PWM/memory_format.h"
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"

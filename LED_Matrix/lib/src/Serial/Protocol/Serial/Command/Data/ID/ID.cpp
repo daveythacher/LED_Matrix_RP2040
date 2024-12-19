@@ -39,7 +39,7 @@ namespace Serial::Protocol::DATA_NODE {
         }
     }
 
-    void __not_in_flash_func(ID::process_internal)(Serial::packet *buf, uint16_t len) {
+    void __not_in_flash_func(ID::process_internal)(uint8_t *buf, uint16_t len) {
         // Do nothing
     }
 }

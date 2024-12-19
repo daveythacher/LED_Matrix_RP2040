@@ -40,8 +40,9 @@ namespace Serial::Protocol::DATA_NODE {
         }
     }
 
-    void __not_in_flash_func(Buffer::process_internal)(Serial::packet *buf, uint16_t len) {
-        Matrix::Packet *p = new Matrix::Packet();
-        Serial::Protocol::internal::process(p);
+    void __not_in_flash_func(Buffer::process_internal)(uint8_t *buf, uint16_t len) {
+        // TODO:
+        //Matrix::Packet *p = new Matrix::Packet();
+        //Serial::Protocol::internal::process(p);
     }
 }

@@ -7,9 +7,10 @@
 #include "Matrix/HUB75/PWM/PWM_Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Packet.h"
 #include "Matrix/HUB75/PWM/PWM_Calculator.h"
+#include "SIMD/SIMD_QUARTER.h"
 
 namespace Matrix {
-    template <typename T, typename R, typename W, typename W> PWM_Matrix<T, R, W>::PWM_Matrix(uint8_t scan, uint8_t pwm_bits, uint8_t columns) {
+    template <typename T, typename R, typename W> PWM_Matrix<T, R, W>::PWM_Matrix(uint8_t scan, uint8_t pwm_bits, uint8_t columns) {
         _scan = scan;
         _columns = columns;
         _pwm_bits = pwm_bits;
@@ -20,6 +21,8 @@ namespace Matrix {
         if (verify_configuration()) {
             // TODO: Create singleton?
         }
+
+        return nullptr;
     }
 
     template <typename T, typename R, typename W> PWM_Matrix<T, R, W>::~PWM_Matrix() {
@@ -29,13 +32,13 @@ namespace Matrix {
     template <typename T, typename R, typename W> void PWM_Matrix<T, R, W>::show(unique_ptr<Buffer<T>> &buffer) {
         unique_ptr<Buffer<T>> p(get_buffer());
         buffer.swap(p);
-        _worker->convert(p.release(), true);
+        _worker->convert(p.release());
     }
     
     template <typename T, typename R, typename W> void PWM_Matrix<T, R, W>::show(unique_ptr<Packet<R>> &packet) {
         unique_ptr<Packet<R>> p(get_packet());
         packet.swap(p);
-        _worker->convert(p.release(), true);
+        _worker->convert(p.release());
     }
     
     template <typename T, typename R, typename W> unique_ptr<Buffer<T>> PWM_Matrix<T, R, W>::get_buffer() {
@@ -48,8 +51,8 @@ namespace Matrix {
         return result;
     }
 
-    template class PWM_Matrix<RGB24, uint8_t, SIMD::SIMD_QUARTER>;
-    template class PWM_Matrix<RGB48, uint8_t, SIMD::SIMD_QUARTER>;
-    template class PWM_Matrix<RGB_222, uint8_t, SIMD::SIMD_QUARTER>;
-    template class PWM_Matrix<RGB_555, uint8_t, SIMD::SIMD_QUARTER>;
+    template class PWM_Matrix<RGB24, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
+    template class PWM_Matrix<RGB48, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
+    template class PWM_Matrix<RGB_222, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
+    template class PWM_Matrix<RGB_555, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
 }
