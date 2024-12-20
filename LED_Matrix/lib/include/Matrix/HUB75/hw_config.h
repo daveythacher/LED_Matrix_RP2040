@@ -9,8 +9,14 @@
 
 #include <stdint.h>
 
+// SIMD_QUARTER 32-bit (Supported)
+// SIMD_HALF    64-bit
+// SIMD_SINGLE  128-bit (Supported)
+// SIMD_DOUBLE  256-bit
+// SIMD_QUAD    512-bit
+
 #define HUB75_UNIT  uint8_t         // Cannot be larger than SIMD_UNIT
-#define SIMD_UNIT   SIMD_QUARTER
+#define SIMD_UNIT   SIMD_QUARTER    // Make as large as hardware supports
 
 namespace Matrix::HUB75 {
     constexpr uint16_t HUB75_DATA_BASE = 8;
