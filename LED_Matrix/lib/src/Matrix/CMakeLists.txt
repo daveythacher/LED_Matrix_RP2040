@@ -6,7 +6,7 @@ add_subdirectory(HUB75)
 add_library(led_Matrix INTERFACE)
 
 target_sources(led_Matrix INTERFACE
-    Matrix.cpp
+    Factory.cpp
 )
 
 target_link_libraries(led_Matrix INTERFACE
