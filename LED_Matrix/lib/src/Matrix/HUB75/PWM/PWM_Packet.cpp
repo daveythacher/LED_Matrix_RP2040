@@ -52,6 +52,23 @@ namespace Matrix {
         return _buffer[i + 1];
     }
 
+
+    template <typename T> uint8_t PWM_Packet<T>::num_scan() {
+        return _scan;
+    }
+
+    template <typename T> uint16_t PWM_Packet<T>::num_columns(bool isRaw) {
+        if (isRaw) {
+            return _columns + 1;
+        }
+        
+        return _columns;
+    }
+
+    template <typename T> uint32_t PWM_Packet<T>::num_steps() {
+        return _steps;
+    }
+
     template <typename T> T *PWM_Packet<T>::get_line(uint8_t multiplex, uint16_t index) {
         if (multiplex > _scan || index > _steps)
             return nullptr;

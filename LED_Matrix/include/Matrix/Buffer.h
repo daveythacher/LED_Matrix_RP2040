@@ -15,6 +15,8 @@ namespace Matrix {
         public:
             virtual void set(uint8_t row, uint8_t column, T val) = 0;
             virtual T get(uint8_t row, uint8_t column) = 0;
+            virtual uint8_t num_rows() = 0;
+            virtual uint8_t num_columns() = 0;
     };
 }
 

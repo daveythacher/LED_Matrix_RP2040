@@ -18,6 +18,8 @@ namespace Matrix {
 
             void set(uint8_t row, uint8_t column, T value);
             T get(uint8_t row, uint8_t column);
+            uint8_t num_rows();
+            uint8_t num_columns();
 
         private:
             PWM_Buffer();

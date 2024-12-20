@@ -40,6 +40,15 @@ namespace Matrix {
         return _buffer[i];
     }
 
+
+    template <typename T> uint8_t PWM_Buffer<T>::num_rows() {
+        return _rows;
+    }
+
+    template <typename T> uint8_t PWM_Buffer<T>::num_columns() {
+        return _columns;
+    }
+
     template class PWM_Buffer<RGB24>;
     template class PWM_Buffer<RGB48>;
     template class PWM_Buffer<RGB_222>;

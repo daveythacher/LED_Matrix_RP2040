@@ -1,2 +1,1 @@
-#TODO: add_subdirectory(BCM)
-add_subdirectory(PWM)
+configure_file(hw_config.h.in hw_config.h @ONLY)

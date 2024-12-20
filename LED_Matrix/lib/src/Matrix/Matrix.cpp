@@ -16,6 +16,8 @@ namespace Matrix {
     template <typename T, typename R> Matrix<T, R> *Matrix<T, R>::get_matrix() {
         if (ptr == nullptr) {
             // TODO:
+            // Figure out the Matrix Family (HUB75)
+            //  For HUB75, if Refresh <= 250 use BCM, PWM otherwise
         }
 
         return ptr;
