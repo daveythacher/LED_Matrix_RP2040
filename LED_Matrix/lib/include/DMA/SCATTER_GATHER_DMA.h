@@ -9,6 +9,7 @@
 
 namespace IO {
     // T must be uint32_t, uint64_t or uint128_t
+    //  TODO: Sort out the head construct
     template <typename T> class SCATTER_GATHER_DMA {
         public:
             SCATTER_GATHER_DMA();
