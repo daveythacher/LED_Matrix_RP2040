@@ -17,11 +17,15 @@
 // SIMD_DOUBLE  256-bit                 32          16          8           4
 // SIMD_QUAD    512-bit                 64          32          16          8
 
-// HUB75_UNIT   Parallel Chains     RP2040
-// uint8_t          1               (Supported)
-// uin16_t          2               (Maybe)
-// uint32_t         5
-// uint64_t         10
+// HUB75_UNIT   Parallel Chains     Pins        RP2040
+// uint8_t          1               6           (Supported)
+// uin16_t          2               12          (Maybe)
+// uint32_t         5               30
+// uint64_t         10              60
+
+// Matrix is:
+//  PWM: Pins by (2^bits / Parallel bitplanes)
+//  BCM: Pinx by (bits / Parallel bitplanes)
 
 #define HUB75_UNIT  uint8_t         // Cannot be larger than SIMD_UNIT
 #define SIMD_UNIT   SIMD_QUARTER    // Make as large as hardware supports
