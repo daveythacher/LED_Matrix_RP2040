@@ -25,7 +25,7 @@
 
 // Matrix is:
 //  PWM: Pins by (2^bits / Parallel bitplanes)
-//  BCM: Pinx by (bits / Parallel bitplanes)
+//  BCM: Pins by (bits / Parallel bitplanes)
 
 #define HUB75_UNIT  uint8_t         // Cannot be larger than SIMD_UNIT
 #define SIMD_UNIT   SIMD_QUARTER    // Make as large as hardware supports
