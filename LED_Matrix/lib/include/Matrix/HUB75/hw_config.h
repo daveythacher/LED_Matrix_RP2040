@@ -9,11 +9,19 @@
 
 #include <stdint.h>
 
-// SIMD_QUARTER 32-bit (Supported)
-// SIMD_HALF    64-bit
-// SIMD_SINGLE  128-bit (Supported)
-// SIMD_DOUBLE  256-bit
-// SIMD_QUAD    512-bit
+//          Operation                           Parallel bitplanes
+// SIMD_UNIT    Width   Status      uint8_t     uint16_t    uint32_t    uint64_t
+// SIMD_QUARTER 32-bit  (Supported)     4           2           1           0
+// SIMD_HALF    64-bit                  8           4           2           1
+// SIMD_SINGLE  128-bit                 16          8           4           2
+// SIMD_DOUBLE  256-bit                 32          16          8           4
+// SIMD_QUAD    512-bit                 64          32          16          8
+
+// HUB75_UNIT   Parallel Chains     RP2040
+// uint8_t          1               (Supported)
+// uin16_t          2               (Maybe)
+// uint32_t         5
+// uint64_t         10
 
 #define HUB75_UNIT  uint8_t         // Cannot be larger than SIMD_UNIT
 #define SIMD_UNIT   SIMD_QUARTER    // Make as large as hardware supports
