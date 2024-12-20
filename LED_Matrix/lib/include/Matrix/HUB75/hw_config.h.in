@@ -10,6 +10,11 @@
 #include <stdint.h>
 #include <math.h>
 
+// TODO: Get this into something useful
+
+
+
+
 //          Operation                           Parallel bitplanes
 // SIMD_UNIT    Width   Status      uint8_t     uint16_t    uint32_t    uint64_t
 // SIMD_QUARTER 32-bit  (Supported)     4           2           1           0
