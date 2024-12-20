@@ -6,8 +6,11 @@
 
 #include "Matrix/HUB75/PWM/PWM_Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Packet.h"
+#include "Matrix/HUB75/PWM/PWM_Buffer.h"
 #include "Matrix/HUB75/PWM/PWM_Calculator.h"
+#include "Matrix/HUB75/hw_config.h"
 #include "SIMD/SIMD_QUARTER.h"
+#include "SIMD/SIMD_SINGLE.h"
 
 namespace Matrix {
     template <typename T, typename R, typename W> PWM_Matrix<T, R, W>::PWM_Matrix(uint8_t scan, uint8_t pwm_bits, uint8_t columns) {
@@ -42,7 +45,8 @@ namespace Matrix {
     }
     
     template <typename T, typename R, typename W> unique_ptr<Buffer<T>> PWM_Matrix<T, R, W>::get_buffer() {
-        unique_ptr<Buffer<T>> result(nullptr);  // TODO:
+        uint32_t i = ((sizeof(R) * 8) / 6) * 2;
+        unique_ptr<Buffer<T>> result(PWM_Buffer<T>::create_pwm_buffer(_scan * i, _columns));
         return result;
     }
     
@@ -51,8 +55,8 @@ namespace Matrix {
         return result;
     }
 
-    template class PWM_Matrix<RGB24, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
-    template class PWM_Matrix<RGB48, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
-    template class PWM_Matrix<RGB_222, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
-    template class PWM_Matrix<RGB_555, uint8_t, SIMD::SIMD_QUARTER<uint8_t>>;
+    template class PWM_Matrix<RGB24, HUB75_UNIT, SIMD::SIMD_UNIT<HUB75_UNIT>>;
+    template class PWM_Matrix<RGB48, HUB75_UNIT, SIMD::SIMD_UNIT<HUB75_UNIT>>;
+    template class PWM_Matrix<RGB_222, HUB75_UNIT, SIMD::SIMD_UNIT<HUB75_UNIT>>;
+    template class PWM_Matrix<RGB_555, HUB75_UNIT, SIMD::SIMD_UNIT<HUB75_UNIT>>;
 }

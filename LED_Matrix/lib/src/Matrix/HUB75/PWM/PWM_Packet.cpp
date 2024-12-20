@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include "Matrix/HUB75/PWM/PWM_Packet.h"
+#include "Matrix/HUB75/hw_config.h"
 
 // Every line starts with a counter variable indexed from zero instead of one
 
@@ -65,5 +66,5 @@ namespace Matrix {
         return _columns + 1;
     }
 
-    template class PWM_Packet<uint8_t>;
+    template class PWM_Packet<HUB75_UNIT>;
 }

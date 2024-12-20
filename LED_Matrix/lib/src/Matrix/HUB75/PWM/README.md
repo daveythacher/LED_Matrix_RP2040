@@ -14,3 +14,6 @@ Follows standard design for Matrix Algorithms.
 
 ## Core reservations
 Follows standard design for Matrix Algorithms.
+
+## Random comments:
+uint8_t is one HUB75, uint16_t is two HUB75, uint32_t is five HUB75.
