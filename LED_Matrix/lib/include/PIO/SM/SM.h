@@ -9,7 +9,6 @@
 
 #include <stdint.h>
 #include "PIO/Program/Program.h"
-#include "DMA/DMA.h"
 
 namespace IO {
     // Future: Add destructor (Program is resource intensive for resource management.)
@@ -33,11 +32,6 @@ namespace IO {
             };
 
             SM_fields data;
-    };
-
-    template <typename T> class SM_Target : public SM, IO_Target<T> {
-        public:
-            SM_Target(int pio);
     };
 }
 

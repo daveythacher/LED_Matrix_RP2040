@@ -8,14 +8,9 @@
 #define PIO_PROGRAM_ASM_WAIT_H
 
 #include "PIO/Program/ASM/ASM.h"
+#include "PIO/Program/ASM/WAIT/Flags.h"
 
 namespace IO {
-    enum class Flags {
-        GPIO,
-        IRQ,
-        PIN
-    };
-
     class WAIT : public ASM {
         public:
             WAIT(Flags flag, bool set, uint8_t num);

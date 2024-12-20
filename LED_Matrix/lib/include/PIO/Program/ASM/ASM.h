@@ -8,21 +8,10 @@
 #define PIO_PROGRAM_ASM_H
 
 #include <stdint.h>
+#include "PIO/Program/ASM/Registers.h"
 
 namespace IO {
     class Program;
-
-    enum class Registers {
-        X,
-        Y,
-        ISR,
-        OSR,
-        PC,
-        NONE,
-        EXEC,
-        PINS,
-        PINDIRS
-    };
 
     // Future: Missing support for IN, PUSH, MOV and SET
     class ASM {

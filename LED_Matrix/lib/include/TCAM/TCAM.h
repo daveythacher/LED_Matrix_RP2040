@@ -1,5 +1,5 @@
 /* 
- * File:   tcam.h
+ * File:   TCAM.h
  * Author: David Thacher
  * License: GPL 3.0
  */
@@ -9,14 +9,10 @@
 
 #include <stdint.h>
 #include "SIMD/SIMD_SINGLE.h"
+#include "TCAM/Handler.h"
 
 // This can be rendered into coprocessor.
 namespace TCAM {
-    class Handler {
-        public:
-            virtual void callback() = 0;
-    };
-
     template <typename T> class Table {
         public:
             Table(uint8_t size);
