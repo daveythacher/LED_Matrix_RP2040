@@ -1,13 +1,13 @@
 ## Portability
-Concurrent - Portable upto FreeRTOS
+Concurrent - Portable up to FreeRTOS
 
-TCAM - Portable upto SIMD
+TCAM - Portable up to SIMD
 
 SIMD - Portable
 
 Serial/Node - Portable but requires work
 
-Serial/Protocol - Portable upto Concurrent
+Serial/Protocol - Portable up to Concurrent
 
 Multiplex - Portable but requires work
 
