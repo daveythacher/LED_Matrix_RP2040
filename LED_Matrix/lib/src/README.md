@@ -21,4 +21,6 @@ DMA - Portable but requires work
 
 FreeRTOS - Critical dependency
 
-System - Portable but requires work
+System - Portable but requires compiler support (__BYTE_ORDER)
+
+CRC/CRC32 - Portable
