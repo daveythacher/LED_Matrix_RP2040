@@ -1,26 +1,26 @@
 ## Portability
-Concurrent - Portable up to FreeRTOS
-
-TCAM - Portable up to SIMD
+TCAM - Portable
 
 SIMD - Portable
 
-Serial/Node - Portable but requires work
+CRC/CRC32 - Portable
 
-Serial/Protocol - Portable up to Concurrent
+Concurrent - Portable
 
-Multiplex - Portable but requires work
-
-GPIO - Portable but requires work
-
-Matrix - Portable but requires work
-
-PIO - Critical dependency
-
-DMA - Portable but requires work
-
-FreeRTOS - Critical dependency
+Serial/Protocol - Portable
 
 System - Portable but requires compiler support (__BYTE_ORDER)
 
-CRC/CRC32 - Portable
+DMA - Portable but requires work (Hardware IO)
+
+GPIO - Portable but requires work (Hardware IO)
+
+Matrix - Portable but requires work (PIO Program)
+
+Multiplex - Portable but requires work (PIO Program)
+
+Serial/Node - Portable but requires work (Hardware IO)
+
+PIO - Critical dependency (Hardware IO)
+
+FreeRTOS - Critical dependency (Hardware IO)
