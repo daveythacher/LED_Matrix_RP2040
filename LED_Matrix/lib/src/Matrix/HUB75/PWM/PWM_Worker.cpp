@@ -12,6 +12,8 @@
 #include "SIMD/SIMD_SINGLE.h"
 
 namespace Matrix {
+    template <typename T, typename R, typename W> uint8_t PWM_Worker<T, R, W>::_thread_id = 0;
+
     template <typename T, typename R, typename W> PWM_Worker<T, R, W>::PWM_Worker(uint8_t scan, uint16_t steps, uint8_t columns) {
         _scan = scan;
         _steps = steps;
@@ -20,7 +22,8 @@ namespace Matrix {
         _size = std::max((_steps / W::size()), (uint32_t) 1);
         _index_table = new W[_width * _size * _steps];
         _multiplex = new PWM_Multiplex<R>();
-        _thread = new Concurrent::Thread(work, 4096, 1, this);
+        _thread[0] = new Concurrent::Thread(work, 4096, 1, this);
+        _thread[1] = new Concurrent::Thread(work, 4096, 1, this);
         _queue = nullptr; // TODO: Updates
         _mutex = new Concurrent::Mutex();
         
@@ -115,12 +118,24 @@ namespace Matrix {
         }
     }
 
+    template <typename T, typename R, typename W> uint8_t PWM_Worker<T, R, W>::get_thread_id() {
+        ++_thread_id;
+        return _thread_id - 1;
+    }
+
     template <typename T, typename R, typename W> void PWM_Worker<T, R, W>::work(void *arg) {
         PWM_Worker<T, R, W> *object = static_cast<PWM_Worker<T, R, W> *>(arg);
+        uint8_t id = object->get_thread_id();
 
         while (1) {
             object->_idle = true;
-            // TODO: Update
+
+            if (id == 0) {
+                // TODO: Parent thread
+            }
+            else {
+                // TODO: Child thread
+            }
         }
     }
 
