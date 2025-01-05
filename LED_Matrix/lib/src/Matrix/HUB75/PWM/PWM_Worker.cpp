@@ -5,6 +5,7 @@
  */
  
 #include <algorithm>
+#include <atomic>
 #include "Matrix/HUB75/PWM/PWM_Worker.h"
 #include "Matrix/HUB75/PWM/PWM_Multiplex.h"
 #include "Matrix/HUB75/hw_config.h"
@@ -12,8 +13,6 @@
 #include "SIMD/SIMD_SINGLE.h"
 
 namespace Matrix {
-    template <typename T, typename R, typename W> uint8_t PWM_Worker<T, R, W>::_thread_id = 0;
-
     template <typename T, typename R, typename W> PWM_Worker<T, R, W>::PWM_Worker(uint8_t scan, uint16_t steps, uint8_t columns) {
         _scan = scan;
         _steps = steps;
@@ -119,6 +118,7 @@ namespace Matrix {
     }
 
     template <typename T, typename R, typename W> uint8_t PWM_Worker<T, R, W>::get_thread_id() {
+        static std::atomic<uint8_t> _thread_id = 0;
         ++_thread_id;
         return _thread_id - 1;
     }

@@ -43,7 +43,6 @@ namespace Matrix {
             Concurrent::Thread *_thread[2];
             Concurrent::Queue<uint8_t **> *_queue;
             Concurrent::Mutex *_mutex;
-            static uint8_t _thread_id;
     };
 }
 
