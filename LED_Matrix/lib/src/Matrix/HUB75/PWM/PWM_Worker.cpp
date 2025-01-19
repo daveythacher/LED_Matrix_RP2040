@@ -118,7 +118,7 @@ namespace Matrix {
     }
 
     template <typename T, typename R, typename W> uint8_t PWM_Worker<T, R, W>::get_thread_id() {
-        static std::atomic<uint8_t> _thread_id = 0;
+        static std::atomic<uint8_t> _thread_id = 0; // This does not work on RP2040 due to hardware
         ++_thread_id;
         return _thread_id - 1;
     }
