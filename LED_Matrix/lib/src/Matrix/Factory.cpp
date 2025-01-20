@@ -15,7 +15,7 @@ namespace Matrix {
         if (ptr == nullptr) {
             // TODO:
             // Figure out the Matrix Family (HUB75)
-            //  For HUB75, use PWM only
+            //  For HUB75, if Refresh <= 250 use BCM, PWM otherwise
         }
 
         return ptr;
