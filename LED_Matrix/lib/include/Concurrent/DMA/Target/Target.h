@@ -7,7 +7,7 @@
 #ifndef DMA_TARGET_H
 #define DMA_TARGET_H
 
-namespace IO {
+namespace Concurrent::IO {
     // Abstract interface for transfers
     // T must be uint8_t, uint16_t or uint32_t
     template <typename T> class Target {
