@@ -41,13 +41,15 @@ namespace TCAM {
         return true;
     }
 
-    template <typename T> void Table<T>::TCAM_process(const T *data) {
+    template <typename T> bool Table<T>::TCAM_process(const T *data) {
         for (uint8_t i = 0; i < num_rules; i++) {
             if (callbacks[i] != nullptr && TCAM_search(data, &masks[i], &values[i])) {
                 callbacks[i]->callback();
-                break;
+                return true;
             }
         }
+
+        return false;
     }
 
     template class Table<SIMD::SIMD_SINGLE<uint8_t>>;

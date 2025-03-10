@@ -20,7 +20,7 @@ namespace TCAM {
 
             // Only the highest priority rule match runs
             bool TCAM_rule(uint8_t priority, T key, T enable, Handler *callback);
-            void TCAM_process(const T *data);
+            bool TCAM_process(const T *data);
         
         protected:
             Table();

@@ -43,7 +43,8 @@ namespace Matrix {
     template <typename T, typename R, typename W> PWM_Worker<T, R, W>::~PWM_Worker() {
         delete[] _index_table;
         delete _multiplex;
-        delete _thread;
+        delete _thread[0];
+        delete _thread[1];
         delete _queue;
         delete _mutex;
     }

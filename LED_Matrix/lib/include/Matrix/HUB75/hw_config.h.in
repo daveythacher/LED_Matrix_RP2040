@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include "Matrix/config.h"
 
 // TODO: Get this into something useful
 
@@ -46,8 +47,6 @@ namespace Matrix {
     #cmakedefine DEFINE_BLANK_TIME          @DEFINE_BLANK_TIME@
     #cmakedefine DEFINE_FPS                 @DEFINE_FPS@
     #cmakedefine DEFINE_BYPASS_FANOUT       @DEFINE_BYPASS_FANOUT@
-    #cmakedefine DEFINE_MULTIPLEX_SCAN      @DEFINE_MULTIPLEX_SCAN@
-    #cmakedefine DEFINE_COLUMNS             @DEFINE_COLUMNS@
 
     #ifndef DEFINE_BYPASS_FANOUT
     #define DEFINE_BYPASS_FANOUT            false
@@ -59,8 +58,6 @@ namespace Matrix {
     // Order (LSB to MSB): R0 G0 B0 R1 G1 B1 CLK LAT
     constexpr uint16_t HUB75_DATA_LEN = (((sizeof(HUB75_UNIT) * 8) / 6) * 6) + 2;
 
-    constexpr uint8_t MULTIPLEX = DEFINE_MULTIPLEX_SCAN;
-    constexpr uint16_t COLUMNS = DEFINE_COLUMNS;
     constexpr uint16_t MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Contrast Ratio - Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
     constexpr uint16_t MIN_REFRESH = DEFINE_MIN_REFRESH;
     constexpr double SERIAL_CLOCK = (DEFINE_MATRIX_DCLOCK * 1000000.0);

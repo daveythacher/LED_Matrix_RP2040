@@ -12,29 +12,25 @@
 namespace Serial::Protocol::DATA_NODE {
     void __not_in_flash_func(Raw_Data::process_command_internal)() {
         state_data = DATA_STATES::PAYLOAD;
-        time = time_us_64();
+        update_time();
         status = Serial::Protocol::internal::STATUS::ACTIVE_0;
-        index = 0;
-        trigger = false;
+        clear_trigger();
     }
 
     void __not_in_flash_func(Raw_Data::process_payload_internal)() {
-        get_data(buf, len, false);
-
-        if (len == index) {
+        if (get_data(buf, len, false)) {
             state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
-            time = time_us_64();
-            index = 0;
+            update_time();
             status = Serial::Protocol::internal::STATUS::ACTIVE_1;
-            trigger = false;
+            clear_trigger();
         }
     }
 
     void __not_in_flash_func(Raw_Data::process_frame_internal)() {
             state_data = DATA_STATES::READY;
-            time = time_us_64();
+            update_time();
             status = Serial::Protocol::internal::STATUS::READY;
-            trigger = false;
+            clear_trigger();
     }
 
     void __not_in_flash_func(Raw_Data::process_internal)(uint8_t *buf, uint16_t len) {

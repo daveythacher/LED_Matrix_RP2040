@@ -11,6 +11,7 @@
 #include "System/machine.h"
 #include "CRC/CRC.h"
 
+// TODO: Upgrade to Command State Machine?
 namespace Serial::Protocol::CONTROL_NODE {
     static uint8_t id = 0;
 
@@ -43,6 +44,8 @@ namespace Serial::Protocol::CONTROL_NODE {
                         if (message.id == id)
                             Serial::Protocol::DATA_NODE::Command::acknowledge_query();
                         break;
+
+                    // TODO: Add comm test with acknowledgement message
 
                     default:
                         break;
