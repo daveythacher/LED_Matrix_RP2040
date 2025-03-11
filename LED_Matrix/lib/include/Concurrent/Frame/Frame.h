@@ -22,7 +22,7 @@ namespace Concurrent {
 
             virtual T *func() = 0;
             void sync_cpu();
-            void sync_cache();
+            virtual void sync_cache();
     };
 
     // TODO: Thread Pool and Frame Manager?

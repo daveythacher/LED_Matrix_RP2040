@@ -40,10 +40,10 @@ namespace Serial::Protocol::internal {
 
     static inline void __not_in_flash_func(write_chunk)(uint32_t v, uint8_t bits) {
         for (int i = 0; i < bits; i += 8) {
-            if (Serial::Node::Data::isAvailable())
-                Serial::Node::Data::putc((v >> i) & 0xFF);
-            else
+            while (!Serial::Node::Data::isAvailable())
                 watchdog_update();
+            
+            Serial::Node::Data::putc((v >> i) & 0xFF);
         }
     }
 
