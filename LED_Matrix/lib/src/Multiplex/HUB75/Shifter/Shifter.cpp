@@ -7,7 +7,7 @@
 #include <math.h>
 #include "Multiplex/Multiplex.h"
 #include "Multiplex/HUB75/hw_config.h"
-#include "Matrix/config.h"
+#include "Multiplex/config.h"
 #include "hardware/gpio.h"
 #include "hardware/pio.h"
 
