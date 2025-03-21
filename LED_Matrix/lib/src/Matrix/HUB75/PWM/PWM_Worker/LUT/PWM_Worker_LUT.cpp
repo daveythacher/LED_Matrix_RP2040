@@ -13,7 +13,7 @@
 #include "SIMD/SIMD_SINGLE.h"
 
 namespace Matrix {
-    template <typename T, typename R, typename W> PWM_Worker_LUT<T, R, W>::PWM_Worker_LUT(uint8_t scan, uint16_t steps, uint8_t columns) : PWM_Worker<T, R, W>::PWM_Worker() {
+    template <typename R, typename X, typename W> PWM_Worker_LUT<R, X, W>::PWM_Worker_LUT(uint8_t scan, uint16_t steps, uint8_t columns) : PWM_Worker<R, X, W>::PWM_Worker() {
         _scan = scan;
         _steps = steps;
         _columns = columns;
@@ -40,7 +40,7 @@ namespace Matrix {
         build_index_table();
     }
 
-    template <typename T, typename R, typename W> PWM_Worker_LUT<T, R, W>::~PWM_Worker_LUT() {
+    template <typename R, typename X, typename W> PWM_Worker_LUT<R, X, W>::~PWM_Worker_LUT() {
         delete[] _index_table;
         delete _multiplex;
         delete _thread[0];
@@ -50,7 +50,7 @@ namespace Matrix {
     }
 
 
-    template <typename T, typename R, typename W> void PWM_Worker_LUT<T, R, W>::convert(Packet<R> *packet) {
+    template <typename R, typename X, typename W> void PWM_Worker_LUT<R, X, W>::convert(Packet<R> *packet) {
         _mutex->lock();
 
         // Force a resync of order by waiting for Buffer pipeline to stall completely.
@@ -64,7 +64,7 @@ namespace Matrix {
         _mutex->unlock();
     }
 
-    template <typename T, typename R, typename W> void PWM_Worker_LUT<T, R, W>::convert(Buffer<T> *buffer) {
+    template <typename R, typename X, typename W> void PWM_Worker_LUT<R, X, W>::convert(Buffer<T> *buffer) {
         _mutex->lock();
 
         // TODO: Push onto local queue
@@ -72,7 +72,7 @@ namespace Matrix {
         _mutex->unlock();
     }
 
-    template <typename T, typename R, typename W> inline W *PWM_Worker_LUT<T, R, W>::get_table(uint16_t v, uint8_t i) {
+    template <typename R, typename X, typename W> inline W *PWM_Worker_LUT<R, X, W>::get_table(uint16_t v, uint8_t i) {
         uint32_t div = std::max((uint32_t) T::range_high / _steps, (uint32_t) 1);
         uint32_t mul = std::max((uint32_t) _steps / T::range_high, (uint32_t) 1);
 
@@ -87,7 +87,7 @@ namespace Matrix {
     //      2.2 Matrix operations may help
     //  3. Remove if with LUT (needs good cache)
     //      3.1 Matrix operations may help
-    template <typename T, typename R, typename W> inline void PWM_Worker_LUT<T, R, W>::set_pixel(R *val, T *pixel, uint8_t index) {    
+    template <typename R, typename X, typename W> inline void PWM_Worker_LUT<R, X, W>::set_pixel(R *val, T *pixel, uint8_t index) {    
         W *c[3] = { get_table(pixel->get_red(), index + 0), get_table(pixel->get_green(), index + 1), get_table(pixel->get_blue(), index + 2) };
     
         for (uint32_t i = 0; i < _steps; i += W::size()) {
@@ -106,7 +106,7 @@ namespace Matrix {
         }
     }
 
-    template <typename T, typename R, typename W> inline void PWM_Worker_LUT<T, R, W>::build_index_table() {
+    template <typename R, typename X, typename W> inline void PWM_Worker_LUT<R, X, W>::build_index_table() {
         uint8_t size = W::size();
 
         for (uint32_t i = 0; i < _steps; i++) {
@@ -118,14 +118,14 @@ namespace Matrix {
         }
     }
 
-    template <typename T, typename R, typename W> uint8_t PWM_Worker_LUT<T, R, W>::get_thread_id() {
+    template <typename R, typename X, typename W> uint8_t PWM_Worker_LUT<R, X, W>::get_thread_id() {
         static std::atomic<uint8_t> _thread_id = 0; // This does not work on RP2040 due to hardware
         ++_thread_id;
         return _thread_id - 1;
     }
 
-    template <typename T, typename R, typename W> void PWM_Worker_LUT<T, R, W>::work(void *arg) {
-        PWM_Worker_LUT<T, R, W> *object = static_cast<PWM_Worker_LUT<T, R, W> *>(arg);
+    template <typename R, typename X, typename W> void PWM_Worker_LUT<R, X, W>::work(void *arg) {
+        PWM_Worker_LUT<R, X, W> *object = static_cast<PWM_Worker_LUT<R, X, W> *>(arg);
         uint8_t id = object->get_thread_id();
 
         while (1) {
