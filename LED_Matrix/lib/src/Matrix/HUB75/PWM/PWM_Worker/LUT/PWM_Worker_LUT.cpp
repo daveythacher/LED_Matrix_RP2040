@@ -13,7 +13,7 @@
 #include "SIMD/SIMD_SINGLE.h"
 
 namespace Matrix {
-    template <typename T, typename R, typename W> PWM_Worker_LUT<T, R, W>::PWM_Worker_LUT_LUT(uint8_t scan, uint16_t steps, uint8_t columns) : PWM_Worker<T, R, W>::PWM_Worker() {
+    template <typename T, typename R, typename W> PWM_Worker_LUT<T, R, W>::PWM_Worker_LUT(uint8_t scan, uint16_t steps, uint8_t columns) : PWM_Worker<T, R, W>::PWM_Worker() {
         _scan = scan;
         _steps = steps;
         _columns = columns;
