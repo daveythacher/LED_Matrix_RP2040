@@ -1,15 +1,16 @@
 /* 
- * File:   PWM_worker.h
+ * File:   PWM_Worker_LUT.h
  * Author: David Thacher
  * License: GPL 3.0
  */
  
-#ifndef MATRIX_PWM_WORKER_H
-#define MATRIX_PWM_WORKER_H
+#ifndef MATRIX_PWM_WORKER_LUT_H
+#define MATRIX_PWM_WORKER_LUT_H
 
 #include <stdint.h>
 #include "Matrix/Buffer.h"
 #include "Matrix/Packet.h"
+#include "Matrix/HUB75/PWM/PWM_Worker/PWM_Worker.h"
 #include "Concurrent/Thread/Thread.h"
 #include "Concurrent/Queue/Queue.h"
 #include "Concurrent/Mutex/Mutex.h"
@@ -17,10 +18,10 @@
 namespace Matrix {
     template <typename R> class PWM_Multiplex;
 
-    template <typename T, typename R, typename W> class PWM_Worker {
+    template <typename T, typename R, typename W> class PWM_Worker_LUT : public PWM_Worker {
         public:
-            PWM_Worker(uint8_t scan, uint16_t steps, uint8_t columns);
-            ~PWM_Worker();
+            PWM_Worker_LUT(uint8_t scan, uint16_t steps, uint8_t columns);
+            ~PWM_Worker_LUT();
 
             void convert(Packet<R> *packet);
             void convert(Buffer<T> *buffer);

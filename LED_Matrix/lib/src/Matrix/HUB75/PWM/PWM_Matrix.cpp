@@ -17,7 +17,7 @@ namespace Matrix {
         _scan = scan;
         _columns = columns;
         _pwm_bits = pwm_bits;
-        _worker = new PWM_Worker<T, R, W>(scan, 1 << pwm_bits, columns);
+        _worker = PWM_Worker<T, R, W>::get_worker(scan, 1 << pwm_bits, columns);
     }
 
     template <typename T, typename R, typename W> PWM_Matrix<T, R, W> *PWM_Matrix<T, R, W>::create_matrix(uint8_t scan, uint8_t pwm_bits, uint8_t columns) {

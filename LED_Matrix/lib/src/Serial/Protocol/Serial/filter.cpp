@@ -12,6 +12,7 @@
 #include "Serial/Protocol/Serial/Command/Query/Test/Test.h"
 #include "Serial/Node/data.h"
 #include "System/machine.h"
+#include "Matrix/config.h"
 
 namespace Serial::Protocol::DATA_NODE {
     TCAM::Table<SIMD::SIMD_SINGLE<uint8_t>> filter::data_filter(5);

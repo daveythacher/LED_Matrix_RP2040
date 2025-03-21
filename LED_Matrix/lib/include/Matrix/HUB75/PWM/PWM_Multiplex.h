@@ -9,7 +9,6 @@
 
 #include "Matrix/Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Packet.h"
-#include "Matrix/HUB75/PWM/PWM_Worker.h"
 #include "Matrix/HUB75/PWM/PWM_Programs.h"
 
 namespace Matrix {
