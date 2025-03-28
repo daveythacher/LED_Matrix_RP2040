@@ -20,7 +20,7 @@ namespace Matrix {
     constexpr uint8_t fanout_per_clk = 6;
     constexpr uint8_t max_impedance = 50;               // For longer chains may need custom circuit board which adjusts this
     constexpr uint8_t max_par_cap_pf = 18;              // For longer chains may need custom circuit board which adjusts this
-    constexpr uint8_t min_harmonics = 5;
+    constexpr uint8_t min_harmonics = 10;               // This should be at least 10 for square waves
 
     // LED constants
     constexpr uint16_t max_led_impedance = 1650;
