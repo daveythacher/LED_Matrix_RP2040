@@ -7,18 +7,19 @@
 #ifndef SERIAL_PROTOCOL_SERIAL_H
 #define SERIAL_PROTOCOL_SERIAL_H
 
+#include <stdint.h>
+
 namespace Serial::Protocol {
-    /**
-     *  @brief Starts Serial state machine
-     *  @details Implemented in src/<app>/serial.cpp
-     */
-    void start();
-    
-    /**
-     *  @brief Callback for Serial state machine
-     *  @details Implemented in src/<app>/serial.cpp
-     */
-    void task();
+    class Protocol {
+        public:
+            static Protocol *create_protocol();
+
+        protected:
+            Protocol();
+
+        private:
+            static Protocol *ptr;
+    };
 }
 
 #endif

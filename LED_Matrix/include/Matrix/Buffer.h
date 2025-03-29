@@ -8,22 +8,17 @@
 #define MATRIX_BUFFER_H
 
 #include <stdint.h>
-#include "Serial/config.h"
 
 namespace Matrix {
-    // Currently we only support 8-bit port
-    struct Buffer {
+    // These are used for pixel data. (As sorted in hardware!)
+    template <typename T> class Buffer {
         public:
-            Buffer();
-
-            void set_value(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value);
-            uint8_t *get_line(uint8_t multiplex, uint16_t index);
-            
-            static uint8_t get_line_length();
-
-        private:
-            uint8_t buf[Serial::max_framebuffer_size];
+            virtual void set(uint8_t row, uint8_t column, T val) = 0;
+            virtual T get(uint8_t row, uint8_t column) = 0;
+            virtual uint8_t num_rows() = 0;
+            virtual uint8_t num_columns() = 0;
     };
 }
 
 #endif
+

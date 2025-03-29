@@ -8,11 +8,11 @@
 #include "Serial/Protocol/Serial/internal.h"
 #include "Serial/Node/data.h"
 #include "System/machine.h"
-#include "Matrix/matrix.h"
+#include "Matrix/Matrix.h"
 
 namespace Serial::Protocol::internal {
-    void __not_in_flash_func(process)(Serial::packet *p, uint16_t len, bool isBuffer) {
-        switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
+    template <typename T, typename R> void __not_in_flash_func(process)(Matrix::Buffer<T> *p) {
+        /*switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
             case 2:
             case 6:
                 for (uint16_t i = 0; i < len; i += 2)
@@ -20,9 +20,13 @@ namespace Serial::Protocol::internal {
                 break;
             default:
                 break;
-        }
+        }*/
 
-        Matrix::Worker::process(p, isBuffer);
+        Matrix::Matrix<T, R>::get_matrix()->show(p);
+    }
+
+    template <typename T, typename R> void __not_in_flash_func(process)(Matrix::Packet<R> *p) {
+        Matrix::Matrix<T, R>::get_matrix()->show(p);
     }
 
     void __not_in_flash_func(send_status)(STATUS status) {
@@ -36,10 +40,10 @@ namespace Serial::Protocol::internal {
 
     static inline void __not_in_flash_func(write_chunk)(uint32_t v, uint8_t bits) {
         for (int i = 0; i < bits; i += 8) {
-            if (Serial::Node::Data::isAvailable())
-                Serial::Node::Data::putc((v >> i) & 0xFF);
-            else
+            while (!Serial::Node::Data::isAvailable())
                 watchdog_update();
+            
+            Serial::Node::Data::putc((v >> i) & 0xFF);
         }
     }
 

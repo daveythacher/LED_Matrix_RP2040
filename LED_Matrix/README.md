@@ -64,14 +64,14 @@ Serial protocol interrupts are the highest priority, but this is discouraged. (I
 
 ## Status
 ### lib/Matrix:
-BCM - working
-
-PWM - working
+PWM - experimental
 
 ### lib/Multiplex:
-Decoder - working
+Decoder - experimental
 
-Direct - working
+Direct - experimental
+
+Shifter - experimental
 
 ### lib/Serial:
 serial_uart - experimental

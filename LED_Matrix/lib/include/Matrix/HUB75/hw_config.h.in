@@ -1,0 +1,70 @@
+/* 
+ * File:   hw_config.h
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+ 
+#ifndef MATRIX_HW_CONFIG_H
+#define MATRIX_HW_CONFIG_H
+
+#include <stdint.h>
+#include <math.h>
+#include "Matrix/config.h"
+
+// TODO: Get this into something useful
+
+
+
+
+//          Operation                           Parallel bitplanes
+// SIMD_UNIT    Width   Status      uint8_t     uint16_t    uint32_t    uint64_t
+// SIMD_QUARTER 32-bit  (Supported)     4           2           1           0
+// SIMD_HALF    64-bit                  8           4           2           1
+// SIMD_SINGLE  128-bit                 16          8           4           2
+// SIMD_DOUBLE  256-bit                 32          16          8           4
+// SIMD_QUAD    512-bit                 64          32          16          8
+
+// HUB75_UNIT   Parallel Chains     Pins        RP2040
+// uint8_t          1               6           (Supported)
+// uin16_t          2               12          (Maybe)
+// uint32_t         5               30
+// uint64_t         10              60
+
+// Matrix is:
+//  PWM: Pins by (2^bits / Parallel bitplanes)
+//  BCM: Pins by (bits / Parallel bitplanes)
+
+namespace Matrix {
+    // -- DO NOT EDIT BELOW THIS LINE --
+
+    // TODO: Add to CMake
+    #define HUB75_UNIT  uint8_t         // Cannot be larger than SIMD_UNIT
+    #define SIMD_UNIT   SIMD_QUARTER    // Make as large as hardware supports
+
+    #cmakedefine DEFINE_MAX_RGB_LED_STEPS   @DEFINE_MAX_RGB_LED_STEPS@
+    #cmakedefine DEFINE_MIN_REFRESH         @DEFINE_MIN_REFRESH@
+    #cmakedefine DEFINE_MATRIX_DCLOCK       @DEFINE_MATRIX_DCLOCK@
+    #cmakedefine DEFINE_BLANK_TIME          @DEFINE_BLANK_TIME@
+    #cmakedefine DEFINE_FPS                 @DEFINE_FPS@
+    #cmakedefine DEFINE_BYPASS_FANOUT       @DEFINE_BYPASS_FANOUT@
+
+    #ifndef DEFINE_BYPASS_FANOUT
+    #define DEFINE_BYPASS_FANOUT            false
+    #endif
+
+    constexpr uint16_t HUB75_DATA_BASE = 8;     // TODO: Add to CMake
+    constexpr uint16_t HUB75_OE = 22;           // TODO: Add to CMake
+
+    // Order (LSB to MSB): R0 G0 B0 R1 G1 B1 CLK LAT
+    constexpr uint16_t HUB75_DATA_LEN = (((sizeof(HUB75_UNIT) * 8) / 6) * 6) + 2;
+
+    constexpr uint16_t MAX_RGB_LED_STEPS = DEFINE_MAX_RGB_LED_STEPS;       // Contrast Ratio - Min RGB constant forward current (Blue LED in my case) in uA divided by min light current in uA
+    constexpr uint16_t MIN_REFRESH = DEFINE_MIN_REFRESH;
+    constexpr double SERIAL_CLOCK = (DEFINE_MATRIX_DCLOCK * 1000000.0);
+    constexpr uint8_t BLANK_TIME = DEFINE_BLANK_TIME;
+    constexpr uint8_t FPS = DEFINE_FPS;
+    constexpr bool BYPASS_FANOUT = DEFINE_BYPASS_FANOUT;
+    constexpr uint8_t PWM_bits = round(log2((double) MAX_RGB_LED_STEPS / MULTIPLEX));
+}
+
+#endif

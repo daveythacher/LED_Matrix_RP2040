@@ -19,4 +19,9 @@ target_link_libraries(serial_protocol_serial INTERFACE
     serial_protocol_serial_command_data_id
     serial_protocol_serial_command_data_raw
     serial_protocol_serial_command_query_test
+    led_SIMD
+    led_TCAM 
+    led_system
+    led_Matrix
+    serial_node_${DEFINE_SERIAL_NODE}
 )

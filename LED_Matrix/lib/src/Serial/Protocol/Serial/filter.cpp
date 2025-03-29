@@ -12,54 +12,61 @@
 #include "Serial/Protocol/Serial/Command/Query/Test/Test.h"
 #include "Serial/Node/data.h"
 #include "System/machine.h"
-#include "TCAM/tcam.h"
+#include "Matrix/config.h"
 
 namespace Serial::Protocol::DATA_NODE {
-    TCAM::Table<SIMD::SIMD_SINGLE<uint32_t>> data_filter;
+    TCAM::Table<SIMD::SIMD_SINGLE<uint8_t>> filter::data_filter(5);
 
     void filter::filter_setup() {
-        static Data data;
-        static Raw_Data raw;
-        static Test test;
-        static ID id;
-        static Buffer buf;
+        Data *data = new Data();
+        Raw_Data *raw = new Raw_Data();
+        Test *test = new Test();
+        ID *id = new ID();
+        Buffer *buf = new Buffer();
 
-        SIMD::SIMD_SINGLE<uint32_t> key;
-        SIMD::SIMD_SINGLE<uint32_t> enable;
+        SIMD::SIMD_SINGLE<uint8_t> key;
+        SIMD::SIMD_SINGLE<uint8_t> enable;
 
-        // TCAM can covert 6-12 operations down to 3.
-        //  The conditionals can be removed with AND down to 1.
-        enable.l[0] = 0xFFFFFFFF;
-        enable.l[1] = 0xFFFFFFFF;
-        enable.l[2] = 0xFFFFFFFF;
+        for (uint8_t i = 0; i < SIMD::SIMD_SINGLE<uint8_t>::size(); i++) {
+            enable.set(0xFF, i);
+        }
 
-        key.l[0] = htonl(0xAAEEAAEE);
-        key.b[4] = 'd';
-        key.b[5] = 'd';
-        key.s[3] = htons(Serial::Node::Data::get_len());
-        key.b[8] = sizeof(DEFINE_SERIAL_RGB_TYPE);
-        key.b[9] = Matrix::MULTIPLEX;
-        key.b[10] = Matrix::COLUMNS;
-        key.b[11] = DEFINE_SERIAL_RGB_TYPE::id;
-        while (!data_filter.TCAM_rule(0, key, enable, &data));
+        key.set(0xAA, 0);
+        key.set(0xEE, 1);
+        key.set(0xAA, 2);
+        key.set(0xEE, 3);
+        key.set('d', 4);
+        key.set('d', 5);
+        key.set(htons(Serial::Node::Data::get_len()) >> 8, 6);
+        key.set(htons(Serial::Node::Data::get_len()) & 0xFF, 7);
+        key.set(sizeof(DEFINE_SERIAL_RGB_TYPE), 8);
+        key.set(Matrix::MULTIPLEX, 9);
+        key.set(Matrix::COLUMNS, 10);
+        key.set(DEFINE_SERIAL_RGB_TYPE::id, 11);
+        while (!data_filter.TCAM_rule(0, key, enable, data));
 
-        key.b[4] = 'r';
-        while (!data_filter.TCAM_rule(1, key, enable, &raw));
+        key.set('r', 5);
+        while (!data_filter.TCAM_rule(1, key, enable, raw));
 
-        key.b[4] = 'b';
-        while (!data_filter.TCAM_rule(4, key, enable, &buf));
+        key.set('b', 5);
+        while (!data_filter.TCAM_rule(4, key, enable, buf));
 
-        enable.l[2] = 0;
-        key.s[3] = 1;
-        key.b[5] = 'c';
-        key.b[4] = 'i';
-        while (!data_filter.TCAM_rule(2, key, enable, &id));
+        enable.set(0, 8);
+        enable.set(0, 9);
+        enable.set(0, 10);
+        enable.set(0, 11);
+        key.set(0, 6);
+        key.set(1, 7);
+        key.set('c', 4);
+        key.set('i', 5);
+        while (!data_filter.TCAM_rule(2, key, enable, id));
 
         // TODO: Update
-        enable.s[3] = 0;
-        key.b[5] = 'q';
-        key.b[4] = 't';
-        while (!data_filter.TCAM_rule(3, key, enable, &test));
+        enable.set(0, 6);
+        enable.set(0, 7);
+        key.set('q', 4);
+        key.set('t', 5);
+        while (!data_filter.TCAM_rule(3, key, enable, test));
 
         // TODO: Create null filter?
     }

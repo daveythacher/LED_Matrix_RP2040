@@ -10,17 +10,15 @@
 
 namespace Serial::Protocol::DATA_NODE {
     void __not_in_flash_func(Test::process_command_internal)() {
-        index = 0;
         state_data = DATA_STATES::PAYLOAD;
-        time = time_us_64();
+        update_time();
         status = Serial::Protocol::internal::STATUS::ACTIVE_0;
     }
 
     void __not_in_flash_func(Test::process_payload_internal)() {
-        if (index == 0) {
+        if (true) { // TODO: Get data?
             state_data = DATA_STATES::CHECKSUM_DELIMITER_PROCESS;
-            time = time_us_64();
-            index = 0;
+            update_time();
             status = Serial::Protocol::internal::STATUS::ACTIVE_1;
         }
     }
@@ -32,12 +30,12 @@ namespace Serial::Protocol::DATA_NODE {
             // TODO: Fill in the response packet
             state_data = DATA_STATES::READY_RESPONSE;
             status = Serial::Protocol::internal::STATUS::READY;
-            time = time_us_64();
-            acknowledge = false;
+            update_time();
+            //acknowledge = false;
         }
     }
 
-    void __not_in_flash_func(Test::process_internal)(Serial::packet *buf, uint16_t len) {
+    void __not_in_flash_func(Test::process_internal)(uint8_t *buf, uint16_t len) {
         // Do nothing?
     }
 }

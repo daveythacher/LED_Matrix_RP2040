@@ -8,18 +8,16 @@
 #define SERIAL_NODE_DATA_SERIAL_H
 
 namespace Serial::Node::Data {
-    /**
-     *  @brief Starts Serial state machine
-     *  @details Implemented in src/<app>/serial.cpp
-     */
-    void start();
-    
-    /**
-     *  @brief Callback for Serial state machine
-     *  @details Implemented in src/<app>/serial.cpp
-     */
-    void task();
+    class Data {
+        public:
+            static Data *get_data_node();
+
+        protected:
+            Data();
+
+        private:
+            static Data *ptr;
+    };
 }
 
 #endif
-

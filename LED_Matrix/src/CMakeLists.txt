@@ -5,6 +5,7 @@ add_executable(led_${DEFINE_APP}
 target_include_directories(led_${DEFINE_APP} PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/../include
     ${CMAKE_CURRENT_BINARY_DIR}/../lib/include
+    ${CMAKE_CURRENT_BINARY_DIR}/../lib/include/FreeRTOS
     ../include
     ../lib/include
 )
@@ -23,13 +24,13 @@ target_compile_options(led_${DEFINE_APP} PRIVATE
 )
 
 target_compile_definitions(led_${DEFINE_APP} PRIVATE 
-    PICO_HEAP_SIZE=2048
+    PICO_HEAP_SIZE=196608
     PICO_STACK_SIZE=4096
     PICO_CORE1_STACK_SIZE=4096
     PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64
 )
 
-pico_set_binary_type(led_${DEFINE_APP} default)
+pico_set_binary_type(led_${DEFINE_APP} copy_to_ram)
 
 # enable usb output, disable uart output
 pico_enable_stdio_usb(led_${DEFINE_APP} 1)
@@ -39,11 +40,7 @@ target_link_libraries(led_${DEFINE_APP}
     pico_stdio_usb
     pico_runtime
     pico_multicore
-    led_SIMD
-    led_TCAM
-    led_${DEFINE_MATRIX_FOLDER}_${DEFINE_MATRIX_ALGORITHM}
-    led_multiplex_${DEFINE_MULTIPLEX_FOLDER}_${DEFINE_MULTIPLEX_ALGORITHM}
-    serial_node_${DEFINE_SERIAL_NODE}
+    FreeRTOS-Kernel-Heap3
     serial_protocol_${DEFINE_SERIAL_PROTOCOL}
 )
 

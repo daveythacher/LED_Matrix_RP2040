@@ -7,18 +7,19 @@
 #ifndef MULTIPLEX_H
 #define MULTIPLEX_H
 
+#include "Matrix/config.h"
+
 namespace Multiplex {
+    struct Multiplex_Packet {
+        const uint8_t length = Matrix::MULTIPLEX;
+        uint8_t buffer[Matrix::MULTIPLEX];
+    };
+
     /**
      *  @brief Initialize multiplexer state machine
      *  @details Implemented in Multiplex/<name>/<name>.cpp
      */
-    void init(int rows);
-
-    /**
-     *  @brief Change the row for multiplexing
-     *  @details Implemented in Multiplex/<name>/<name>.cpp
-     */
-    void SetRow(int row);
+    void init(int start_flag, int signal_flag);
 }
     
 #endif

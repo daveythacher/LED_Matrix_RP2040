@@ -2,7 +2,7 @@
 add_library(led_TCAM INTERFACE)
 
 target_sources(led_TCAM INTERFACE
-    tcam.cpp
+    TCAM.cpp
 )
 
 target_link_libraries(led_TCAM INTERFACE 

@@ -11,7 +11,7 @@
 #include "Serial/config.h"
 
 namespace Serial::Node::Data {
-    void callback(Serial::packet **buf);
+    void callback(uint8_t **buf);
     uint16_t get_len();
     bool isAvailable();
     uint8_t getc();

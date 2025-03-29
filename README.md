@@ -16,7 +16,7 @@ If in doubt use the discussion feature. I am okay with meaningful discussion in 
 Some weird conventions are used. These should be documented in [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/README.md). This is the place for documenting technical interworkings and troubleshooting. (Outside of comments.)
 
 ## Building
-See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Building.md) for more details.
+TODO
 
 ## Application Information
 See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/doc/Application_Infomation.md) for more details about color depth, size, refresh rate, gamma, color temperature, dot correction, etc.

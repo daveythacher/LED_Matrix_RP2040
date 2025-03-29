@@ -15,18 +15,18 @@ namespace Serial::Protocol::DATA_NODE {
 }
 
 namespace Serial::Protocol::DATA_NODE {
-    Serial::packet *Command::buf = 0;
+    uint8_t *Command::buf = 0;
     uint16_t Command::len = 0;
     Command::DATA_STATES Command::state_data = DATA_STATES::SETUP;
     uint8_t Command::idle_num = 0;
     uint32_t Command::index;
-    SIMD::SIMD_SINGLE<uint32_t> Command::data;
+    Command::uint128_t Command::data;
     uint32_t Command::checksum;
     STATUS Command::status;
     bool Command::trigger;
     bool Command::acknowledge;
     uint64_t Command::time;
-    Command *Command::ptr = nullptr;
+    Command *Command::ptr;
     
     STATUS __not_in_flash_func(Command::data_node)() {
         // Currently we drop the frame and wait for the next valid header.
@@ -34,13 +34,13 @@ namespace Serial::Protocol::DATA_NODE {
         switch (state_data) {
             case DATA_STATES::SETUP:
                 index = 0;
-                trigger = false;
+                clear_trigger();
                 acknowledge = false;
                 checksum = 0xFFFFFFFF;
                 Serial::Node::Data::callback(&buf);
                 len = Serial::Node::Data::get_len();
                 state_data = DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS;
-                time = time_us_64();
+                update_time();
 
                 if (idle_num == 0)
                     status = STATUS::IDLE_0;
@@ -59,30 +59,26 @@ namespace Serial::Protocol::DATA_NODE {
                     // This is protected by the reset timer, but mistakes can lead to high error rates
                     switch (state) {
                         case 0: // Grab the header
-                            get_data(data.b, 12, true);
-
-                            if (index == 12) {
-                                index = 0;
+                            if (get_data(data.b, 12, true)) {
                                 state = 1;                      // Advances state (local)
                             }
                             break;
 
                         case 1: // Grab the checksum for the header, process header if it checks out
-                            get_data(sum, 4, false);
-
-                            if (index == 4) {
+                            if (get_data(sum, 4, false)) {
                                 uint32_t csum = (sum[3] << 24) + (sum[2] << 16) + (sum[1] << 8) + sum[0];
                                 csum = ntohl(csum);
 
                                 if (~checksum == csum) {
-                                    ptr = nullptr;
                                     state = 0;                  // Assume local will advance (reset for next iteration of global)
                                     checksum = 0xFFFFFFFF;
+                                    SIMD::SIMD_SINGLE<uint32_t> temp;
+
+                                    for (uint8_t index = 0; index < 4; index++)
+                                        temp.set(data.l[index], index);
                                         
                                     // This calls process_command_internal
-                                    data_filter.TCAM_process(&data);  // Advances state (global)
-
-                                    if (ptr == nullptr) {
+                                    if (data_filter.TCAM_process(&temp)) {   // Advances state (global)
                                         state = 2;              // Advances state (local)
                                     }
                                 }
@@ -117,11 +113,7 @@ namespace Serial::Protocol::DATA_NODE {
             //  Half duplex like currently for simplicity. We should have the bandwidth.
             //  Host needs to be on the ball though. Performance loss is possible from OS!
             case DATA_STATES::CHECKSUM_DELIMITER_PROCESS:           // Host should see ACTIVE_1 to IDLE_1/0 or READY
-                get_data(data.b, 8, false);
-
-                if (index == 8) {
-                    index = 0;
-                            
+                if (get_data(data.b, 8, false)) {                            
                     if (ntohl(data.l[1]) == 0xAEAEAEAE) {
                         if (ptr != nullptr) {
                             ptr->process_frame_internal();      // Advances state
@@ -189,6 +181,14 @@ namespace Serial::Protocol::DATA_NODE {
         return status;
     }
 
+    void __not_in_flash_func(Command::clear_trigger)() {
+        trigger = false;
+    }
+
+    void __not_in_flash_func(Command::update_time)() {
+        time = time_us_64();
+    }
+
     void __not_in_flash_func(Command::trigger_processing)() {
         trigger = true;
     }
@@ -205,7 +205,7 @@ namespace Serial::Protocol::DATA_NODE {
         state_data = DATA_STATES::ERROR;
     }
 
-    void __not_in_flash_func(Command::get_data)(uint8_t *buf, uint16_t len, bool checksum) {
+    bool __not_in_flash_func(Command::get_data)(uint8_t *buf, uint16_t len, bool checksum) {
         while (index < len) {
             if (Serial::Node::Data::isAvailable()) {
                 buf[index] = Serial::Node::Data::getc();
@@ -218,8 +218,19 @@ namespace Serial::Protocol::DATA_NODE {
             else
                 break;
         }
+
+        bool result = index == len;
+
+        if (result) {
+            index = 0;
+        }
+
+        return result;
     }
 
+    // Hack to hand singleton to dynamic object
+    //  We do not know the dynamic object initially
+    //  We will release back to singleton control
     void __not_in_flash_func(Command::callback)() {
         ptr = this;
         process_command_internal();

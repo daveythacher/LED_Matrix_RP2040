@@ -1,3 +1,9 @@
+/* 
+ * File:   SIMD_QUARTER.cpp
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
 #include "SIMD/SIMD_QUARTER.h"
 
 namespace SIMD {
@@ -21,6 +27,14 @@ namespace SIMD {
         }
 
         return result;
+    }
+
+    template <typename T> T SIMD_QUARTER<T>::get(uint8_t index) {
+        return v[index % size()];
+    }
+
+    template <typename T> void SIMD_QUARTER<T>::set(T val, uint8_t index) {
+        v[index % size()] = val;
     }
 
     template class SIMD_QUARTER<uint8_t>;

@@ -1,5 +1,5 @@
 /* 
- * File:   serial.cpp
+ * File:   control_node.cpp
  * Author: David Thacher
  * License: GPL 3.0
  */
@@ -9,12 +9,14 @@
 #include "hardware/uart.h"
 #include "Serial/Node/control.h"
 #include "Serial/Node/serial_uart/serial_uart.h"
+#include "GPIO/GPIO.h"
 
 namespace Serial::Node::Control {
     void start() {
         // IO
         gpio_init(5);
         gpio_set_function(5, GPIO_FUNC_UART);
+        IO::GPIO::claim(5);
 
         // UART
         static_assert(Serial::UART::SERIAL_UART_BAUD <= 7800000, "Baud rate must be less than 7.8MBaud");
@@ -34,7 +36,8 @@ namespace Serial::Node::Control {
     // Warning host is required to obey flow control and handle bus recovery
     void __not_in_flash_func(task)() {
         // Check for errors
-        if (!((uart1_hw->ris & 0x380) == 0)) {
+        if (!((uart1_hw->ris & 0x780) == 0)) {
+            uart1_hw->rsr = 0xF;
             uart1_hw->icr = 0x7FF;
         }
     }

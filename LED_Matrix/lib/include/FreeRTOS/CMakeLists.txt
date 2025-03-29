@@ -1,0 +1,1 @@
+configure_file(FreeRTOSConfig.h.in FreeRTOSConfig.h @ONLY)

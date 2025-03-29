@@ -1,23 +1,46 @@
 /* 
- * File:   config.h
+ * File:   hw_config.h
  * Author: David Thacher
  * License: GPL 3.0
  */
  
-#ifndef MATRIX_CONFIG_H
-#define MATRIX_CONFIG_H    
+#ifndef MATRIX_HW_CONFIG_H
+#define MATRIX_HW_CONFIG_H
 
 #include <stdint.h>
+#include <math.h>
+
+// TODO: Get this into something useful
+
+
+
+
+//          Operation                           Parallel bitplanes
+// SIMD_UNIT    Width   Status      uint8_t     uint16_t    uint32_t    uint64_t
+// SIMD_QUARTER 32-bit  (Supported)     4           2           1           0
+// SIMD_HALF    64-bit                  8           4           2           1
+// SIMD_SINGLE  128-bit                 16          8           4           2
+// SIMD_DOUBLE  256-bit                 32          16          8           4
+// SIMD_QUAD    512-bit                 64          32          16          8
+
+// HUB75_UNIT   Parallel Chains     Pins        RP2040
+// uint8_t          1               6           (Supported)
+// uin16_t          2               12          (Maybe)
+// uint32_t         5               30
+// uint64_t         10              60
+
+// Matrix is:
+//  PWM: Pins by (2^bits / Parallel bitplanes)
+//  BCM: Pins by (bits / Parallel bitplanes)
 
 namespace Matrix {
     // -- DO NOT EDIT BELOW THIS LINE --
-
-    #cmakedefine DEFINE_MULTIPLEX_SCAN @DEFINE_MULTIPLEX_SCAN@
-    #cmakedefine DEFINE_COLUMNS @DEFINE_COLUMNS@
     
+    #cmakedefine DEFINE_MULTIPLEX_SCAN      @DEFINE_MULTIPLEX_SCAN@
+    #cmakedefine DEFINE_COLUMNS             @DEFINE_COLUMNS@
+
     constexpr uint8_t MULTIPLEX = DEFINE_MULTIPLEX_SCAN;
     constexpr uint16_t COLUMNS = DEFINE_COLUMNS;
 }
 
 #endif
-
