@@ -52,5 +52,5 @@ namespace TCAM {
         return false;
     }
 
-    template class Table<SIMD::SIMD_SINGLE<uint8_t>>;
+    template class Table<SIMD::SIMD<uint8_t, SIMD::SIMD_128>>;
 }

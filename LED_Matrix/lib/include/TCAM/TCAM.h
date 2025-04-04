@@ -8,7 +8,7 @@
 #define TCAM_H
 
 #include <stdint.h>
-#include "SIMD/SIMD_SINGLE.h"
+#include "SIMD/SIMD.h"
 #include "TCAM/Handler.h"
 
 // This can be rendered into coprocessor.

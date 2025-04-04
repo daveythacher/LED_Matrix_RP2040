@@ -15,7 +15,7 @@
 #include "Matrix/config.h"
 
 namespace Serial::Protocol::DATA_NODE {
-    TCAM::Table<SIMD::SIMD_SINGLE<uint8_t>> filter::data_filter(5);
+    TCAM::Table<SIMD::SIMD<uint8_t, SIMD::SIMD_128>> filter::data_filter(5);
 
     void filter::filter_setup() {
         Data *data = new Data();
@@ -24,10 +24,10 @@ namespace Serial::Protocol::DATA_NODE {
         ID *id = new ID();
         Buffer *buf = new Buffer();
 
-        SIMD::SIMD_SINGLE<uint8_t> key;
-        SIMD::SIMD_SINGLE<uint8_t> enable;
+        SIMD::SIMD<uint8_t, SIMD::SIMD_128> key;
+        SIMD::SIMD<uint8_t, SIMD::SIMD_128> enable;
 
-        for (uint8_t i = 0; i < SIMD::SIMD_SINGLE<uint8_t>::size(); i++) {
+        for (uint8_t i = 0; i < SIMD::SIMD<uint8_t, SIMD::SIMD_128>::size(); i++) {
             enable.set(0xFF, i);
         }
 

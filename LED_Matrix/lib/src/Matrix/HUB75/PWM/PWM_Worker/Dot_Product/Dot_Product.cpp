@@ -4,13 +4,13 @@
  * License: GPL 3.0
  */
 
-#include "SIMD/SIMD_HUB75.h"
+#include "SIMD/SIMD.h"
 
 namespace Matrix {
     // Inputs: 6 4-bit array of bitplanes and 6 shift masks
     // Outputs: 4 6-bit bitplanes 
-    template <typename T> SIMD::SIMD_HUB75<T> get_product(SIMD::SIMD_HUB75<T> pixels, SIMD::SIMD_HUB75<T> shifts) {
-        SIMD::SIMD_HUB75<T> result, mask;
+    template <typename T> SIMD::SIMD<uint8_t, SIMD::SIMD_HUB75_Byte> get_product(SIMD::SIMD<uint8_t, SIMD::SIMD_HUB75_Byte> pixels, SIMD::SIMD<uint8_t, SIMD::SIMD_HUB75_Byte> shifts) {
+        SIMD::SIMD<uint8_t, SIMD::SIMD_HUB75_Byte> result, mask;
 
         for (uint8_t i = 0; i < 4; i++) {
             // Create bit array extractor

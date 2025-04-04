@@ -11,7 +11,7 @@
 using Serial::Protocol::internal::STATUS;
 
 namespace Serial::Protocol::DATA_NODE {
-    extern TCAM::Table<SIMD::SIMD_SINGLE<uint32_t>> data_filter;
+    extern TCAM::Table<SIMD::SIMD<uint32_t, SIMD::SIMD_128>> data_filter;
 }
 
 namespace Serial::Protocol::DATA_NODE {
@@ -72,7 +72,7 @@ namespace Serial::Protocol::DATA_NODE {
                                 if (~checksum == csum) {
                                     state = 0;                  // Assume local will advance (reset for next iteration of global)
                                     checksum = 0xFFFFFFFF;
-                                    SIMD::SIMD_SINGLE<uint32_t> temp;
+                                    SIMD::SIMD<uint32_t, SIMD::SIMD_128> temp;
 
                                     for (uint8_t index = 0; index < 4; index++)
                                         temp.set(data.l[index], index);

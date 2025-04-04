@@ -15,7 +15,7 @@ namespace Serial::Protocol::DATA_NODE {
             static void filter_setup();
 
         private:
-            static TCAM::Table<SIMD::SIMD_SINGLE<uint8_t>> data_filter;
+            static TCAM::Table<SIMD::SIMD<uint8_t, SIMD::SIMD_128>> data_filter;
     };
 }
 
