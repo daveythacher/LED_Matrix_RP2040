@@ -58,6 +58,16 @@ namespace SIMD {
         return result;
     }
 
+    template <typename T> const SIMD_HUB75<T> SIMD_HUB75<T>::load(T const& arg) const {
+        SIMD_HUB75<T> result;
+
+        for (uint32_t i = 0; i < SIMD_HUB75<T>::size(); i++) {
+            result.v[i] = arg;
+        }
+        
+        return result;
+    }
+
     template <typename T> T SIMD_HUB75<T>::get(uint8_t index) {
         return v[index % size()];
     }

@@ -18,6 +18,7 @@ namespace SIMD {
 
             const T dot_prodoct(SIMD_HUB75<T> const& arg) const;
             const SIMD_HUB75<T> test_bit(SIMD_HUB75<T> const& arg) const;
+            const SIMD_HUB75<T> load(T const& arg) const;
 
             static constexpr uint32_t size() {
                 static_assert(sizeof(T) * 8 <= 48, "SIMD HUB75 is limited to arguments less than 48-bits.");
