@@ -38,6 +38,26 @@ namespace SIMD {
         return result;
     }
 
+    template <typename T> const T SIMD_HUB75<T>::dot_prodoct(SIMD_HUB75<T> const& arg) const {
+        T result = 0;
+
+        for (uint32_t i = 0; i < SIMD_HUB75<T>::size(); i++) {
+            result += this->v[i] * arg.v[i];
+        }
+        
+        return result;
+    }
+
+    template <typename T> const SIMD_HUB75<T> SIMD_HUB75<T>::test_bit(SIMD_HUB75<T> const& arg) const {
+        SIMD_HUB75<T> result;
+
+        for (uint32_t i = 0; i < SIMD_HUB75<T>::size(); i++) {
+            result.v[i] = this->v[i] & arg.v[i] ? 1 : 0;
+        }
+        
+        return result;
+    }
+
     template <typename T> T SIMD_HUB75<T>::get(uint8_t index) {
         return v[index % size()];
     }
