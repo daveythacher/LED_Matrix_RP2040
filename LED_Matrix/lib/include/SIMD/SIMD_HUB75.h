@@ -19,7 +19,7 @@ namespace SIMD {
             static constexpr uint32_t size() {
                 static_assert(sizeof(T) * 8 <= 48, "SIMD HUB75 is limited to arguments less than 48-bits.");
 
-                return 128 / (sizeof(T) * 8);
+                return 48 / (sizeof(T) * 8);
             }
 
             T get(uint8_t index);
