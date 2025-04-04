@@ -9,6 +9,9 @@
 
 #include "Matrix/config.h"
 
+// TODO: Is this needed anymore?
+// TODO: Factory
+
 namespace Multiplex {
     struct Multiplex_Packet {
         const uint8_t length = Matrix::MULTIPLEX;

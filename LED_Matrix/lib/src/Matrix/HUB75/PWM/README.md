@@ -14,3 +14,28 @@ Follows standard design for Matrix Algorithms.
 
 ## Core reservations
 Follows standard design for Matrix Algorithms.
+
+Internal notes:
+PWM_Worker/LUT/PWM_Worker - WIP
+PWM_Worker/PWM_Worker - done
+PWM_Buffer - done
+PWM_Calculator - Needs conversion
+PWM_Matrix - Mostly done
+PWM_Multiplex - WIP
+PWM_Packet - done
+PWM_Programs - done
+
+Design is IO pipeline of delegation (FIFO)
+Front end is API without flow control.
+
+Matrix is Primary interface (Responsible for Packet and Buffer)
+Matrix drives PWM_Worker (Uses PWM_Calculator)
+PWM_Worker drives PWM_Multiplex (Responsible for PWM_Programs)
+PWM_Multiplex drives Multiplex
+
+Check these:
+unique_pointers
+factories
+exceptions
+style
+Others?

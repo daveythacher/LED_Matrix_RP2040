@@ -8,6 +8,7 @@
 #define MULTIPLEX_HW_CONFIG_H
 
 #include <stdint.h>
+#include "Matrix/config.h"
 
 // TODO: Get this into something useful
 

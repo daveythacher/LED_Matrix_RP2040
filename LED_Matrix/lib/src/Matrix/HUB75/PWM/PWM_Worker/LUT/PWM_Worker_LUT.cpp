@@ -49,18 +49,26 @@ namespace Matrix {
         delete _mutex;
     }
 
-
-    template <typename R, typename X, typename W> void PWM_Worker_LUT<R, X, W>::convert(Packet<R> *packet) {
+    template <typename R, typename X, typename W> void PWM_Worker_LUT<R, X, W>::convert(Packet<X> *packet) {
+        // This should be a sync lock
         _mutex->lock();
 
         // Force a resync of order by waiting for Buffer pipeline to stall completely.
         //  This is not the fastest way, but mixing these is not intended.
         //  This avoids fragmentation.
-        while (_queue->available() || !_idle) { // TODO: Consider a glitch or hazard here
+        // Future: Consider a glitch or hazard here
+        //  We should be clear so moving to future
+        while (_queue->available() || !_idle) {
             Concurrent::Thread::Yield();
         }
 
-        _multiplex->show(static_cast<PWM_Packet<R> *>(packet));
+        // TODO: Queue something
+
+        // We have a polymorphic problem here. (We demoted it down and now we have to promote it.)
+        //  Fact of the matter, I guess.
+        _multiplex->show(static_cast<PWM_Packet<X> *>(packet));
+
+        // Break out of the proceedure
         _mutex->unlock();
     }
 

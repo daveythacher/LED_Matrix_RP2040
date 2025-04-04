@@ -8,10 +8,9 @@
 #define SIMD_SINGLE_H
 
 #include <stdint.h>
-#include "SIMD/SIMD_QUARTER.h"
 
 namespace SIMD {
-    template <typename T> class SIMD_SINGLE {  // Quarter is 128-bit SIMD
+    template <typename T> class SIMD_SINGLE {  // Single is 128-bit SIMD
         public:
             const SIMD_SINGLE<T> operator|(SIMD_SINGLE<T> const& arg) const;
             const SIMD_SINGLE<T> operator&(SIMD_SINGLE<T> const& arg) const;
@@ -28,7 +27,7 @@ namespace SIMD {
         
         private:
             union {
-                T v[SIMD_QUARTER<T>::size()];
+                T v[SIMD_SINGLE<T>::size()];
                 uint32_t l[4];
             };
     };
