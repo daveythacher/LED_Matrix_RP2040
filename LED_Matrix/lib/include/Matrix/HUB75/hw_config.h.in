@@ -39,7 +39,7 @@ namespace Matrix {
 
     // TODO: Add to CMake
     #define HUB75_UNIT  uint8_t         // Cannot be larger than SIMD_UNIT
-    #define SIMD_UNIT   SIMD_QUARTER    // Make as large as hardware supports
+    #define SIMD_UNIT   SIMD_32         // Make as large as hardware supports
 
     #cmakedefine DEFINE_MAX_RGB_LED_STEPS   @DEFINE_MAX_RGB_LED_STEPS@
     #cmakedefine DEFINE_MIN_REFRESH         @DEFINE_MIN_REFRESH@

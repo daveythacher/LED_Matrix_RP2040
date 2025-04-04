@@ -9,8 +9,7 @@
 #include "Matrix/HUB75/PWM/PWM_Worker_LUT.h"
 #include "Matrix/HUB75/PWM/PWM_Multiplex.h"
 #include "Matrix/HUB75/hw_config.h"
-#include "SIMD/SIMD_QUARTER.h"
-#include "SIMD/SIMD_SINGLE.h"
+#include "SIMD/SIMD.h"
 
 namespace Matrix {
     template <typename R, typename X, typename W> PWM_Worker_LUT<R, X, W>::PWM_Worker_LUT(uint8_t scan, uint16_t steps, uint8_t columns) : PWM_Worker<R, X, W>::PWM_Worker() {
@@ -148,8 +147,8 @@ namespace Matrix {
         }
     }
 
-    template class PWM_Worker_LUT<RGB24, HUB75_UNIT, SIMD::SIMD_UNIT<HUB75_UNIT>>;
-    template class PWM_Worker_LUT<RGB48, HUB75_UNIT, SIMD::SIMD_UNIT<HUB75_UNIT>>;
-    template class PWM_Worker_LUT<RGB_222, HUB75_UNIT, SIMD::SIMD_UNIT<HUB75_UNIT>>;
-    template class PWM_Worker_LUT<RGB_555, HUB75_UNIT, SIMD::SIMD_UNIT<HUB75_UNIT>>;
+    template class PWM_Worker_LUT<RGB24, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
+    template class PWM_Worker_LUT<RGB48, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
+    template class PWM_Worker_LUT<RGB_222, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
+    template class PWM_Worker_LUT<RGB_555, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
 }
