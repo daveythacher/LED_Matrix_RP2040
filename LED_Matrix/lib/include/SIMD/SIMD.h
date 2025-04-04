@@ -22,10 +22,6 @@ namespace SIMD {
         uint8_t data[6];
     };
 
-    struct SIMD_HUB75_Short {
-        uint8_t data[12];
-    };
-
     template <typename T, typename R> class SIMD {
         public:
             const SIMD<T, R> operator|(SIMD<T, R> const& arg) const;
