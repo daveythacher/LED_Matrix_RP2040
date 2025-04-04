@@ -17,6 +17,7 @@ namespace Matrix {
             mask.load(1 << i);
 
             // Extract bitplanes and apply shift masks using dot product to combine into single result
+            //  TODO: Look into Matrix processor?
             result->set(pixels.test_bit(mask).dot_prodoct(shifts), i)
         }
 
