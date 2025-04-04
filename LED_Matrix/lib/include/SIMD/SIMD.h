@@ -44,7 +44,10 @@ namespace SIMD {
             void set(T val, uint8_t index);
         
         private:
-            T v[SIMD<T, R>::size()];
+            union {
+                T v[SIMD<T, R>::size()];
+                uint32_t l[sizeof(R) / sizeof(uint32_t)];
+            };
     };
 }
 

@@ -10,8 +10,20 @@ namespace SIMD {
     template <typename T, typename R> const SIMD<T, R> SIMD<T, R>::operator|(SIMD<T, R> const& arg) const {
         SIMD<T, R> result;
 
-        for (uint32_t i = 0; i < size(); i++) {
-            result.v[i] = this->v[i] | arg.v[i];
+        switch (sizeof(R)) {
+            case 4:
+                result.l[0] = this->l[0] | arg.l[0];
+                break;
+            case 16:
+                for (uint32_t i = 0; i < 4; i++) {
+                    result.l[i] = this->l[i] | arg.l[i];
+                }
+                break;
+            default:
+                for (uint32_t i = 0; i < size(); i++) {
+                    result.v[i] = this->v[i] | arg.v[i];
+                }
+                break;
         }
 
         return result;
@@ -20,8 +32,20 @@ namespace SIMD {
     template <typename T, typename R> const SIMD<T, R> SIMD<T, R>::operator&(SIMD<T, R> const& arg) const {
         SIMD<T, R> result;
 
-        for (uint32_t i = 0; i < size(); i++) {
-            result.v[i] = this->v[i] & arg.v[i];
+        switch (sizeof(R)) {
+            case 4:
+                result.l[0] = this->l[0] & arg.l[0];
+                break;
+            case 16:
+                for (uint32_t i = 0; i < 4; i++) {
+                    result.l[i] = this->l[i] & arg.l[i];
+                }
+                break;
+            default:
+                for (uint32_t i = 0; i < size(); i++) {
+                    result.v[i] = this->v[i] & arg.v[i];
+                }
+                break;
         }
         
         return result;
