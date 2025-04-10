@@ -189,17 +189,22 @@ namespace Matrix {
         dma_channel_set_read_addr(dma_chan[1], address_table[bank], true);
     }
 
+    // Warning: we are high priority here.
+    //  We need to be called two times the refresh rate at least.
+    //  If we get called to often we stall.
     void __not_in_flash_func(PWM_Multiplex::work)(void *) {
-        if (dma_channel_get_irq0_status(dma_chan[0])) {
-            uint8_t temp;
-            Buffer *p = Worker::get_front_buffer(&temp);
+        while (1) {                                                                 // TODO: Consider error handling?
+            if (dma_channel_get_irq0_status(dma_chan[0])) {
+                uint8_t temp;
+                Buffer *p = Worker::get_front_buffer(&temp);
 
-            if (p != nullptr) {
-                buffer = p;
-                bank = temp;
+                if (p != nullptr) {
+                    buffer = p;
+                    bank = temp;
+                }
+
+                send_buffer();                                                      // Kick off hardware
             }
-
-            send_buffer();                                                          // Kick off hardware
         }
     }
 }
