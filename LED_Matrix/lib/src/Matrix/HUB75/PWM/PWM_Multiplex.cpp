@@ -33,7 +33,7 @@ namespace Matrix {
     //      The last transfer stops the DMA and fires an interrupt
 
     PWM_Multiplex::PWM_Multiplex() {
-         header = 1 << PWM_bits;                                // This needs to be one less than (n + 1)
+         header = 1 << PWM_bits;                                                        // This needs to be one less than (n + 1)
 
 
         // Init Matrix hardware
@@ -118,7 +118,7 @@ namespace Matrix {
         // TODO: Ghosting program
         
         // Verify Serial Clock
-        constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);     // Someday this two will be a four.
+        constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);                         // Someday this two will be a four.
 
         // PMP / SM
         pio0->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
@@ -149,7 +149,7 @@ namespace Matrix {
         channel_config_set_read_increment(&c, true);
         channel_config_set_write_increment(&c, true);
         channel_config_set_high_priority(&c, true);
-        channel_config_set_ring(&c, true, 3);                                       // 1 << 3 byte boundary on write ptr
+        channel_config_set_ring(&c, true, 3);                                           // 1 << 3 byte boundary on write ptr
         dma_channel_configure(dma_chan[1], &c, &dma_hw->ch[dma_chan[0]].al3_transfer_count, &address_table[bank][0], 2, false);
         
         c = dma_channel_get_default_config(dma_chan[2]);
@@ -193,7 +193,7 @@ namespace Matrix {
     //  We need to be called two times the refresh rate at least.
     //  If we get called to often we stall.
     void __not_in_flash_func(PWM_Multiplex::work)(void *) {
-        while (1) {                                                                 // TODO: Consider error handling?
+        while (1) {                                                                     // TODO: Consider error handling?
             if (dma_channel_get_irq0_status(dma_chan[0])) {
                 uint8_t temp;
                 Buffer *p = Worker::get_front_buffer(&temp);
@@ -203,8 +203,13 @@ namespace Matrix {
                     bank = temp;
                 }
 
-                send_buffer();                                                      // Kick off hardware
-                Concurrent::Thread::sleep((1000 * 1000) / (MIN_REFRESH * 2))        // Sleep (yield) thread
+                send_buffer();                                                          // Kick off hardware
+                Concurrent::Thread::sleep((configTICK_RATE_HZ / MIN_REFRESH) - 1);      // Sleep (yield) for 9/10 of a frame (10 ticks per frame)
+            }
+            else {
+                // Try again and wait.
+                //  We are high priority, so we should get the CPU back.
+                //  We will waste at least 1/10 of a frame, waiting. (JIT)
             }
         }
     }
