@@ -204,6 +204,7 @@ namespace Matrix {
                 }
 
                 send_buffer();                                                      // Kick off hardware
+                Concurrent::Thread::sleep((1000 * 1000) / (MIN_REFRESH * 2))        // Sleep (yield) thread
             }
         }
     }

@@ -16,6 +16,7 @@ namespace Concurrent {
             ~Thread();
 
             static void Yield();
+            static void sleep(uint32_t us);
 
         private:
             Thread();

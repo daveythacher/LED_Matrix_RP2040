@@ -9,8 +9,7 @@
 
 namespace Concurrent::IO {
     // Abstract interface for transfers
-    // T must be uint8_t, uint16_t or uint32_t
-    template <typename T> class Target {
+    class Target {
         public:
             Target();
     };

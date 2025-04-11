@@ -11,8 +11,7 @@
 
 namespace Concurrent::IO {
     // Abstract interface for Memory
-    // T must be uint8_t, uint16_t or uint32_t
-    template <typename T> class Memory_Target : public Target<T> {
+    class Memory_Target : public Target {
         public:
             Memory_Target();
 

@@ -26,4 +26,8 @@ namespace Concurrent {
     void Thread::Yield() {
         taskYIELD();
     }
+
+    void Thread::sleep(uint32_t us) {
+        vTaskDelay(us / ((1000 * 1000) / configTICK_RATE_HZ));
+    }
 }

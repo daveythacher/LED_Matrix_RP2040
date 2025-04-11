@@ -11,8 +11,7 @@
 
 namespace Concurrent::IO {
     // Abstract interface for IO
-    // T must be uint8_t, uint16_t or uint32_t
-    template <typename T> class IO_Target : public Target<T> {
+    class IO_Target : public Target {
         public:
             IO_Target();
 
