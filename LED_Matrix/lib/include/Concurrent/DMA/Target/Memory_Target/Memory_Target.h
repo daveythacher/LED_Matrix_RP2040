@@ -1,0 +1,41 @@
+/* 
+ * File:   Memory_Target.h
+ * Author: David Thacher
+ * License: GPL 3.0
+ */
+
+#ifndef DMA_TARGET_MEMORY_TARGET_H
+#define DMA_TARGET_MEMORY_TARGET_H
+
+#include <stdint.h>
+#include "Concurrent/DMA/Target/Target.h"
+
+namespace Concurrent::IO {
+    // Abstract interface for Memory
+    //  Capable of implementing linked list (1D or 2D) or vector (1D or 2D).
+    template <typename T> class Memory_Target : public Taget {
+        public:
+            static Memory_Target *create_memory_target(uint8_t rows, uint16_t columns);
+
+            void add_entry(uint8_t row, uint8_t column, T *ptr, uint16_t length);
+
+        protected:
+            Memory_Target(uint8_t rows, uint16_t columns);
+
+            void *get_ptr(); // Dirty cast here
+
+            friend class DMA;
+        
+        private:
+            // This needs to be hidden!
+            struct entry_node {
+                uint32_t len; 
+                T *data;
+            };
+            
+            entry_node **_table;
+
+    };
+}
+
+#endif

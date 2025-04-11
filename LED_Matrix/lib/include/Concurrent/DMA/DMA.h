@@ -8,14 +8,15 @@
 #define DMA_H
 
 #include <stdint.h>
-#include "Concurrent/DMA/Target/IO_Target.h"
-#include "Concurrent/DMA/Target/Memory_Target.h"
+#include "Concurrent/DMA/Target/IO_Target/IO_Target.h"
+#include "Concurrent/DMA/Target/Memory_Target/Memory_Target.h"
 
 namespace Concurrent::IO {
     // DMA is SMT in CMT cluster (SMP-1)
     //  Conceptualize as service of multi-processing.
     //  Implemented as coprocessor in background of OS.
     //      Multithreading is external wrapper to this.
+    //  Would be nice to verify bandwidth and latency.
     class DMA {
         public:
             static DMA *acquire_DMA_channel();
@@ -23,8 +24,8 @@ namespace Concurrent::IO {
             
             // IO to IO should be wrapped by memory/CPU.
             // Memory to Memory should be handled by CPU.
-            void submit(IO_Target *src, Memory_Target *dest, uint32_t us);
-            void submit(Memory_Target *src, IO_Target *dest, uint32_t us);
+            template <typename T> void submit(IO_Target<T> *src, Memory_Target<T> *dest, uint8_t priority, uint32_t timeout_us);
+            template <typename T> void submit(Memory_Target<T> *src, IO_Target<T> *dest, uint8_t priority, uint32_t timeout_us);
 
         protected:
             DMA();
