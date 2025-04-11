@@ -10,9 +10,8 @@
 namespace Concurrent::IO {
     // Abstract interface for Target
     template <typename T> class Target {
-        protected:
-            void *get_ptr(); // Dirty cast here
-
+        public:
+            virtual void *get_ptr() = 0;    // Dirty cast here
     };
 }
 

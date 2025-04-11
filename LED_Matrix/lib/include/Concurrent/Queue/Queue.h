@@ -9,6 +9,9 @@
 
 #include <stdint.h>
 
+// TODO: Factory
+// TODO: FreeRTOS implementation?
+
 namespace Concurrent {
     template <typename T> class Queue {
         public:

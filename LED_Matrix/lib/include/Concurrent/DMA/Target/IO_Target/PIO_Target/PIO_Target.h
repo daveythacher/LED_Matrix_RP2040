@@ -16,13 +16,11 @@ namespace Concurrent::IO {
         public:
             static PIO_Target *create_PIO_target(uint8_t cluster, uint8_t sm);
 
+            uint8_t get_data_request();
+            void *get_ptr();    // Dirty cast here
+
         protected:
             PIO_Target(uint8_t cluster, uint8_t sm);
-
-            uint8_t get_data_request() = 0;
-            void *get_ptr() = 0;    // Dirty cast here
-
-            friend class DMA;
 
         private:
             uint8_t _cluster;

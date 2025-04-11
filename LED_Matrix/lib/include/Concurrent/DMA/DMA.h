@@ -15,7 +15,7 @@ namespace Concurrent::IO {
     // DMA is SMT in CMT cluster (SMP-1)
     //  Conceptualize as service of multi-processing.
     //  Implemented as coprocessor in background of OS.
-    //      Multithreading is external wrapper to this.
+    //      Creates a hardware or software thread.
     //  Would be nice to verify bandwidth and latency.
     class DMA {
         public:
@@ -24,8 +24,11 @@ namespace Concurrent::IO {
             
             // IO to IO should be wrapped by memory/CPU.
             // Memory to Memory should be handled by CPU.
-            template <typename T> void submit(IO_Target<T> *src, Memory_Target<T> *dest, uint8_t priority, uint32_t timeout_us);
-            template <typename T> void submit(Memory_Target<T> *src, IO_Target<T> *dest, uint8_t priority, uint32_t timeout_us);
+            template <typename T> void submit(IO_Target<T> *src, Memory_Target<T> *dest, uint8_t priority);
+            template <typename T> void submit(Memory_Target<T> *src, IO_Target<T> *dest, uint8_t priority);
+
+            bool isFinished();
+            void abort();
 
         protected:
             DMA();

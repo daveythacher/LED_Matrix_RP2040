@@ -11,6 +11,8 @@
 #include "Matrix/HUB75/PWM/PWM_Packet.h"
 #include "Matrix/HUB75/PWM/PWM_Programs.h"
 
+// TODO: Factory
+
 namespace Matrix {
     template <typename T> class PWM_Multiplex {
         public:

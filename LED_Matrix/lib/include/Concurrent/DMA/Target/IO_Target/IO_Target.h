@@ -13,11 +13,9 @@
 namespace Concurrent::IO {
     // Abstract interface for IO
     template <typename T> class IO_Target : public Target {        
-        protected:
-            uint8_t get_data_request() = 0;
-            void *get_ptr() = 0;    // Dirty cast here
-
-            friend class DMA;
+        public:
+            virtual uint8_t get_data_request() = 0;
+            virtual void *get_ptr() = 0;    // Dirty cast here
     };
 }
 

@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include "Concurrent/DMA/Target/Target.h"
 
+// TODO: Create RP2040 implementation? (Convert to abstract?)
+
 namespace Concurrent::IO {
     // Abstract interface for Memory
     //  Capable of implementing linked list (1D or 2D) or vector (1D or 2D).
@@ -18,13 +20,10 @@ namespace Concurrent::IO {
             static Memory_Target *create_memory_target(uint8_t rows, uint16_t columns);
 
             void add_entry(uint8_t row, uint8_t column, T *ptr, uint16_t length);
+            void *get_ptr();    // Dirty cast here
 
         protected:
             Memory_Target(uint8_t rows, uint16_t columns);
-
-            void *get_ptr(); // Dirty cast here
-
-            friend class DMA;
         
         private:
             // This needs to be hidden!

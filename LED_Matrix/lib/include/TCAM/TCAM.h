@@ -11,6 +11,8 @@
 #include "SIMD/SIMD.h"
 #include "TCAM/Handler.h"
 
+// TODO: Factory
+
 // This can be rendered into coprocessor.
 namespace TCAM {
     template <typename T> class Table {
