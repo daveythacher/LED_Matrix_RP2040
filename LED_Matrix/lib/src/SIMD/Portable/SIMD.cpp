@@ -102,5 +102,4 @@ namespace SIMD {
     template class SIMD<uint8_t, SIMD_128>;
     template class SIMD<uint8_t, SIMD_32>;
     template class SIMD<uint8_t, SIMD_HUB75_Byte>;
-    template class SIMD<uint8_t, SIMD_HUB75_Short>;
 }

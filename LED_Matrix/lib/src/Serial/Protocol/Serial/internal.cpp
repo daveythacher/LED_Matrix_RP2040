@@ -11,7 +11,7 @@
 #include "Matrix/Matrix.h"
 
 namespace Serial::Protocol::internal {
-    template <typename T, typename R> void __not_in_flash_func(process)(Matrix::Buffer<T> *p) {
+    template <typename T, typename R> void __not_in_flash_func(process)(Matrix::Packet<R> *p) {
         /*switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
             case 2:
             case 6:
@@ -22,10 +22,6 @@ namespace Serial::Protocol::internal {
                 break;
         }*/
 
-        Matrix::Matrix<T, R>::get_matrix()->show(p);
-    }
-
-    template <typename T, typename R> void __not_in_flash_func(process)(Matrix::Packet<R> *p) {
         Matrix::Matrix<T, R>::get_matrix()->show(p);
     }
 

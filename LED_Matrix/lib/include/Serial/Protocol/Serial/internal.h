@@ -9,7 +9,6 @@
     
 #include <stdint.h>
 #include "pico/multicore.h"
-#include "Matrix/Buffer.h"
 #include "Matrix/Packet.h"
 
 namespace Serial::Protocol::internal {
@@ -39,7 +38,6 @@ namespace Serial::Protocol::internal {
             uint32_t compute_checksum();
     };
 
-    template <typename T, typename R> void process(Matrix::Buffer<T> *buffer);
     template <typename T, typename R> void process(Matrix::Packet<R> *packet);
     void send_status(STATUS status);
     void send_message(Status_Message *message);

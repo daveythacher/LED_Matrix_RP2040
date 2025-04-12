@@ -17,13 +17,10 @@ namespace Concurrent::IO {
     //  Capable of implementing linked list (1D or 2D) or vector (1D or 2D).
     template <typename T> class Memory_Target : public Taget {
         public:
-            static Memory_Target *create_memory_target(uint8_t rows, uint16_t columns);
+            Memory_Target(uint8_t rows, uint16_t columns);
 
             void add_entry(uint8_t row, uint8_t column, T *ptr, uint16_t length);
             void *get_ptr();    // Dirty cast here
-
-        protected:
-            Memory_Target(uint8_t rows, uint16_t columns);
         
         private:
             // This needs to be hidden!

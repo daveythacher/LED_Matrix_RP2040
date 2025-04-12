@@ -15,8 +15,6 @@
 #include "Concurrent/Queue/Queue.h"
 #include "Concurrent/Mutex/Mutex.h"
 
-// TODO: Factory
-
 namespace Matrix {
     template <typename R> class PWM_Multiplex;
 

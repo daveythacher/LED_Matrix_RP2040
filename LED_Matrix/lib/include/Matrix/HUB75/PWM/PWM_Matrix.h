@@ -17,9 +17,7 @@ namespace Matrix {
 
             static PWM_Matrix *create_matrix(uint8_t scan, uint8_t pwm_bits, uint8_t columns);
 
-            void show(unique_ptr<Buffer<T>> &buffer);
             void show(unique_ptr<Packet<R>> &packet);
-            unique_ptr<Buffer<T>> get_buffer();
             unique_ptr<Packet<R>> get_packet();
 
         private:

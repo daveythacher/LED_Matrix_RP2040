@@ -71,14 +71,6 @@ namespace Matrix {
         _mutex->unlock();
     }
 
-    template <typename R, typename X, typename W> void PWM_Worker_LUT<R, X, W>::convert(Buffer<T> *buffer) {
-        _mutex->lock();
-
-        // TODO: Push onto local queue
-
-        _mutex->unlock();
-    }
-
     template <typename R, typename X, typename W> inline W *PWM_Worker_LUT<R, X, W>::get_table(uint16_t v, uint8_t i) {
         uint32_t div = std::max((uint32_t) T::range_high / _steps, (uint32_t) 1);
         uint32_t mul = std::max((uint32_t) _steps / T::range_high, (uint32_t) 1);
