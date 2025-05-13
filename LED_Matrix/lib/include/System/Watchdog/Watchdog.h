@@ -13,6 +13,9 @@
 #include "Concurrent/Thread/Thread.h"
 
 namespace System {
+    // Future: Add ability to dameonize the service within.
+    //  Make this implement a service interface.
+    //      Start, query, etc.
     class Watchdog {
         public:
             static Watchdog *acquire_watchdog();

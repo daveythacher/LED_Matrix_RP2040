@@ -61,7 +61,7 @@ namespace System {
         token.timestamp = time_us_64();
         token.interval = interval;
 
-        // TODO: Add Frame here
+        // Future: Add Frame here
         lock->lock();
         queue->push(token);
         lock->unlock();
@@ -73,7 +73,7 @@ namespace System {
         while (1) {
             // Check FIFO for messages (aka kicks)
             if (queue->available()) {
-                // TODO: Add Frame here
+                // Future: Add Frame here
                 lock->lock();
                 kick_token token = queue->pop();
                 lock->unlock();
