@@ -22,7 +22,7 @@ namespace Concurrent {
         }
     }
 
-    template <typename T> void Queue<T>::push(T *val) {
+    template <typename T> void Queue<T>::push(T val) {
         while (xQueueSend(handle, val, 1) != pdTRUE);
     }
 

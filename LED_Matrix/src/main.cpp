@@ -5,17 +5,17 @@
  */
 
 #include <new>
-#include "hardware/watchdog.h"
+#include "System/Watchdog/Watchdog.h"
 #include "Serial/Protocol/serial.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
 static void crash() {
-    watchdog_reboot(0, 0, 0);
+    System::Watchdog::crash();
 }
 
 int main() {    
-    watchdog_enable(1, false);
+    System::Watchdog::acquire_watchdog();
     std::set_new_handler(crash);
     Serial::Protocol::Protocol::create_protocol();
 	xPortStartScheduler();

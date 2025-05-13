@@ -17,7 +17,7 @@ namespace Concurrent {
             Queue(uint8_t depth);
             ~Queue();
 
-            void push(T *val);
+            void push(T val);
             T pop();
             bool available();
 

@@ -15,6 +15,7 @@ namespace System {
     class Watchdog {
         public:
             static Watchdog *acquire_watchdog();
+            static void crash();
 
             void kick(uint8_t id);
 
@@ -22,9 +23,21 @@ namespace System {
             Watchdog();
 
         private:
-            Watchdog *ptr;
+            struct kick_token {
+                uint8_t id;
+                uint64_t timestamp;
+            };
+
+            struct tick_record {
+                uint64_t interval;
+                uint64_t last;
+            };
+            
             Concurrent::Mutex *lock;
-            Concurrent::Queue<uint64_t> *queue;
+            tick_record ticks[6];
+            Concurrent::Queue<kick_token> *queue;
+
+            static Watchdog *ptr;
     };
 }
 
