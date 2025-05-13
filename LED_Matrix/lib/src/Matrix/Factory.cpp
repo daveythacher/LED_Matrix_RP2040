@@ -17,10 +17,8 @@ namespace Matrix {
 
     template <typename T, typename R> Matrix<T, R> *Factory<T, R>::get_matrix() {
         if (ptr == nullptr) {
-            // TODO:
-            // Figure out the Matrix Family (HUB75)
-            //  For HUB75, if Refresh <= 250 use BCM, PWM otherwise
-            ptr = PWM_Matrix<RGB24, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>::create_matrix(8, 4, 32);  // TODO: Fix this
+            // TODO: Figure out the Matrix Family (HUB75)
+            ptr = PWM_Matrix<RGBRGB, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>::create_matrix(8, 12, 8);
         }
 
         return ptr;

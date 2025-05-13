@@ -19,9 +19,8 @@ namespace System {
 
     Watchdog *Watchdog::acquire_watchdog() {
         if (!isRunning) {
-            thread = new Concurrent::Thread(worker, 4096, 255, nullptr); // TODO: Update
-            // TODO: Finish
-            //  Queue, etc.
+            thread = new Concurrent::Thread(worker, 4096, 255, nullptr);    // TODO: Update
+            queue = new Concurrent::Queue<kick_token>(4);                   // TODO: Update
         }
 
         for (uint8_t i = 0; i < number_of_watchdogs; i++) {

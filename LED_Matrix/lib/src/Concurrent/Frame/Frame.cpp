@@ -8,11 +8,11 @@
 
 namespace Concurrent {
     template <typename T> Frame<T>::Frame() {
-
+        // Do nothing
     }
 
     template <typename T> Frame<T>::~Frame() {
-
+        // Do nothing
     }
 
     // This function cannot be reordered ever!
@@ -37,10 +37,10 @@ namespace Concurrent {
     }
 
     template <typename T> void Frame<T>::sync_cpu() {
-
+        // TODO: Figure out ASM
     }
 
     template <typename T> void Frame<T>::sync_cache() {
-
+        // TODO: Figure out ASM
     }
 }
