@@ -7,7 +7,7 @@ namespace System {
 
     Watchdog::Watchdog() {
         // TODO:
-        watchdog_enable(1, false);
+        thread = new Concurrent::Thread(worker, 4096, 255, this); // TODO: Update
     }
 
     Watchdog *Watchdog::acquire_watchdog() {
@@ -32,5 +32,28 @@ namespace System {
         token.id = id;
         token.timestamp = time_us_64();
         queue->push(token);
+    }
+
+    void Watchdog::worker(void *arg) {
+        Watchdog *ptr = static_cast<Watchdog *>(arg);
+        watchdog_enable(1, false);
+
+        while (1) {
+            // Check FIFO for messages (aka kicks)
+            if (ptr->queue->available()) {
+                kick_token token = ptr->queue->pop();
+                ptr->ticks[token.id].last = token.timestamp;
+            }
+
+            // Check to see if the watchdog should go off
+            uint64_t timestamp = time_us_64();
+            for (uint8_t i = 0; i < sizeof(ticks) / sizeof(tick_record); i++) {
+                if (ptr->ticks[i].last + ptr->ticks[i].interval > timestamp) {
+                    Watchdog::crash();
+                }
+            }
+
+            watchdog_update();
+        }
     }
 }

@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include "Concurrent/Mutex/Mutex.h"
 #include "Concurrent/Queue/Queue.h"
+#include "Concurrent/Thread/Thread.h"
 
 namespace System {
     class Watchdog {
@@ -22,6 +23,8 @@ namespace System {
         protected:
             Watchdog();
 
+            static void worker(void *arg);
+
         private:
             struct kick_token {
                 uint8_t id;
@@ -32,10 +35,11 @@ namespace System {
                 uint64_t interval;
                 uint64_t last;
             };
-            
+
             Concurrent::Mutex *lock;
             tick_record ticks[6];
             Concurrent::Queue<kick_token> *queue;
+            Concurrent::Thread *thread;
 
             static Watchdog *ptr;
     };
