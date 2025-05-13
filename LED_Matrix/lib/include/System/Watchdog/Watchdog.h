@@ -16,19 +16,25 @@ namespace System {
     class Watchdog {
         public:
             static Watchdog *acquire_watchdog();
+            static void release_watchdog(Watchdog *wd);
             static void crash();
 
-            void kick(uint8_t id);
+            void kick(uint32_t timeout_us);
+            uint8_t id_num();
 
         protected:
             Watchdog();
+            Watchdog(uint8_t id);
 
             static void worker(void *arg);
 
         private:
+            uint8_t id;
+
             struct kick_token {
                 uint8_t id;
                 uint64_t timestamp;
+                uint32_t interval;
             };
 
             struct tick_record {
@@ -36,12 +42,13 @@ namespace System {
                 uint64_t last;
             };
 
-            Concurrent::Mutex *lock;
-            tick_record ticks[6];
-            Concurrent::Queue<kick_token> *queue;
-            Concurrent::Thread *thread;
-
-            static Watchdog *ptr;
+            static const uint8_t number_of_watchdogs = sizeof(uint8_t) * 6;
+            static Concurrent::Mutex *lock;
+            static tick_record ticks[number_of_watchdogs];
+            static Concurrent::Queue<kick_token> *queue;
+            static Concurrent::Thread *thread;
+            static bool isRunning;
+            static uint8_t counter;
     };
 }
 

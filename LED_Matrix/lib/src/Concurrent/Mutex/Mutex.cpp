@@ -21,10 +21,12 @@ namespace Concurrent {
     }
 
     void Mutex::lock() {
+        // TODO: Add Frame here
         while (xSemaphoreTake(handle, 1) != pdTRUE);
     }
 
     void Mutex::unlock() {
+        // TODO: Add Frame here
         xSemaphoreGive(handle);
     }
 }
