@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
  
-#ifndef MACHINE_H
-#define MACHINE_H
+#ifndef SYSTEM_MACHINE_H
+#define SYSTEM_MACHINE_H
     
 #include <stdint.h>
 

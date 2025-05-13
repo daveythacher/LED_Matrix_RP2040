@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
 
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef CONCURRENT_QUEUE_H
+#define CONCURRENT_QUEUE_H
 
 #include <stdint.h>
 

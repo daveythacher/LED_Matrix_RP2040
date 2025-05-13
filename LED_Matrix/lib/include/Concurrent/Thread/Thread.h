@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
 
-#ifndef THREAD_H
-#define THREAD_H
+#ifndef CONCURRENT_THREAD_H
+#define CONCURRENT_THREAD_H
 
 #include <stdint.h>
 

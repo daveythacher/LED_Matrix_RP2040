@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
 
-#ifndef DMA_H
-#define DMA_H
+#ifndef CONCURRENT_DMA_H
+#define CONCURRENT_DMA_H
 
 #include <stdint.h>
 #include "Concurrent/DMA/Target/IO_Target/IO_Target.h"

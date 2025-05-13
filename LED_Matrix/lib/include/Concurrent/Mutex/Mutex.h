@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
 
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef CONCURRENT_MUTEX_H
+#define CONCURRENT_MUTEX_H
 
 #include <stdint.h>
 

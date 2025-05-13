@@ -14,6 +14,10 @@ namespace SIMD {
         uint8_t data[16];
     };
 
+    struct SIMD_64 {
+        uint8_t data[8];
+    };
+
     struct SIMD_32 {
         uint8_t data[4];
     };

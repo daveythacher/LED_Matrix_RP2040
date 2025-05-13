@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
 
-#ifndef FRAME_H
-#define FRAME_H
+#ifndef CONCURRENT_FRAME_H
+#define CONCURRENT_FRAME_H
 
 namespace Concurrent {
     // Tool to create in order from out of order context

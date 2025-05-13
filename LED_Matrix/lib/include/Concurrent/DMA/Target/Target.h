@@ -4,8 +4,8 @@
  * License: GPL 3.0
  */
 
-#ifndef DMA_TARGET_H
-#define DMA_TARGET_H
+#ifndef CONCURRENT_DMA_TARGET_H
+#define CONCURRENT_DMA_TARGET_H
 
 namespace Concurrent::IO {
     // Abstract interface for Target
