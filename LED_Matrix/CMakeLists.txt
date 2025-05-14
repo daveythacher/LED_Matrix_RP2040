@@ -40,25 +40,5 @@ set(DEFINE_MULTIPLEX_FOLDER "HUB75" CACHE STRING "Multiplex interface family")
 set(DEFINE_MATRIX_ALGORITHM "PWM" CACHE STRING "Matrix algorithm name")
 set(DEFINE_MATRIX_FOLDER "HUB75" CACHE STRING "Matrix interface family")
 
-# This determines the shifter type (0 is reserved!)
-set(DEFINE_MULTIPLEX_TYPE "1" CACHE STRING "Shifter Multiplex Type")
-set(DEFINE_MULTIPLEX_CLOCK "5.0" CACHE STRING "Shifter Multiplex clock speed in MHz")
-
-# These determine RAM usage
-set(DEFINE_SERIAL_RGB_TYPE "RGB24" CACHE STRING "RGB type name")
-set(DEFINE_MULTIPLEX_SCAN "8" CACHE STRING "Panel scan")
-set(DEFINE_COLUMNS "32" CACHE STRING "Shift chain length")
-set(DEFINE_MAX_RGB_LED_STEPS "130" CACHE STRING "Min constrast of LED without multiplexing")
-
-# These determine timing and state machine settings at compile time
-set(DEFINE_MATRIX_DCLOCK "17.0" CACHE STRING "Matrix serial clock speed in MHz")
-set(DEFINE_SERIAL_UART_BAUD "4000000" CACHE STRING "Serial algorithm baud rate in Baud")
-set(DEFINE_BLANK_TIME "10" CACHE STRING "Blank time in microseconds")
-
-# These verify the configuration settings at compile time
-set(DEFINE_FPS "30" CACHE STRING "Frames per second")
-set(DEFINE_MIN_REFRESH "3000" CACHE STRING "Refresh rate")
-set(DEFINE_BYPASS_FANOUT "false" CACHE STRING "Disable verification of max Matrix algorithm Serial clock fanout speed limit")
-
 add_subdirectory(lib)
 add_subdirectory(src)
