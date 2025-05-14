@@ -12,7 +12,7 @@
 #include "SIMD/SIMD.h"
 
 namespace Matrix {
-    template <typename R, typename X, typename W> PWM_Worker_LUT<R, X, W>::PWM_Worker_LUT(uint8_t scan, uint16_t steps, uint8_t columns) : PWM_Worker<R, X, W>::PWM_Worker() {
+    PWM_Worker_LUT::PWM_Worker_LUT(uint8_t scan, uint16_t steps, uint8_t columns) : PWM_Worker::PWM_Worker() {
         _scan = scan;
         _steps = steps;
         _columns = columns;
@@ -20,8 +20,7 @@ namespace Matrix {
         _size = std::max((_steps / W::size()), (uint32_t) 1);
         _index_table = new W[_width * _size * _steps];
         _multiplex = new PWM_Multiplex<R>();
-        _thread[0] = new Concurrent::Thread(work, 4096, 1, this);
-        _thread[1] = new Concurrent::Thread(work, 4096, 1, this);
+        _thread = new Concurrent::Thread(work, 4096, 1, this);
         _queue = nullptr; // TODO: Updates
         _mutex = new Concurrent::Mutex();
         
@@ -39,16 +38,15 @@ namespace Matrix {
         build_index_table();
     }
 
-    template <typename R, typename X, typename W> PWM_Worker_LUT<R, X, W>::~PWM_Worker_LUT() {
+    PWM_Worker_LUT::~PWM_Worker_LUT() {
         delete[] _index_table;
         delete _multiplex;
-        delete _thread[0];
-        delete _thread[1];
+        delete _thread;
         delete _queue;
         delete _mutex;
     }
 
-    template <typename R, typename X, typename W> void PWM_Worker_LUT<R, X, W>::convert(Packet<X> *packet) {
+    void PWM_Worker_LUT::convert(Packet<X> *packet) {
         // This should be a sync lock
         _mutex->lock();
 
@@ -71,7 +69,7 @@ namespace Matrix {
         _mutex->unlock();
     }
 
-    template <typename R, typename X, typename W> inline W *PWM_Worker_LUT<R, X, W>::get_table(uint16_t v, uint8_t i) {
+    inline W *PWM_Worker_LUT::get_table(uint16_t v, uint8_t i) {
         uint32_t div = std::max((uint32_t) T::range_high / _steps, (uint32_t) 1);
         uint32_t mul = std::max((uint32_t) _steps / T::range_high, (uint32_t) 1);
 
@@ -86,7 +84,7 @@ namespace Matrix {
     //      2.2 Matrix operations may help
     //  3. Remove if with LUT (needs good cache)
     //      3.1 Matrix operations may help
-    template <typename R, typename X, typename W> inline void PWM_Worker_LUT<R, X, W>::set_pixel(X *val, R *pixel, uint8_t index, uint8_t shift) {    
+    inline void PWM_Worker_LUT::set_pixel(X *val, R *pixel, uint8_t index, uint8_t shift) {    
         W *c[3] = { get_table(pixel->get_red(), index + 0), get_table(pixel->get_green(), index + 1), get_table(pixel->get_blue(), index + 2) };
     
         for (uint32_t i = 0; i < _steps; i += W::size()) {
@@ -107,7 +105,7 @@ namespace Matrix {
         }
     }
 
-    template <typename R, typename X, typename W> inline void PWM_Worker_LUT<R, X, W>::build_index_table() {
+    inline void PWM_Worker_LUT::build_index_table() {
         uint8_t size = W::size();
 
         for (uint32_t i = 0; i < _steps; i++) {
@@ -119,30 +117,13 @@ namespace Matrix {
         }
     }
 
-    template <typename R, typename X, typename W> uint8_t PWM_Worker_LUT<R, X, W>::get_thread_id() {
-        static std::atomic<uint8_t> _thread_id = 0; // This does not work on RP2040 due to hardware
-        ++_thread_id;
-        return _thread_id - 1;
-    }
-
-    template <typename R, typename X, typename W> void PWM_Worker_LUT<R, X, W>::work(void *arg) {
-        PWM_Worker_LUT<R, X, W> *object = static_cast<PWM_Worker_LUT<R, X, W> *>(arg);
-        uint8_t id = object->get_thread_id();
+    void PWM_Worker_LUT::work(void *arg) {
+        PWM_Worker_LUT *object = static_cast<PWM_Worker_LUT *>(arg);
 
         while (1) {
             object->_idle = true;
 
-            if (id == 0) {
-                // TODO: Parent thread
-            }
-            else {
-                // TODO: Child thread
-            }
+            // TODO:
         }
     }
-
-    template class PWM_Worker_LUT<RGB24, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
-    template class PWM_Worker_LUT<RGB48, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
-    template class PWM_Worker_LUT<RGB_222, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
-    template class PWM_Worker_LUT<RGB_555, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
 }

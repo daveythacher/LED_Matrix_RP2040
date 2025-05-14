@@ -30,7 +30,6 @@ namespace Matrix {
             void build_index_table();
             uint8_t *get_table(uint16_t v, uint8_t i);
             void set_pixel(uint8_t *val, RGBRGB *pixel, uint8_t index, uint8_t shift);
-            static uint8_t get_thread_id();
 
             uint8_t _scan;
             uint16_t _steps;
@@ -40,7 +39,7 @@ namespace Matrix {
             volatile bool _idle;
             uint8_t *_index_table;
             PWM_Multiplex *_multiplex;
-            Concurrent::Thread *_thread[2];
+            Concurrent::Thread *_thread;
             Concurrent::Queue<uint8_t **> *_queue;
             Concurrent::Mutex *_mutex;
     };
