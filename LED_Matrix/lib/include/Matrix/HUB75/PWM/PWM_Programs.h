@@ -8,7 +8,7 @@
 #define MATRIX_PWM_PROGRAMS_H
 
 #include <stdint.h>
-#include "Matrix/HUB75/hw_config.h" // TODO: Remove this
+#include "Matrix/HUB75/hw_config.h"
 
 namespace Matrix {
     class PWM_Programs {
@@ -20,7 +20,7 @@ namespace Matrix {
             static const uint8_t WAKE_GHOST = 5;
             static const uint8_t WAKE_MULTIPLEX = 6;
 
-            struct Ghost_Packet {   // TODO: Fix this
+            struct Ghost_Packet {
                 const uint8_t scan = MULTIPLEX;
                 const uint8_t delay = (125 / (2 * BLANK_TIME)) + 1;
             };

@@ -20,13 +20,13 @@ namespace Matrix {
             void show(unique_ptr<Packet> &packet);
             unique_ptr<Packet> get_packet();
 
-        private:
+        protected:
             PWM_Matrix();
 
-            uint8_t _scan;
-            uint8_t _pwm_bits;
-            uint8_t _columns;
+        private:
             PWM_Worker *_worker;
+            
+            static PWM_Matrix *ptr;
     };
 }
 
