@@ -16,7 +16,7 @@ namespace Matrix {
         public:
             ~PWM_Packet();
 
-            static PWM_Packet *create_pwm_packet(uint8_t scan, uint16_t steps, uint8_t columns);
+            static PWM_Packet *create_pwm_packet();
 
             void set(uint8_t multiplex, uint16_t index, uint8_t column, T value);
             T get(uint8_t multiplex, uint16_t index, uint8_t column);

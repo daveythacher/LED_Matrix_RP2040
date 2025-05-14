@@ -20,7 +20,7 @@ namespace Matrix {
 
     class PWM_Worker_LUT : public PWM_Worker {
         public:
-            PWM_Worker_LUT(uint8_t scan, uint16_t steps, uint8_t columns);
+            PWM_Worker_LUT();
             ~PWM_Worker_LUT();
 
             void convert(Packet *packet);

@@ -15,7 +15,7 @@ namespace Matrix {
         public:
             virtual ~PWM_Worker();
 
-            static PWM_Worker *get_worker(uint8_t scan, uint16_t steps, uint8_t columns);
+            static PWM_Worker *get_worker();
 
             virtual void convert(Packet *packet) = 0;
     };
