@@ -86,16 +86,18 @@ namespace Matrix {
     //      2.2 Matrix operations may help
     //  3. Remove if with LUT (needs good cache)
     //      3.1 Matrix operations may help
-    template <typename R, typename X, typename W> inline void PWM_Worker_LUT<R, X, W>::set_pixel(R *val, T *pixel, uint8_t index) {    
+    template <typename R, typename X, typename W> inline void PWM_Worker_LUT<R, X, W>::set_pixel(X *val, R *pixel, uint8_t index, uint8_t shift) {    
         W *c[3] = { get_table(pixel->get_red(), index + 0), get_table(pixel->get_green(), index + 1), get_table(pixel->get_blue(), index + 2) };
     
         for (uint32_t i = 0; i < _steps; i += W::size()) {
             // Superscalar Operation (forgive the loads)
+            //  Remember c is a vector of two or four elements being or'd in parallel.
+            //  We do not do matrix operations so the three operations are in serial.
             W p = *c[0] | *c[1] | *c[2];
 
             // Hopefully the compiler will sort this out. (Inlining set_value)
             for (uint32_t j = 0; (j < W::size()) && ((i + j) < _steps); j++) {
-                *val |= p.get(j);
+                *val |= p.get(j) << shift;
                 val++;
             }
 

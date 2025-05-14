@@ -30,7 +30,7 @@ namespace Matrix {
             static void work(void *args);
             void build_index_table();
             W *get_table(uint16_t v, uint8_t i);
-            void set_pixel(R *val, T *pixel, uint8_t index);
+            void set_pixel(R *val, T *pixel, uint8_t index, uint8_t shift);
             static uint8_t get_thread_id();
 
             uint8_t _scan;
