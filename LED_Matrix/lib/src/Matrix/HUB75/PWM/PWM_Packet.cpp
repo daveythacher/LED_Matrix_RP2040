@@ -59,7 +59,7 @@ namespace Matrix {
     }
 
     // TODO: Look into this
-    T *PWM_Packet::get_line(uint8_t multiplex, uint16_t index) {
+    uint8_t *PWM_Packet::get_line(uint8_t multiplex, uint16_t index) {
         if (multiplex > _scan || index > _steps)
             return nullptr;
 
