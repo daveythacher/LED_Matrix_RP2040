@@ -10,15 +10,15 @@
 #include "Matrix/Matrix.h"
 
 namespace Matrix {
-    template <typename T, typename R> class Factory {
+    class Factory {
         public:
             // Future: Configuration Structure?
             //  Hardware definitions
             //  Remote init?
-            static Matrix<T, R> *get_matrix();
+            static Matrix *get_matrix();
         
         private:
-            static Matrix<T, R> *ptr;
+            static Matrix *ptr;
     };
 }
 

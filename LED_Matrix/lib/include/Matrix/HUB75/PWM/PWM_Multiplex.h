@@ -12,12 +12,12 @@
 #include "Matrix/HUB75/PWM/PWM_Programs.h"
 
 namespace Matrix {
-    template <typename T> class PWM_Multiplex {
+    class PWM_Multiplex {
         public:
             PWM_Multiplex();
             ~PWM_Multiplex();
 
-            void show(PWM_Packet<T> *buffer);
+            void show(PWM_Packet *buffer);
 
         private:
             void work(void *args);

@@ -11,7 +11,8 @@
 
 namespace Matrix {
     // Use unique pointer due to get_line
-    template <typename T> class PWM_Packet : public Packet<T> {
+    // TODO: Add Dot Correct here
+    class PWM_Packet : public Packet {
         public:
             ~PWM_Packet();
 

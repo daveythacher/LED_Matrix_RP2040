@@ -7,12 +7,14 @@
 #ifndef MATRIX_PWM_DOT_CORRECT_H
 #define MATRIX_PWM_DOT_CORRECT_H
 
+#include <stdint.h>
+
 namespace Matrix {
     class PWM_Dot_Correct {
         public:
-            ~PWM_Buffer();
+            ~PWM_Dot_Correct();
 
-            static PWM_Buffer *create_pwm_buffer(uint8_t rows, uint8_t columns);
+            static PWM_Dot_Correct *create_pwm_buffer(uint8_t rows, uint8_t columns);
 
             void set(uint8_t row, uint8_t column, uint8_t color, uint8_t value);
             T get(uint8_t row, uint8_t column);
@@ -21,8 +23,8 @@ namespace Matrix {
             uint8_t num_columns();
 
         private:
-            PWM_Buffer();
-            PWM_Buffer(uint8_t rows, uint8_t columns);
+            PWM_Dot_Correct();
+            PWM_Dot_Correct(uint8_t rows, uint8_t columns);
 
             uint8_t _rows;
             uint8_t _columns;

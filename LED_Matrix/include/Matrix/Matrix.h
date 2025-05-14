@@ -13,10 +13,10 @@
 using std::unique_ptr;
 
 namespace Matrix {
-    template <typename T, typename R> class Matrix {
+    class Matrix {
         public:
-            virtual void show(unique_ptr<Packet<R>> &packet) = 0;       // Future: FPS limiter
-            virtual unique_ptr<Packet<R>> get_packet() = 0;
+            virtual void show(unique_ptr<Packet> &packet) = 0;       // Future: FPS limiter
+            virtual unique_ptr<Packet> get_packet() = 0;
     };
 }
 
