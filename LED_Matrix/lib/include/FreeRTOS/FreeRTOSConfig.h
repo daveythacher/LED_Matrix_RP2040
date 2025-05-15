@@ -47,7 +47,7 @@
 #define configUSE_TICKLESS_IDLE                 0
 #define configUSE_IDLE_HOOK                     0
 #define configUSE_TICK_HOOK                     0
-#define configTICK_RATE_HZ                      ( ( TickType_t ) ( 60000) )     //  Future: Soften with DMA bufferstreams in Serial::Node
+#define configTICK_RATE_HZ                      ( ( TickType_t ) ( 60000) )
 #define configMAX_PRIORITIES                    8
 #define configMINIMAL_STACK_SIZE                ( configSTACK_DEPTH_TYPE ) 256
 #define configUSE_16_BIT_TICKS                  0

@@ -13,11 +13,7 @@
 
 namespace Serial::UART {
 
-    // -- DO NOT EDIT BELOW THIS LINE --
-
-    #cmakedefine DEFINE_SERIAL_UART_BAUD    @DEFINE_SERIAL_UART_BAUD@
-
-    constexpr unsigned int SERIAL_UART_BAUD = DEFINE_SERIAL_UART_BAUD;
+    constexpr unsigned int SERIAL_UART_BAUD = 78000000;
 }
     
 #endif

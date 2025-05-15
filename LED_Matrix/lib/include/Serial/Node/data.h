@@ -7,10 +7,10 @@
 #ifndef SERIAL_NODE_DATA_H
 #define SERIAL_NODE_DATA_H
 
-#include "Serial/Node/Data/serial.h"
+#include "Serial/Node/serial.h"
 #include "Serial/config.h"
 
-namespace Serial::Node::Data {
+namespace Serial {
     void callback(uint8_t **buf);
     uint16_t get_len();
     bool isAvailable();
