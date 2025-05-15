@@ -5,6 +5,7 @@
  */
 
 #include "Serial/Protocol/Serial/Command/Command.h"
+#include "Concurrent/Thread/Thread.h"
 #include "Serial/Node/data.h"
 #include "System/machine.h"
 #include "CRC/CRC.h"
@@ -15,8 +16,6 @@ namespace Serial::Protocol::DATA_NODE {
 }
 
 namespace Serial::Protocol::DATA_NODE {
-    uint8_t *Command::buf = 0;
-    uint16_t Command::len = 0;
     Command::DATA_STATES Command::state_data = DATA_STATES::SETUP;
     uint8_t Command::idle_num = 0;
     uint32_t Command::index;
@@ -28,18 +27,77 @@ namespace Serial::Protocol::DATA_NODE {
     uint64_t Command::time;
     Command *Command::ptr;
     
+    void Command::data_node(void *) {
+        // TODO: Init
+
+        // Note we respond with an ack or nothing on a dedicated line.
+        while (1) {
+            static uint32_t preamble_word = 0;
+            static uint8_t counter = 0;
+
+            // Look for frame preamble
+            while (Serial::Node::Data::isAvailable()) {
+                preamble_word <<= 8;
+                preamble_word |= Serial::Node::Data::getc();
+
+                if (preamble_word == htonl(0xAAEEAAEE)) {
+                    for (uint8_t i = 0; i < 4; i++) {
+                        checksum = CRC::crc32(checksum, (preamble_word >> (8 * (3 - i))) & 0xFF);
+                    }
+                    break;
+                }
+            }
+
+            if (!Serial::Node::Data::isAvailable()) {
+                Concurrent::Thread::Yield();
+            }
+
+            // Find packet length
+            while (Serial::Node::Data::isAvailable()) {
+                len <<= 8;
+                len |= Serial::Node::Data::getc();
+                ++counter;
+
+                if (counter >= 2) {
+                    len = ntohs(len);
+                    counter = 0;
+                    break;
+                }
+            }
+
+            if (!Serial::Node::Data::isAvailable()) {
+                Concurrent::Thread::Yield();
+            }
+
+            // Get packet data
+            while (Serial::Node::Data::isAvailable()) {
+                // TODO: Capture data
+
+                if (--len == 0) {
+                    break;
+                }
+            }
+
+            if (!Serial::Node::Data::isAvailable()) {
+                Concurrent::Thread::Yield();
+            }
+            
+            // TODO: checksum and trailing preamble
+        }
+    }
+
     STATUS __not_in_flash_func(Command::data_node)() {
+
         // Currently we drop the frame and wait for the next valid header.
         //  Host app will do the right thing using status messages.
         switch (state_data) {
             case DATA_STATES::SETUP:
+                checksum = 0xFFFFFFFF;
+                state_data = DATA_STATES::HEADER;
+
                 index = 0;
                 clear_trigger();
                 acknowledge = false;
-                checksum = 0xFFFFFFFF;
-                Serial::Node::Data::callback(&buf);
-                len = Serial::Node::Data::get_len();
-                state_data = DATA_STATES::PREAMBLE_CMD_LEN_T_MULTIPLEX_COLUMNS;
                 update_time();
 
                 if (idle_num == 0)
