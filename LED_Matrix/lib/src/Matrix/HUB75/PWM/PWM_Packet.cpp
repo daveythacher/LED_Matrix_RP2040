@@ -12,13 +12,17 @@
 
 namespace Matrix {
     PWM_Packet::PWM_Packet() {
-        _scan = MULTIPLEX;
-        _columns = COLUMNS;
-        _steps = STEPS;
-        _buffer = new uint8_t[_scan * _steps * (_columns + 1)];
-        _table = new bool[_scan * _columns];
+        // Do nothing
+    }
 
-        memset(_buffer, _columns - 1, _scan * _steps * _columns);
+    PWM_Packet::PWM_Packet(uint8_t scan, uint16_t steps, uint8_t columns) {
+        _scan = scan;
+        _columns = columns;
+        _buffer = new uint16_t[_scan * (_columns + 1)];
+        _table = new bool[_scan * _columns];
+        _correction = PWM_Dot_Correct::create_pwm_dot_correct(_scan, steps, columns);
+
+        memset(_buffer, _columns - 1, _scan * _columns);
         memset(_table, false, _scan * _columns);
     }
 
@@ -26,7 +30,10 @@ namespace Matrix {
         delete[] _buffer;
     }
 
-    // TODO: Add Dot Correct function here
+    PWM_Packet *PWM_Packet::create_packet(uint8_t scan, uint16_t steps, uint8_t columns) {
+        return new PWM_Packet(scan, steps, columns);
+    }
+
     void PWM_Packet::set(uint8_t multiplex, uint8_t column, bool value) {
         if (multiplex > _scan || column > _columns)
             return;
@@ -34,7 +41,7 @@ namespace Matrix {
         uint32_t i = multiplex * (_columns + 1);
         i += column;
 
-        _buffer[i + 1] = value; // TODO
+        _buffer[i + 1] = value ? _correction->get(multiplex, column) : 0;
         _table[multiplex * _columns + column] = value;
     }
 
@@ -45,7 +52,6 @@ namespace Matrix {
         return _table[(multiplex * _columns) + column];
     }
 
-
     uint8_t PWM_Packet::num_scan() {
         return _scan;
     }
@@ -54,19 +60,12 @@ namespace Matrix {
         return _columns;
     }
 
-    uint32_t PWM_Packet::num_steps() {
-        return _steps;
-    }
-
     // TODO: Look into this
-    uint8_t *PWM_Packet::get_line(uint8_t multiplex, uint16_t index) {
-        if (multiplex > _scan || index > _steps)
+    uint16_t *PWM_Packet::get_line(uint8_t multiplex) {
+        if (multiplex > _scan)
             return nullptr;
 
-        uint32_t i = multiplex * _steps * (_columns + 1);
-        i += index * (_columns + 1);
-
-        return &_buffer[i];
+        return &_buffer[multiplex * (_columns + 1)];
     }
 
     // TODO: Look into this

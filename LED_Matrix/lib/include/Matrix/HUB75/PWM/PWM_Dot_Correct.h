@@ -12,23 +12,22 @@
 namespace Matrix {
     class PWM_Dot_Correct {
         public:
-            ~PWM_Dot_Correct();
+            static PWM_Dot_Correct *create_pwm_dot_correct(uint8_t scan, uint16_t steps, uint8_t columns);
 
-            static PWM_Dot_Correct *create_pwm_buffer(uint8_t rows, uint8_t columns);
-
-            void set(uint8_t row, uint8_t column, uint8_t color, uint8_t value);
-            T get(uint8_t row, uint8_t column);
-
-            uint8_t num_rows();
-            uint8_t num_columns();
+            void set(uint8_t scan, uint8_t column, uint16_t value);
+            uint16_t get(uint8_t scan, uint8_t column);
+        
+        protected:
+            PWM_Dot_Correct();
+            PWM_Dot_Correct(uint8_t scan, uint16_t steps, uint8_t columns);
 
         private:
-            PWM_Dot_Correct();
-            PWM_Dot_Correct(uint8_t rows, uint8_t columns);
-
-            uint8_t _rows;
+            uint8_t _scan;
+            uint16_t _steps;
             uint8_t _columns;
-            uint8_t ***_table;
+            uint16_t *_table;
+            
+            static PWM_Dot_Correct *_ptr;
     };
 }
 

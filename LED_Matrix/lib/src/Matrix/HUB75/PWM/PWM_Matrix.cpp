@@ -6,12 +6,13 @@
 
 #include "Matrix/HUB75/PWM/PWM_Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Packet.h"
+#include "Matrix/HUB75/hw_config.h"
 
 namespace Matrix {
     PWM_Matrix *PWM_Matrix::ptr = nullptr;
 
     PWM_Matrix::PWM_Matrix() {
-        _worker = PWM_Worker::get_worker();
+        _worker = PWM_Worker::get_worker(MULTIPLEX, STEPS, COLUMNS);
     }
 
     PWM_Matrix *PWM_Matrix::create_matrix() {
@@ -33,7 +34,7 @@ namespace Matrix {
     }
     
     unique_ptr<Packet> PWM_Matrix::get_packet() {
-        unique_ptr<PWM_Packet> result(new PWM_Packet());
+        unique_ptr<PWM_Packet> result(PWM_Packet::create_packet(MULTIPLEX, STEPS, COLUMNS));
         return result;
     }
 }

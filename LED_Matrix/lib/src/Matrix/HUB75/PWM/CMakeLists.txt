@@ -10,6 +10,7 @@ target_sources(led_HUB75_PWM INTERFACE
     PWM_Packet.cpp
     PWM_Programs.cpp
     PWM_Multiplex.cpp
+    PWM_Dot_Correct.cpp
 )
 
 target_link_libraries(led_HUB75_PWM INTERFACE

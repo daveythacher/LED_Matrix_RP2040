@@ -7,10 +7,8 @@
 #ifndef MATRIX_PWM_WORKER_LUT_H
 #define MATRIX_PWM_WORKER_LUT_H
 
-#include <stdint.h>
-#include "Matrix/Packet.h"
-#include "Matrix/Types.h"
 #include "Matrix/HUB75/PWM/PWM_Worker/PWM_Worker.h"
+#include "Matrix/Types.h"
 #include "Concurrent/Thread/Thread.h"
 #include "Concurrent/Queue/Queue.h"
 #include "Concurrent/Mutex/Mutex.h"
@@ -20,7 +18,7 @@ namespace Matrix {
 
     class PWM_Worker_LUT : public PWM_Worker {
         public:
-            PWM_Worker_LUT();
+            PWM_Worker_LUT(uint8_t scan, uint16_t steps, uint8_t columns);
             ~PWM_Worker_LUT();
 
             void convert(Packet *packet);

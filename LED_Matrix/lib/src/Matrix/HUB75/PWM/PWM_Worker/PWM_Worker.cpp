@@ -12,7 +12,7 @@ namespace Matrix {
         // Do nothing
     }
 
-    PWM_Worker *PWM_Worker::get_worker() {
-        return new PWM_Worker_LUT();
+    PWM_Worker *PWM_Worker::get_worker(uint8_t scan, uint16_t steps, uint8_t columns) {
+        return new PWM_Worker_LUT(scan, steps, columns);
     }
 }

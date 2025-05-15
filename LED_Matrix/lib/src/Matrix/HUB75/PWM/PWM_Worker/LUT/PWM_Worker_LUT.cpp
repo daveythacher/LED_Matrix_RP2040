@@ -126,4 +126,24 @@ namespace Matrix {
             // TODO:
         }
     }
+
+    /*
+    // TODO: Look into this
+    //  Move this to PWM_Worker
+    uint8_t *PWM_Packet::get_line(uint8_t multiplex, uint16_t index) {
+        if (multiplex > _scan || index > _steps)
+            return nullptr;
+
+        uint32_t i = multiplex * _steps * (_columns + 1);
+        i += index * (_columns + 1);
+
+        return &_buffer[i];
+    }
+
+    // TODO: Look into this
+    //  Move this to PWM_Worker
+    uint16_t PWM_Packet::get_line_length() {
+        return _columns + 1;
+    }
+    */
 }

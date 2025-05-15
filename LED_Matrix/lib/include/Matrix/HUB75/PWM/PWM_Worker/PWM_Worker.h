@@ -7,7 +7,6 @@
 #ifndef MATRIX_PWM_WORKER_H
 #define MATRIX_PWM_WORKER_H
 
-#include <stdint.h>
 #include "Matrix/Packet.h"
 
 namespace Matrix {
@@ -15,7 +14,7 @@ namespace Matrix {
         public:
             virtual ~PWM_Worker();
 
-            static PWM_Worker *get_worker();
+            static PWM_Worker *get_worker(uint8_t scan, uint16_t steps, uint8_t columns);
 
             virtual void convert(Packet *packet) = 0;
     };
