@@ -8,7 +8,7 @@
 #define MATRIX_PWM_MATRIX_H
 
 #include "Matrix/Matrix.h"
-#include "Matrix/HUB75/PWM/PWM_Worker/PWM_Worker.h"
+#include "Matrix/Mono/PWM/PWM_Worker/PWM_Worker.h"
 
 namespace Matrix {
     class PWM_Matrix : public Matrix {

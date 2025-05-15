@@ -38,7 +38,7 @@ namespace Serial::Protocol::internal {
             uint32_t compute_checksum();
     };
 
-    template <typename T, typename R> void process(Matrix::Packet<R> *packet);
+    void process(Matrix::Packet *packet);
     void send_status(STATUS status);
     void send_message(Status_Message *message);
 }

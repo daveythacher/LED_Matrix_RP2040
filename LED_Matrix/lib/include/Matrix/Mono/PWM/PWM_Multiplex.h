@@ -8,8 +8,8 @@
 #define MATRIX_PWM_MULTIPLEX_H
 
 #include "Matrix/Matrix.h"
-#include "Matrix/HUB75/PWM/PWM_Packet.h"
-#include "Matrix/HUB75/PWM/PWM_Programs.h"
+#include "Matrix/Mono/PWM/PWM_Packet.h"
+#include "Matrix/Mono/PWM/PWM_Programs.h"
 
 namespace Matrix {
     class PWM_Multiplex {

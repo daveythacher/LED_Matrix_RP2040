@@ -1,4 +1,4 @@
-add_subdirectory(HUB75)
+add_subdirectory(Mono)
 
 # Since we use preprocessor we have to use interface library
 #   Optimization likely destroys any point in making this an actual lib

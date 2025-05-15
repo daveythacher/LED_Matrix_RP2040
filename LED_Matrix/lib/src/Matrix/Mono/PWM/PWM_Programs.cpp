@@ -5,7 +5,7 @@
  */
 
 #include <algorithm>
-#include "Matrix/HUB75/PWM/PWM_Programs.h"
+#include "Matrix/Mono/PWM/PWM_Programs.h"
 #include "PIO/Program/Program.h"
 #include "PIO/Program/ASM/NOP/NOP.h"
 #include "PIO/Program/ASM/OUT/OUT.h"

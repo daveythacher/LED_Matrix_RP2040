@@ -5,7 +5,7 @@
  */
 
 #include "Concurrent/Queue/Queue.h"
-#include "Matrix/HUB75/PWM/PWM_Packet.h"
+#include "Matrix/Mono/PWM/PWM_Packet.h"
 #include "FreeRTOS.h"
 #include "queue.h"
 

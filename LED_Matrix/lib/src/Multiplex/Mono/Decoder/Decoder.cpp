@@ -8,7 +8,7 @@
 #include "hardware/pio.h"
 #include "hardware/dma.h"
 #include "Multiplex/Multiplex.h"
-#include "Multiplex/HUB75/hw_config.h"
+#include "Multiple/Mono/hw_config.h"
 #include "Multiplex/Programs.h"
 
 namespace Multiplex {

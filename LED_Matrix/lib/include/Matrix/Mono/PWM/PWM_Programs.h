@@ -8,7 +8,7 @@
 #define MATRIX_PWM_PROGRAMS_H
 
 #include <stdint.h>
-#include "Matrix/HUB75/hw_config.h"
+#include "Matrix/Mono/hw_config.h"
 
 namespace Matrix {
     class PWM_Programs {

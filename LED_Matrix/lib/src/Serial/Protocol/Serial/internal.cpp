@@ -8,10 +8,10 @@
 #include "Serial/Protocol/Serial/internal.h"
 #include "Serial/Node/data.h"
 #include "System/machine.h"
-#include "Matrix/Matrix.h"
+#include "Matrix/Factory.h"
 
 namespace Serial::Protocol::internal {
-    template <typename T, typename R> void __not_in_flash_func(process)(Matrix::Packet<R> *p) {
+    void __not_in_flash_func(process)(Matrix::Packet *p) {
         /*switch (sizeof(DEFINE_SERIAL_RGB_TYPE)) {
             case 2:
             case 6:
@@ -22,7 +22,8 @@ namespace Serial::Protocol::internal {
                 break;
         }*/
 
-        Matrix::Matrix<T, R>::get_matrix()->show(p);
+        // TODO:
+        //Matrix::Factory::get_matrix()->show(p);
     }
 
     void __not_in_flash_func(send_status)(STATUS status) {

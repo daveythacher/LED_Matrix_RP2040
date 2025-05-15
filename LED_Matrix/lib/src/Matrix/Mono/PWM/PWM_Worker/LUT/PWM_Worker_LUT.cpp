@@ -6,9 +6,9 @@
  
 #include <algorithm>
 #include <atomic>
-#include "Matrix/HUB75/PWM/PWM_Worker_LUT.h"
-#include "Matrix/HUB75/PWM/PWM_Multiplex.h"
-#include "Matrix/HUB75/hw_config.h"
+#include "Matrix/Mono/PWM/PWM_Worker/LUT/PWM_Worker_LUT.h"
+#include "Matrix/Mono/PWM/PWM_Multiplex.h"
+#include "Matrix/Mono/hw_config.h"
 #include "SIMD/SIMD.h"
 
 namespace Matrix {
@@ -21,7 +21,7 @@ namespace Matrix {
         _index_table = new W[_width * _size * _steps];
         _multiplex = new PWM_Multiplex<R>();
         _thread = new Concurrent::Thread(work, 4096, 1, this);
-        _queue = nullptr; // TODO: Updates
+        _queue = new Concurrent::Queue<Packet *>(2);
         _mutex = new Concurrent::Mutex();
         
 
@@ -46,24 +46,19 @@ namespace Matrix {
         delete _mutex;
     }
 
-    void PWM_Worker_LUT::convert(Packet<X> *packet) {
+    void PWM_Worker_LUT::convert(Packet *packet) {
         // This should be a sync lock
         _mutex->lock();
 
-        // Force a resync of order by waiting for Buffer pipeline to stall completely.
-        //  This is not the fastest way, but mixing these is not intended.
-        //  This avoids fragmentation.
-        // Future: Consider a glitch or hazard here
-        //  We should be clear so moving to future
-        while (_queue->available() || !_idle) {
+        while (_queue->available()) {
             Concurrent::Thread::Yield();
         }
 
-        // TODO: Queue something
+        _queue->push(packet);
 
         // We have a polymorphic problem here. (We demoted it down and now we have to promote it.)
         //  Fact of the matter, I guess.
-        _multiplex->show(static_cast<PWM_Packet<X> *>(packet));
+        _multiplex->show(static_cast<PWM_Packet *>(packet));
 
         // Break out of the proceedure
         _mutex->unlock();
@@ -126,24 +121,4 @@ namespace Matrix {
             // TODO:
         }
     }
-
-    /*
-    // TODO: Look into this
-    //  Move this to PWM_Worker
-    uint8_t *PWM_Packet::get_line(uint8_t multiplex, uint16_t index) {
-        if (multiplex > _scan || index > _steps)
-            return nullptr;
-
-        uint32_t i = multiplex * _steps * (_columns + 1);
-        i += index * (_columns + 1);
-
-        return &_buffer[i];
-    }
-
-    // TODO: Look into this
-    //  Move this to PWM_Worker
-    uint16_t PWM_Packet::get_line_length() {
-        return _columns + 1;
-    }
-    */
 }

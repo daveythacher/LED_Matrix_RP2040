@@ -7,7 +7,7 @@
 #ifndef MATRIX_PWM_WORKER_LUT_H
 #define MATRIX_PWM_WORKER_LUT_H
 
-#include "Matrix/HUB75/PWM/PWM_Worker/PWM_Worker.h"
+#include "Matrix/Mono/PWM/PWM_Worker/PWM_Worker.h"
 #include "Matrix/Types.h"
 #include "Concurrent/Thread/Thread.h"
 #include "Concurrent/Queue/Queue.h"
@@ -38,7 +38,7 @@ namespace Matrix {
             uint8_t *_index_table;
             PWM_Multiplex *_multiplex;
             Concurrent::Thread *_thread;
-            Concurrent::Queue<uint8_t **> *_queue;
+            Concurrent::Queue<Packet *> *_queue;
             Concurrent::Mutex *_mutex;
     };
 }

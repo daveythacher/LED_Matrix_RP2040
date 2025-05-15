@@ -5,7 +5,7 @@
  */
 
 
-#include "Matrix/HUB75/PWM/PWM_Multiplex.h"
+#include "Matrix/Mono/PWM/PWM_Multiplex.h"
  
 #include <stdint.h>
 #include <string.h>
@@ -14,12 +14,11 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/structs/bus_ctrl.h"
-#include "Matrix/config.h"
-#include "Matrix/HUB75/PWM/memory_format.h"
+#include "Matrix/Mono/PWM/memory_format.h"
 #include "Multiplex/Multiplex.h"
 #include "Serial/config.h"
-#include "Matrix/HUB75/hw_config.h"
-#include "Matrix/HUB75/PWM/PWM_Programs.h"
+#include "Matrix/Mono/hw_config.h"
+#include "Matrix/Mono/PWM/PWM_Programs.h"
 
 namespace Matrix {
     // PIO Protocol

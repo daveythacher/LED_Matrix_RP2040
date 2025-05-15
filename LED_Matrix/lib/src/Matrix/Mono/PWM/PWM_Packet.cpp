@@ -5,8 +5,8 @@
  */
 
 #include <string.h>
-#include "Matrix/HUB75/PWM/PWM_Packet.h"
-#include "Matrix/HUB75/hw_config.h"
+#include "Matrix/Mono/PWM/PWM_Packet.h"
+#include "Matrix/Mono/hw_config.h"
 
 // Every line starts with a counter variable indexed from zero instead of one
 

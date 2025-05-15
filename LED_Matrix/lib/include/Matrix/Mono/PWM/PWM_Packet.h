@@ -8,7 +8,7 @@
 #define MATRIX_PWM_PACKET_H
 
 #include "Matrix/Packet.h"
-#include "Matrix/HUB75/PWM/PWM_Dot_Correct.h"
+#include "Matrix/Mono/PWM/PWM_Dot_Correct.h"
 
 namespace Matrix {
     // Use unique pointer due to get_line

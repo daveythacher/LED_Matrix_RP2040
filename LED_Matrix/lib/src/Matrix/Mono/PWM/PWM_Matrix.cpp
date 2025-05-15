@@ -4,9 +4,9 @@
  * License: GPL 3.0
  */
 
-#include "Matrix/HUB75/PWM/PWM_Matrix.h"
-#include "Matrix/HUB75/PWM/PWM_Packet.h"
-#include "Matrix/HUB75/hw_config.h"
+#include "Matrix/Mono/PWM/PWM_Matrix.h"
+#include "Matrix/Mono/PWM/PWM_Packet.h"
+#include "Matrix/Mono/hw_config.h"
 
 namespace Matrix {
     PWM_Matrix *PWM_Matrix::ptr = nullptr;

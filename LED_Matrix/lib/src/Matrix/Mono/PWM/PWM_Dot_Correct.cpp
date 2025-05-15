@@ -4,7 +4,7 @@
  * License: GPL 3.0
  */
 
-#include "Matrix/HUB75/PWM/PWM_Dot_Correct.h"
+#include "Matrix/Mono/PWM/PWM_Dot_Correct.h"
 
 namespace Matrix {
     PWM_Dot_Correct *PWM_Dot_Correct::_ptr = nullptr;
