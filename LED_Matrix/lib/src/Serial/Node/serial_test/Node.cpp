@@ -15,6 +15,7 @@ namespace Serial::Node::Data {
         static packet buffers[num_packets];
         static uint8_t buffer = 0;
         
+        // TODO: Fix all of this
         for (uint16_t x = 0; x < Matrix::COLUMNS; x++) {
             for (uint8_t y = 0; y < (2 * Matrix::MULTIPLEX); y++) {
                 if ((x % (2 * Matrix::MULTIPLEX)) == y) {

@@ -1,5 +1,5 @@
 /* 
- * File:   serial.h
+ * File:   Serial.h
  * Author: David Thacher
  * License: GPL 3.0
  */

@@ -1,8 +1,7 @@
 add_library(serial_node_uart INTERFACE)
 
 target_sources(serial_node_uart INTERFACE
-    control_node.cpp
-    data_node.cpp
+    Node.cpp
 )
 
 # Use caution here!
