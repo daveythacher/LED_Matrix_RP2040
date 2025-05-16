@@ -90,9 +90,9 @@ If the multiplexing consumes too much CPU and the bandwidth is tight on the seri
 
 ## List of things:
 - 4-bit LUT to accelerate computation. (Removed due to direction shift in support.)
-- TCAM to speed up processing/filtering. 
-- Portable SIMD operations using standard ALU.
-- Pointers to accelerate computation. 
+- TCAM to speed up processing/filtering. (Removed due to direction shift in support.)
+- Portable SIMD operations using standard ALU. (Removed due to direction shift in support.)
+- Pointers to accelerate computation. (Planned)
 - Wrapper to promote in-order execution. (Planned)
 - DMA wrapper to scope system networking. (Planned)
 - Watchdog service to failsafe RTOS. (Planned)
