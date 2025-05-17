@@ -87,3 +87,17 @@ Currently the code is written for a single RP2040. However it is possible to bre
 On the single core worker processing goes to core 1. Multiplexing goes to core 0 and yields to serial protocol. The serial protocol should have flow control which should cause a collapse in frame rate if nothing else. This means multiplex should never be hindered. Frane rate can also be limited by the worker processing performance.
 
 If the multiplexing consumes too much CPU and the bandwidth is tight on the serial protocol there can be a collapse in frame rate. The only way to fix this potentially is with a better front end hardware system. (I am not sure how much DMA bandwidth there is.)
+
+## List of things:
+- 4-bit LUT to accelerate computation. (Removed due to direction shift in support.)
+- TCAM to speed up processing/filtering. (Removed due to direction shift in support.)
+- Portable SIMD operations using standard ALU. (Removed due to direction shift in support.)
+- Pointers to accelerate computation. (Planned)
+- Wrapper to promote in-order execution. (Planned)
+- DMA wrapper to scope system networking. (Planned)
+- Watchdog service to failsafe RTOS. (Planned)
+- Tone to detect errors and possibly correct them. (High framerate with acknowledge reduced the value of this.)
+- Multiple copies of bits to enable voting. (High framerate with acknowledge reduced the value of this.)
+- Implementing data chunks with checksum below protocol. (Hardware flow control reduced the value of this.) 
+- Commands and queries for remote control. (Planned)
+- Synchronous trigger for frame swap. (Removed in favor of framerate and concern for reliability.)
