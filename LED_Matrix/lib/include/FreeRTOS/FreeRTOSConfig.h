@@ -28,8 +28,6 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
-#cmakedefine DEFINE_MIN_REFRESH         @DEFINE_MIN_REFRESH@
-
 /*-----------------------------------------------------------
  * Application specific definitions.
  *

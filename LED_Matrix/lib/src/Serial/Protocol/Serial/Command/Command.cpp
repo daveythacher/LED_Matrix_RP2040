@@ -6,7 +6,7 @@
 
 #include "Serial/Protocol/Serial/Command/Command.h"
 #include "Concurrent/Thread/Thread.h"
-#include "Serial/Node/data.h"
+#include "Serial/Node/Node.h"
 #include "System/machine.h"
 #include "CRC/CRC.h"
 using Serial::Protocol::internal::STATUS;
@@ -37,9 +37,9 @@ namespace Serial::Protocol::DATA_NODE {
             while (1) {
                 static uint32_t preamble_word = 0;
 
-                if (Serial::Node::Data::isAvailable()) {
+                if (Serial::isAvailable()) {
                     preamble_word <<= 8;
-                    preamble_word |= Serial::Node::Data::getc();
+                    preamble_word |= Serial::getc();
 
                     if (preamble_word == htonl(0xAAEEAAEE)) {
                         for (uint8_t i = 0; i < 4; i++) {
@@ -55,8 +55,8 @@ namespace Serial::Protocol::DATA_NODE {
 
             // Find packet length
             while (1) {
-                if (Serial::Node::Data::isAvailable()) {
-                    len = Serial::Node::Data::getc();
+                if (Serial::isAvailable()) {
+                    len = Serial::getc();
                     break;
                 }
                 else {
@@ -66,7 +66,7 @@ namespace Serial::Protocol::DATA_NODE {
 
             // Get packet data
             while (1) {
-                if (Serial::Node::Data::isAvailable()) {
+                if (Serial::isAvailable()) {
                     // TODO: Capture data
 
                     if (--len == 0) {

@@ -8,23 +8,13 @@
 #define MULTIPLEX_HW_CONFIG_H
 
 #include <stdint.h>
-#include "Matrix/config.h"
-
-// TODO: Get this into something useful
-
-
-
-
+#include "Matrix/HUB75/hw_config.h"
 
 namespace Multiplex::HUB75 {
-    // -- DO NOT EDIT BELOW THIS LINE --
-
-    #cmakedefine DEFINE_MULTIPLEX_TYPE      @DEFINE_MULTIPLEX_TYPE@
-    #cmakedefine DEFINE_MULTIPLEX_CLOCK     @DEFINE_MULTIPLEX_CLOCK@
-
-    constexpr uint32_t multiplex_type = DEFINE_MULTIPLEX_TYPE;
-    constexpr float multiplex_clock = DEFINE_MULTIPLEX_CLOCK;
-
+    struct Multiplex_Packet {
+        const uint8_t length = Matrix::MULTIPLEX;
+        uint8_t buffer[Matrix::MULTIPLEX];
+    };
 
     constexpr uint16_t HUB75_ADDR_BASE = 16;        // TODO: Add to CMake
 

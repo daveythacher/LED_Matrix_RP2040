@@ -8,7 +8,6 @@
 #include "Serial/Protocol/Serial/Command/Data/Data/Data.h"
 #include "System/machine.h"
 #include "Matrix/Matrix.h"
-#include "Matrix/Types.h"
 
 namespace Serial::Protocol::DATA_NODE {
     void __not_in_flash_func(Data::process_command_internal)() {

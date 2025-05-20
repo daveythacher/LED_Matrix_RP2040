@@ -6,7 +6,7 @@
 
 #include <new>
 #include "System/Watchdog/Watchdog.h"
-#include "Serial/Protocol/serial.h"
+#include "Serial/Serial.h"
 #include "FreeRTOS.h"
 #include "task.h"
 

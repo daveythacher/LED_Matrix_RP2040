@@ -5,12 +5,12 @@
  */
 
 #include "hardware/watchdog.h"
-#include "Serial/Protocol/serial.h"
+#include "Serial/Serial.h"
 #include "Serial/Protocol/Serial/internal.h"
 #include "Serial/Protocol/Serial/Command/Command.h"
 #include "Serial/Protocol/Serial/filter.h"
 #include "Serial/Protocol/Serial/control_node.h"
-#include "Serial/Node/data.h"
+#include "Serial/Node/Node.h"
 
 namespace Serial::Protocol {
     void start() {
@@ -20,8 +20,8 @@ namespace Serial::Protocol {
 
     // Warning host is required to obey flow control and handle bus recovery
     void __not_in_flash_func(task)() {
-        static uint64_t time = time_us_64();
-        Serial::Protocol::internal::STATUS status;
+        //static uint64_t time = time_us_64();
+        //Serial::Protocol::internal::STATUS status;
 
         // Both of these are async and can be converted to use DMA internally, in theory.
         //  These work synchronously internally.
@@ -48,16 +48,16 @@ namespace Serial::Protocol {
         //                  Thread 2: Multiplexing thread (This pretty much has to run on core 1 at high priority)
         //                      This thread can be removed and replaced by a poller with PIO in theory.
         //                  Thread 3: DMA IO operations
-        Serial::Protocol::CONTROL_NODE::control_node();
-        status = Serial::Protocol::DATA_NODE::Command::data_node();
+        //Serial::Protocol::CONTROL_NODE::control_node();
+        //status = Serial::Protocol::DATA_NODE::Command::data_node();
 
         // Do not block, let flow control do it's thing
         //  This is capable of being converted to use DMA internally, in theory.
         //  I am concerned by the fork/join or pipe overhead because of status message.
-        if ((time_us_64() - time) >= (Serial::Node::Data::get_packet_time_us(sizeof(Serial::Protocol::internal::Status_Message)) + 1)) {
+        /*if ((time_us_64() - time) >= (Serial::Node::Data::get_packet_time_us(sizeof(Serial::Protocol::internal::Status_Message)) + 1)) {
             Serial::Protocol::internal::send_status(status);
             time = time_us_64();
-        }
+        }*/
 
         watchdog_update();
     }

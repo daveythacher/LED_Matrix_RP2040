@@ -15,7 +15,7 @@ namespace Serial::Protocol::DATA_NODE {
     // TODO: Clean up this mess
     class Command : public TCAM::Handler {
         public:
-            static Serial::Protocol::internal::STATUS data_node();
+            static void data_node(void *);
             static void trigger_processing();
             static void acknowledge_query();
             static void reset();

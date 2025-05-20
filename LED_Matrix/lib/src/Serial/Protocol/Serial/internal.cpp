@@ -6,7 +6,7 @@
 
 #include "hardware/watchdog.h"
 #include "Serial/Protocol/Serial/internal.h"
-#include "Serial/Node/data.h"
+#include "Serial/Node/Node.h"
 #include "System/machine.h"
 #include "Matrix/Factory.h"
 
@@ -37,10 +37,10 @@ namespace Serial::Protocol::internal {
 
     static inline void __not_in_flash_func(write_chunk)(uint32_t v, uint8_t bits) {
         for (int i = 0; i < bits; i += 8) {
-            while (!Serial::Node::Data::isAvailable())
+            while (!Serial::isAvailable())
                 watchdog_update();
             
-            Serial::Node::Data::putc((v >> i) & 0xFF);
+            Serial::putc((v >> i) & 0xFF);
         }
     }
 

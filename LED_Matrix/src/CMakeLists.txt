@@ -8,6 +8,7 @@ target_include_directories(led_${DEFINE_APP} PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/../lib/include/FreeRTOS
     ../include
     ../lib/include
+    ../lib/include/FreeRTOS
 )
 
 target_compile_options(led_${DEFINE_APP} PRIVATE 

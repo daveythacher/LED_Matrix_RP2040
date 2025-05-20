@@ -14,11 +14,7 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/structs/bus_ctrl.h"
-#include "Matrix/config.h"
-#include "Matrix/HUB75/PWM/memory_format.h"
 #include "Multiplex/Multiplex.h"
-#include "Serial/config.h"
-#include "Matrix/HUB75/hw_config.h"
 #include "Matrix/HUB75/PWM/PWM_Programs.h"
 
 namespace Matrix {
@@ -33,17 +29,21 @@ namespace Matrix {
     //      The last transfer stops the DMA and fires an interrupt
 
     PWM_Multiplex::PWM_Multiplex() {
-         header = STEPS;                                                                // This needs to be one less than (n + 1)
+        header = STEPS;                                                                 // This needs to be one less than (n + 1)
+        thread = new Concurrent::Thread(work, 4096, 255, this);
+        queue = new Concurrent::Queue<PWM_Packet *>(2);
+        counter = 0;
+        bank = 0;
 
         // Init Matrix hardware
         // IO
-        for (int i = 0; i < Matrix::HUB75::HUB75_DATA_LEN; i++) {
-            gpio_init(i + Matrix::HUB75::HUB75_DATA_BASE);
-            gpio_set_dir(i + Matrix::HUB75::HUB75_DATA_BASE, GPIO_OUT);
-            gpio_set_function(i + Matrix::HUB75::HUB75_DATA_BASE, GPIO_FUNC_PIO0);
+        for (int i = 0; i < HUB75::HUB75_DATA_LEN; i++) {
+            gpio_init(i + HUB75::HUB75_DATA_BASE);
+            gpio_set_dir(i + HUB75::HUB75_DATA_BASE, GPIO_OUT);
+            gpio_set_function(i + HUB75::HUB75_DATA_BASE, GPIO_FUNC_PIO0);
         }
-        gpio_init(Matrix::HUB75::HUB75_OE);
-        gpio_set_dir(Matrix::HUB75::HUB75_OE, GPIO_OUT);
+        gpio_init(HUB75::HUB75_OE);
+        gpio_set_dir(HUB75::HUB75_OE, GPIO_OUT);
         gpio_clr_mask(0x40FF00);
 
         Multiplex::init(Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);
@@ -61,32 +61,6 @@ namespace Matrix {
         //  Do use Dot correction though, which is above this implementation layer
         memset((void *) null_table, 0, COLUMNS + 1);
         null_table[0] = COLUMNS - 1;
-
-        { // Keep stack and variable scope clean
-            uint32_t y;
-
-            for (uint8_t b = 0; b < Serial::num_framebuffers; b++) {
-                for (uint32_t x = 0; x < MULTIPLEX; x++) {
-                    y = x * ((1 << PWM_bits) + 2);
-                    address_table[b][y].data = &header;
-                    address_table[b][y].len = 1;
-                    y += 1;
-
-                    for (uint32_t i = 0; i < (1 << PWM_bits); i++) {
-                        address_table[b][y + i].data = Matrix::Worker::buf[b].get_line(x, i);
-                        address_table[b][y + i].len = Buffer::get_line_length();
-                    }
-                    
-                    y += 1 << PWM_bits;
-                    address_table[b][y].data = null_table;
-                    address_table[b][y].len = COLUMNS + 1;
-                }
-
-                y += 1;
-                address_table[b][y + 1].data = NULL;
-                address_table[b][y + 1].len = 0;
-            }
-        }
 
         {   // We use a decent amount of stack here (The compiler should figure it out)
             uint16_t instructions[32];
@@ -113,8 +87,6 @@ namespace Matrix {
             pio_add_program(pio0, &pio_programs);
             // TODO: Finish
         }
-
-        // TODO: Ghosting program
         
         // Verify Serial Clock
         constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);                         // Someday this two will be a four.
@@ -125,8 +97,19 @@ namespace Matrix {
         pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
         pio0->sm[0].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
         pio0->sm[0].instr = pio_encode_jmp(0);
+        // TODO: Add frame here
         hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
         pio_sm_claim(pio0, 0);
+
+        // TODO: Fix (Ghosting program)
+        pio0->sm[1].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
+        pio0->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | ((Matrix::HUB75::HUB75_DATA_BASE + 6) << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | (Matrix::HUB75::HUB75_DATA_BASE << PIO_SM0_PINCTRL_OUT_BASE_LSB);
+        pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
+        pio0->sm[1].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
+        pio0->sm[1].instr = pio_encode_jmp(0);
+        // TODO: Add Frame here
+        hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
+        pio_sm_claim(pio0, 1);
         
         // DMA
         dma_chan[0] = dma_claim_unused_channel(true);
@@ -167,16 +150,6 @@ namespace Matrix {
         channel_config_set_dreq(&c, DREQ_PIO0_TX1); 
         channel_config_set_chain_to(&c, dma_chan[2]);
         dma_channel_configure(dma_chan[3], &c, &pio0_hw->txf[1], &ghost_packet, 2, false);
-
-        do {
-            buffer = Worker::get_front_buffer(&bank);
-        } while (buffer == nullptr);
-        
-        send_buffer();
-        dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[1], &ghost_packet, 2, true);
-
-        thread = Concurrent::Thread(work, 4096, 255);
-        queue = Concurrent::Queue<uint8_t **>(2);
     }
 
     void PWM_Multiplex::show(PWM_Packet *packet) {
@@ -184,31 +157,69 @@ namespace Matrix {
     }
 
     void __not_in_flash_func(PWM_Multiplex::send_buffer)() {
+        // TODO: Add frame here
         dma_hw->ints0 = 1 << dma_chan[0];
         dma_channel_set_read_addr(dma_chan[1], address_table[bank], true);
+        dma_channel_configure(dma_chan[2], &c, &pio0_hw->txf[1], &ghost_packet, 2, true);
+    }
+
+    void load_buffer(PWM_Packet *packet) {
+        uint32_t y;
+
+        for (uint32_t x = 0; x < MULTIPLEX; x++) {
+            y = x * (STEPS + 2);
+            address_table[counter][y].data = &header;
+            address_table[counter][y].len = 1;
+            y += 1;
+
+            for (uint32_t i = 0; i < STEPS; i++) {
+                address_table[counter][y + i].data = Matrix::Worker::buf[counter].get_line(x, i);
+                address_table[counter][y + i].len = Buffer::get_line_length();
+            }
+                    
+            y += STEPS;
+            address_table[counter][y].data = null_table;
+            address_table[counter][y].len = COLUMNS + 1;
+        }
+
+        y += 1;
+        address_table[counter][y + 1].data = NULL;
+        address_table[counter][y + 1].len = 0;
+        counter = ++counter % 3;
     }
 
     // Warning: we are high priority here.
     //  We need to be called two times the refresh rate at least.
     //  If we get called to often we stall.
-    void __not_in_flash_func(PWM_Multiplex::work)(void *) {
-        while (1) {                                                                     // TODO: Consider error handling?
-            if (dma_channel_get_irq0_status(dma_chan[0])) {
-                uint8_t temp;
-                Buffer *p = Worker::get_front_buffer(&temp);
+    void __not_in_flash_func(PWM_Multiplex::work)(void *arg) {
+        bool swapable = false;
+        PWM_Multiplex *multiplex = static_cast<PWM_Multiplex *>(arg);
 
-                if (p != nullptr) {
-                    buffer = p;
-                    bank = temp;
+        while (1) {
+            if (multiplex->queue->available()) {
+                multiplex->load_buffer(multiplex->queue->pop());
+                multiplex->send_buffer();
+            }
+        }
+
+        while (1) {
+            if (dma_channel_get_irq0_status(multiplex->dma_chan[0])) {
+                if (swapable) {
+                    multiplex->bank = multiplex->bank + 1 % 3;
                 }
 
-                send_buffer();                                                          // Kick off hardware
-                Concurrent::Thread::sleep((configTICK_RATE_HZ / MIN_REFRESH) - 1);      // Sleep (yield) for 9/10 of a frame (10 ticks per frame)
+                multiplex->send_buffer();                                                          // Kick off hardware
+                // TODO: Add watchdog protection
             }
-            else {
-                // Try again and wait.
-                //  We are high priority, so we should get the CPU back.
-                //  We will waste at least 1/10 of a frame, waiting. (JIT)
+
+            if (multiplex->queue->available()) {                                                   // Try to get ahead
+                if (multiplex->bank == multiplex->counter) {
+                    Concurrent::Thread::Yield();
+                }
+                else {
+                    multiplex->load_buffer(multiplex->queue->pop());
+                    swapable = true;
+                }
             }
         }
     }

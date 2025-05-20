@@ -10,6 +10,9 @@
 #include "Matrix/Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Packet.h"
 #include "Matrix/HUB75/PWM/PWM_Programs.h"
+#include "Matrix/HUB75/hw_config.h"
+#include "Concurrent/Queue/Queue.h"
+#include "Concurrent/Thread/Thread.h"
 
 namespace Matrix {
     class PWM_Multiplex {
@@ -19,18 +22,20 @@ namespace Matrix {
             void show(PWM_Packet *buffer);
 
         private:
-            void work(void *args);
+            static void work(void *args);
             void send_buffer();
+            void load_buffer(PWM_Packet *p);
 
 
             int dma_chan[4];
-            //PWM_Buffer *bufs[2];
             Concurrent::Thread *thread;
-            Concurrent::Queue<uint8_t **> *queue;
+            Concurrent::Queue<PWM_Packet *> *queue;
             PWM_Programs::Ghost_Packet ghost_packet;
-            struct {uint32_t len; uint8_t *data;} address_table[3][(MULTIPLEX * ((1 << PWM_bits) + 2)) + 1];
+            struct {uint32_t len; uint8_t *data;} address_table[3][(MULTIPLEX * (STEPS + 2)) + 1];
             uint8_t null_table[COLUMNS + 1];
             uint16_t header;
+            uint8_t counter;
+            uint8_t bank;
     };
 }
 

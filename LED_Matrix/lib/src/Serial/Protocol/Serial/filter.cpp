@@ -8,7 +8,6 @@
 #include "Serial/Protocol/Serial/Command/Data/Data/Data.h"
 #include "Serial/Protocol/Serial/Command/Data/ID/ID.h"
 #include "Serial/Protocol/Serial/Command/Query/Test/Test.h"
-#include "Serial/Node/data.h"
 #include "System/machine.h"
 
 namespace Serial::Protocol::DATA_NODE {

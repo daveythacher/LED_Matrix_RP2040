@@ -9,6 +9,5 @@ target_sources(serial_protocol_serial_command INTERFACE
 
 # Use caution here!
 target_link_libraries(serial_protocol_serial_command INTERFACE
-    led_SIMD
     led_system
 )
