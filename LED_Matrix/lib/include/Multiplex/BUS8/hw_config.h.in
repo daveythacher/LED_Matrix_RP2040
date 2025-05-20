@@ -4,22 +4,22 @@
  * License: GPL 3.0
  */
  
-#ifndef MULTIPLEX_HW_CONFIG_H
-#define MULTIPLEX_HW_CONFIG_H
+#ifndef MULTIPLEX_BUS8_HW_CONFIG_H
+#define MULTIPLEX_BUS8_HW_CONFIG_H
 
 #include <stdint.h>
-#include "Matrix/HUB75/hw_config.h"
+#include "Matrix/BUS8/hw_config.h"
 
-namespace Multiplex::HUB75 {
+namespace Multiplex::BUS8 {
     struct Multiplex_Packet {
         const uint8_t length = Matrix::MULTIPLEX;
         uint8_t buffer[Matrix::MULTIPLEX];
     };
 
-    constexpr uint16_t HUB75_ADDR_BASE = 16;        // TODO: Add to CMake
+    constexpr uint16_t BUS8_ADDR_BASE = 16;
 
     // Order (LSB to MSB): A B C D E
-    constexpr uint16_t HUB75_ADDR_LEN = 5;
+    constexpr uint16_t BUS8_ADDR_LEN = 5;
 }
 
 #endif

@@ -1,5 +1,5 @@
 /* 
- * File:   PWM_Multiplex.h
+ * File:   Multiplex.h
  * Author: David Thacher
  * License: GPL 3.0
  */
@@ -8,14 +8,14 @@
 #define MATRIX_PWM_MULTIPLEX_H
 
 #include "Matrix/Matrix.h"
-#include "Matrix/HUB75/PWM/PWM_Packet.h"
-#include "Matrix/HUB75/PWM/PWM_Programs.h"
-#include "Matrix/HUB75/hw_config.h"
+#include "Matrix/BUS8/PWM/PWM_Packet.h"
+#include "Matrix/BUS8/PWM/PWM_Programs.h"
+#include "Matrix/BUS8/hw_config.h"
 #include "Concurrent/Queue/Queue.h"
 #include "Concurrent/Thread/Thread.h"
 
 namespace Matrix {
-    class PWM_Multiplex {
+    class Multiplex {
         public:
             PWM_Multiplex();
 

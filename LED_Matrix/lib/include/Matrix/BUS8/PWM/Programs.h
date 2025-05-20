@@ -1,5 +1,5 @@
 /* 
- * File:   PWM_Programs.h
+ * File:   Programs.h
  * Author: David Thacher
  * License: GPL 3.0
  */
@@ -8,10 +8,10 @@
 #define MATRIX_PWM_PROGRAMS_H
 
 #include <stdint.h>
-#include "Matrix/HUB75/hw_config.h"
+#include "Matrix/BUS8/hw_config.h"
 
 namespace Matrix {
-    class PWM_Programs {
+    class Programs {
         public:
             static uint8_t get_pmp_program(uint16_t *instructions, uint8_t len);
             static uint8_t get_ghost_program(uint16_t *instructions, uint8_t len);
