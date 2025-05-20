@@ -12,7 +12,6 @@ namespace Matrix {
 
     Matrix *Factory::get_matrix() {
         if (ptr == nullptr) {
-            // TODO: Figure out the Matrix Family (HUB75)
             ptr = PWM_Matrix::create_matrix();
         }
 

@@ -6,43 +6,31 @@
 
 #include "Matrix/HUB75/PWM/PWM_Matrix.h"
 #include "Matrix/HUB75/PWM/PWM_Packet.h"
-#include "Matrix/HUB75/PWM/PWM_Calculator.h"
 #include "Matrix/HUB75/hw_config.h"
-#include "SIMD/SIMD.h"
 
 namespace Matrix {
-    template <typename T, typename R, typename W> PWM_Matrix<T, R, W>::PWM_Matrix(uint8_t scan, uint8_t pwm_bits, uint8_t columns) {
-        _scan = scan;
-        _columns = columns;
-        _pwm_bits = pwm_bits;
-        _worker = PWM_Worker<T, R, W>::get_worker(scan, 1 << pwm_bits, columns);
+    PWM_Matrix *PWM_Matrix::ptr = nullptr;
+
+    PWM_Matrix::PWM_Matrix() {
+        multiplex = new PWM_Multiplex();
     }
 
-    template <typename T, typename R, typename W> PWM_Matrix<T, R, W> *PWM_Matrix<T, R, W>::create_matrix(uint8_t scan, uint8_t pwm_bits, uint8_t columns) {
-        if (verify_configuration()) {
-            // TODO: Create singleton?
+    PWM_Matrix *PWM_Matrix::create_matrix() {
+        if (ptr == nullptr) {
+            ptr = new PWM_Matrix();
         }
 
-        return nullptr;
-    }
-
-    template <typename T, typename R, typename W> PWM_Matrix<T, R, W>::~PWM_Matrix() {
-        delete _worker;
+        return ptr;
     }
     
-    template <typename T, typename R, typename W> void PWM_Matrix<T, R, W>::show(unique_ptr<Packet<R>> &packet) {
-        unique_ptr<Packet<R>> p(get_packet());
+    void PWM_Matrix::show(unique_ptr<Packet> &packet) {
+        unique_ptr<Packet> p(get_packet());
         packet.swap(p);
-        _worker->convert(p.release());
+        multiplex->show(static_cast<PWM_Packet *>(p.release()));
     }
     
-    template <typename T, typename R, typename W> unique_ptr<Packet<R>> PWM_Matrix<T, R, W>::get_packet() {
-        unique_ptr<PWM_Packet<R>> result(PWM_Packet<R>::create_pwm_packet(_scan, 1 << _pwm_bits, _columns));
+    unique_ptr<Packet> PWM_Matrix::get_packet() {
+        unique_ptr<Packet> result(PWM_Packet::create_pwm_packet(MULTIPLEX, STEPS, COLUMNS));
         return result;
     }
-
-    template class PWM_Matrix<RGB24, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
-    template class PWM_Matrix<RGB48, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
-    template class PWM_Matrix<RGB_222, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
-    template class PWM_Matrix<RGB_555, HUB75_UNIT, SIMD::SIMD<HUB75_UNIT, SIMD::SIMD_UNIT>>;
 }

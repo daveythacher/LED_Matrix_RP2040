@@ -12,9 +12,6 @@
 namespace Matrix {
     class Factory {
         public:
-            // Future: Configuration Structure?
-            //  Hardware definitions
-            //  Remote init?
             static Matrix *get_matrix();
         
         private:

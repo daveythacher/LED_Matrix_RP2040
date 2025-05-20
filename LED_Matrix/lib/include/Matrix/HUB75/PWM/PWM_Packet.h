@@ -16,14 +16,16 @@ namespace Matrix {
         public:
             ~PWM_Packet();
 
-            static PWM_Packet *create_pwm_packet();
+            static PWM_Packet *create_pwm_packet(uint8_t scan, uint16_t steps, uint8_t columns);
 
-            void set(uint8_t multiplex, uint16_t index, uint8_t column, T value);
-            T get(uint8_t multiplex, uint16_t index, uint8_t column);
+            void set(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value);
+            uint8_t get(uint8_t multiplex, uint16_t index, uint8_t column);
+
             uint8_t num_scan();
-            uint16_t num_columns(bool isRaw);
-            uint32_t num_steps();
-            T *get_line(uint8_t multiplex, uint16_t index);
+            uint8_t num_columns();
+            uint16_t num_steps();
+
+            uint8_t *get_line(uint8_t multiplex, uint16_t index);
             uint16_t get_line_length();
 
         private:
@@ -33,7 +35,7 @@ namespace Matrix {
             uint8_t _scan;
             uint8_t _columns;
             uint16_t _steps;
-            T *_buffer;
+            uint8_t *_buffer;
     };
 }
 

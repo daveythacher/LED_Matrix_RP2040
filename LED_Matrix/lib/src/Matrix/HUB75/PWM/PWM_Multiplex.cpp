@@ -33,8 +33,7 @@ namespace Matrix {
     //      The last transfer stops the DMA and fires an interrupt
 
     PWM_Multiplex::PWM_Multiplex() {
-         header = 1 << PWM_bits;                                                        // This needs to be one less than (n + 1)
-
+         header = STEPS;                                                                // This needs to be one less than (n + 1)
 
         // Init Matrix hardware
         // IO
@@ -180,7 +179,7 @@ namespace Matrix {
         queue = Concurrent::Queue<uint8_t **>(2);
     }
 
-    void PWM_Multiplex::show(PWM_Buffer *buffer) {
+    void PWM_Multiplex::show(PWM_Packet *packet) {
         // TODO:
     }
 
