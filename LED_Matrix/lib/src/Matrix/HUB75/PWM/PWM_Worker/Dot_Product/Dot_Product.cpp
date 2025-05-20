@@ -44,3 +44,15 @@ namespace Matrix {
         return result;
     }
 }
+
+/*
+// 64-bit input: (8 iteration of i, 8 call of the above function, 8 channels in parallel)
+                                                                [ 1,   1,   1,   1,   1,   1,   1,   1   ]
+                                                                [ 2,   2,   2,   2,   2,   2,   2,   2   ]
+                                                                [ 4,   4,   4,   4,   4,   4,   4,   4   ]
+[ r0'bi, g0'bi, b0'bi, r1'bi, g1'bi, b1'bi, x0'bi, x1'bi ]  *   [ 8,   8,   8,   8,   8,   8,   8,   8   ]  =   [ a0'bi, a1'bi, a2'bi, a3'bi, a4'bi, a5'bi, a6'bi, a7'bi ]
+                                                                [ 16,  16,  16,  16,  16,  16,  16,  16  ]
+                                                                [ 32,  32,  32,  32,  32,  32,  32,  32  ]
+                                                                [ 64,  64,  64,  64,  64,  64,  64,  64  ]
+                                                                [ 128, 128, 128, 128, 128, 128, 128, 128 ]
+*/
