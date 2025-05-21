@@ -5,6 +5,7 @@
  */
 
 #include "TCAM/TCAM.h"
+#include "SIMD/SIMD.h"
 
 namespace TCAM {
     template <typename T> Table<T>::Table() {}
@@ -14,14 +15,15 @@ namespace TCAM {
         callbacks = new Handler *[num_rules];
         masks = new T[num_rules];
         values = new T[num_rules];
+	nums = new uint16_t[num_rules];
 
         for (uint8_t i = 0; i < num_rules; i++) {
-            callbacks[i] = nullptr;
+            nums[i] = 256;
         }
     }
 
     template <typename T> Table<T>::~Table() {
-        delete[] callbacks;
+        delete[] nums;
         delete[] masks;
         delete[] values;
     }
@@ -30,13 +32,13 @@ namespace TCAM {
         return (*data & *enable) == (*key & *enable);
     }
 
-    template <typename T> bool Table<T>::TCAM_rule(uint8_t priority, T key, T enable, Handler *callback) {
+    template <typename T> bool Table<T>::TCAM_rule(uint8_t priority, T key, T enable, uint8_t num) {
         if ((priority >= num_rules) || (callbacks[priority] != nullptr) || (callback == nullptr))
             return false;
         
         masks[priority] = key;
         values[priority] = enable;
-        callbacks[priority] = callback;
+        nums[priority] = num;
 
         return true;
     }

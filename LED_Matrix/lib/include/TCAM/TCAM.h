@@ -8,8 +8,6 @@
 #define TCAM_H
 
 #include <stdint.h>
-#include "SIMD/SIMD.h"
-#include "TCAM/Handler.h"
 
 // This can be rendered into coprocessor.
 namespace TCAM {
@@ -19,8 +17,8 @@ namespace TCAM {
             ~Table();
 
             // Only the highest priority rule match runs
-            bool TCAM_rule(uint8_t priority, T key, T enable, Handler *callback);
-            bool TCAM_process(const T *data);
+            bool TCAM_rule(uint8_t priority, T key, T enable, uint8_t num);
+            bool TCAM_process(const T *data, uint8_t *num);
         
         protected:
             Table();
@@ -30,7 +28,7 @@ namespace TCAM {
             uint8_t num_rules;
             T *masks;
             T *values;
-            Handler **callbacks;
+            uint16_t *nums;
     };
 }
 
