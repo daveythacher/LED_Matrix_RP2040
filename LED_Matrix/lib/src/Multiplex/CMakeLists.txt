@@ -10,5 +10,5 @@ target_sources(led_multiplex INTERFACE
 )
 
 target_link_libraries(led_multiplex INTERFACE
-    led_multiplex_${DEFINE_MULTIPLEX_FOLDER}_${DEFINE_MULTIPLEX_ALGORITHM}
+    led_multiplex_BUS8_Decoder
 )
