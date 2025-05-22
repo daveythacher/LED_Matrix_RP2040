@@ -38,24 +38,24 @@ namespace Matrix::BUS8::PWM {
 
         // Init Matrix hardware
         // IO
-        for (int i = 0; i < BUS8::BUS8_DATA_LEN; i++) {
-            gpio_init(i + BUS8::BUS8_DATA_BASE);
-            gpio_set_dir(i + BUS8::BUS8_DATA_BASE, GPIO_OUT);
-            gpio_set_function(i + BUS8::BUS8_DATA_BASE, GPIO_FUNC_PIO0);
-            IO::GPIO::claim(i + BUS8::BUS8_DATA_BASE);
+        for (int i = 0; i < ::Matrix::BUS8::BUS8_DATA_LEN; i++) {
+            gpio_init(i + ::Matrix::BUS8::BUS8_DATA_BASE);
+            gpio_set_dir(i + ::Matrix::BUS8::BUS8_DATA_BASE, GPIO_OUT);
+            gpio_set_function(i + ::Matrix::BUS8::BUS8_DATA_BASE, GPIO_FUNC_PIO0);
+            IO::GPIO::claim(i + ::Matrix::BUS8::BUS8_DATA_BASE);
         }
-        gpio_init(BUS8::BUS8_OE);
-        gpio_set_dir(BUS8::BUS8_OE, GPIO_OUT);
+        gpio_init(::Matrix::BUS8::BUS8_OE);
+        gpio_set_dir(::Matrix::BUS8::BUS8_OE, GPIO_OUT);
         gpio_clr_mask(0x40FFF0);
 
-        gpio_init(BUS8::BUS8_RCLK);
-        gpio_init(BUS8::BUS8_FCLK);
-        gpio_set_dir(BUS8::BUS8_RCLK, GPIO_IN);
-        gpio_set_dir(BUS8::BUS8_FCLK, GPIO_IN);
-        gpio_set_function(BUS8::BUS8_RCLK, GPIO_FUNC_SIO);
-        gpio_set_function(BUS8::BUS8_FCLK, GPIO_FUNC_SIO);
-        IO::GPIO::claim(BUS8::BUS8_RCLK);
-        IO::GPIO::claim(BUS8::BUS8_FCLK);
+        gpio_init(::Matrix::BUS8::BUS8_RCLK);
+        gpio_init(::Matrix::BUS8::BUS8_FCLK);
+        gpio_set_dir(::Matrix::BUS8::BUS8_RCLK, GPIO_IN);
+        gpio_set_dir(::Matrix::BUS8::BUS8_FCLK, GPIO_IN);
+        gpio_set_function(::Matrix::BUS8::BUS8_RCLK, GPIO_FUNC_SIO);
+        gpio_set_function(::Matrix::BUS8::BUS8_FCLK, GPIO_FUNC_SIO);
+        IO::GPIO::claim(::Matrix::BUS8::BUS8_RCLK);
+        IO::GPIO::claim(::Matrix::BUS8::BUS8_FCLK);
 
         ::Multiplex::Multiplex::create_multiplex(Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);
         
@@ -70,7 +70,7 @@ namespace Matrix::BUS8::PWM {
         
         // Do not connect the dots (LEDs), charge the low side before scanning (This will turn the LEDs off)
         //  Do use Dot correction though, which is above this implementation layer
-        memset((void *) null_table, 0, 2 * (COLUMNS + 1));
+        memset((void *) null_table, 0, sizeof(null_table));
         null_table[0] = COLUMNS - 1;
 
         {   // We use a decent amount of stack here (The compiler should figure it out)
@@ -210,15 +210,18 @@ namespace Matrix::BUS8::PWM {
             if (multiplex->queue->available()) {
                 multiplex->load_buffer(multiplex->queue->pop());
                 multiplex->send_buffer();
+                break;
             }
         }
 
-        // TODO: Add RCLK and FCLK in loop below
-
         while (1) {
             if (dma_channel_get_irq0_status(multiplex->dma_chan[0])) {
-                if (swapable) {
-                    multiplex->bank = multiplex->bank + 1 % 3;
+                if (swapable && gpio_get(::Matrix::BUS8::BUS8_FCLK)) {
+                    multiplex->bank = (multiplex->bank + 1) % 3;
+                }
+
+                while (!gpio_get(::Matrix::BUS8::BUS8_RCLK)) {
+                    // Do nothing
                 }
 
                 multiplex->send_buffer();                                                          // Kick off hardware
