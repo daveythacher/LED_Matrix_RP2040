@@ -59,7 +59,7 @@ namespace Matrix::BUS8::PWM {
         Program PMP(2);     // Warning not all behavior is supported
         ASM program[] = {   // Sidesets are cleared by default
             PULL(true),
-            OUT(X, 8),
+            OUT(X, 16),
             OUT(Y, 8),
             OUT(PINS, 6),
             JMP(Y_DEC, 3).sideset(CLK),

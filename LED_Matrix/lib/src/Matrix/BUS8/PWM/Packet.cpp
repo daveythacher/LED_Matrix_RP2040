@@ -17,7 +17,7 @@ namespace Matrix::BUS8::PWM {
         _scan = scan;
         _columns = columns;
         _steps = steps;
-        _buffer = new uint8_t[scan * steps * (columns + 1)];
+        _buffer = new uint16_t[scan * steps * (columns + 1)];
 
         memset(_buffer, columns - 1, scan * steps * columns);
     }
@@ -64,7 +64,7 @@ namespace Matrix::BUS8::PWM {
         return _steps;
     }
 
-    uint8_t *Packet::get_line(uint8_t multiplex, uint16_t index) {
+    uint16_t *Packet::get_line(uint8_t multiplex, uint16_t index) {
         if (multiplex > _scan || index > _steps)
             return nullptr;
 

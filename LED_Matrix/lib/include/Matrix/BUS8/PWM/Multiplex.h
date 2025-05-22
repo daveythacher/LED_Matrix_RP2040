@@ -31,11 +31,11 @@ namespace Matrix::BUS8::PWM {
             Concurrent::Thread *thread;
             Concurrent::Queue<Packet *> *queue;
             Programs::Ghost_Packet ghost_packet;
-            struct {uint32_t len; uint8_t *data;} address_table[3][(MULTIPLEX * (STEPS + 2)) + 1];
-            uint8_t null_table[COLUMNS + 1];
-            uint8_t header;
+            struct {uint32_t len; uint16_t *data;} address_table[3][(MULTIPLEX * (STEPS + 2)) + 1];
+            uint16_t null_table[COLUMNS + 1];
             uint8_t counter;
             uint8_t bank;
+            uint16_t header;
     };
 }
 

@@ -25,7 +25,7 @@ namespace Matrix::BUS8::PWM {
             uint8_t num_columns();
             uint16_t num_steps();
 
-            uint8_t *get_line(uint8_t multiplex, uint16_t index);
+            uint16_t *get_line(uint8_t multiplex, uint16_t index);
             uint16_t get_line_length();
 
         private:
@@ -35,7 +35,7 @@ namespace Matrix::BUS8::PWM {
             uint8_t _scan;
             uint8_t _columns;
             uint16_t _steps;
-            uint8_t *_buffer;
+            uint16_t *_buffer;
     };
 }
 

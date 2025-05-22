@@ -66,7 +66,7 @@ namespace Matrix::BUS8::PWM {
         
         // Do not connect the dots (LEDs), charge the low side before scanning (This will turn the LEDs off)
         //  Do use Dot correction though, which is above this implementation layer
-        memset((void *) null_table, 0, COLUMNS + 1);
+        memset((void *) null_table, 0, 2 * (COLUMNS + 1));
         null_table[0] = COLUMNS - 1;
 
         {   // We use a decent amount of stack here (The compiler should figure it out)
@@ -124,7 +124,7 @@ namespace Matrix::BUS8::PWM {
         dma_chan[2] = dma_claim_unused_channel(true);
         dma_chan[3] = dma_claim_unused_channel(true);
         dma_channel_config c = dma_channel_get_default_config(dma_chan[0]);
-        channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+        channel_config_set_transfer_data_size(&c, DMA_SIZE_16);
         channel_config_set_read_increment(&c, true);
         channel_config_set_high_priority(&c, true);
         channel_config_set_dreq(&c, DREQ_PIO0_TX0);
@@ -175,7 +175,7 @@ namespace Matrix::BUS8::PWM {
 
         for (uint32_t x = 0; x < MULTIPLEX; x++) {
             y = x * (STEPS + 2);
-            address_table[counter][y].data = &header;   // This limits the number of steps to 8-bits
+            address_table[counter][y].data = &header;
             address_table[counter][y].len = 1;
             y += 1;
 
@@ -208,6 +208,8 @@ namespace Matrix::BUS8::PWM {
                 multiplex->send_buffer();
             }
         }
+
+        // TODO: Add RCLK and FCLK in loop below
 
         while (1) {
             if (dma_channel_get_irq0_status(multiplex->dma_chan[0])) {
