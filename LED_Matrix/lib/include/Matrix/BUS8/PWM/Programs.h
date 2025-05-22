@@ -4,13 +4,13 @@
  * License: GPL 3.0
  */
  
-#ifndef MATRIX_PWM_PROGRAMS_H
-#define MATRIX_PWM_PROGRAMS_H
+#ifndef MATRIX_BUS8_PWM_PROGRAMS_H
+#define MATRIX_BUS8_PWM_PROGRAMS_H
 
 #include <stdint.h>
 #include "Matrix/BUS8/hw_config.h"
 
-namespace Matrix {
+namespace Matrix::BUS8::PWM {
     class Programs {
         public:
             static uint8_t get_pmp_program(uint16_t *instructions, uint8_t len);

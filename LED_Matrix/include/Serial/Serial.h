@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-namespace Serial::Protocol {
+namespace Serial {
     class Protocol {
         public:
             static Protocol *create_protocol();

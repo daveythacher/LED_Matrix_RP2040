@@ -1,12 +1,9 @@
 /* 
- * File:   PWM_Multiplex.cpp
+ * File:   Multiplex.cpp
  * Author: David Thacher
  * License: GPL 3.0
  */
 
-
-#include "Matrix/HUB75/PWM/PWM_Multiplex.h"
- 
 #include <stdint.h>
 #include <string.h>
 #include "pico/platform.h"
@@ -14,8 +11,10 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/structs/bus_ctrl.h"
+#include "Matrix/BUS8/PWM/Multiplex.h"
 #include "Multiplex/Multiplex.h"
-#include "Matrix/HUB75/PWM/PWM_Programs.h"
+#include "Matrix/BUS8/PWM/Programs.h"
+#include "Matrix/BUS8/hw_config.h"
 
 namespace Matrix {
     // PIO Protocol
@@ -28,7 +27,7 @@ namespace Matrix {
     //      The second to last transfer turns the columns off before multiplexing. (Standard shift)
     //      The last transfer stops the DMA and fires an interrupt
 
-    PWM_Multiplex::PWM_Multiplex() {
+    Multiplex::Multiplex() {
         header = STEPS;                                                                 // This needs to be one less than (n + 1)
         thread = new Concurrent::Thread(work, 4096, 255, this);
         queue = new Concurrent::Queue<PWM_Packet *>(2);
@@ -46,7 +45,14 @@ namespace Matrix {
         gpio_set_dir(HUB75::HUB75_OE, GPIO_OUT);
         gpio_clr_mask(0x40FF00);
 
-        Multiplex::init(Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);
+        gpio_init(BUS8::BUS8_RCLK);
+        gpio_init(6);
+        gpio_set_dir(5, GPIO_IN);
+        gpio_set_dir(6, GPIO_IN);
+        gpio_set_function(5, GPIO_FUNC_SIO);
+        gpio_set_function(6, GPIO_FUNC_SIO);
+
+        Multiplex::create_multiplex(Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);
         
         // Promote the CPUs (Branches break sequential/stripping pattern)
         //  CPUs now have 50 percent chance of winning.

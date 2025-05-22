@@ -1,5 +1,5 @@
 /* 
- * File:   PWM_Matrix.cpp
+ * File:   Matrix.cpp
  * Author: David Thacher
  * License: GPL 3.0
  */

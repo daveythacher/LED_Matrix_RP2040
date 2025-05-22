@@ -1,29 +1,29 @@
 /* 
- * File:   PWM_Matrix.h
+ * File:   Matrix.h
  * Author: David Thacher
  * License: GPL 3.0
  */
  
-#ifndef MATRIX_PWM_MATRIX_H
-#define MATRIX_PWM_MATRIX_H
+#ifndef MATRIX_BUS8_PWM_MATRIX_H
+#define MATRIX_BUS8_PWM_MATRIX_H
 
 #include "Matrix/Matrix.h"
-#include "Matrix/BUS8/PWM/PWM_Multiplex.h"
+#include "Matrix/BUS8/PWM/Multiplex.h"
 
-namespace Matrix {
-    class PWM_Matrix : public Matrix {
+namespace Matrix::BUS8::PWM {
+    class Matrix : public Matrix::Matrix {
         public:
-            static PWM_Matrix *create_matrix();
+            static Matrix *create_matrix();
 
             void show(unique_ptr<Packet> &packet);
             unique_ptr<Packet> get_packet();
 
         private:
-            PWM_Matrix();
+            Matrix();
 
-            static PWM_Matrix *ptr;
+            static Matrix *ptr;
 
-            PWM_Multiplex *multiplex;
+            Multiplex *multiplex;
     };
 }
 

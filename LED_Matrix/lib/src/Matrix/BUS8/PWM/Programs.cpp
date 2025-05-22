@@ -1,5 +1,5 @@
 /* 
- * File:   PWM_Programs.cpp
+ * File:   Programs.cpp
  * Author: David Thacher
  * License: GPL 3.0
  */

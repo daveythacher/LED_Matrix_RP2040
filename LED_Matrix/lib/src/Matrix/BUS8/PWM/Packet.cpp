@@ -1,5 +1,5 @@
 /* 
- * File:   PWM_Packet.cpp
+ * File:   Packet.cpp
  * Author: David Thacher
  * License: GPL 3.0
  */

@@ -1,22 +1,22 @@
 /* 
- * File:   PWM_Packet.h
+ * File:   Packet.h
  * Author: David Thacher
  * License: GPL 3.0
  */
  
-#ifndef MATRIX_PWM_PACKET_H
-#define MATRIX_PWM_PACKET_H
+#ifndef MATRIX_BUS8_PWM_PACKET_H
+#define MATRIX_BUS8_PWM_PACKET_H
 
 #include "Matrix/Packet.h"
 
-namespace Matrix {
+namespace Matrix::BUS8::PWM {
     // Use unique pointer due to get_line
     // TODO: Add Dot Correct here
-    class PWM_Packet : public Packet {
+    class Packet : public Matrix::Packet {
         public:
-            ~PWM_Packet();
+            ~Packet();
 
-            static PWM_Packet *create_pwm_packet(uint8_t scan, uint16_t steps, uint8_t columns);
+            static Packet *create_packet(uint8_t scan, uint16_t steps, uint8_t columns);
 
             void set(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value);
             uint8_t get(uint8_t multiplex, uint16_t index, uint8_t column);
@@ -29,8 +29,8 @@ namespace Matrix {
             uint16_t get_line_length();
 
         private:
-            PWM_Packet();
-            PWM_Packet(uint8_t scan, uint16_t steps, uint8_t columns);
+            Packet();
+            Packet(uint8_t scan, uint16_t steps, uint8_t columns);
 
             uint8_t _scan;
             uint8_t _columns;

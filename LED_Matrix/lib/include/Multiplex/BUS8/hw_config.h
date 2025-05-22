@@ -8,7 +8,7 @@
 #define MULTIPLEX_BUS8_HW_CONFIG_H
 
 #include <stdint.h>
-#include "Matrix/BUS8/hw_config.h"
+#include "Matrix/config.h"
 
 namespace Multiplex::BUS8 {
     struct Multiplex_Packet {
