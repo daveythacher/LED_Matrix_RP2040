@@ -4,33 +4,33 @@
  * License: GPL 3.0
  */
 
-#include "Matrix/HUB75/PWM/PWM_Matrix.h"
-#include "Matrix/HUB75/PWM/PWM_Packet.h"
-#include "Matrix/HUB75/hw_config.h"
+#include "Matrix/BUS8/PWM/Matrix.h"
+#include "Matrix/BUS8/PWM/Packet.h"
+#include "Matrix/BUS8/hw_config.h"
 
-namespace Matrix {
-    PWM_Matrix *PWM_Matrix::ptr = nullptr;
+namespace Matrix::BUS8::PWM {
+    Matrix *Matrix::ptr = nullptr;
 
-    PWM_Matrix::PWM_Matrix() {
-        multiplex = new PWM_Multiplex();
+    Matrix::Matrix() {
+        multiplex = new Multiplex();
     }
 
-    PWM_Matrix *PWM_Matrix::create_matrix() {
+    Matrix *Matrix::create_matrix() {
         if (ptr == nullptr) {
-            ptr = new PWM_Matrix();
+            ptr = new Matrix();
         }
 
         return ptr;
     }
     
-    void PWM_Matrix::show(unique_ptr<Packet> &packet) {
-        unique_ptr<Packet> p(get_packet());
+    void Matrix::show(unique_ptr<::Matrix::Packet> &packet) {
+        unique_ptr<::Matrix::Packet> p(get_packet());
         packet.swap(p);
-        multiplex->show(static_cast<PWM_Packet *>(p.release()));
+        multiplex->show(static_cast<Packet *>(p.release()));
     }
     
-    unique_ptr<Packet> PWM_Matrix::get_packet() {
-        unique_ptr<Packet> result(PWM_Packet::create_pwm_packet(MULTIPLEX, STEPS, COLUMNS));
+    unique_ptr<::Matrix::Packet> Matrix::get_packet() {
+        unique_ptr<::Matrix::Packet> result(Packet::create_packet(MULTIPLEX, STEPS, COLUMNS));
         return result;
     }
 }

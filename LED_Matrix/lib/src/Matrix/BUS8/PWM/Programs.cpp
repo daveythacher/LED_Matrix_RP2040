@@ -5,7 +5,7 @@
  */
 
 #include <algorithm>
-#include "Matrix/HUB75/PWM/PWM_Programs.h"
+#include "Matrix/BUS8/PWM/Programs.h"
 #include "PIO/Program/Program.h"
 #include "PIO/Program/ASM/NOP/NOP.h"
 #include "PIO/Program/ASM/OUT/OUT.h"
@@ -25,9 +25,7 @@ using IO::IRQ;
 using IO::WAIT;
 using IO::JMP;
 
-// Future: Template PIO programs to use something other than uint6_t (uint8_t)
-
-namespace Matrix {
+namespace Matrix::BUS8::PWM {
     const auto X = Registers::X;
     const auto Y = Registers::Y;
     const auto PINS = Registers::PINS;
@@ -54,7 +52,7 @@ namespace Matrix {
     //          LAT = 0;
     //      } while (counter2-- > 0);
     //  }
-    uint8_t PWM_Programs::get_pmp_program(uint16_t *instructions, uint8_t len) {
+    uint8_t Programs::get_pmp_program(uint16_t *instructions, uint8_t len) {
         uint8_t CLK = 1 << 0;
         uint8_t LAT = 1 << 1;
         uint8_t size;
@@ -81,7 +79,7 @@ namespace Matrix {
         return size;
     }
 
-    uint8_t PWM_Programs::get_ghost_program(uint16_t *instructions, uint8_t len) {
+    uint8_t Programs::get_ghost_program(uint16_t *instructions, uint8_t len) {
         uint8_t OE = 1 << 0;
         uint8_t size;
         Program PMP(1);     // Warning not all behavior is supported

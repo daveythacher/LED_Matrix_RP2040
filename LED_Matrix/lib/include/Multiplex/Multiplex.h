@@ -12,7 +12,7 @@
 namespace Multiplex {
     class Multiplex {
         public:
-            static Multiplex *create_multiplex();
+            static Multiplex *create_multiplex(int start_flag, int signal_flag);
     };
 }
 

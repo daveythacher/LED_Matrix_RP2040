@@ -5,15 +5,15 @@
  */
 
 #include <string.h>
-#include "Matrix/HUB75/PWM/PWM_Packet.h"
-#include "Matrix/HUB75/hw_config.h"
+#include "Matrix/BUS8/PWM/Packet.h"
+#include "Matrix/BUS8/hw_config.h"
 
 // Every line starts with a counter variable indexed from zero instead of one
 
-namespace Matrix {
-    PWM_Packet::PWM_Packet() {}
+namespace Matrix::BUS8::PWM {
+    Packet::Packet() {}
 
-    PWM_Packet::PWM_Packet(uint8_t scan, uint16_t steps, uint8_t columns) {
+    Packet::Packet(uint8_t scan, uint16_t steps, uint8_t columns) {
         _scan = scan;
         _columns = columns;
         _steps = steps;
@@ -22,15 +22,15 @@ namespace Matrix {
         memset(_buffer, columns - 1, scan * steps * columns);
     }
 
-    PWM_Packet::~PWM_Packet() {
+    Packet::~Packet() {
         delete[] _buffer;
     }
 
-    PWM_Packet *PWM_Packet::create_pwm_packet(uint8_t scan, uint16_t steps, uint8_t columns) {
-        return new PWM_Packet(scan, steps, columns);
+    Packet *Packet::create_packet(uint8_t scan, uint16_t steps, uint8_t columns) {
+        return new Packet(scan, steps, columns);
     }
 
-    void PWM_Packet::set(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value) {
+    void Packet::set(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value) {
         if (multiplex > _scan || index > _steps || column > _columns)
             return;
 
@@ -41,7 +41,7 @@ namespace Matrix {
         _buffer[i + 1] = value;
     }
 
-    uint8_t PWM_Packet::get(uint8_t multiplex, uint16_t index, uint8_t column) {
+    uint8_t Packet::get(uint8_t multiplex, uint16_t index, uint8_t column) {
         if (multiplex > _scan || index > _steps || column > _columns)
             return _buffer[1];
 
@@ -52,19 +52,19 @@ namespace Matrix {
         return _buffer[i + 1];
     }
 
-    uint8_t PWM_Packet::num_scan() {
+    uint8_t Packet::num_scan() {
         return _scan;
     }
 
-    uint8_t PWM_Packet::num_columns() {
+    uint8_t Packet::num_columns() {
         return _columns;
     }
 
-    uint16_t PWM_Packet::num_steps() {
+    uint16_t Packet::num_steps() {
         return _steps;
     }
 
-    uint8_t *PWM_Packet::get_line(uint8_t multiplex, uint16_t index) {
+    uint8_t *Packet::get_line(uint8_t multiplex, uint16_t index) {
         if (multiplex > _scan || index > _steps)
             return nullptr;
 
@@ -74,7 +74,7 @@ namespace Matrix {
         return &_buffer[i];
     }
 
-    uint16_t PWM_Packet::get_line_length() {
+    uint16_t Packet::get_line_length() {
         return _columns + 1;
     }
 }

@@ -12,7 +12,7 @@
 namespace Matrix::BUS8::PWM {
     // Use unique pointer due to get_line
     // TODO: Add Dot Correct here
-    class Packet : public Matrix::Packet {
+    class Packet : public ::Matrix::Packet {
         public:
             ~Packet();
 

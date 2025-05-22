@@ -33,7 +33,7 @@ namespace Matrix::BUS8::PWM {
             Programs::Ghost_Packet ghost_packet;
             struct {uint32_t len; uint8_t *data;} address_table[3][(MULTIPLEX * (STEPS + 2)) + 1];
             uint8_t null_table[COLUMNS + 1];
-            uint16_t header;
+            uint8_t header;
             uint8_t counter;
             uint8_t bank;
     };
