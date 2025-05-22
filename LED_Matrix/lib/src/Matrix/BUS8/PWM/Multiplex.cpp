@@ -16,6 +16,7 @@
 #include "Multiplex/Multiplex.h"
 #include "Matrix/BUS8/PWM/Programs.h"
 #include "Matrix/BUS8/hw_config.h"
+#include "GPIO/GPIO.h"
 
 namespace Matrix::BUS8::PWM {
     // PIO Protocol
@@ -41,17 +42,20 @@ namespace Matrix::BUS8::PWM {
             gpio_init(i + BUS8::BUS8_DATA_BASE);
             gpio_set_dir(i + BUS8::BUS8_DATA_BASE, GPIO_OUT);
             gpio_set_function(i + BUS8::BUS8_DATA_BASE, GPIO_FUNC_PIO0);
+            IO::GPIO::claim(i + BUS8::BUS8_DATA_BASE);
         }
         gpio_init(BUS8::BUS8_OE);
         gpio_set_dir(BUS8::BUS8_OE, GPIO_OUT);
-        gpio_clr_mask(0x40FF00);
+        gpio_clr_mask(0x40FFF0);
 
         gpio_init(BUS8::BUS8_RCLK);
-        gpio_init(6);
-        gpio_set_dir(5, GPIO_IN);
-        gpio_set_dir(6, GPIO_IN);
-        gpio_set_function(5, GPIO_FUNC_SIO);
-        gpio_set_function(6, GPIO_FUNC_SIO);
+        gpio_init(BUS8::BUS8_FCLK);
+        gpio_set_dir(BUS8::BUS8_RCLK, GPIO_IN);
+        gpio_set_dir(BUS8::BUS8_FCLK, GPIO_IN);
+        gpio_set_function(BUS8::BUS8_RCLK, GPIO_FUNC_SIO);
+        gpio_set_function(BUS8::BUS8_FCLK, GPIO_FUNC_SIO);
+        IO::GPIO::claim(BUS8::BUS8_RCLK);
+        IO::GPIO::claim(BUS8::BUS8_FCLK);
 
         ::Multiplex::Multiplex::create_multiplex(Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);
         
