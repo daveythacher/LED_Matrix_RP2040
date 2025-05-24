@@ -46,6 +46,8 @@ namespace Matrix::BUS8::PWM {
         }
         gpio_init(::Matrix::BUS8::BUS8_OE);
         gpio_set_dir(::Matrix::BUS8::BUS8_OE, GPIO_OUT);
+        gpio_set_function(::Matrix::BUS8::BUS8_OE, GPIO_FUNC_SIO);
+        IO::GPIO::claim(::Matrix::BUS8::BUS8_OE);
         gpio_clr_mask(0x40FFF0);
 
         gpio_init(::Matrix::BUS8::BUS8_RCLK);

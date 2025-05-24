@@ -5,7 +5,7 @@
  */
 
 #include <algorithm>
-#include "Multiplex/Programs.h"
+#include "Multiplex/BUS8/Decoder/Programs.h"
 #include "PIO/Program/Program.h"
 #include "PIO/Program/ASM/OUT/OUT.h"
 #include "PIO/Program/ASM/PULL/PULL.h"
@@ -23,7 +23,7 @@ using IO::IRQ;
 using IO::WAIT;
 using IO::JMP;
 
-namespace Multiplex {
+namespace Multiplex::BUS8::Decoder {
     const auto X = Registers::X;
     const auto Y = Registers::Y;
     const auto PINS = Registers::PINS;

@@ -8,6 +8,7 @@
 #define MULTIPLEX_BUS8_DECODER_H
 
 #include "Multiplex/Multiplex.h"
+#include "Matrix/config.h"
 
 namespace Multiplex::BUS8::Decoder {
     class Decoder : public Multiplex::Multiplex {
@@ -19,6 +20,9 @@ namespace Multiplex::BUS8::Decoder {
 
         private:
             static Decoder *ptr;
+
+            uint8_t mapper[Matrix::MULTIPLEX];
+            int dma_chan[2];
     }
 }
     
