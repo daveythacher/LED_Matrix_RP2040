@@ -93,7 +93,7 @@ If the multiplexing consumes too much CPU and the bandwidth is tight on the seri
 - TCAM to speed up processing/filtering. (Removed due to direction shift in support.)
 - Portable SIMD operations using standard ALU. (Removed due to direction shift in support.)
 - Pointers/structures to accelerate computation. (Somewhat used.)
-- Wrapper to promote in-order execution. (Removed inf favor of simplicity.)
+- Wrapper to promote in-order execution. (Removed in favor of simplicity.)
 - DMA wrapper to scope system networking. (Removed in favor of simplicity.)
 - Watchdog service to failsafe RTOS. (Removed in favor of simplicity.)
 - Tone to detect errors and possibly correct them. (High framerate with acknowledge reduced the value of this.)
