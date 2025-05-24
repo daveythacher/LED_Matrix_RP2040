@@ -70,7 +70,7 @@ namespace Multiplex::BUS8::Decoder {
         channel_config_set_high_priority(&c, false);   
         channel_config_set_dreq(&c, DREQ_PIO0_TX1); 
         channel_config_set_chain_to(&c, dma_chan[0]);
-        __dmb();
+        __dsb();
         dma_channel_configure(dma_chan[1], &c, &pio0_hw->txf[1], mapper, Matrix::MULTIPLEX, true);
 
         // We lock up Multiplex on error
