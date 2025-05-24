@@ -17,9 +17,11 @@
 #define MULTIPLEXER Decoder     // Multiplex
 
 namespace Matrix {
+    // These are not to exceed 4096 when multiplied together.
     constexpr uint8_t MULTIPLEX = 8;
     constexpr uint16_t STEPS = 64;
     constexpr uint8_t COLUMNS = 8;
+
     constexpr uint8_t BLANK_TIME = 10;
     constexpr uint32_t SERIAL_CLOCK = 15000000;
 }
