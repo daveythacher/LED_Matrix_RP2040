@@ -45,17 +45,15 @@ namespace Matrix::BUS8::PWM {
             IO::GPIO::claim(i + ::Matrix::BUS8::BUS8_DATA_BASE);
         }
         gpio_init(::Matrix::BUS8::BUS8_OE);
-        gpio_set_dir(::Matrix::BUS8::BUS8_OE, GPIO_OUT);
-        gpio_set_function(::Matrix::BUS8::BUS8_OE, GPIO_FUNC_SIO);
-        IO::GPIO::claim(::Matrix::BUS8::BUS8_OE);
-        gpio_clr_mask(0x40FFF0);
-
         gpio_init(::Matrix::BUS8::BUS8_RCLK);
         gpio_init(::Matrix::BUS8::BUS8_FCLK);
+        gpio_set_dir(::Matrix::BUS8::BUS8_OE, GPIO_OUT);
         gpio_set_dir(::Matrix::BUS8::BUS8_RCLK, GPIO_IN);
         gpio_set_dir(::Matrix::BUS8::BUS8_FCLK, GPIO_IN);
+        gpio_set_function(::Matrix::BUS8::BUS8_OE, GPIO_FUNC_SIO);
         gpio_set_function(::Matrix::BUS8::BUS8_RCLK, GPIO_FUNC_SIO);
         gpio_set_function(::Matrix::BUS8::BUS8_FCLK, GPIO_FUNC_SIO);
+        IO::GPIO::claim(::Matrix::BUS8::BUS8_OE);
         IO::GPIO::claim(::Matrix::BUS8::BUS8_RCLK);
         IO::GPIO::claim(::Matrix::BUS8::BUS8_FCLK);
 
@@ -166,7 +164,7 @@ namespace Matrix::BUS8::PWM {
     }
 
     void Multiplex::show(Packet *packet) {
-        // TODO:
+        queue->push(packet);
     }
 
     void __not_in_flash_func(Multiplex::send_buffer)() {

@@ -23,7 +23,6 @@ namespace Multiplex::BUS8::Decoder {
             gpio_set_function(i + ::Multiplex::BUS8::BUS8_ADDR_BASE, GPIO_FUNC_SIO);
             IO::GPIO::claim(i + ::Multiplex::BUS8::BUS8_ADDR_BASE);
         }
-        gpio_clr_mask(0x1F0000);
 
         for (uint8_t i = 0; i < Matrix::MULTIPLEX; i++) {
             mapper[i] = i;
@@ -41,8 +40,6 @@ namespace Multiplex::BUS8::Decoder {
             pio_add_program(pio1, &pio_programs);
             pio_sm_set_consecutive_pindirs(pio0, 0, ::Multiplex::BUS8::BUS8_ADDR_BASE, ::Multiplex::BUS8::BUS8_ADDR_LEN, true);
         }
-
-        // TODO:
 
         // PMP / SM
         pio1->sm[0].clkdiv = (1 << PIO_SM0_CLKDIV_INT_LSB) | (0 << PIO_SM0_CLKDIV_FRAC_LSB);
