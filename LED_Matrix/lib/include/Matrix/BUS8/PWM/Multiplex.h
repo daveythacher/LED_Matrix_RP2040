@@ -20,9 +20,9 @@ namespace Matrix::BUS8::PWM {
             Multiplex();
 
             void show(Packet *buffer);
+            void work();
 
         private:
-            static void work(void *args);
             void send_buffer();
             void load_buffer(Packet *p);
 

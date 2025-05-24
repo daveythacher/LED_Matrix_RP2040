@@ -16,6 +16,7 @@ namespace Matrix {
         public:
             virtual void show(unique_ptr<Packet> &packet) = 0;
             virtual unique_ptr<Packet> get_packet() = 0;
+            virtual void work() = 0;
     };
 }
 

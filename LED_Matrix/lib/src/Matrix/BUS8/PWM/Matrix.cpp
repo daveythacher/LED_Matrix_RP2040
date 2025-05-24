@@ -33,4 +33,8 @@ namespace Matrix::BUS8::PWM {
         unique_ptr<::Matrix::Packet> result(Packet::create_packet(MULTIPLEX, STEPS, COLUMNS));
         return result;
     }
+
+    void Matrix::work() {
+        multiplex->work();
+    }
 }

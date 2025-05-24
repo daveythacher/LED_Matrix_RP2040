@@ -7,20 +7,18 @@
 #include <new>
 #include "System/Watchdog/Watchdog.h"
 #include "Serial/Serial.h"
-#include "FreeRTOS.h"
-#include "task.h"
+#include "Matrix/Factory.h"
 
 static void crash() {
     System::Watchdog::crash();
+}
+
+static void core1() {
+    Matrix::Factory::get_matrix()->work();
 }
 
 int main() {    
     System::Watchdog::acquire_watchdog();
     std::set_new_handler(crash);
     Serial::Protocol::Protocol::create_protocol();
-	xPortStartScheduler();
-}
-
-void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName ) {
-    crash();
 }

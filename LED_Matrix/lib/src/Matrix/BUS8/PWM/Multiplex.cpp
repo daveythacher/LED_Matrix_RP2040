@@ -202,38 +202,37 @@ namespace Matrix::BUS8::PWM {
     // Warning: we are high priority here.
     //  We need to be called two times the refresh rate at least.
     //  If we get called to often we stall.
-    void __not_in_flash_func(Multiplex::work)(void *arg) {
+    void __not_in_flash_func(Multiplex::work)() {
         bool swapable = false;
-        Multiplex *multiplex = static_cast<Multiplex *>(arg);
 
         while (1) {
-            if (multiplex->queue->available()) {
-                multiplex->load_buffer(multiplex->queue->pop());
-                multiplex->send_buffer();
+            if (queue->available()) {
+                load_buffer(queue->pop());
+                send_buffer();
                 break;
             }
         }
 
         while (1) {
-            if (dma_channel_get_irq0_status(multiplex->dma_chan[0])) {
+            if (dma_channel_get_irq0_status(dma_chan[0])) {
                 if (swapable && gpio_get(::Matrix::BUS8::BUS8_FCLK)) {
-                    multiplex->bank = (multiplex->bank + 1) % 3;
+                    bank = (bank + 1) % 3;
                 }
 
                 while (!gpio_get(::Matrix::BUS8::BUS8_RCLK)) {
                     // Do nothing
                 }
 
-                multiplex->send_buffer();                                                          // Kick off hardware
+                send_buffer();                                                          // Kick off hardware
                 // TODO: Add watchdog protection
             }
 
-            if (multiplex->queue->available()) {                                                   // Try to get ahead
-                if (multiplex->bank == multiplex->counter) {
+            if (queue->available()) {                                                   // Try to get ahead
+                if (bank == counter) {
                     Concurrent::Thread::Yield();
                 }
                 else {
-                    multiplex->load_buffer(multiplex->queue->pop());
+                    load_buffer(queue->pop());
                     swapable = true;
                 }
             }
