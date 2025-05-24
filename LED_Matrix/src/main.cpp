@@ -5,20 +5,16 @@
  */
 
 #include <new>
-#include "System/Watchdog/Watchdog.h"
+#include "hardware/watchdog.h"
 #include "Serial/Serial.h"
 #include "Matrix/Factory.h"
 
 static void crash() {
-    System::Watchdog::crash();
-}
-
-static void core1() {
-    Matrix::Factory::get_matrix()->work();
+    watchdog_reboot(0, 0, 0);
 }
 
 int main() {    
-    System::Watchdog::acquire_watchdog();
     std::set_new_handler(crash);
-    Serial::Protocol::Protocol::create_protocol();
+    watchdog_enable(100, false);
+    Serial::Protocol::create_protocol()->work();
 }

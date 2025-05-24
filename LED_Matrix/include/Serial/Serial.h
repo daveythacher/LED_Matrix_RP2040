@@ -14,6 +14,8 @@ namespace Serial {
         public:
             static Protocol *create_protocol();
 
+            virtual void work() = 0;
+
         protected:
             Protocol();
 

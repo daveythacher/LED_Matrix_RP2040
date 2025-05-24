@@ -41,6 +41,7 @@ target_link_libraries(led_${DEFINE_APP}
     pico_stdio_usb
     pico_runtime
     pico_multicore
+    hardware_watchdog
     serial_protocol_${DEFINE_SERIAL_PROTOCOL}
 )
 
