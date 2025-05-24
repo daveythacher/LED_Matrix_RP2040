@@ -14,6 +14,7 @@ target_link_libraries(led_BUS8_PWM INTERFACE
     pico_multicore
     hardware_dma
     hardware_pio
+    hardware_sync
     led_PIO
     led_mupltiplex
 )
