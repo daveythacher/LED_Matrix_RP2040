@@ -1,8 +1,6 @@
 add_subdirectory(Matrix)
 add_subdirectory(Multiplex)
 add_subdirectory(Serial)
-add_subdirectory(SIMD)
-add_subdirectory(TCAM)
 add_subdirectory(System)
 add_subdirectory(PIO)
 add_subdirectory(GPIO)
