@@ -12,6 +12,7 @@
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
 #include "hardware/sync.h"
+#include "pico/multicore.h"
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/BUS8/PWM/Multiplex.h"
 #include "Multiplex/Multiplex.h"
@@ -32,8 +33,6 @@ namespace Matrix::BUS8::PWM {
 
     Multiplex::Multiplex() {
         header = STEPS;                                                                 // This needs to be one less than (n + 1)
-        thread = new Concurrent::Thread(work, 4096, 255, this);
-        queue = new Concurrent::Queue<Packet *>(2);
         counter = 0;
         bank = 0;
 
@@ -58,6 +57,7 @@ namespace Matrix::BUS8::PWM {
         IO::GPIO::claim(::Matrix::BUS8::BUS8_RCLK);
         IO::GPIO::claim(::Matrix::BUS8::BUS8_FCLK);
 
+        // Watchdog can see this. (Synchronous)
         ::Multiplex::Multiplex::create_multiplex(Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);
         
         // Promote the CPUs (Branches break sequential/stripping pattern)
@@ -165,7 +165,13 @@ namespace Matrix::BUS8::PWM {
     }
 
     void Multiplex::show(Packet *packet) {
-        queue->push(packet);
+        if (packet != nullptr) {
+            while (!multicore_fifo_wready()) {      // Watchdog can see this. (Synchronous)
+                // Do nothing
+            }
+
+            multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packet));   // Translate
+        }
     }
 
     void __not_in_flash_func(Multiplex::send_buffer)() {
@@ -206,9 +212,9 @@ namespace Matrix::BUS8::PWM {
     void __not_in_flash_func(Multiplex::work)() {
         bool swapable = false;
 
-        while (1) {
-            if (queue->available()) {
-                load_buffer(queue->pop());
+        while (1) {                                                                                 // Wait for first packet
+            if (multicore_fifo_rvalid()) {
+                load_buffer(reinterpret_cast<Packet *>(multicore_fifo_pop_blocking()));             // Translate
                 send_buffer();
                 break;
             }
@@ -224,16 +230,12 @@ namespace Matrix::BUS8::PWM {
                     // Do nothing
                 }
 
-                send_buffer();                                                          // Kick off hardware
-                // TODO: Add watchdog protection
+                send_buffer();                                                                      // Kick off hardware
             }
 
-            if (queue->available()) {                                                   // Try to get ahead
-                if (bank == counter) {
-                    Concurrent::Thread::Yield();
-                }
-                else {
-                    load_buffer(queue->pop());
+            if (multicore_fifo_rvalid()) {                                                          // Try to get ahead
+                if (bank != counter) {                                                              // Watchdog can see this. (Synchronous)
+                    load_buffer(reinterpret_cast<Packet *>(multicore_fifo_pop_blocking()));         // Translate
                     swapable = true;
                 }
             }

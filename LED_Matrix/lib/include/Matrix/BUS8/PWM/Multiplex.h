@@ -11,8 +11,6 @@
 #include "Matrix/BUS8/PWM/Packet.h"
 #include "Matrix/BUS8/PWM/Programs.h"
 #include "Matrix/BUS8/hw_config.h"
-#include "Concurrent/Queue/Queue.h"
-#include "Concurrent/Thread/Thread.h"
 
 namespace Matrix::BUS8::PWM {
     class Multiplex {
@@ -28,8 +26,6 @@ namespace Matrix::BUS8::PWM {
 
 
             int dma_chan[4];
-            Concurrent::Thread *thread;
-            Concurrent::Queue<Packet *> *queue;
             Programs::Ghost_Packet ghost_packet;
             struct {uint32_t len; uint16_t *data;} address_table[3][(MULTIPLEX * (STEPS + 2)) + 1];
             uint16_t null_table[COLUMNS + 1];
