@@ -102,3 +102,4 @@ If the multiplexing consumes too much CPU and the bandwidth is tight on the seri
 - Commands and queries for remote control. (Planned)
 - Synchronous trigger for frame swap. (Removed in favor of framerate and concern for reliability.)
 - Concurrent libraries for frame, mutex, queue, threads (RTOS), atomic, etc. (Removed in favor of simplicity.)
+- Shift register based vector or ring buffer. (Removed in favor of wasting CPU.)

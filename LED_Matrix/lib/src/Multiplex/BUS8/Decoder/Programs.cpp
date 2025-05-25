@@ -32,8 +32,8 @@ namespace Multiplex::BUS8::Decoder {
     
     uint8_t Programs::get_address_program(uint16_t *instructions, uint8_t len, int start_flag, int signal_flag) {
         uint8_t size;
-        Program PMP(0);     // Warning not all behavior is supported
-        ASM program[] = {   // Sidesets are cleared by default
+        Program PMP(0);                                         // Warning not all behavior is supported
+        ASM program[] = {                                       // Sidesets are cleared by default
             PULL(true),
             WAIT(Flags::IRQ, true, start_flag),                 // Wait till we are called (by Ghost) - single threaded
             OUT(PINS, 5),
