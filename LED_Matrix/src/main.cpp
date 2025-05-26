@@ -5,16 +5,17 @@
  */
 
 #include <new>
-#include "hardware/watchdog.h"
-#include "Serial/Serial.h"
-#include "Matrix/Factory.h"
+#include "Interface/Node.h"
+#include "Interface/Protocol.h"
+#include "Matrix/Matrix.h"
+#include "System/Watchdog.h"
 
 static void crash() {
-    watchdog_reboot(0, 0, 0);
+    System::Watchdog::crash();
 }
 
 int main() {    
     std::set_new_handler(crash);
-    watchdog_enable(100, false);
-    Serial::Protocol::create_protocol()->work();
+    System::Watchdog::enable(100);
+    Interface::Protocol::create_protocol(Interface::Node::create_node())->work();
 }

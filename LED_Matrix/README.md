@@ -107,3 +107,4 @@ If the multiplexing consumes too much CPU and the bandwidth is tight on the seri
 - Hardware interface logic vs high level software (asynchronous vs dependency order) portability. (File approach used.)
 - Preprocessor vs linker symbol management vs dynamic runtime. (Preprocessor used.)
 - RAM vs XIP caching. (Copy to RAM used.)
+- ASM vs C vs C++ (C++ where possible.)

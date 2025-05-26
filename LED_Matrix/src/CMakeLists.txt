@@ -1,3 +1,10 @@
+add_subdirectory(Matrix)
+add_subdirectory(Multiplex)
+add_subdirectory(Interface)
+add_subdirectory(System)
+add_subdirectory(PIO)
+add_subdirectory(GPIO)
+
 add_executable(led_${DEFINE_APP} 
     ./main.cpp
 )
@@ -41,8 +48,8 @@ target_link_libraries(led_${DEFINE_APP}
     pico_stdio_usb
     pico_runtime
     pico_multicore
-    hardware_watchdog
-    serial_protocol_${DEFINE_SERIAL_PROTOCOL}
+    led_matrix
+    led_system
 )
 
 target_link_options(led_${DEFINE_APP} 
