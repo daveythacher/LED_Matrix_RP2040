@@ -15,7 +15,7 @@ namespace IO {
             static void claim(unsigned int pin);
 
         private:
-            static uint32_t claimed;
+            static uint8_t claimed[4];
     };
 }
     

@@ -16,8 +16,8 @@ namespace Matrix::BUS8::PWM {
         public:
             static Matrix *create_matrix();
 
-            void show(unique_ptr<::Matrix::Packet> &packet);
-            unique_ptr<::Matrix::Packet> get_packet();
+            void show(::Matrix::Packet *packet);
+            ::Matrix::Packet *get_packet();
             void work();
 
         private:

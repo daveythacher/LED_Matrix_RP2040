@@ -23,20 +23,19 @@ namespace Matrix::BUS8::PWM {
         return ptr;
     }
     
-    void Matrix::show(unique_ptr<::Matrix::Packet> &packet) {
-        unique_ptr<::Matrix::Packet> p(get_packet());
-        packet.swap(p);
-        
-        // TODO: Fix this (should be dynamic cast, cannot use RTTI.)
-        //  Maybe we should move away from this approach.
-        //  Currently static cast should work due to the preprocessor
-        //  and factory design pattern used here.
-        multiplex->show(static_cast<Packet *>(p.release()));   // Promote
+    // No more double buffering
+    void Matrix::show(::Matrix::Packet *packet) {
+        if (packet != nullptr) {
+            Packet *p = Packet::create_packet(packet, MULTIPLEX, STEPS, COLUMNS);
+
+            if (p != nullptr) {
+                multiplex->show(p);
+            }
+        }
     }
     
-    unique_ptr<::Matrix::Packet> Matrix::get_packet() {
-        unique_ptr<::Matrix::Packet> result(Packet::create_packet(MULTIPLEX, STEPS, COLUMNS));
-        return result;
+    ::Matrix::Packet *Matrix::get_packet() {
+        return Packet::create_packet(MULTIPLEX, STEPS, COLUMNS);
     }
 
     void Matrix::work() {

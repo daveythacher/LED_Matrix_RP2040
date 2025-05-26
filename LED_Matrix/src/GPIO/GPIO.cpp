@@ -9,10 +9,10 @@
 #include "hardware/claim.h"
 
 namespace IO {
-    uint32_t GPIO::claimed;
+    uint8_t GPIO::claimed[4];
 
     void GPIO::claim(unsigned int pin) {   // SDK did not do this!
         check_gpio_param(pin);
-        hw_claim_or_assert((uint8_t *) &claimed, pin, "GPIO %d already claimed"); // SDK did this!
+        hw_claim_or_assert(claimed, pin, "GPIO %d already claimed"); // SDK did this!
     }
 }

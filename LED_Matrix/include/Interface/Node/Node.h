@@ -14,7 +14,8 @@ namespace Interface {
         public:
             static Node *create_node();
 
-            virtual bool available() = 0;
+            virtual bool put_available() = 0;
+            virtual bool get_available() = 0;
             virtual void put(uint8_t c) = 0;
             virtual uint8_t get() = 0;
 

@@ -71,7 +71,7 @@ namespace Matrix::BUS8::PWM {
         
         // Do not connect the dots (LEDs), charge the low side before scanning (This will turn the LEDs off)
         //  Do use Dot correction though, which is above this implementation layer
-        memset((void *) null_table, 0, sizeof(null_table));
+        memset(null_table, 0, sizeof(null_table));
         null_table[0] = COLUMNS - 1;
 
         {   // We use a decent amount of stack here (The compiler should figure it out)

@@ -13,13 +13,31 @@
 namespace Matrix::BUS8::PWM {
     Packet::Packet() {}
 
+    // Deep copy
+    Packet::Packet(::Matrix::Packet *packet) {
+        _scan = packet->num_scan();
+        _columns = packet->num_columns();
+        _steps = packet->num_steps();
+        _buffer = new uint16_t[_scan * _steps * (_columns + 1)];
+
+        memset(_buffer, _columns - 1, _scan * _steps * (_columns + 1));
+
+        for (int i = 0; i < packet->num_columns(); i++) {
+            for (int j = 0; j < packet->num_scan(); j++) {
+                for (int k = 0; k < packet->num_steps(); k++) {
+                    set(j, k, i, packet->get(j, k, i));
+                }
+            }
+        }
+    }
+
     Packet::Packet(uint8_t scan, uint16_t steps, uint8_t columns) {
         _scan = scan;
         _columns = columns;
         _steps = steps;
         _buffer = new uint16_t[scan * steps * (columns + 1)];
 
-        memset(_buffer, columns - 1, scan * steps * columns);
+        memset(_buffer, columns - 1, scan * steps * (columns + 1));
     }
 
     Packet::~Packet() {
@@ -28,6 +46,16 @@ namespace Matrix::BUS8::PWM {
 
     Packet *Packet::create_packet(uint8_t scan, uint16_t steps, uint8_t columns) {
         return new Packet(scan, steps, columns);
+    }
+
+    Packet *Packet::create_packet(::Matrix::Packet *packet, uint8_t scan, uint16_t steps, uint8_t columns) {
+        if (packet != nullptr) {
+            if (packet->num_columns() == columns && packet->num_scan() == scan && packet->num_steps() == steps) {
+                return new Packet(packet);
+            }
+        }
+
+        return nullptr;
     }
 
     void Packet::set(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value) {

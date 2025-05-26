@@ -5,7 +5,6 @@
  */
 
 #include <new>
-#include <memory>
 #include "pico/multicore.h"
 #include "Matrix/Matrix.h"
 #include "System/Watchdog.h"
@@ -28,7 +27,7 @@ int main() {
     multicore_launch_core1(core1);
 
     matrix = Matrix::Matrix::get_matrix();
-    unique_ptr<Matrix::Packet> packet = matrix->get_packet();
+    Packet *packet = matrix->get_packet();
     Matrix::Packet *p = packet.get();
 
     while (1) {
