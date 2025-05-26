@@ -4,3 +4,6 @@
 [submodule "scripts/LED_Panel_Setting_Calculator"]
 	path = scripts/LED_Panel_Setting_Calculator
 	url = git@github.com:daveythacher/LED_Panel_Setting_Calculator.git
+[submodule "LED_Matrix/lib/pico-sdk"]
+	path = LED_Matrix/lib/pico-sdk
+	url = https://github.com/raspberrypi/pico-sdk.git
