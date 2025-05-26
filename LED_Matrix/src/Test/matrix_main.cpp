@@ -35,7 +35,7 @@ int main() {
         for (int i = 0; i < p->num_columns(); i++) {
             for (int j = 0; j < p->num_scan(); j++) {
                 for (int k = 0; k < p->num_steps(); k++) {
-                    if (i == k) {
+                    if (i == j) {
                         p->set(j, k, i, 0xFF);
                     }
                     else {
