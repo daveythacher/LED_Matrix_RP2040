@@ -204,6 +204,7 @@ namespace Matrix::BUS8::PWM {
         address_table[counter][y + 1].data = NULL;
         address_table[counter][y + 1].len = 0;
         counter = (counter + 1) % 3;
+        delete packet;
     }
 
     // Warning: we are high priority here.

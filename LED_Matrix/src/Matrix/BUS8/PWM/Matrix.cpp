@@ -26,6 +26,11 @@ namespace Matrix::BUS8::PWM {
     void Matrix::show(unique_ptr<::Matrix::Packet> &packet) {
         unique_ptr<::Matrix::Packet> p(get_packet());
         packet.swap(p);
+        
+        // TODO: Fix this (should be dynamic cast, cannot use RTTI.)
+        //  Maybe we should move away from this approach.
+        //  Currently static cast should work due to the preprocessor
+        //  and factory design pattern used here.
         multiplex->show(static_cast<Packet *>(p.release()));   // Promote
     }
     
