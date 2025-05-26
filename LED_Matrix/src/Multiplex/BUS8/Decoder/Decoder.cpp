@@ -15,8 +15,6 @@
 #include "GPIO/GPIO.h"
 
 namespace Multiplex::BUS8::Decoder {
-    static int dma_chan[2];
-
     Decoder::Decoder(int start_flag, int signal_flag) {
         for (int i = 0; i < ::Multiplex::BUS8::BUS8_ADDR_LEN; i++) {
             gpio_init(i + ::Multiplex::BUS8::BUS8_ADDR_BASE);

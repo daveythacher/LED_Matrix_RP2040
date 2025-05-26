@@ -11,9 +11,10 @@
 
 namespace System {
     class Watchdog {
-        static void crash();
-        static void reboot();
-        static void enable(uint32_t ms);
+        public:
+            static void crash();
+            static void reboot();
+            static void enable(uint32_t ms);
     };
 }
 

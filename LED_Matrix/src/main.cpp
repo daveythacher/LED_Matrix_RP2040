@@ -5,8 +5,8 @@
  */
 
 #include <new>
-#include "Interface/Node.h"
-#include "Interface/Protocol.h"
+#include "Interface/Node/Node.h"
+#include "Interface/Protocol/Protocol.h"
 #include "Matrix/Matrix.h"
 #include "System/Watchdog.h"
 

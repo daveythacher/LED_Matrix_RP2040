@@ -5,3 +5,7 @@ target_sources(led_system INTERFACE
     machine.cpp
     Watchdog.cpp
 )
+
+target_link_libraries(led_system INTERFACE
+    hardware_watchdog
+)

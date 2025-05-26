@@ -23,7 +23,7 @@ namespace Multiplex::BUS8::Decoder {
 
             uint8_t mapper[Matrix::MULTIPLEX];
             int dma_chan[2];
-    }
+    };
 }
     
 #endif

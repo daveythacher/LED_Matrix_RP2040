@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Pull in SDK (must be before project)
-include(lib/external/pico-sdk/external/pico_sdk_import.cmake)
+include(lib/pico-sdk/external/pico_sdk_import.cmake)
 
 project(led C CXX ASM)
 set(CMAKE_C_STANDARD 11)
@@ -36,9 +36,8 @@ set(DEFINE_APP "app" CACHE STRING "Binary name")
 set(DEFINE_SERIAL_NODE "uart" CACHE STRING "Serial node algorithm name")
 set(DEFINE_SERIAL_PROTOCOL "serial" CACHE STRING "Serial protocol algorithm name")
 set(DEFINE_MULTIPLEX_ALGORITHM "Decoder" CACHE STRING "Multiplex algorithm name")
-set(DEFINE_MULTIPLEX_FOLDER "HUB75" CACHE STRING "Multiplex interface family")
+set(DEFINE_MULTIPLEX_FOLDER "BUS8" CACHE STRING "Multiplex interface family")
 set(DEFINE_MATRIX_ALGORITHM "PWM" CACHE STRING "Matrix algorithm name")
-set(DEFINE_MATRIX_FOLDER "HUB75" CACHE STRING "Matrix interface family")
+set(DEFINE_MATRIX_FOLDER "BUS8" CACHE STRING "Matrix interface family")
 
-add_subdirectory(lib)
 add_subdirectory(src)

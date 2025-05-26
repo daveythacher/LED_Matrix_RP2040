@@ -26,7 +26,7 @@ namespace Matrix::BUS8::PWM {
     void Matrix::show(unique_ptr<::Matrix::Packet> &packet) {
         unique_ptr<::Matrix::Packet> p(get_packet());
         packet.swap(p);
-        multiplex->show(dynamic_cast<Packet *>(p.release()));   // Promote
+        multiplex->show(static_cast<Packet *>(p.release()));   // Promote
     }
     
     unique_ptr<::Matrix::Packet> Matrix::get_packet() {

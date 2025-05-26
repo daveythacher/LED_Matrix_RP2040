@@ -11,11 +11,7 @@ add_executable(led_${DEFINE_APP}
 
 target_include_directories(led_${DEFINE_APP} PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/../include
-    ${CMAKE_CURRENT_BINARY_DIR}/../lib/include
-    ${CMAKE_CURRENT_BINARY_DIR}/../lib/include/FreeRTOS
     ../include
-    ../lib/include
-    ../lib/include/FreeRTOS
 )
 
 target_compile_options(led_${DEFINE_APP} PRIVATE 
@@ -45,7 +41,7 @@ pico_enable_stdio_usb(led_${DEFINE_APP} 1)
 pico_enable_stdio_uart(led_${DEFINE_APP} 0)
     
 target_link_libraries(led_${DEFINE_APP} 
-    pico_stdio_usb
+    pico_stdio
     pico_runtime
     pico_multicore
     led_matrix

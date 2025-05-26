@@ -8,7 +8,7 @@
 #define INTERFACE_PROTOCOL_H
 
 #include <stdint.h>
-#include "Interface/Node.h"
+#include "Interface/Node/Node.h"
 
 namespace Interface {
     class Protocol {

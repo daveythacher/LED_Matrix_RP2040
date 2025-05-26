@@ -1,13 +1,10 @@
 /* 
- * File:   CRC.h
+ * File:   CRC32.cpp
  * Author: David Thacher
  * License: GPL 3.0
  */
- 
-#ifndef CRC_H
-#define CRC_H
-    
-#include <stdint.h>
+
+#include "CRC/CRC32/CRC32.h"
 
 namespace CRC {
     /*-
@@ -60,15 +57,19 @@ namespace CRC {
         0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
     };
 
-    //  Given the fact we are on microcontroller we likely cannot support buffers,
-    //  unless we have proper hardware framing. (We do not currently use this.)
-    //  
-    //  Notes:
-    //      1. Always start with 0xFFFFFFFF for CRC
-    //      2. Always bitwise invert returned CRC before comparing checksum
-    inline uint32_t crc32(uint32_t crc, uint8_t data) {
-        return crc32_tab[(crc ^ data) & 0xFF] ^ (crc >> 8);
+    CRC32::CRC32() {
+        reset();
+    }
+
+    void CRC32::reset() {
+        checksum = 0xFFFFFFFF;
+    }
+
+    void CRC32::process(uint8_t data) {
+        checksum = crc32_tab[(checksum ^ data) & 0xFF] ^ (checksum >> 8);
+    }
+
+    uint32_t CRC32::get() {
+        return ~checksum;
     }
 }
-
-#endif
