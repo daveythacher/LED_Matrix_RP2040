@@ -1,0 +1,29 @@
+## Matrix Algorithm Pinout
+
+GPIO 8 - D0
+
+GPIO 9 - D1
+
+GPIO 10 - D2 
+
+GPIO 11 - D3
+
+GPIO 12 - D4
+
+GPIO 13 - D5
+
+GPIO 14 - D6
+
+GPIO 15 - D7
+
+GPIO 16 - CLK
+
+GPIO 17 - LAT
+
+GPIO 18 - A0
+
+GPIO 19 - A1
+
+GPIO 20 - A2
+
+GPIO 22 - OE
