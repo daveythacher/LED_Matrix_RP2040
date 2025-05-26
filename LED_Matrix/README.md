@@ -89,6 +89,7 @@ On the single core worker processing goes to core 1. Multiplexing goes to core 0
 If the multiplexing consumes too much CPU and the bandwidth is tight on the serial protocol there can be a collapse in frame rate. The only way to fix this potentially is with a better front end hardware system. (I am not sure how much DMA bandwidth there is.)
 
 ## List of things:
+Planned things:
 - 4-bit LUT to accelerate computation. (Removed due to direction shift in support.)
 - TCAM to speed up processing/filtering. (Removed due to direction shift in support.)
 - Portable SIMD operations using standard ALU. (Removed due to direction shift in support.)
@@ -105,7 +106,7 @@ If the multiplexing consumes too much CPU and the bandwidth is tight on the seri
 - Shift register based vector or ring buffer. (Removed ring buffer approach in favor of field extractor.)
 
 
-
+Other things:
 - Hardware interface logic vs high level software (asynchronous vs dependency order) portability. (File approach used.)
 - Preprocessor vs linker symbol management vs dynamic runtime. (Preprocessor used.)
 - RAM vs XIP caching. (Copy to RAM used.)
