@@ -104,6 +104,8 @@ If the multiplexing consumes too much CPU and the bandwidth is tight on the seri
 - Concurrent libraries for frame, mutex, queue, threads (RTOS), atomic, etc. (Removed in favor of simplicity.)
 - Shift register based vector or ring buffer. (Removed ring buffer approach in favor of field extractor.)
 
+
+
 - Hardware interface logic vs high level software (asynchronous vs dependency order) portability. (File approach used.)
 - Preprocessor vs linker symbol management vs dynamic runtime. (Preprocessor used.)
 - RAM vs XIP caching. (Copy to RAM used.)
