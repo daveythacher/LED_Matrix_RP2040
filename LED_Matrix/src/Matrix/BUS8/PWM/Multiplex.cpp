@@ -166,11 +166,15 @@ namespace Matrix::BUS8::PWM {
 
     void Multiplex::show(Packet *packet) {
         if (packet != nullptr) {
-            while (!multicore_fifo_wready()) {      // Watchdog can see this. (Synchronous)
+            while (!multicore_fifo_wready()) {                                                      // Watchdog can see this. (Synchronous)
                 // Do nothing
             }
 
-            multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packet));   // Translate
+            multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packet));                       // Translate
+
+            while (multicore_fifo_rvalid()) {                                                       // Watchdog can see this. (Synchronous)
+                 delete reinterpret_cast<Packet *>(multicore_fifo_pop_blocking());                  // Translate
+            }           
         }
     }
 
@@ -204,7 +208,12 @@ namespace Matrix::BUS8::PWM {
         address_table[counter][y + 1].data = NULL;
         address_table[counter][y + 1].len = 0;
         counter = (counter + 1) % 3;
-        delete packet;
+
+        while (!multicore_fifo_wready()) {                                                          // Watchdog can see this. (Synchronous)
+            // Do nothing
+        }
+
+        multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packet));                           // Translate
     }
 
     // Warning: we are high priority here.
