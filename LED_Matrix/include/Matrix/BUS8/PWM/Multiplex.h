@@ -25,12 +25,15 @@ namespace Matrix::BUS8::PWM {
             void load_buffer(Packet *p);
 
 
+            static const uint8_t num_buffers = 3;
+
             int dma_chan[4];
             Programs::Ghost_Packet ghost_packet;
             struct {uint32_t len; uint16_t *data;} address_table[3][(MULTIPLEX * (STEPS + 2)) + 1];
             uint16_t null_table[COLUMNS + 1];
             uint8_t counter;
             uint8_t bank;
+            Packet *packets[num_buffers];
             uint16_t header;
     };
 }

@@ -207,13 +207,8 @@ namespace Matrix::BUS8::PWM {
         y += 1;
         address_table[counter][y + 1].data = NULL;
         address_table[counter][y + 1].len = 0;
-        counter = (counter + 1) % 3;
-
-        while (!multicore_fifo_wready()) {                                                          // Watchdog can see this. (Synchronous)
-            // Do nothing
-        }
-
-        multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packet));                           // Translate
+        packets[counter] = packet;
+        counter = (counter + 1) % num_buffers;
     }
 
     // Warning: we are high priority here.
@@ -233,7 +228,12 @@ namespace Matrix::BUS8::PWM {
         while (1) {
             if (dma_channel_get_irq0_status(dma_chan[0])) {
                 if (swapable && gpio_get(::Matrix::BUS8::BUS8_FCLK)) {
-                    bank = (bank + 1) % 3;
+                    while (!multicore_fifo_wready()) {                                              // Watchdog can see this. (Synchronous)
+                        // Do nothing
+                    }
+
+                    multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packets[bank]));        // Translate
+                    bank = (bank + 1) % num_buffers;
                 }
 
                 while (!gpio_get(::Matrix::BUS8::BUS8_RCLK)) {
