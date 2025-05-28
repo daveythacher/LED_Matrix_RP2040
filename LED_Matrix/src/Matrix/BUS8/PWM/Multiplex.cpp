@@ -30,12 +30,7 @@ namespace Matrix::BUS8::PWM {
     //  There are 2^PWM_bits plus two transfers.
     //      The second to last transfer turns the columns off before multiplexing. (Standard shift)
     //      The last transfer stops the DMA and fires an interrupt
-
     Multiplex::Multiplex() {
-        header = STEPS;                                                                 // This needs to be one less than (n + 1)
-        counter = 0;
-        bank = 0;
-
         // Init Matrix hardware
         // IO
         for (int i = 0; i < ::Matrix::BUS8::BUS8_DATA_LEN; i++) {
@@ -44,6 +39,7 @@ namespace Matrix::BUS8::PWM {
             gpio_set_function(i + ::Matrix::BUS8::BUS8_DATA_BASE, GPIO_FUNC_PIO0);
             IO::GPIO::claim(i + ::Matrix::BUS8::BUS8_DATA_BASE);
         }
+
         gpio_init(::Matrix::BUS8::BUS8_OE);
         gpio_init(::Matrix::BUS8::BUS8_RCLK);
         gpio_init(::Matrix::BUS8::BUS8_FCLK);
@@ -74,6 +70,10 @@ namespace Matrix::BUS8::PWM {
         memset(null_table, 0, sizeof(null_table));
         null_table[0] = COLUMNS - 1;
 
+        header = STEPS;                                                                             // This needs to be one less than (n + 1)
+        counter = 0;
+        bank = 0;
+
         {   // We use a decent amount of stack here (The compiler should figure it out)
             uint16_t instructions[32];
             uint8_t length = Programs::get_pmp_program(instructions, 32);
@@ -83,8 +83,21 @@ namespace Matrix::BUS8::PWM {
                 .length = length,
                 .origin = 0,
             };
-            pio_add_program(pio0, &pio_programs);
+            uint offset = pio_add_program(pio0, &pio_programs);
             pio_sm_set_consecutive_pindirs(pio0, 0, ::Matrix::BUS8::BUS8_DATA_BASE, ::Matrix::BUS8::BUS8_DATA_LEN, true);
+        
+            // Verify Serial Clock
+            constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);                                 // Someday this two will be a four.
+
+            // PMP / SM
+            pio0->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
+            pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | ((::Matrix::BUS8::BUS8_DATA_BASE + 6) << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | (::Matrix::BUS8::BUS8_DATA_BASE << PIO_SM0_PINCTRL_OUT_BASE_LSB);
+            pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
+            pio0->sm[0].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
+            pio0->sm[0].instr = pio_encode_jmp(offset);
+            __dsb();
+            hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
+            pio_sm_claim(pio0, 0);
         }
 
         {   // We use a decent amount of stack here (The compiler should figure it out)
@@ -96,32 +109,18 @@ namespace Matrix::BUS8::PWM {
                 .length = length,
                 .origin = 0,
             };
-            pio_add_program(pio0, &pio_programs);
-            // TODO: Finish
+            uint offset = pio_add_program(pio0, &pio_programs);
+
+            // Ghosting program
+            pio0->sm[1].clkdiv = (1 << PIO_SM0_CLKDIV_INT_LSB);
+            pio0->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (::Matrix::BUS8::BUS8_OE << PIO_SM0_PINCTRL_SIDESET_BASE_LSB);
+            pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
+            pio0->sm[1].execctrl = (31 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
+            pio0->sm[1].instr = pio_encode_jmp(offset);
+            __dsb();
+            hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
+            pio_sm_claim(pio0, 1);
         }
-        
-        // Verify Serial Clock
-        constexpr float x = 125000000.0 / (SERIAL_CLOCK * 2.0);                         // Someday this two will be a four.
-
-        // PMP / SM
-        pio0->sm[0].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
-        pio0->sm[0].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | ((::Matrix::BUS8::BUS8_DATA_BASE + 6) << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | (::Matrix::BUS8::BUS8_DATA_BASE << PIO_SM0_PINCTRL_OUT_BASE_LSB);
-        pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
-        pio0->sm[0].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
-        pio0->sm[0].instr = pio_encode_jmp(0);
-        __dsb();
-        hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
-        pio_sm_claim(pio0, 0);
-
-        // TODO: Fix (Ghosting program)
-        pio0->sm[1].clkdiv = ((uint32_t) floor(x) << PIO_SM0_CLKDIV_INT_LSB) | ((uint32_t) round((x - floor(x)) * 255.0) << PIO_SM0_CLKDIV_FRAC_LSB);
-        pio0->sm[1].pinctrl = (1 << PIO_SM0_PINCTRL_SIDESET_COUNT_LSB) | (6 << PIO_SM0_PINCTRL_OUT_COUNT_LSB) | ((::Matrix::BUS8::BUS8_DATA_BASE + 6) << PIO_SM0_PINCTRL_SIDESET_BASE_LSB) | (::Matrix::BUS8::BUS8_DATA_BASE << PIO_SM0_PINCTRL_OUT_BASE_LSB);
-        pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
-        pio0->sm[1].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
-        pio0->sm[1].instr = pio_encode_jmp(0);
-        __dsb();
-        hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
-        pio_sm_claim(pio0, 1);
         
         // DMA
         dma_chan[0] = dma_claim_unused_channel(true);

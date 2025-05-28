@@ -79,6 +79,7 @@ namespace Matrix::BUS8::PWM {
         return size;
     }
 
+    // TODO: Check OE polarity
     uint8_t Programs::get_ghost_program(uint16_t *instructions, uint8_t len) {
         uint8_t OE = 1 << 0;
         uint8_t size;
