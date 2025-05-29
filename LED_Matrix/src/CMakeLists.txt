@@ -4,6 +4,7 @@ add_subdirectory(Interface)
 add_subdirectory(System)
 add_subdirectory(PIO)
 add_subdirectory(GPIO)
+add_subdirectory(Test)
 
 add_executable(led_${DEFINE_APP} 
     ./main.cpp

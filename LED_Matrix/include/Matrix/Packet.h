@@ -12,8 +12,8 @@
 namespace Matrix {
     class Packet {
         public:
-            virtual ~Packet();
-            
+            virtual ~Packet() {}
+
             virtual void set(uint8_t scan, uint16_t steps, uint8_t column, uint8_t val) = 0;
             virtual uint8_t get(uint8_t scan, uint16_t steps, uint8_t column) = 0;
             

@@ -27,7 +27,7 @@ int main() {
     multicore_launch_core1(core1);
 
     matrix = Matrix::Matrix::get_matrix();
-    Packet *p = matrix->get_packet();
+    Matrix::Packet *p = matrix->get_packet();
 
     while (p == nullptr) {
         // Error

@@ -10,25 +10,28 @@
 #include "Interface/Protocol/Protocol.h"
 #include "System/Watchdog.h"
 
-class dummy_node : public Interace::Node {
-    bool put_available() {
-        // TODO:
-        return false;
-    }
+namespace Interface {
+    class dummy_node : public Node {
+        public:
+            bool put_available() {
+                // TODO:
+                return false;
+            }
 
-    bool get_available() {
-        // TODO:
-        return false;
-    }
+            bool get_available() {
+                // TODO:
+                return false;
+            }
 
-    void put(uint8_t c) {
-        // TODO:
-    }
+            void put(uint8_t c) {
+                // TODO:
+            }
 
-    uint8_t get() {
-        // TODO:
-        return 0;
-    }
+            uint8_t get() {
+                // TODO:
+                return 0;
+            }
+    };
 }
 
 static void crash() {
@@ -44,5 +47,7 @@ int main() {
     System::Watchdog::enable(100);
     multicore_launch_core1(core1);
 
-    Interface::Protocol::create_protocol(dummy_node)->work();
+    Interface::dummy_node *node = new Interface::dummy_node();
+
+    Interface::Protocol::create_protocol(node)->work();
 }
