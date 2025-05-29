@@ -27,8 +27,11 @@ int main() {
     multicore_launch_core1(core1);
 
     matrix = Matrix::Matrix::get_matrix();
-    Packet *packet = matrix->get_packet();
-    Matrix::Packet *p = packet.get();
+    Packet *p = matrix->get_packet();
+
+    while (p == nullptr) {
+        // Error
+    }
 
     while (1) {
         for (int i = 0; i < p->num_columns(); i++) {
@@ -44,6 +47,6 @@ int main() {
             }
         }
 
-        matrix->show(packet);
+        matrix->show(p);
     }
 }
