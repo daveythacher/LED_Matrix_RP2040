@@ -5,62 +5,54 @@
  */
 
 #include <string.h>
-#include "Matrix/BUS8/SPWM/Packet.h"
+#include "Matrix/BUS8/SPWM/Payload.h"
 #include "Matrix/BUS8/hw_config.h"
-
-// TODO: Rework data structures
 
 // Every line starts with a counter variable indexed from zero instead of one
 
 namespace Matrix::BUS8::SPWM {
-    Packet::Packet() {}
+    Payload::Payload() {}
 
     // Deep copy
-    Packet::Packet(::Matrix::Packet *packet) {
+    Payload::Payload(::Matrix::Packet *packet) {
         _scan = packet->num_scan();
         _columns = packet->num_columns();
-        _steps = packet->num_steps();
+        _steps = (STEPS_MAJOR + 1) * STEPS_MINOR;
         _buffer = new uint16_t[_scan * _steps * (_columns + 1)];
 
         memset(_buffer, _columns - 1, _scan * _steps * (_columns + 1));
 
-        for (int i = 0; i < packet->num_columns(); i++) {
-            for (int j = 0; j < packet->num_scan(); j++) {
-                for (int k = 0; k < packet->num_steps(); k++) {
-                    set(j, k, i, packet->get(j, k, i));
+        for (int h = 0; h < STEPS_MINOR; h++) {
+            for (int i = 0; i < packet->num_columns(); i++) {
+                for (int j = 0; j < packet->num_scan(); j++) {
+                    for (int k = 0; k < (STEPS_MAJOR + 1); k++) {
+                        if (k == 0) {
+                            set(j, h * (STEPS_MAJOR + 1), i, packet->get(j, STEPS_MAJOR + h, i));
+                        }
+                        else {
+                            set(j, (h * (STEPS_MAJOR + 1)) + k, i, packet->get(j, k - 1, i));
+                        }
+                    }
                 }
             }
         }
     }
 
-    Packet::Packet(uint8_t scan, uint16_t steps, uint8_t columns) {
-        _scan = scan;
-        _columns = columns;
-        _steps = steps;
-        _buffer = new uint16_t[scan * steps * (columns + 1)];
-
-        memset(_buffer, columns - 1, scan * steps * (columns + 1));
-    }
-
-    Packet::~Packet() {
+    Payload::~Payload() {
         delete[] _buffer;
     }
 
-    Packet *Packet::create_packet(uint8_t scan, uint16_t steps, uint8_t columns) {
-        return new Packet(scan, steps, columns);
-    }
-
-    Packet *Packet::create_packet(::Matrix::Packet *packet, uint8_t scan, uint16_t steps, uint8_t columns) {
+    Payload *Payload::create_payload(::Matrix::Packet *packet, uint8_t scan, uint16_t steps, uint8_t columns) {
         if (packet != nullptr) {
-            if (packet->num_columns() == columns && packet->num_scan() == scan && packet->num_steps() == steps) {
-                return new Packet(packet);
+            if (packet->num_columns() == columns && packet->num_scan() == scan && packet->num_steps() == (STEPS_MAJOR + STEPS_MINOR)) {
+                return new Payload(packet);
             }
         }
 
         return nullptr;
     }
 
-    void Packet::set(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value) {
+    void Payload::set(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value) {
         if (multiplex > _scan || index > _steps || column > _columns)
             return;
 
@@ -71,7 +63,7 @@ namespace Matrix::BUS8::SPWM {
         _buffer[i + 1] = value;
     }
 
-    uint8_t Packet::get(uint8_t multiplex, uint16_t index, uint8_t column) {
+    uint8_t Payload::get(uint8_t multiplex, uint16_t index, uint8_t column) {
         if (multiplex > _scan || index > _steps || column > _columns)
             return _buffer[1];
 
@@ -82,19 +74,19 @@ namespace Matrix::BUS8::SPWM {
         return _buffer[i + 1];
     }
 
-    uint8_t Packet::num_scan() {
+    uint8_t Payload::num_scan() {
         return _scan;
     }
 
-    uint8_t Packet::num_columns() {
+    uint8_t Payload::num_columns() {
         return _columns;
     }
 
-    uint16_t Packet::num_steps() {
+    uint16_t Payload::num_steps() {
         return _steps;
     }
 
-    uint16_t *Packet::get_line(uint8_t multiplex, uint16_t index) {
+    uint16_t *Payload::get_line(uint8_t multiplex, uint16_t index) {
         if (multiplex > _scan || index > _steps)
             return nullptr;
 
@@ -104,7 +96,7 @@ namespace Matrix::BUS8::SPWM {
         return &_buffer[i];
     }
 
-    uint16_t Packet::get_line_length() {
+    uint16_t Payload::get_line_length() {
         return _columns + 1;
     }
 }

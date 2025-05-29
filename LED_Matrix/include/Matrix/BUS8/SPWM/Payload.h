@@ -16,7 +16,6 @@ namespace Matrix::BUS8::SPWM {
         public:
             ~Payload();
 
-            static Payload *create_payload(uint8_t scan, uint16_t steps, uint8_t columns);
             static Payload *create_payload(::Matrix::Packet *packet, uint8_t scan, uint16_t steps, uint8_t columns);
 
             void set(uint8_t multiplex, uint16_t index, uint8_t column, uint8_t value);
@@ -34,7 +33,6 @@ namespace Matrix::BUS8::SPWM {
         private:
             Payload();
             Payload(::Matrix::Packet *packet);
-            Payload(uint8_t scan, uint16_t steps, uint8_t columns);
 
             // Future: Consider lock and unlock methods for use within copy constructor
             //  We own packet during that process and block all writes to packet.
