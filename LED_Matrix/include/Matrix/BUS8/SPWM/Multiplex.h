@@ -29,7 +29,7 @@ namespace Matrix::BUS8::SPWM {
 
             int dma_chan[4];
             Programs::Ghost_Packet ghost_packet;
-            struct {uint32_t len; uint16_t *data;} address_table[3][(MULTIPLEX * (STEPS + 2)) + 1];
+            struct {uint32_t len; uint16_t *data;} address_table[3][(STEPS_MINOR * MULTIPLEX * (STEPS_MAJOR + 3)) + 1];
             uint16_t null_table[COLUMNS + 1];
             uint8_t counter;
             uint8_t bank;
