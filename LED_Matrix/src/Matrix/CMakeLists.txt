@@ -11,4 +11,5 @@ target_sources(led_matrix INTERFACE
 
 target_link_libraries(led_matrix INTERFACE
     led_BUS8_PWM
+    led_BUS8_SPWM
 )
