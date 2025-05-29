@@ -29,7 +29,7 @@ int main() {
     matrix = Matrix::Matrix::get_matrix();
     Packet *p = matrix->get_packet();
 
-    while (p != nullptr) {
+    while (p == nullptr) {
         // Error
     }
 
