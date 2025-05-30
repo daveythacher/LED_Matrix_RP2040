@@ -101,7 +101,7 @@ Planned things:
 - Multiple copies of bits to enable voting. (High framerate with acknowledge reduced the value of this.)
 - Implementing data chunks with checksum below protocol. (Hardware flow control reduced the value of this.) 
 - Commands and queries for remote control. (Planned)
-- Synchronous trigger for frame swap. (Planned)
+- Synchronous trigger for frame swap and refresh sync. (Planned)
 - Concurrent libraries for frame, mutex, queue, threads (RTOS), atomic, etc. (Removed in favor of simplicity.)
 - Shift register based vector or ring buffer. (Removed ring buffer approach in favor of field extractor.)
 - S-PWM algorithm using universal table for increasing color depth. (Planned)

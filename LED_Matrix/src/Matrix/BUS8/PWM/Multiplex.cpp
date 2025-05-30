@@ -203,7 +203,6 @@ namespace Matrix::BUS8::PWM {
             address_table[counter][y].len = COLUMNS + 1;
         }
 
-        y += 1;
         address_table[counter][y + 1].data = NULL;
         address_table[counter][y + 1].len = 0;
         packets[counter] = packet;

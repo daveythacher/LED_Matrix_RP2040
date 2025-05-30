@@ -70,7 +70,7 @@ namespace Matrix::BUS8::SPWM {
         memset(null_table, 0, sizeof(null_table));
         null_table[0] = COLUMNS - 1;
 
-        header = STEPS;                                                                             // This needs to be one less than (n + 1)
+        header = STEPS_MAJOR + 1;                                                                   // This needs to be one less than (n + 1)
         counter = 0;
         bank = 0;
 
@@ -187,26 +187,26 @@ namespace Matrix::BUS8::SPWM {
     void Multiplex::load_buffer(Payload *packet) {
         uint32_t y;
 
-        for (uint32_t c = 0; c < STEPS_MINOR; c++) { // TODO: Integrate C into address calculation (y)
+        for (uint32_t c = 0; c < STEPS_MINOR; c++) {
             for (uint32_t x = 0; x < MULTIPLEX; x++) {
-                y = x * (STEPS + 2);
-                address_table[counter][y].data = &header;
+                // [(STEPS_MINOR * MULTIPLEX * (STEPS_MAJOR + 3)) + 1]
+                y = (c * MULTIPLEX * (STEPS_MAJOR + 3)) + (x * (STEPS_MAJOR + 3));
+                address_table[counter][y].data = &header;               // Control variable: PIO loop counter
                 address_table[counter][y].len = 1;
                 y += 1;
 
-                for (uint32_t i = 0; i < (STEPS_MAJOR + 1); i++) {
+                for (uint32_t i = 0; i < (STEPS_MAJOR + 1); i++) {      // Data: LED values
                     address_table[counter][y + i].data = packet->get_line(x, i);
                     address_table[counter][y + i].len = packet->get_line_length();
                 }
                         
-                y += STEPS;
-                address_table[counter][y].data = null_table;
+                y += STEPS_MAJOR + 1;
+                address_table[counter][y].data = null_table;            // Data: Turns LEDs off
                 address_table[counter][y].len = COLUMNS + 1;
             }
         }
 
-        y += 1;
-        address_table[counter][y + 1].data = NULL;
+        address_table[counter][y + 1].data = NULL;                      // Control variable: Terminate DMA
         address_table[counter][y + 1].len = 0;
         packets[counter] = packet;
         counter = (counter + 1) % num_buffers;
