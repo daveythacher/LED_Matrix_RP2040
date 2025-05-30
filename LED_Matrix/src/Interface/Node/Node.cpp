@@ -7,10 +7,6 @@
 #include "Interface/Node.h"
 
 namespace Interface {
-    Node::Node() {
-        // Do nothing
-    }
-
     Node *Node::create_node() {
         return nullptr; // TODO: Update
     }

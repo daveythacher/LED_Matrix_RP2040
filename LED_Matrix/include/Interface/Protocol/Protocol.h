@@ -10,16 +10,12 @@
 #include <stdint.h>
 #include "Interface/Node/Node.h"
 
-namespace Interface {
+namespace Interface::Protocol {
     class Protocol {
         public:
-            static Protocol *create_protocol(Node *node);
+            static Protocol *create_protocol(::Interface::Node::Node *node);
 
             virtual void work() = 0;
-
-        protected:
-            Protocol();
-            Protocol(Node *node);
     };
 }
 

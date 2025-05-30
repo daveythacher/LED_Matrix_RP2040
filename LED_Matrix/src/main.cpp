@@ -17,5 +17,5 @@ static void crash() {
 int main() {    
     std::set_new_handler(crash);
     System::Watchdog::enable(100);
-    Interface::Protocol::create_protocol(Interface::Node::create_node())->work();
+    Interface::Protocol::Protocol::create_protocol(Interface::Node::Node::create_node())->work();
 }

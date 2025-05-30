@@ -8,14 +8,14 @@
 #define INTERFACE_PROTOCOL_SERIAL_H
 
 #include <stdint.h>
-#include "Interface/Protocol.h"
+#include "Interface/Protocol/Protocol.h"
 
 namespace Interface::Protocol {
     class Serial : public ::Interface::Protocol {
         public:
             static Serial *create_protocol(Node *node);
 
-            virtual void work() = 0;
+            void work();
 
         protected:
             Serial();

@@ -10,7 +10,7 @@
 #include "Interface/Protocol/Protocol.h"
 #include "System/Watchdog.h"
 
-namespace Interface {
+namespace Interface::Node {
     class dummy_node : public Node {
         public:
             bool put_available() {
@@ -47,7 +47,7 @@ int main() {
     System::Watchdog::enable(100);
     multicore_launch_core1(core1);
 
-    Interface::dummy_node *node = new Interface::dummy_node();
+    Interface::Node::dummy_node *node = new Interface::Node::dummy_node();
 
-    Interface::Protocol::create_protocol(node)->work();
+    Interface::Protocol::Protocol::create_protocol(node)->work();
 }

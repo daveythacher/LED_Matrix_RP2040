@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-namespace Interface::Node {
+namespace Interface::Node::UART {
     constexpr unsigned int SERIAL_UART_BAUD = 78000000;
 }
     

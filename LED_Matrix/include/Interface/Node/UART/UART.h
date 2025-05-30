@@ -8,14 +8,15 @@
 #define INTERFACE_NODE_UART_H
 
 #include <stdint.h>
-#include "Interface/Node.h"
+#include "Interface/Node/Node.h"
 
-namespace Interface::Node {
-    class UART : public ::Interface::Node {
+namespace Interface::Node::UART {
+    class UART : public ::Interface::Node::Node {
         public:
             static UART *create_node();
 
-            bool available();
+            bool put_available();
+            bool get_available();
             void put(uint8_t c);
             uint8_t get();
 

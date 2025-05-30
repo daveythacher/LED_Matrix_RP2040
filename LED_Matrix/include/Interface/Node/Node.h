@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-namespace Interface {
+namespace Interface::Node {
     class Node {
         public:
             static Node *create_node();
@@ -18,9 +18,6 @@ namespace Interface {
             virtual bool get_available() = 0;
             virtual void put(uint8_t c) = 0;
             virtual uint8_t get() = 0;
-
-        protected:
-            Node();
     };
 }
 

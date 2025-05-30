@@ -4,19 +4,14 @@
  * License: GPL 3.0
  */
 
-#include "Interface/Protocol.h"
+#include "Interface/Protocol/Protocol.h"
+#include "Interface/config.h"
+#include "Interface/Protocol/Serial/Serial.h"
+#include "Interface/Node/UART/UART.h"
 
 namespace Interface {
-    Protocol::Protocol() {
-        // Do nothing
-    }
-
-    Protocol::Protocol(Node *node) {
-        // Do nothing
-    }
-
     Protocol *Protocol::create_protocol(Node *node) {
-        return nullptr; // TODO: Update
+        return Protocol::PROTOCOL::create_protocol(Node::NODE::create_node());
     }
 }
 

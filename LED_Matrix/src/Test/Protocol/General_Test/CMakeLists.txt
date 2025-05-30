@@ -39,6 +39,7 @@ target_link_libraries(led_${DEFINE_APP}_Protocol_General_Test
     pico_multicore
     led_matrix
     led_system
+    led_interface
 )
 
 target_link_options(led_${DEFINE_APP}_Protocol_General_Test 
