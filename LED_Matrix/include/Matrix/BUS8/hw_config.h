@@ -18,6 +18,8 @@ namespace Matrix::BUS8 {
 
     // Order (LSB to MSB): D0 D1 D2 D3 D4 D5 D6 D7 CLK LAT
     constexpr uint16_t BUS8_DATA_LEN = 10;
+
+    constexpr uint32_t SERIAL_CLOCK = 8333333;
 }
 
 #endif
