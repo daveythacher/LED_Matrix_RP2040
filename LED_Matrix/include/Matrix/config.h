@@ -27,7 +27,6 @@ namespace Matrix {
     constexpr uint8_t COLUMNS = 8;
 
     constexpr uint8_t BLANK_TIME = 10;
-    constexpr uint32_t SERIAL_CLOCK = 15000000;
 }
 
 #endif
