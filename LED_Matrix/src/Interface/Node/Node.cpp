@@ -13,4 +13,3 @@ namespace Interface::Node {
         return NODE::NODE::create_node();
     }
 }
-
