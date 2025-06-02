@@ -95,7 +95,6 @@ namespace Matrix::BUS8::SPWM {
             pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
             pio0->sm[0].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
             pio0->sm[0].instr = pio_encode_jmp(offset);
-            full_pipeline_sync();
             hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
             pio_sm_claim(pio0, 0);
         }
@@ -117,7 +116,6 @@ namespace Matrix::BUS8::SPWM {
             pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
             pio0->sm[1].execctrl = (31 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
             pio0->sm[1].instr = pio_encode_jmp(offset);
-            full_pipeline_sync();
             hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
             pio_sm_claim(pio0, 1);
         }
@@ -164,21 +162,24 @@ namespace Matrix::BUS8::SPWM {
     }
 
     void Multiplex::show(Payload *packet) {
+        full_pipeline_sync();
+        
         if (packet != nullptr) {
             while (!multicore_fifo_wready()) {                                                      // Watchdog can see this. (Synchronous)
                 // Do nothing
             }
 
             multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packet));                       // Translate
-
-            while (multicore_fifo_rvalid()) {                                                       // Watchdog can see this. (Synchronous)
-                 delete reinterpret_cast<Payload *>(multicore_fifo_pop_blocking());                  // Translate
-            }           
         }
+
+        while (multicore_fifo_rvalid()) {                                                       // Watchdog can see this. (Synchronous)
+            delete reinterpret_cast<Payload *>(multicore_fifo_pop_blocking());                  // Translate
+         }      
     }
 
     void __not_in_flash_func(Multiplex::send_buffer)() {
         full_pipeline_sync();
+        
         dma_hw->ints0 = 1 << dma_chan[0];
         dma_channel_set_read_addr(dma_chan[1], address_table[bank], true);
         dma_channel_set_read_addr(dma_chan[3], &ghost_packet, true);
