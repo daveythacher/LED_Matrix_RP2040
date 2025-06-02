@@ -9,7 +9,7 @@ target_link_libraries(led_multiplex_BUS8_Decoder INTERFACE
     hardware_gpio
     hardware_pio
     hardware_dma
-    hardware_sync
     led_pio
     led_gpio
+    led_system
 )

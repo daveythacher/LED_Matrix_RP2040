@@ -13,10 +13,10 @@ target_sources(led_BUS8_PWM INTERFACE
 target_link_libraries(led_BUS8_PWM INTERFACE
     pico_multicore
     hardware_dma
-    hardware_sync
     hardware_gpio
     hardware_pio
     led_pio
     led_gpio
     led_multiplex
+    led_system
 )

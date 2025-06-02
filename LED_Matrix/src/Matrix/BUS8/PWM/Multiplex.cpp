@@ -11,13 +11,13 @@
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
-#include "hardware/sync.h"
 #include "pico/multicore.h"
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/BUS8/PWM/Multiplex.h"
 #include "Multiplex/Multiplex.h"
 #include "Matrix/BUS8/PWM/Programs.h"
 #include "Matrix/BUS8/hw_config.h"
+#include "System/machine.h"
 #include "GPIO/GPIO.h"
 
 namespace Matrix::BUS8::PWM {
@@ -95,7 +95,7 @@ namespace Matrix::BUS8::PWM {
             pio0->sm[0].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_AUTOPULL_LSB) | (6 << PIO_SM0_SHIFTCTRL_PULL_THRESH_LSB) | (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
             pio0->sm[0].execctrl = (1 << PIO_SM1_EXECCTRL_OUT_STICKY_LSB) | (12 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
             pio0->sm[0].instr = pio_encode_jmp(offset);
-            __dsb();
+            full_pipeline_sync();
             hw_set_bits(&pio0->ctrl, 1 << PIO_CTRL_SM_ENABLE_LSB);
             pio_sm_claim(pio0, 0);
         }
@@ -117,7 +117,7 @@ namespace Matrix::BUS8::PWM {
             pio0->sm[1].shiftctrl = (1 << PIO_SM0_SHIFTCTRL_OUT_SHIFTDIR_LSB);
             pio0->sm[1].execctrl = (31 << PIO_SM1_EXECCTRL_WRAP_TOP_LSB);
             pio0->sm[1].instr = pio_encode_jmp(offset);
-            __dsb();
+            full_pipeline_sync();
             hw_set_bits(&pio0->ctrl, 2 << PIO_CTRL_SM_ENABLE_LSB);
             pio_sm_claim(pio0, 1);
         }
@@ -178,7 +178,7 @@ namespace Matrix::BUS8::PWM {
     }
 
     void __not_in_flash_func(Multiplex::send_buffer)() {
-        __dsb();
+        full_pipeline_sync();
         dma_hw->ints0 = 1 << dma_chan[0];
         dma_channel_set_read_addr(dma_chan[1], address_table[bank], true);
         dma_channel_set_read_addr(dma_chan[3], &ghost_packet, true);

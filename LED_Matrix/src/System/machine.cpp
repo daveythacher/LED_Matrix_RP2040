@@ -5,6 +5,7 @@
  */
 
 #include <machine/endian.h>
+#include "hardware/sync.h"
 #include "System/machine.h"
 
 uint16_t ntohs(uint16_t val) {
@@ -37,4 +38,8 @@ uint32_t htonl(uint32_t val) {
     #else
         return val;
     #endif
+}
+
+void full_pipeline_sync() {
+    __dsb();
 }
