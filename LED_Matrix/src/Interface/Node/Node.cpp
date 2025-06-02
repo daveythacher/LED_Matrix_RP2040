@@ -4,11 +4,13 @@
  * License: GPL 3.0
  */
 
-#include "Interface/Node.h"
+#include "Interface/Node/Node.h"
+#include "Interface/config.h"
+#include "Interface/Node/UART/UART.h"
 
-namespace Interface {
+namespace Interface::Node {
     Node *Node::create_node() {
-        return nullptr; // TODO: Update
+        return NODE::NODE::create_node();
     }
 }
 

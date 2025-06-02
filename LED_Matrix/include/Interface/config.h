@@ -12,7 +12,7 @@
 // CMake could do this for build automation
 //  However verification is manual currently.
 
-#define PROTOCOL    SERIAL
+#define PROTOCOL    Serial
 #define NODE        UART
 
 namespace Interface {

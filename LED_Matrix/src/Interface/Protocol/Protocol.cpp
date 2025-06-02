@@ -7,11 +7,10 @@
 #include "Interface/Protocol/Protocol.h"
 #include "Interface/config.h"
 #include "Interface/Protocol/Serial/Serial.h"
-#include "Interface/Node/UART/UART.h"
 
-namespace Interface {
-    Protocol *Protocol::create_protocol(Node *node) {
-        return Protocol::PROTOCOL::create_protocol(Node::NODE::create_node());
+namespace Interface::Protocol {
+    Protocol *Protocol::create_protocol(::Interface::Node::Node *node) {
+        return PROTOCOL::create_protocol(::Interface::Node::Node::create_node());
     }
 }
 

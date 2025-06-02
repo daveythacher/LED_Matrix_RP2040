@@ -11,20 +11,20 @@
 #include "Interface/Protocol/Protocol.h"
 
 namespace Interface::Protocol {
-    class Serial : public ::Interface::Protocol {
+    class Serial : public ::Interface::Protocol::Protocol {
         public:
-            static Serial *create_protocol(Node *node);
+            static Serial *create_protocol(::Interface::Node::Node *node);
 
             void work();
 
         protected:
             Serial();
-            Serial(Node *node);
+            Serial(::Interface::Node::Node *node);
 
         private:
-            Node *node;
+            ::Interface::Node::Node *node;
 
-            static Protocol *ptr;
+            static Serial *ptr;
     };
 }
 
