@@ -43,10 +43,9 @@ namespace Interface::Protocol::Serial {
             table[i].enables[1] = 0xFFFFFFFF;   // MARKER[4:7]
             table[i].enables[2] = 0xFFFFFFFF;   // CMD[0:1], VER[0:1]
             table[i].enables[3] = 0x0000FF00;   // SEQ_NUM[0:1], TYPE, LEN
-            table[i].enables[4] = 0xFFFFFFFF;   // CHECKSUM[0:3]
+            table[i].enables[4] = 0x00000000;   // CHECKSUM[0:3]
             table[i].values[0] = 0x52503230;    // "RP20" (MARKER[0:3])
             table[i].values[1] = 0x34302121;    // "40!!" (MARKER[4:7])
-            table[i].values[4] = 0; // TODO: Update
         }
     }
 
@@ -76,6 +75,15 @@ namespace Interface::Protocol::Serial {
             if (result == nullptr) {
                 shift();
                 data[0] |= node->get();
+            }
+            else {
+                // TODO: Verify checksum
+                
+                if (false) {
+                    shift();
+                    data[0] |= node->get();
+                    result = nullptr;
+                }
             }
 
         } while (result != nullptr);
