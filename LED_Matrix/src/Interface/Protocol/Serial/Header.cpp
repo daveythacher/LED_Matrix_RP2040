@@ -5,6 +5,10 @@
  */
 
 #include "Interface/Protocol/Serial/Header.h"
+#include "Interface/Protocol/Serial/Command/Data/Data/Data.h"
+#include "Interface/Protocol/Serial/Command/Data/ID/ID.h"
+#include "Interface/Protocol/Serial/Command/Control/Power/Power.h"
+#include "Interface/Protocol/Serial/Command/Query/Test/Test.h"
 #include "System/machine.h"
 
 namespace Interface::Protocol::Serial {
@@ -17,12 +21,33 @@ namespace Interface::Protocol::Serial {
     Header::Header(::Interface::Node::Node *n) {
         node = n;
 
-        for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t i = 0; i < number_words; i++) {
             data[i] = 0;
         }
 
-        // TODO: Setup filter
-        //  Figure out type
+        table[0].command = new Data();
+        table[0].values[2] = 0x44440100;    // 'D' 'D'
+        table[0].values[3] = 0x00000100;    // Type 1
+        table[1].command = new ID();
+        table[0].values[2] = 0x44490100;    // 'D' 'I'
+        table[0].values[3] = 0x00000100;    // Type 1
+        table[2].command = new Test();
+        table[0].values[2] = 0x51540100;    // 'Q' 'T'
+        table[0].values[3] = 0x00000100;    // Type 1
+        table[3].command = new Power();
+        table[0].values[2] = 0x43500100;    // 'C' 'P'
+        table[0].values[3] = 0x00000100;    // Type 1
+
+        for (uint8_t i = 0; i < number_commands; i++) {
+            table[i].enables[0] = 0xFFFFFFFF;   // MARKER[0:3]
+            table[i].enables[1] = 0xFFFFFFFF;   // MARKER[4:7]
+            table[i].enables[2] = 0xFFFFFFFF;   // CMD[0:1], VER[0:1]
+            table[i].enables[3] = 0x0000FF00;   // SEQ_NUM[0:1], TYPE, LEN
+            table[i].enables[4] = 0xFFFFFFFF;   // CHECKSUM[0:3]
+            table[i].values[0] = 0x52503230;    // "RP20" (MARKER[0:3])
+            table[i].values[1] = 0x34302121;    // "40!!" (MARKER[4:7])
+            table[i].values[4] = 0; // TODO: Update
+        }
     }
 
     Header *Header::create_header(::Interface::Node::Node *node) {
@@ -37,7 +62,7 @@ namespace Interface::Protocol::Serial {
         Command *result;
 
         // Fill header
-        for (uint8_t i = 3; i >= 0; i -= 1) {
+        for (int8_t i = number_words - 1; i >= 0; i -= 1) {
             for (int8_t j = 24; j >= 0; j -= 8) {
                 while (!node->get_available()) {}
                 data[i] |= node->get() << j;
@@ -56,7 +81,7 @@ namespace Interface::Protocol::Serial {
         } while (result != nullptr);
 
         // Write out the response header (already in network order)
-        for (uint8_t i = 3; i >= 0; i -= 1) {
+        for (int8_t i = number_words - 1; i >= 0; i -= 1) {
             for (int8_t j = 24; j >= 0; j -= 8) {
                 while (!node->put_available()) {}
                 node->put((data[i] >> j) & 0xFF);
@@ -69,7 +94,7 @@ namespace Interface::Protocol::Serial {
     void Header::shift() {
         uint32_t temp, carry = 0;
 
-        for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t i = 0; i < number_words; i++) {
             temp = carry;
             carry = data[i] >> 24;
             data[i] <<= 8;
@@ -92,7 +117,7 @@ namespace Interface::Protocol::Serial {
             return false;
         }
 
-        for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t i = 0; i < number_words; i++) {
             if ((data[i] & table[index].enables[i]) != table[index].values[i]) {
                 return false;
             }

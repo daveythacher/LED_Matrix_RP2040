@@ -29,15 +29,16 @@ namespace Interface::Protocol::Serial {
             uint8_t get_index(Command *command);
 
             static Header *ptr;
-            static const uint8_t number_commands = 2;
+            static const uint8_t number_commands = 4;
+            static const uint8_t number_words = 5;
 
             ::Interface::Node::Node *node;
-            uint32_t data[4];
+            uint32_t data[number_words];
 
             struct TCAM {
                 public:
-                    uint32_t values[4];
-                    uint32_t enables[4];
+                    uint32_t values[number_words];
+                    uint32_t enables[number_words];
                     Command *command;
             };
 
