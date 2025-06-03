@@ -5,6 +5,7 @@
  */
 
 #include "Interface/Protocol/Serial/Serial.h"
+#include "Interface/Protocol/Serial/Header.h"
 
 namespace Interface::Protocol::Serial {
     Serial *Serial::ptr = nullptr;
@@ -26,6 +27,8 @@ namespace Interface::Protocol::Serial {
     }
 
     void Serial::work() {
-        
+        while (1) {
+            Header::create_header(node)->process_command();
+        }
     }
 }

@@ -31,12 +31,13 @@ namespace Interface::Protocol::Serial {
         return ptr;
     }
 
-    Command *Header::get_command() {
+    void Header::process_command() {
         Command *result;
 
         // Fill header
         for (uint8_t i = 3; i >= 0; i -= 1) {
             for (int8_t j = 24; j >= 0; j -= 8) {
+                while (!node->get_available()) {}
                 data[i] |= node->get() << j;
             }
         }
@@ -52,11 +53,15 @@ namespace Interface::Protocol::Serial {
 
         } while (result != nullptr);
 
-        return result;
-    }
+        // Write out the response header (already in network order)
+        for (uint8_t i = 3; i >= 0; i -= 1) {
+            for (int8_t j = 24; j >= 0; j -= 8) {
+                while (!node->put_available()) {}
+                node->put((data[i] >> j) & 0xFF);
+            }
+        }
 
-    void Header::send_response(Command *command, uint16_t seq_num, uint8_t len) {
-        // TODO: Think about this
+        result->process_command(node);
     }
 
     void Header::shift() {
@@ -86,7 +91,7 @@ namespace Interface::Protocol::Serial {
         }
 
         for (uint8_t i = 0; i < 4; i++) {
-            if (data[i] & table[index].enables[i] != table[index].values[i]) {
+            if ((data[i] & table[index].enables[i]) != table[index].values[i]) {
                 return false;
             }
         }

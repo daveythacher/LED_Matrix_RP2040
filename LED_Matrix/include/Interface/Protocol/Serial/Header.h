@@ -9,14 +9,14 @@
 
 #include <stdint.h>
 #include "Interface/Node/Node.h"
+#include "Interface/Protocol/Serial/Command.h"
 
 namespace Interface::Protocol::Serial {
     class Header {
         public:
             static Header *create_header(::Interface::Node::Node *node);
 
-            Command *get_command();
-            void send_response(Command *command, uint16_t seq_num, uint8_t len);
+            void process_command();
 
         protected:
             Header();

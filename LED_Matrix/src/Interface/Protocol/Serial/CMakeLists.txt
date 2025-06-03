@@ -6,6 +6,7 @@ target_sources(led_interface_protocol_serial INTERFACE
     #internal.cpp
     #Status_Message.cpp
     Serial.cpp
+    Header.cpp
 )
 
 # Use caution here!
