@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include "Interface/Node/Node.h"
-#include "Interface/Protocol/Serial/Command.h"
+#include "Interface/Protocol/Serial/Command/Command.h"
 
 namespace Interface::Protocol::Serial {
     class Header {

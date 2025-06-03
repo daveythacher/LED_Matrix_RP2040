@@ -1,13 +1,10 @@
 add_subdirectory(Data)
 add_subdirectory(Query)
 
-add_library(serial_protocol_serial_command INTERFACE)
-
-target_sources(serial_protocol_serial_command INTERFACE
-    Command.cpp
-)
+add_library(interface_protocol_serial_command INTERFACE)
 
 # Use caution here!
-target_link_libraries(serial_protocol_serial_command INTERFACE
-    led_system
+target_link_libraries(interface_protocol_serial_command INTERFACE
+    interface_protocol_serial_command_data
+    interface_protocol_serial_command_query
 )
