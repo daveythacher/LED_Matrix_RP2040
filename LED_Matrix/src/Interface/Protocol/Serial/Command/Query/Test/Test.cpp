@@ -7,6 +7,6 @@
 #include "Interface/Protocol/Serial/Command/Query/Test/Test.h"
 #include "System/machine.h"
 
-namespace Serial::Protocol::DATA_NODE {
+namespace Interface::Protocol::Serial {
 
 }
