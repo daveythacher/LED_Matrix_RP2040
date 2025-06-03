@@ -5,6 +5,7 @@
  */
 
 #include "Interface/Protocol/Serial/Header.h"
+#include "System/machine.h"
 
 namespace Interface::Protocol::Serial {
     Header *Header::ptr = nullptr;
@@ -21,6 +22,7 @@ namespace Interface::Protocol::Serial {
         }
 
         // TODO: Setup filter
+        //  Figure out type
     }
 
     Header *Header::create_header(::Interface::Node::Node *node) {
@@ -61,7 +63,7 @@ namespace Interface::Protocol::Serial {
             }
         }
 
-        result->process_command(node);
+        result->process_command(node, ntohs(data[3] >> 16), data[3] & 0xFF);
     }
 
     void Header::shift() {

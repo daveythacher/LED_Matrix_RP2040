@@ -9,11 +9,17 @@
 
 #include <stdint.h>
 #include "Interface/Node/Node.h"
+#include "Matrix/Matrix.h"
 
 namespace Interface::Protocol::Serial {
     class Command {
         public:
-            virtual void process_command(::Interface::Node::Node *node) = 0;
+            Command();
+            
+            virtual void process_command(::Interface::Node::Node *node, uint16_t seq_num, uint8_t len) = 0;
+
+        protected:
+            static ::Matrix::Packet *packet;
     };
 }
 
