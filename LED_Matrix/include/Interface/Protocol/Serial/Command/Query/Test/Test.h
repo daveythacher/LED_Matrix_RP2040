@@ -13,6 +13,8 @@ namespace Interface::Protocol::Serial {
     class Test : public Command {
         public:
             void process_command(::Interface::Node::Node *node);
+
+            // TODO: Implement this as verification of hard coded configuration.
     };
 }
 
