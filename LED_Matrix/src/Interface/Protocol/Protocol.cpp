@@ -10,7 +10,7 @@
 
 namespace Interface::Protocol {
     Protocol *Protocol::create_protocol(::Interface::Node::Node *node) {
-        return PROTOCOL::create_protocol(::Interface::Node::Node::create_node());
+        return PROTOCOL::PROTOCOL::create_protocol(::Interface::Node::Node::create_node());
     }
 }
 

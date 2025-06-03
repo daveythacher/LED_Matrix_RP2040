@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include "Interface/Protocol/Protocol.h"
 
-namespace Interface::Protocol {
+namespace Interface::Protocol::Serial {
     class Serial : public ::Interface::Protocol::Protocol {
         public:
             static Serial *create_protocol(::Interface::Node::Node *node);

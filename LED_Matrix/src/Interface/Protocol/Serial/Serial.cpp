@@ -6,7 +6,7 @@
 
 #include "Interface/Protocol/Serial/Serial.h"
 
-namespace Interface::Protocol {
+namespace Interface::Protocol::Serial {
     Serial *Serial::ptr = nullptr;
 
     Serial::Serial() {
