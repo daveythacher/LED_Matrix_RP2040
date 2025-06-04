@@ -6,7 +6,6 @@
 
 #include "Interface/Protocol/Serial/Header.h"
 #include "Interface/Protocol/Serial/Command/Data/Data/Data.h"
-#include "Interface/Protocol/Serial/Command/Data/ID/ID.h"
 #include "Interface/Protocol/Serial/Command/Control/Power/Power.h"
 #include "Interface/Protocol/Serial/Command/Query/Test/Test.h"
 #include "System/machine.h"
@@ -32,15 +31,12 @@ namespace Interface::Protocol::Serial {
         table[0].command = new Data();
         table[0].values[2] = 0x44440100;    // 'D' 'D'
         table[0].values[3] = 0x00000100;    // Type 1
-        table[1].command = new ID();
-        table[0].values[2] = 0x44490100;    // 'D' 'I'
-        table[0].values[3] = 0x00000100;    // Type 1
-        table[2].command = new Test();
-        table[0].values[2] = 0x51540100;    // 'Q' 'T'
-        table[0].values[3] = 0x00000100;    // Type 1
-        table[3].command = new Power();
-        table[0].values[2] = 0x43500100;    // 'C' 'P'
-        table[0].values[3] = 0x00000100;    // Type 1
+        table[1].command = new Test();
+        table[1].values[2] = 0x51540100;    // 'Q' 'T'
+        table[1].values[3] = 0x00000100;    // Type 1
+        table[2].command = new Power();
+        table[2].values[2] = 0x43500100;    // 'C' 'P'
+        table[2].values[3] = 0x00000100;    // Type 1
 
         for (uint8_t i = 0; i < number_commands; i++) {
             table[i].enables[0] = 0xFFFFFFFF;   // MARKER[0:3]
