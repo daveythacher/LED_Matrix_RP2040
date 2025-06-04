@@ -16,7 +16,6 @@ target_link_libraries(led_BUS8_PWM INTERFACE
     hardware_gpio
     hardware_pio
     led_pio
-    led_gpio
     led_multiplex
     led_system
 )

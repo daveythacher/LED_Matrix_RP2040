@@ -3,7 +3,7 @@
 ### Installing prereqs
 See scripts/Linux
 ### Installing submodules
-See LED_Matrix/lib/external
+See LED_Matrix/lib
 ## Building firmware:
 ### Building with CMake
 ```bash

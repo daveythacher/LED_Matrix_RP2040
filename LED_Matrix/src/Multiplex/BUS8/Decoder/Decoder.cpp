@@ -12,7 +12,6 @@
 #include "Multiplex/BUS8/hw_config.h"
 #include "Multiplex/BUS8/Decoder/Programs.h"
 #include "System/machine.h"
-#include "GPIO/GPIO.h"
 
 namespace Multiplex::BUS8::Decoder {
     Decoder *Decoder::ptr = nullptr;
@@ -22,7 +21,6 @@ namespace Multiplex::BUS8::Decoder {
             gpio_init(i + ::Multiplex::BUS8::BUS8_ADDR_BASE);
             gpio_set_dir(i + ::Multiplex::BUS8::BUS8_ADDR_BASE, GPIO_OUT);
             gpio_set_function(i + ::Multiplex::BUS8::BUS8_ADDR_BASE, GPIO_FUNC_SIO);
-            IO::GPIO::claim(i + ::Multiplex::BUS8::BUS8_ADDR_BASE);
         }
 
         for (uint8_t i = 0; i < Matrix::MULTIPLEX; i++) {
