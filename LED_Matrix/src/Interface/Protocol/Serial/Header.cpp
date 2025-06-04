@@ -75,6 +75,7 @@ namespace Interface::Protocol::Serial {
 
             if (result == nullptr) {
                 shift();
+                while (!node->get_available()) {}
                 data[0] |= node->get();
             }
             else {
@@ -88,6 +89,7 @@ namespace Interface::Protocol::Serial {
 
                 if (htonl(crc->get()) != data[4]) {
                     shift();
+                    while (!node->get_available()) {}
                     data[0] |= node->get();
                     result = nullptr;
                 }

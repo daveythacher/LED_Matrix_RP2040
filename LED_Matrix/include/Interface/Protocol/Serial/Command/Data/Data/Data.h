@@ -8,6 +8,7 @@
 #define INTERFACE_PROTOCOL_SERIAL_COMMAND_DATA_DATA_H
 
 #include "Interface/Protocol/Serial/Command/Command.h"
+#include "CRC/CRC32/CRC32.h"
 
 namespace Interface::Protocol::Serial {
     class Data : public Command {
@@ -15,6 +16,16 @@ namespace Interface::Protocol::Serial {
             Data();
 
             void process_command(::Interface::Node::Node *node, uint16_t seq_num, uint8_t len);
+
+        private:
+            bool read_intermediate_header();
+
+            uint16_t index;
+            uint8_t row;
+            uint8_t column;
+
+            CRC::CRC32 *crc;
+            ::Interface::Node::Node *node;
     };
 }
 
