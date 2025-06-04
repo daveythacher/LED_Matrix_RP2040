@@ -23,7 +23,7 @@ function(pico_add_dis_output2 TARGET)
     if (PICO_COMPILER STREQUAL "pico_arm_gcc")
         pico_find_compiler(PICO_COMPILER_SIZE ${PICO_GCC_TRIPLE}-size)
         add_custom_command(TARGET ${TARGET} POST_BUILD
-            COMMAND ${PICO_COMPILER_SIZE} ${CMAKE_BINARY_DIR}/$<IF:$<BOOL:$<TARGET_PROPERTY:${TARGET},OUTPUT_NAME>>,$<TARGET_PROPERTY:${TARGET},OUTPUT_NAME>,$<TARGET_PROPERTY:${TARGET},NAME>>.elf
+            COMMAND ${PICO_COMPILER_SIZE} $<TARGET_FILE:${TARGET}>
             VERBATIM
         )
     endif()
