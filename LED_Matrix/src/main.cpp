@@ -5,22 +5,17 @@
  */
 
 #include <new>
-#include "System/Watchdog/Watchdog.h"
-#include "Serial/Protocol/serial.h"
-#include "FreeRTOS.h"
-#include "task.h"
+#include "Interface/Node/Node.h"
+#include "Interface/Protocol/Protocol.h"
+#include "Matrix/Matrix.h"
+#include "System/Watchdog.h"
 
 static void crash() {
     System::Watchdog::crash();
 }
 
 int main() {    
-    System::Watchdog::acquire_watchdog();
     std::set_new_handler(crash);
-    Serial::Protocol::Protocol::create_protocol();
-	xPortStartScheduler();
-}
-
-void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName ) {
-    crash();
+    System::Watchdog::enable(100);
+    Interface::Protocol::Protocol::create_protocol(Interface::Node::Node::create_node())->work();
 }

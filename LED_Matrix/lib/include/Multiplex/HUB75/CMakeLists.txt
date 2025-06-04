@@ -1,1 +1,0 @@
-configure_file(hw_config.h.in hw_config.h @ONLY)

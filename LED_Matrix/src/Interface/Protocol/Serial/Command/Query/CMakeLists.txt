@@ -1,0 +1,8 @@
+add_subdirectory(Test)
+
+add_library(led_interface_protocol_serial_command_query INTERFACE)
+
+# Use caution here!
+target_link_libraries(led_interface_protocol_serial_command_query INTERFACE
+    led_interface_protocol_serial_command_query_test
+)

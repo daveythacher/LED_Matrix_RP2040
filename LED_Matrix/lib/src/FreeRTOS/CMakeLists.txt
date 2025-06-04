@@ -1,2 +1,0 @@
-set(FREERTOS_KERNEL_PATH "${CMAKE_CURRENT_LIST_DIR}/../../external/FreeRTOS-Kernel" CACHE PATH "Path to the FreeRTOS Kernel")
-include(../../external/FreeRTOS-Kernel/portable/ThirdParty/GCC/RP2040/library.cmake)

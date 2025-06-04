@@ -7,16 +7,20 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <memory>
 #include "Matrix/Packet.h"
-#include "Matrix/Types.h"
-using std::unique_ptr;
 
 namespace Matrix {
     class Matrix {
         public:
-            virtual void show(unique_ptr<Packet> &packet) = 0;       // Future: FPS limiter
-            virtual unique_ptr<Packet> get_packet() = 0;
+            static Matrix *get_matrix();
+
+            virtual void show(Packet *packet) = 0;
+            virtual Packet *get_packet() = 0;
+            virtual void work() = 0;
+            virtual void enable_power(bool shutdown) = 0;
+        
+        protected:
+            Matrix();
     };
 }
 

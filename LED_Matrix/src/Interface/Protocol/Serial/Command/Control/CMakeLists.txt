@@ -1,0 +1,10 @@
+add_subdirectory(Power)
+add_subdirectory(Swap)
+
+add_library(led_interface_protocol_serial_command_control INTERFACE)
+
+# Use caution here!
+target_link_libraries(led_interface_protocol_serial_command_control INTERFACE
+    led_interface_protocol_serial_command_control_power
+    led_interface_protocol_serial_command_control_swap
+)
