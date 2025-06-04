@@ -1,5 +1,5 @@
 # Internal Documentation
-Place to talk about internal code stuff. (Note more information is available [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/doc/Applications.md) and [here](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/doc/Memory.md).)
+Place to talk about internal code stuff.
 
 ## Overview
 This code base is divided into two parts. The first part is applications which are front end protocols. The second part is matrix algorithms which are back end panel implementations. Not all features are implemented in this code base. For example: gamma, brightness, CIE1931, pixel mapping, color order, etc. do not belong in this code base these are handled by the application logic.

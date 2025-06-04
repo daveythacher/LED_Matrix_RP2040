@@ -12,9 +12,3 @@ cd LED_Matrix/build
 cmake .. -DPICO_SDK_PATH=../lib/external/pico-sdk
 make -j 16
 ```
-
-## Building documentation:
-For generating doxygen documentation:
-```bash
-doxygen Doxyfile
-```
