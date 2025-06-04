@@ -8,5 +8,11 @@
 #include "System/machine.h"
 
 namespace Interface::Protocol::Serial {
+    Power::Power() : Command() {
+        // Do nothing
+    }
 
+    void Power::process_command(::Interface::Node::Node *node, uint16_t seq_num, uint8_t len) {
+
+    }
 }

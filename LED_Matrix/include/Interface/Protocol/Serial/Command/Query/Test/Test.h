@@ -12,7 +12,9 @@
 namespace Interface::Protocol::Serial {
     class Test : public Command {
         public:
-            void process_command(::Interface::Node::Node *node);
+            Test();
+
+            void process_command(::Interface::Node::Node *node, uint16_t seq_num, uint8_t len);
 
             // TODO: Implement this as verification of hard coded configuration.
     };

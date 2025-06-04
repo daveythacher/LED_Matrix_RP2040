@@ -20,6 +20,7 @@ namespace Interface::Protocol::Serial {
 
     Header::Header(::Interface::Node::Node *n) {
         node = n;
+        crc = new CRC::CRC32();
 
         for (uint8_t i = 0; i < number_words; i++) {
             data[i] = 0;
@@ -77,9 +78,15 @@ namespace Interface::Protocol::Serial {
                 data[0] |= node->get();
             }
             else {
-                // TODO: Verify checksum
-                
-                if (false) {
+                // Verify checksum
+                crc->reset();
+                for (int8_t i = number_words - 2; i >= 0; i -= 1) {
+                    for (int8_t j = 24; j >= 0; j -= 8) {
+                        crc->process(data[i] >> j & 0xFF);
+                    }
+                }
+
+                if (htonl(crc->get()) != data[4]) {
                     shift();
                     data[0] |= node->get();
                     result = nullptr;

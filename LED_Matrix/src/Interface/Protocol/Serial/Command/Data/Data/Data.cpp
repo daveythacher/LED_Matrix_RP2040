@@ -8,5 +8,11 @@
 #include "System/machine.h"
 
 namespace Interface::Protocol::Serial {
+    Data::Data() : Command() {
+        // Do nothing
+    }
 
+    void Data::process_command(::Interface::Node::Node *node, uint16_t seq_num, uint8_t len) {
+
+    }
 }

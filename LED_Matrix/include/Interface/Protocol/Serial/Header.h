@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include "Interface/Node/Node.h"
 #include "Interface/Protocol/Serial/Command/Command.h"
+#include "CRC/CRC32/CRC32.h"
 
 namespace Interface::Protocol::Serial {
     class Header {
@@ -43,6 +44,7 @@ namespace Interface::Protocol::Serial {
             };
 
             TCAM table[number_commands];
+            ::CRC::CRC32 *crc;
     };
 }
 

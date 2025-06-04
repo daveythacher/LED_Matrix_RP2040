@@ -12,7 +12,9 @@
 namespace Interface::Protocol::Serial {
     class Power : public Command {
         public:
-            void process_command(::Interface::Node::Node *node);
+            Power();
+
+            void process_command(::Interface::Node::Node *node, uint16_t seq_num, uint8_t len);
     };
 }
 

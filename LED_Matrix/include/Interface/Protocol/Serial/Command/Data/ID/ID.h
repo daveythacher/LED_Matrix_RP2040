@@ -12,7 +12,9 @@
 namespace Interface::Protocol::Serial {
     class ID : public Command {
         public:
-            void process_command(::Interface::Node::Node *node);
+            ID();
+
+            void process_command(::Interface::Node::Node *node, uint16_t seq_num, uint8_t len);
     };
 }
 
