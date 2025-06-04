@@ -8,6 +8,7 @@
 #define INTERFACE_PROTOCOL_SERIAL_COMMAND_QUERY_TEST_H
 
 #include "Interface/Protocol/Serial/Command/Command.h"
+#include "CRC/CRC32/CRC32.h"
 
 namespace Interface::Protocol::Serial {
     class Test : public Command {
@@ -16,7 +17,8 @@ namespace Interface::Protocol::Serial {
 
             void process_command(::Interface::Node::Node *node, uint16_t seq_num, uint8_t len);
 
-            // TODO: Implement this as verification of hard coded configuration.
+        private:
+            ::CRC::CRC32 *crc;
     };
 }
 
