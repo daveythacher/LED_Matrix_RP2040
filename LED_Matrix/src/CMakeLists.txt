@@ -58,3 +58,7 @@ target_link_options(led_${DEFINE_APP}
 # create map/bin/hex file etc.
 pico_add_extra_outputs(led_${DEFINE_APP})
 pico_add_dis_output2(led_${DEFINE_APP})
+
+set_target_properties(led_${DEFINE_APP} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
