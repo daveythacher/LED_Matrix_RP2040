@@ -52,3 +52,17 @@ Moved to application:
 - Color depth computation
 - Color order computation
 - Mapping computation
+
+
+IO protocol properties:
+- Event loop
+- Flow control
+- Error protocol
+- Priority regulation
+- Addresssing
+- Reliability
+- Error correction and detection
+- Latency regulation
+- Duplex
+- Framing
+- Topology
