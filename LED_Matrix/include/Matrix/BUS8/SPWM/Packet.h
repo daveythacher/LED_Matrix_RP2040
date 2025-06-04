@@ -10,8 +10,6 @@
 #include "Matrix/Packet.h"
 
 namespace Matrix::BUS8::SPWM {
-    // Use unique pointer due to get_line
-    // TODO: Add Dot Correct here
     class Packet : public ::Matrix::Packet {
         public:
             ~Packet();
@@ -25,16 +23,10 @@ namespace Matrix::BUS8::SPWM {
             uint8_t num_columns();
             uint16_t num_steps();
 
-            // Future: Consider deserialize
-
         private:
             Packet();
             Packet(::Matrix::Packet *packet);
             Packet(uint8_t scan, uint16_t steps, uint8_t columns);
-
-            // Future: Consider lock and unlock methods for use within copy constructor
-            //  We own packet during that process and block all writes to packet.
-            //  This can cause tearing, if not careful.
 
             uint8_t _scan;
             uint8_t _columns;
