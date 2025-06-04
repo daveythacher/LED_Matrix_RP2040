@@ -12,7 +12,8 @@ namespace Interface::Protocol::Serial {
         // Do nothing
     }
 
+    // We already acked and verified this command
     void Swap::process_command(::Interface::Node::Node *node, uint16_t seq_num, uint8_t len) {
-
+        ::Matrix::Matrix::get_matrix()->show(packet);
     }
 }
