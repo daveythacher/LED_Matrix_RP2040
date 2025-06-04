@@ -19,6 +19,7 @@ namespace Interface::Protocol::Serial {
 
         private:
             bool read_intermediate_header();
+            void send_error_nack(uint16_t count);
 
             uint16_t index;
             uint8_t row;

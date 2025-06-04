@@ -18,6 +18,9 @@ namespace Interface::Protocol::Serial {
         // Do nothing
     }
 
+    // Warning: Vulnerable to packet of death.
+    //  Glitching the Marker and Checksum.
+    //      Not sure this will ever matter.
     Header::Header(::Interface::Node::Node *n) {
         node = n;
         crc = new CRC::CRC32();
