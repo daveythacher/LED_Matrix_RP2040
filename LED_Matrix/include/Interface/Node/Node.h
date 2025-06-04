@@ -16,8 +16,10 @@ namespace Interface::Node {
 
             virtual bool put_available() = 0;
             virtual bool get_available() = 0;
-            virtual void put(uint8_t c) = 0;
-            virtual uint8_t get() = 0;
+            virtual void put_nonblocking(uint8_t c) = 0;
+            virtual uint8_t get_nonblocking() = 0;
+            void put(uint8_t c);
+            uint8_t get();
     };
 }
 

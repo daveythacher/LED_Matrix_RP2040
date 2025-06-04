@@ -17,8 +17,8 @@ namespace Interface::Node::UART {
 
             bool put_available();
             bool get_available();
-            void put(uint8_t c);
-            uint8_t get();
+            void put_nonblocking(uint8_t c);
+            uint8_t get_nonblocking();
 
         protected:
             UART();

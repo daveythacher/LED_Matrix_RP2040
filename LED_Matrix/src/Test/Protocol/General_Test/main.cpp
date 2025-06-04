@@ -23,11 +23,11 @@ namespace Interface::Node {
                 return false;
             }
 
-            void put(uint8_t c) {
+            void put_nonblocking(uint8_t c) {
                 // TODO:
             }
 
-            uint8_t get() {
+            uint8_t get_nonblocking() {
                 // TODO:
                 return 0;
             }

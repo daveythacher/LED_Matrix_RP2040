@@ -33,11 +33,9 @@ namespace Interface::Protocol::Serial {
         // Grab pixel data and place into packet
         crc->reset();
         for (; length > 4; length--) {
-            while (!node->get_available()) {}
             val = node->get();
             packet->set(row, index, column, val);
             crc->process(val);
-            while (!node->put_available()) {}
             node->put(val);
 
             ++column;
@@ -56,7 +54,6 @@ namespace Interface::Protocol::Serial {
 
         // Grab checksum
         for (int i = 24; i >= 0; i -= 8) {
-            while (!node->get_available()) {}
             checksum |= node->get() << i;
         }
 
@@ -68,7 +65,6 @@ namespace Interface::Protocol::Serial {
         else {
             // Accept payload
             for (int i = 24; i >= 0; i -= 8) {
-                while (!node->put_available()) {}
                 node->put(checksum >> i & 0xFF);
             }
         }        
@@ -80,31 +76,22 @@ namespace Interface::Protocol::Serial {
         // Fill index, row and column
         //  Start response packet
         crc->reset();
-        while (!node->get_available()) {}
         index = node->get() << 8;
         crc->process(index >> 8);
-        while (!node->put_available()) {}
         node->put(index >> 8);
-        while (!node->get_available()) {}
         index |= node->get();
         crc->process(index & 0xFF);
-        while (!node->put_available()) {}
         node->put(index & 0xFF);
         index = ntohs(index);
-        while (!node->get_available()) {}
         row = node->get();
-        while (!node->put_available()) {}
         node->put(row);
         crc->process(row);
-        while (!node->get_available()) {}
         column = node->get();
-        while (!node->put_available()) {}
         node->put(column);
         crc->process(column);
 
         // Grab checksum
         for (int i = 24; i >= 0; i -= 8) {
-            while (!node->get_available()) {}
             checksum |= node->get() << i;
         }
 
@@ -117,7 +104,6 @@ namespace Interface::Protocol::Serial {
 
         // Send checksum
         for (int i = 24; i >= 0; i -= 8) {
-            while (!node->put_available()) {}
             node->put(checksum >> i & 0xFF);
         }
 
@@ -126,7 +112,6 @@ namespace Interface::Protocol::Serial {
 
     void Data::send_error_nack(uint16_t count) {
         for (uint8_t i = 0; i < count; i++) {
-            while (!node->put_available()) {}
             node->put(0xFF);
         }
     }

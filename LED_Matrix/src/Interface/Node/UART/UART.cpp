@@ -64,11 +64,11 @@ namespace Interface::Node::UART {
         return uart_is_writable(uart0);
     }
 
-    uint8_t UART::get() {
+    uint8_t UART::get_nonblocking() {
         return uart_getc(uart0);
     }
 
-    void UART::put(uint8_t c) {
+    void UART::put_nonblocking(uint8_t c) {
         uart_putc(uart0, c);
     }
 }

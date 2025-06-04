@@ -12,4 +12,14 @@ namespace Interface::Node {
     Node *Node::create_node() {
         return NODE::NODE::create_node();
     }
+
+    uint8_t Node::get() {
+        while (!get_available()) {}
+        return get_nonblocking();
+    }
+
+    void Node::put(uint8_t c) {
+        while (!put_available()) {}
+        put_nonblocking(c);
+    }
 }
