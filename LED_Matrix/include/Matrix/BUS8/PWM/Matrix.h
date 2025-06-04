@@ -19,6 +19,7 @@ namespace Matrix::BUS8::PWM {
             void show(::Matrix::Packet *packet);
             ::Matrix::Packet *get_packet();
             void work();
+            void enable_power(bool shutdown);
 
         private:
             Matrix();

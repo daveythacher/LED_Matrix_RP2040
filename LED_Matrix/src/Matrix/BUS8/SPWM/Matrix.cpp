@@ -42,4 +42,8 @@ namespace Matrix::BUS8::SPWM {
     void Matrix::work() {
         multiplex->work();
     }
+
+    void Matrix::enable_power(bool shutdown) {
+        // TODO: Do something
+    }
 }

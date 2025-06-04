@@ -31,8 +31,7 @@ namespace Interface::Protocol::Serial {
             }
         }
         else {
-            // TODO: Use cmd
-
+            ::Matrix::Matrix::get_matrix()->enable_power(cmd == 0);
             node->put(checksum >> 24);
             node->put(checksum >> 16 & 0xFF);
             node->put(checksum >> 8 & 0xFF);

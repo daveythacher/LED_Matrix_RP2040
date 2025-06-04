@@ -17,6 +17,7 @@ namespace Matrix {
             virtual void show(Packet *packet) = 0;
             virtual Packet *get_packet() = 0;
             virtual void work() = 0;
+            virtual void enable_power(bool shutdown) = 0;
         
         protected:
             Matrix();
