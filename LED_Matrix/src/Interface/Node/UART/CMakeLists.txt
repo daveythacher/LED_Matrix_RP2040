@@ -8,5 +8,4 @@ target_sources(led_interface_node_uart INTERFACE
 target_link_libraries(led_interface_node_uart INTERFACE 
     hardware_gpio
     hardware_uart
-    led_gpio
 )

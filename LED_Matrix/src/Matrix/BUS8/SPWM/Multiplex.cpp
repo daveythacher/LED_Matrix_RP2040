@@ -18,7 +18,6 @@
 #include "Matrix/BUS8/SPWM/Programs.h"
 #include "Matrix/BUS8/hw_config.h"
 #include "System/machine.h"
-#include "GPIO/GPIO.h"
 
 namespace Matrix::BUS8::SPWM {
     // PIO Protocol
@@ -37,7 +36,6 @@ namespace Matrix::BUS8::SPWM {
             gpio_init(i + ::Matrix::BUS8::BUS8_DATA_BASE);
             gpio_set_dir(i + ::Matrix::BUS8::BUS8_DATA_BASE, GPIO_OUT);
             gpio_set_function(i + ::Matrix::BUS8::BUS8_DATA_BASE, GPIO_FUNC_PIO0);
-            IO::GPIO::claim(i + ::Matrix::BUS8::BUS8_DATA_BASE);
         }
 
         gpio_init(::Matrix::BUS8::BUS8_OE);
@@ -49,9 +47,6 @@ namespace Matrix::BUS8::SPWM {
         gpio_set_function(::Matrix::BUS8::BUS8_OE, GPIO_FUNC_SIO);
         gpio_set_function(::Matrix::BUS8::BUS8_RCLK, GPIO_FUNC_SIO);
         gpio_set_function(::Matrix::BUS8::BUS8_FCLK, GPIO_FUNC_SIO);
-        IO::GPIO::claim(::Matrix::BUS8::BUS8_OE);
-        IO::GPIO::claim(::Matrix::BUS8::BUS8_RCLK);
-        IO::GPIO::claim(::Matrix::BUS8::BUS8_FCLK);
 
         // Watchdog can see this. (Synchronous)
         ::Multiplex::Multiplex::create_multiplex(Programs::WAKE_MULTIPLEX, Programs::WAKE_GHOST);

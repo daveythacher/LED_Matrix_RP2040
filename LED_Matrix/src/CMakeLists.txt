@@ -4,7 +4,6 @@ add_subdirectory(Interface)
 add_subdirectory(System)
 add_subdirectory(CRC)
 add_subdirectory(PIO)
-add_subdirectory(GPIO)
 add_subdirectory(Test)
 
 add_executable(led_${DEFINE_APP} 
@@ -47,7 +46,6 @@ target_link_libraries(led_${DEFINE_APP}
     pico_runtime
     pico_multicore
     led_matrix
-    led_system
     led_interface
 )
 
