@@ -39,13 +39,10 @@ namespace Matrix::BUS8::SPWM {
         }
 
         gpio_init(::Matrix::BUS8::BUS8_OE);
-        gpio_init(::Matrix::BUS8::BUS8_RCLK);
         gpio_init(::Matrix::BUS8::BUS8_FCLK);
         gpio_set_dir(::Matrix::BUS8::BUS8_OE, GPIO_OUT);
-        gpio_set_dir(::Matrix::BUS8::BUS8_RCLK, GPIO_IN);
         gpio_set_dir(::Matrix::BUS8::BUS8_FCLK, GPIO_IN);
         gpio_set_function(::Matrix::BUS8::BUS8_OE, GPIO_FUNC_SIO);
-        gpio_set_function(::Matrix::BUS8::BUS8_RCLK, GPIO_FUNC_SIO);
         gpio_set_function(::Matrix::BUS8::BUS8_FCLK, GPIO_FUNC_SIO);
 
         // Watchdog can see this. (Synchronous)
@@ -231,10 +228,6 @@ namespace Matrix::BUS8::SPWM {
 
                     multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packets[bank]));        // Translate
                     bank = (bank + 1) % num_buffers;
-                }
-
-                while (!gpio_get(::Matrix::BUS8::BUS8_RCLK)) {
-                    // Do nothing
                 }
 
                 send_buffer();                                                                      // Kick off hardware
