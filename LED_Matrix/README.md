@@ -2,7 +2,7 @@
 Place to talk about internal code stuff.
 
 ## Overview
-This code base is divided into two parts. The first part is applications which are front end protocols. The second part is matrix algorithms which are back end panel implementations. Not all features are implemented in this code base. For example: gamma, brightness, CIE1931, pixel mapping, color order, etc. do not belong in this code base these are handled by the application logic.
+This code base is divided into two main parts: matrix/multiplex and interface. Not all features are implemented in this code base.
 
 ## Status
 ### Matrix:
@@ -13,29 +13,29 @@ SPWM - experimental
 ### Multiplex:
 Decoder - experimental
 
-### Serial/Node:
+### Interface/Node:
 UART - experimental
 
-### Serial/Protoocl
+### Interface/Protoocl
 Serial - experimental
 
 ## List of things:
 Planned things:
-- 4-bit LUT to accelerate computation. (Removed due to direction shift in support.)
-- TCAM to speed up processing/filtering. (Removed due to direction shift in support.)
-- Portable SIMD operations using standard ALU. (Removed due to direction shift in support.)
+- 4-bit LUT to accelerate computation. (Moved to application code.)
+- TCAM to speed up processing/filtering. (Simplified form used.)
+- Portable SIMD operations using standard ALU. (Moved to application code.)
 - Pointers/structures to accelerate computation. (Somewhat used.)
-- Wrapper to promote in-order execution. (Removed in favor of simplicity.)
-- DMA wrapper to scope system networking. (Removed in favor of simplicity.)
-- Watchdog service to failsafe RTOS. (Removed in favor of simplicity.)
+- Wrapper to promote in-order execution. (Not really required.)
+- DMA wrapper to scope system networking. (Logic not large enough for system service.)
+- Watchdog service to failsafe RTOS. (Simplified form used.)
 - Tone to detect errors and possibly correct them. (High framerate with acknowledge reduced the value of this.)
 - Multiple copies of bits to enable voting. (High framerate with acknowledge reduced the value of this.)
 - Implementing data chunks with checksum below protocol. (Hardware flow control reduced the value of this.) 
-- Commands and queries for remote control. (Planned)
-- Synchronous trigger for frame swap and refresh sync. (Planned)
-- Concurrent libraries for frame, mutex, queue, threads (RTOS), atomic, etc. (Removed in favor of simplicity.)
-- Shift register based vector or ring buffer. (Removed ring buffer approach in favor of field extractor.)
-- S-PWM algorithm using universal table for increasing color depth. (Planned)
+- Commands and queries for remote control. (Implemented)
+- Synchronous trigger for frame swap and refresh sync. (Implemented)
+- Concurrent libraries for frame, mutex, queue, threads (RTOS), atomic, etc. (Simplification reduced the value of this.)
+- Shift register based vector or ring buffer. (Somewhat used.)
+- S-PWM algorithm using universal table for increasing color depth. (Moved to application logic.)
 
 
 Other things:
