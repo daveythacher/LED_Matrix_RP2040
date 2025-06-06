@@ -17,13 +17,9 @@
 #define MULTIPLEXER Decoder     // Multiplex
 
 namespace Matrix {
-    // Only used by BUS8::SPWM
-    constexpr uint16_t STEPS_MAJOR = 16;
-    constexpr uint16_t STEPS_MINOR = 64;
-
     // These are not to exceed 4096 when multiplied together.
     constexpr uint8_t MULTIPLEX = 8;
-    constexpr uint16_t STEPS = 64;                                  // For BUS8::SPWM: STEPS_MAJOR + STEPS_MINOR
+    constexpr uint16_t STEPS = 64;
     constexpr uint8_t COLUMNS = 8;
 
     constexpr uint8_t BLANK_TIME = 10;
