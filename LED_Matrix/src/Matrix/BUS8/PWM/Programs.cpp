@@ -67,8 +67,8 @@ namespace Matrix::BUS8::PWM {
             NOP().sideset(LAT),
             NOP(),
             JMP(X_DEC, 2),
-            IRQ(true, WAKE_GHOST),                              // Call Ghost - single threaded
-            WAIT(Flags::IRQ, true, WAKE_PMP),                   // Wait till we are called (by Ghost) - multi-threaded
+            IRQ(true, WAKE_GHOST),                              // Call Ghost - multi-threaded
+            WAIT(Flags::IRQ, true, WAKE_PMP),                   // Wait till we are called (by Ghost) - single-threaded
             JMP(0)
         };
 
@@ -79,24 +79,23 @@ namespace Matrix::BUS8::PWM {
         return size;
     }
 
-    // TODO: Check OE polarity
     uint8_t Programs::get_ghost_program(uint16_t *instructions, uint8_t len) {
         uint8_t OE = 1 << 0;
         uint8_t size;
         Program PMP(1);     // Warning not all behavior is supported
         ASM program[] = {   // Sidesets are cleared by default
-            PULL(true).sideset(OE),
-            OUT(X, 8).sideset(OE),
-            WAIT(Flags::IRQ, true, WAKE_GHOST).sideset(OE),     // Wait till we are called (by PMP) - multi-threaded
-            IRQ(true, WAKE_MULTIPLEX),                          // Call Multiplex - multi-threaded
             PULL(true),
-            OUT(Y, 8),
-            NOP(),
-            JMP(Y_DEC, 7),
-            WAIT(Flags::IRQ, true, WAKE_GHOST).sideset(OE),     // Wait till we are called (by Multiplex) - single threaded
+            OUT(X, 8),
+            WAIT(Flags::IRQ, true, WAKE_GHOST),                 // Wait till we are called (by PMP) - single-threaded
+            IRQ(true, WAKE_MULTIPLEX).sideset(OE),              // Call Multiplex - multi-threaded (LED Drivers - OFF)
+            PULL(true).sideset(OE),
+            OUT(Y, 8).sideset(OE),
+            NOP().sideset(OE),
+            JMP(Y_DEC, 7).sideset(OE),
+            WAIT(Flags::IRQ, true, WAKE_GHOST).sideset(OE),     // Wait till we are called (by Multiplex) - single-threaded
             JMP(X_DEC, 2).sideset(OE),
-            IRQ(true, WAKE_PMP).sideset(OE),                    // Call PMP - multi-threaded
-            JMP(0).sideset(OE)
+            IRQ(true, WAKE_PMP),                                // Call PMP - multi-threaded (LED Drivers - ON)
+            JMP(0)
         };
 
         size = sizeof(program) / sizeof(ASM);

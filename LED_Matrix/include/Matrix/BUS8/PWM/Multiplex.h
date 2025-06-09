@@ -11,6 +11,7 @@
 #include "Matrix/BUS8/PWM/Packet.h"
 #include "Matrix/BUS8/PWM/Programs.h"
 #include "Matrix/BUS8/hw_config.h"
+#include "System/IPC.h"
 
 namespace Matrix::BUS8::PWM {
     class Multiplex {
@@ -35,6 +36,7 @@ namespace Matrix::BUS8::PWM {
             uint8_t bank;
             Packet *packets[num_buffers];
             uint16_t header;
+            ::System::IPC<Packet *> *pipe[2];
     };
 }
 

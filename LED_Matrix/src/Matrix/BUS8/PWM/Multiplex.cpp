@@ -11,7 +11,6 @@
 #include "hardware/pio.h"
 #include "hardware/gpio.h"
 #include "hardware/dma.h"
-#include "pico/multicore.h"
 #include "hardware/structs/bus_ctrl.h"
 #include "Matrix/BUS8/PWM/Multiplex.h"
 #include "Multiplex/Multiplex.h"
@@ -65,6 +64,8 @@ namespace Matrix::BUS8::PWM {
         header = STEPS;                                                                             // This needs to be one less than (n + 1)
         counter = 0;
         bank = 0;
+        pipe[0] = new ::System::IPC<Packet *>(4);
+        pipe[1] = new ::System::IPC<Packet *>(4);
 
         {   // We use a decent amount of stack here (The compiler should figure it out)
             uint16_t instructions[32];
@@ -157,15 +158,15 @@ namespace Matrix::BUS8::PWM {
         full_pipeline_sync();
 
         if (packet != nullptr) {
-            while (!multicore_fifo_wready()) {                                                      // Watchdog can see this. (Synchronous)
+            while (!pipe[0]->can_push()) {                                                          // Watchdog can see this. (Synchronous)
                 // Do nothing
             }
 
-            multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packet));                       // Translate
+            pipe[0]->push(packet);
         }
 
-        while (multicore_fifo_rvalid()) {                                                       // Watchdog can see this. (Synchronous)
-            delete reinterpret_cast<Packet *>(multicore_fifo_pop_blocking());                  // Translate
+        while (pipe[0]->can_pop()) {                                                                // Watchdog can see this. (Synchronous)
+            delete pipe[0]->pop();
         }        
     }
 
@@ -208,8 +209,8 @@ namespace Matrix::BUS8::PWM {
         bool swapable = false;
 
         while (1) {                                                                                 // Wait for first packet
-            if (multicore_fifo_rvalid()) {
-                load_buffer(reinterpret_cast<Packet *>(multicore_fifo_pop_blocking()));             // Translate
+            if (pipe[1]->can_pop()) {
+                load_buffer(pipe[1]->pop());
                 send_buffer();
                 break;
             }
@@ -218,20 +219,20 @@ namespace Matrix::BUS8::PWM {
         while (1) {
             if (dma_channel_get_irq0_status(dma_chan[0])) {
                 if (swapable && gpio_get(::Matrix::BUS8::BUS8_FCLK)) {
-                    while (!multicore_fifo_wready()) {                                              // Watchdog can see this. (Synchronous)
+                    while (!pipe[1]->can_push()) {                                                  // Watchdog can see this. (Synchronous)
                         // Do nothing
                     }
-
-                    multicore_fifo_push_blocking(reinterpret_cast<uint32_t>(packets[bank]));        // Translate
+                    
+                    pipe[1]->push(packets[bank]);
                     bank = (bank + 1) % num_buffers;
                 }
 
                 send_buffer();                                                                      // Kick off hardware
             }
 
-            if (multicore_fifo_rvalid()) {                                                          // Try to get ahead
+            if (pipe[1]->can_pop()) {                                                               // Try to get ahead
                 if (bank != counter) {                                                              // Watchdog can see this. (Synchronous)
-                    load_buffer(reinterpret_cast<Packet *>(multicore_fifo_pop_blocking()));         // Translate
+                    load_buffer(pipe[1]->pop());
                     swapable = true;
                 }
             }
