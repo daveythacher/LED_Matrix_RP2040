@@ -7,6 +7,8 @@
 #include "Interface/Protocol/Serial/Header.h"
 #include "Interface/Protocol/Serial/Command/Data/Data/Data.h"
 #include "Interface/Protocol/Serial/Command/Control/Power/Power.h"
+#include "Interface/Protocol/Serial/Command/Control/Swap/Swap.h"
+#include "Interface/Protocol/Serial/Command/Control/Reboot/Reboot.h"
 #include "Interface/Protocol/Serial/Command/Query/Test/Test.h"
 #include "System/machine.h"
 
@@ -37,6 +39,12 @@ namespace Interface::Protocol::Serial {
         table[2].command = new Power();
         table[2].values[2] = 0x43500100;    // 'C' 'P'
         table[2].values[3] = 0x00000100;    // Type 1
+        table[3].command = new Swap();
+        table[3].values[2] = 0x43530100;    // 'C' 'S'
+        table[3].values[3] = 0x00000100;    // Type 1
+        table[4].command = new Power();
+        table[4].values[2] = 0x43520100;    // 'C' 'R'
+        table[4].values[3] = 0x00000100;    // Type 1
 
         for (uint8_t i = 0; i < number_commands; i++) {
             table[i].enables[0] = 0xFFFFFFFF;   // MARKER[0:3]

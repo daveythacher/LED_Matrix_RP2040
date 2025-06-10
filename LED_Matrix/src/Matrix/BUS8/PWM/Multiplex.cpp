@@ -39,8 +39,10 @@ namespace Matrix::BUS8::PWM {
 
         gpio_init(::Matrix::BUS8::BUS8_OE);
         gpio_init(::Matrix::BUS8::BUS8_FCLK);
+        gpio_init(::Matrix::BUS8::BUS8_ENABLE);
         gpio_set_dir(::Matrix::BUS8::BUS8_OE, GPIO_OUT);
         gpio_set_dir(::Matrix::BUS8::BUS8_FCLK, GPIO_IN);
+        gpio_set_dir(::Matrix::BUS8::BUS8_ENABLE, GPIO_OUT);
         gpio_set_function(::Matrix::BUS8::BUS8_OE, GPIO_FUNC_SIO);
         gpio_set_function(::Matrix::BUS8::BUS8_FCLK, GPIO_FUNC_SIO);
 
@@ -152,6 +154,8 @@ namespace Matrix::BUS8::PWM {
         channel_config_set_dreq(&c, DREQ_PIO0_TX1); 
         channel_config_set_chain_to(&c, dma_chan[2]);
         dma_channel_configure(dma_chan[3], &c, &pio0_hw->txf[1], &ghost_packet, 2, false);
+
+        enable_power(false);
     }
 
     void Multiplex::show(Packet *packet) {
@@ -222,7 +226,7 @@ namespace Matrix::BUS8::PWM {
                     while (!pipe[1]->can_push()) {                                                  // Watchdog can see this. (Synchronous)
                         // Do nothing
                     }
-                    
+
                     pipe[1]->push(packets[bank]);
                     bank = (bank + 1) % num_buffers;
                 }
@@ -237,5 +241,9 @@ namespace Matrix::BUS8::PWM {
                 }
             }
         }
+    }
+
+    void Multiplex::enable_power(bool shutdown) {
+        gpio_put(::Matrix::BUS8::BUS8_ENABLE, shutdown);    // TODO: Update
     }
 }

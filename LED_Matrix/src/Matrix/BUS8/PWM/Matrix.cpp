@@ -43,6 +43,6 @@ namespace Matrix::BUS8::PWM {
     }
 
     void Matrix::enable_power(bool shutdown) {
-        // TODO: Do something
+        multiplex->enable_power(shutdown);
     }
 }

@@ -14,6 +14,7 @@ namespace Matrix::BUS8 {
     constexpr uint16_t BUS8_DATA_BASE = 8;
     constexpr uint16_t BUS8_OE = 22;
     constexpr uint16_t BUS8_FCLK = 6;
+    constexpr uint16_t BUS8_ENABLE = 5;
 
     // Order (LSB to MSB): D0 D1 D2 D3 D4 D5 D6 D7 CLK LAT
     constexpr uint16_t BUS8_DATA_LEN = 10;
