@@ -30,7 +30,7 @@ namespace Interface::Protocol::Serial {
             uint8_t get_index(Command *command);
 
             static Header *ptr;
-            static const uint8_t number_commands = 3;
+            static const uint8_t number_commands = 5;
             static const uint8_t number_words = 5;
 
             ::Interface::Node::Node *node;

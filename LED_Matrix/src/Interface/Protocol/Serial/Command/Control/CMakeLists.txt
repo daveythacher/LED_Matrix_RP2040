@@ -1,5 +1,6 @@
 add_subdirectory(Power)
 add_subdirectory(Swap)
+add_subdirectory(Reboot)
 
 add_library(led_interface_protocol_serial_command_control INTERFACE)
 
@@ -7,4 +8,5 @@ add_library(led_interface_protocol_serial_command_control INTERFACE)
 target_link_libraries(led_interface_protocol_serial_command_control INTERFACE
     led_interface_protocol_serial_command_control_power
     led_interface_protocol_serial_command_control_swap
+    led_interface_protocol_serial_command_control_reboot
 )
