@@ -61,7 +61,7 @@ namespace Matrix::BUS8::PWM {
             PULL(true),
             OUT(X, 16),
             OUT(Y, 8),
-            OUT(PINS, 6),
+            OUT(PINS, 8),
             JMP(Y_DEC, 3).sideset(CLK),
             NOP().sideset(LAT),
             NOP().sideset(LAT),
