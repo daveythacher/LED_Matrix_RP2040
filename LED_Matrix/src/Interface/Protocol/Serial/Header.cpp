@@ -102,7 +102,7 @@ namespace Interface::Protocol::Serial {
                 }
             }
 
-        } while (result != nullptr);
+        } while (result == nullptr);
 
         // Write out the response header (already in network order)
         for (int8_t i = number_words - 1; i >= 0; i -= 1) {
