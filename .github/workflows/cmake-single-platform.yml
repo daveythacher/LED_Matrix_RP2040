@@ -1,4 +1,4 @@
-# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
 name: CMake on a single platform
 
@@ -36,7 +36,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake -DPICO_SDK_PATH=./LED_Matrix/lib/pico-sdk --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} LED_Matrix/
+      run: cmake -DPICO_SDK_PATH=./LED_Matrix/lib/pico-sdk --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
