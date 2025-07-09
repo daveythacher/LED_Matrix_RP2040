@@ -4,4 +4,6 @@ Hardware module for abstracting LED matrix interface. Raw data is sent over an I
 ## Status
 This code base is a work in progress. See [this](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LED_Matrix/README.md#status) for more details.
 
+Roadblock: [Issue Number 61](https://github.com/daveythacher/LED_Matrix_RP2040/issues/61)
+
 I assume no liability in any way as a result of this code base. This code base is [licensed under GPL 3](https://github.com/daveythacher/LED_Matrix_RP2040/blob/main/LICENSE).
